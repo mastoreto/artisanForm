@@ -16,11 +16,11 @@ export const cn = (...inputs: Array<ClassValue>): string => {
 /**
  * Source: Tailwind merge:
  * https://github.com/dcastil/tailwind-merge/tree/v2.5.2.
- */
+ */
 
 /**
- * 
+ *
  * By: Zyruks
  * https://github.com/zyruks
- * 
+ *
  */

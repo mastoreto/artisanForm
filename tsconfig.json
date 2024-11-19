@@ -10,7 +10,6 @@
     "declaration": true,
     "outDir": "dist",
     "esModuleInterop": true,
-    
 
     // Bundler mode
     "moduleResolution": "bundler",

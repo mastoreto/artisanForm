@@ -5,19 +5,19 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import dts from 'vite-plugin-dts';
 
 export default defineConfig({
-    plugins: [
-        react(),
-        tsconfigPaths(),
-        dts({
-            include: ['src/**/*'],
-            exclude: ['src/**/*.stories.tsx','.storybook/**/*'],
-        }),
-    ],
-    build: {
-        lib: {
-            entry: 'src/index.ts',
-            name: 'ArtisanForm',
-            fileName: (format) => `artisanForm.${format}.js`,
-        },
+  plugins: [
+    react(),
+    tsconfigPaths(),
+    dts({
+      include: ['src/**/*'],
+      exclude: ['src/**/*.stories.tsx', '.storybook/**/*'],
+    }),
+  ],
+  build: {
+    lib: {
+      entry: 'src/index.ts',
+      name: 'ArtisanForm',
+      fileName: (format) => `artisanForm.${format}.js`,
     },
+  },
 });

@@ -40,7 +40,6 @@ export const Default: Story = {
     const step = useArtisanStore((state) => state.step);
     const processStep = useArtisanStore((state) => state.processStep);
 
-    
     useEffect(() => {
       setIsFinalStep(args.isFinalStep);
     }, [args.isFinalStep]);
