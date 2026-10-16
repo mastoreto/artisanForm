@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Loading from './Loading';
 import type {
   EmbeddedRenderProps,
   PaymentPlugin,
@@ -57,11 +58,7 @@ const Buttons = ({
   }, []);
 
   if (!ui) {
-    return (
-      <p role="status" className="text-gray-600">
-        {labels.loadingPayment}
-      </p>
-    );
+    return <Loading message={labels.loadingPayment} />;
   }
 
   const fail = (e: unknown) =>
