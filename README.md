@@ -160,7 +160,6 @@ Cada tarea es un issue de GitHub (`AF<n>` en el título) y una rama desde `devel
 
 ### Brechas conocidas
 
-- El store de pasos es global: dos `ArtisanForm` en una página comparten paso.
 - El flujo en navegador no está verificado automáticamente (solo hay tests de `buildSchema`).
 - Scheme limitado a pasos lineales y validaciones `required`/`min`; textos fijos en español.
 
