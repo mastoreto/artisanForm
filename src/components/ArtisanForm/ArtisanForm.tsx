@@ -8,6 +8,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import type { PluginsConfig } from '../../payments/types';
+import type { ConflictDecision, SnapshotConflict } from '../../persistence';
 import type { ArtisanSchemaV1 } from '../../schema/define';
 import { normalizeArtisanSchema } from '../../schema/normalize';
 import {
@@ -26,7 +27,7 @@ import {
   fieldNames,
 } from './buildSchema';
 import { storedName, visibleFields, visibleSteps } from './conditions';
-import { clearDraft, loadDraft, saveDraft, withoutSecrets } from './draft';
+import { clearDraft, restoreDraft, saveDraft, withoutSecrets } from './draft';
 import type { ArtisanExtensions } from './extensions';
 import { defaultFieldRegistry, type FieldRegistry } from './fields';
 import { projectToRuntime } from './project';
@@ -49,6 +50,8 @@ interface ArtisanFormProps {
   extensions?: ArtisanExtensions;
   /** Return a promise to keep "Finalizar" disabled until it settles. */
   onSubmit: (values: FormikValues) => unknown;
+  /** What to do with a saved draft that does not fit this form (default: `backup`). */
+  onSnapshotConflict?: (conflict: SnapshotConflict) => ConflictDecision;
   /** Overrides the scheme defaults for the given field names. */
   initialValues?: FormikValues;
   /** Called with the new step index whenever the wizard moves. */
@@ -92,6 +95,7 @@ const ValuesWatcher = ({
 
 interface WizardProps {
   scheme: FormSchema;
+  snapshotMeta: { formId: string; revision?: number };
   /** Changes only when the schema's content changes. */
   schemeKey: string;
   pluginsMap: StepContext['plugins'];
@@ -109,6 +113,7 @@ interface WizardProps {
 /** Renders the current step; lives inside <Formik> to read live values. */
 const Wizard = ({
   scheme,
+  snapshotMeta,
   schemeKey,
   pluginsMap,
   storageMap,
@@ -189,10 +194,11 @@ const Wizard = ({
 
   useEffect(() => {
     if (persistKey)
-      saveDraft(persistKey, {
-        values: withoutSecrets(scheme, values, registry),
-        step,
-      });
+      saveDraft(
+        { persistKey, ...snapshotMeta },
+        steps[step]?.id,
+        withoutSecrets(scheme, values, registry),
+      );
   }, [values, step]);
 
   // After a blocked "Siguiente", move focus to the first invalid field.
@@ -325,6 +331,7 @@ const ArtisanFormInner = ({
   stepTypes,
   storage,
   plugins,
+  onSnapshotConflict,
   ...wizard
 }: ArtisanFormProps) => {
   const pluginsMap = useMemo(
@@ -367,7 +374,16 @@ const ArtisanFormInner = ({
   const scheme = projection.scheme;
   // Read once on mount; the draft wins over defaults and `initialValues`.
   const draft = useMemo(
-    () => (persistKey ? loadDraft(persistKey) : null),
+    () =>
+      persistKey
+        ? restoreDraft({
+            persistKey,
+            formId: projection.formId,
+            revision: projection.revision,
+            scheme,
+            onConflict: onSnapshotConflict,
+          })
+        : null,
     [persistKey],
   );
   const initialValues = useMemo(
@@ -423,6 +439,10 @@ const ArtisanFormInner = ({
       <Wizard
         scheme={scheme}
         schemeKey={projection.key}
+        snapshotMeta={{
+          formId: projection.formId,
+          revision: projection.revision,
+        }}
         pluginsMap={pluginsMap}
         storageMap={storageMap}
         registry={registry}
@@ -431,7 +451,9 @@ const ArtisanFormInner = ({
         {...wizard}
         step={
           wizard.step ??
-          (draft ? Math.min(draft.step, scheme.steps.length - 1) : undefined)
+          (draft
+            ? Math.min(draft.stepIndex, scheme.steps.length - 1)
+            : undefined)
         }
       />
     </Formik>
