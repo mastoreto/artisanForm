@@ -31,7 +31,7 @@ const Controls: React.FC = (): JSX.Element => {
       'focus:outline-none',
       'focus:ring-2',
       'focus:ring-blue-500',
-      'focus:ring-opacity-75',
+      'focus:ring-opacity-75'
     ),
   };
 
