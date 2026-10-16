@@ -25,6 +25,24 @@ const scheme: FormSchema = {
           ],
         },
         {
+          type: 'dynamicSelect',
+          name: 'country',
+          dependentName: 'city',
+          label: 'País y ciudad',
+          required: true,
+          options: [
+            { value: 'ar', label: 'Argentina' },
+            { value: 'cl', label: 'Chile' },
+          ],
+          dependentOptions: {
+            ar: [
+              { value: 'bsas', label: 'Buenos Aires' },
+              { value: 'cba', label: 'Córdoba' },
+            ],
+            cl: [{ value: 'scl', label: 'Santiago' }],
+          },
+        },
+        {
           type: 'check',
           name: 'topics',
           label: 'Temas',

@@ -4,11 +4,21 @@ export interface FieldOption {
 }
 
 export interface FieldSchema {
-  type: 'text' | 'password' | 'date' | 'select' | 'check' | 'radio';
+  type:
+    | 'text'
+    | 'password'
+    | 'date'
+    | 'select'
+    | 'dynamicSelect'
+    | 'check'
+    | 'radio';
   name: string;
   label: string;
   placeholder?: string;
   options?: FieldOption[];
+  /** dynamicSelect: name of the dependent field and its options per parent value. */
+  dependentName?: string;
+  dependentOptions?: Record<string, FieldOption[]>;
   required?: boolean;
   min?: number;
 }
