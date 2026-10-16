@@ -172,6 +172,19 @@ lemonSqueezy({
 })
 ```
 
+**Mercado Pago** — `import { mercadoPago } from 'artisanform/payments/mercadopago'` (embebido: `pnpm add @mercadopago/sdk-react`; Checkout Pro: sin SDK).
+
+```tsx
+mercadoPago({
+  publicKey: 'TEST-…',
+  // embebido (Payment Brick): tu backend crea el pago (POST /v1/payments) con el monto que calculó él
+  createPayment: (req, formData) => api('/mp/payments', { req, formData }),   // → { status, id? }
+  brick: { amount: (values) => 1000 },                                         // monto que muestra el brick (el servidor es la autoridad)
+  // o mode: 'redirect' (Checkout Pro): tu backend crea la preferencia con estas back_urls
+  // createPreference: (req, { successUrl, failureUrl, pendingUrl }) => api('/mp/preference', …), // → { url }
+})
+```
+
 ### Espera de confirmación
 
 `kind: 'pending'` espera algo externo (un servicio, un webhook) con la estrategia `wait` que elijas, avanza solo al tener éxito y ofrece "Reintentar" / "Volver al formulario" si falla. Props: `wait`, `message`, `resultName` (guarda en el formulario el `data` del éxito), `failTo` (índice del paso al que volver). Si usás `persistKey`, tras recargar la página vuelve a esperar.

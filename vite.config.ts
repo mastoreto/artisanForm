@@ -26,6 +26,7 @@ export default defineConfig({
         index: 'src/index.ts',
         'payments/stripe': 'src/payments/stripe.tsx',
         'payments/lemonsqueezy': 'src/payments/lemonsqueezy.tsx',
+        'payments/mercadopago': 'src/payments/mercadopago.tsx',
       },
       formats: ['es', 'cjs'],
       fileName: (format, name) =>
@@ -33,7 +34,9 @@ export default defineConfig({
     },
     rollupOptions: {
       external: (id) =>
-        /^(react|react-dom|formik|yup|zustand|@stripe)(\/|$)/.test(id),
+        /^(react|react-dom|formik|yup|zustand|@stripe|@mercadopago)(\/|$)/.test(
+          id,
+        ),
     },
   },
 });
