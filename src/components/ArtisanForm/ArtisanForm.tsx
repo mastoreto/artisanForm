@@ -328,9 +328,11 @@ const ArtisanFormInner = ({
   // Hidden steps/fields are not part of the submitted values.
   const handleSubmit = async (values: FormikValues) => {
     const shown = new Set(
-      visibleSteps(scheme, values).flatMap((step) =>
-        visibleFields(step, values).flatMap((f) => fieldNames(f, registry)),
-      ),
+      visibleSteps(scheme, values).flatMap((step) => [
+        ...visibleFields(step, values).flatMap((f) => fieldNames(f, registry)),
+        // Values a step stores for itself (e.g. a pending step's `resultName`).
+        ...(typeof step.resultName === 'string' ? [step.resultName] : []),
+      ]),
     );
     setSubmitState('submitting');
     try {

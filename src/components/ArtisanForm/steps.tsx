@@ -1,8 +1,10 @@
 import type { FormikValues } from 'formik';
 import type { ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ArtisanLabels } from '../../commons/labels';
 import type { StorageMap } from '../../storage/types';
 import type { SubmitState } from '../../stores/useArtisanStore';
+import type { WaitStatus, WaitStrategy } from '../../wait';
 import { visibleFields } from './conditions';
 import { definitionOf, type FieldRegistry } from './fields';
 import type {
@@ -247,8 +249,94 @@ const TermsStep = (ctx: StepContext) => {
   );
 };
 
+/**
+ * Waits for something external (a service confirming, a webhook…) using the
+ * step's `wait` strategy; advances on success, offers retry/back on failure.
+ */
+const PendingStep = (ctx: StepContext) => {
+  const { step, labels, values, goTo, index } = ctx;
+  const wait = step.wait as WaitStrategy | undefined;
+  const [status, setStatus] = useState<WaitStatus>({ status: 'pending' });
+  const [attempt, setAttempt] = useState(0);
+  const [resolved, setResolved] = useState<{ data: unknown } | null>(null);
+  const advanced = useRef(false);
+  const resultName = step.resultName as string | undefined;
+
+  useEffect(() => {
+    if (!wait) return;
+    setStatus({ status: 'pending' });
+    setResolved(null);
+    advanced.current = false;
+    const controller = new AbortController();
+    let done = false;
+    const stop = wait.subscribe(
+      (next) => {
+        if (done) return;
+        setStatus(next);
+        if (next.status === 'success') {
+          done = true;
+          if (resultName) ctx.setFieldValue(resultName, next.data);
+          setResolved({ data: next.data });
+        } else if (next.status === 'failed') {
+          done = true;
+        }
+      },
+      { values, signal: controller.signal },
+    );
+    return () => {
+      done = true;
+      controller.abort();
+      stop();
+    };
+  }, [attempt]);
+
+  // Advance only once the stored result is part of the form values, so the
+  // next step (or the submit) sees it.
+  useEffect(() => {
+    if (!resolved || advanced.current) return;
+    if (resultName && values[resultName] !== resolved.data) return;
+    advanced.current = true;
+    void ctx.next();
+  }, [resolved, values]);
+
+  if (status.status === 'failed') {
+    const target = step.failTo as number | undefined;
+    return (
+      <div role="alert" className="space-y-3">
+        <p className="text-red-600">{status.message ?? labels.waitFailed}</p>
+        <button
+          type="button"
+          className={actionClass}
+          onClick={() => setAttempt((n) => n + 1)}
+        >
+          {labels.retry}
+        </button>{' '}
+        <button
+          type="button"
+          className={actionClass}
+          onClick={() => goTo(target ?? Math.max(0, index - 1))}
+        >
+          {labels.backToForm}
+        </button>
+      </div>
+    );
+  }
+  return (
+    <p role="status" className="text-gray-600">
+      {status.status === 'pending' && status.message
+        ? status.message
+        : ((step.message as string | undefined) ?? labels.waiting)}
+    </p>
+  );
+};
+
 export const defaultStepRegistry: StepRegistry = {
   form: { render: (ctx) => <FormStep {...ctx} /> },
+  /** Waits for a `wait` strategy (polling, sse, websocket, callback); auto-advances on success. */
+  pending: {
+    render: (ctx) => <PendingStep {...ctx} />,
+    controls: { hidden: true },
+  },
   /** Terms text (`content`) and/or link (`href`) plus a required acceptance checkbox. */
   terms: { render: (ctx) => <TermsStep {...ctx} /> },
   /** Summary of the previous steps with "edit" shortcuts. */

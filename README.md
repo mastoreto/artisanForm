@@ -99,7 +99,7 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 
 | Propiedad | Descripción |
 | --- | --- |
-| `kind` | Tipo de paso: `form` (por defecto), `terms`, `review`, `result`, `custom` (más los que registres con `stepTypes`). |
+| `kind` | Tipo de paso: `form` (por defecto), `terms`, `pending`, `review`, `result`, `custom` (más los que registres con `stepTypes`). |
 | `beforeNext(values)` | Corre tras validar el paso y antes de avanzar. Devolvé `{ error }` o lanzá un error para bloquear mostrando el mensaje (ej. crear una orden en tu backend). |
 | `onEnter(values)` | Corre cada vez que el paso pasa a ser el actual. |
 | `controls` | `hidden`, `hidePrevious`, `hideNext`, `nextDisabled`, `nextLabel`, `previousLabel`. |
@@ -110,6 +110,19 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 - **`terms`**: texto de términos (`content`: texto o JSX, con scroll) y/o enlace (`href`) más un checkbox de aceptación obligatorio (valor `termsAccepted`; cambialo con `acceptName`/`acceptLabel`, o definí tus propios `fields`).
 - **`review`**: resumen de todos los pasos anteriores con un botón "Editar" por paso (contraseñas enmascaradas; opciones con su etiqueta).
 - **`result`**: pantalla final tras `onSubmit`. Props del paso: `message`, `errorMessage`, `actions: [{ label, href? , onClick? }]`. Se muestra al terminar el envío (éxito o error); en error ofrece "Reintentar" y "Volver al formulario". El último paso que no es `result` es el que envía.
+
+### Espera de confirmación
+
+`kind: 'pending'` espera algo externo (un servicio, un webhook) con la estrategia `wait` que elijas, avanza solo al tener éxito y ofrece "Reintentar" / "Volver al formulario" si falla. Props: `wait`, `message`, `resultName` (guarda en el formulario el `data` del éxito), `failTo` (índice del paso al que volver). Si usás `persistKey`, tras recargar la página vuelve a esperar.
+
+| Estrategia | Uso |
+| --- | --- |
+| `polling(check, { interval, timeout, backoff })` | Consulta `check({ values, signal })` cada `interval` ms. |
+| `sse(url \| (values) => url, { parse, timeout })` | Server-Sent Events; cada mensaje es un estado (JSON `{ status, message?, data? }`). |
+| `websocket(url \| (values) => url, { parse, timeout })` | Igual, por WebSocket. |
+| `callback()` | Devuelve `{ strategy, update, resolve, fail }`; vos decidís cuándo termina. |
+
+Un estado es `{ status: 'pending' \| 'success' \| 'failed', message?, data? }`. Para otra fuente, implementá `WaitStrategy.subscribe(onStatus, { values, signal })`.
 
 ### Archivos y storage
 
