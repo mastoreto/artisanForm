@@ -5,13 +5,13 @@ React library for multi-step forms (wizards) with ready-made inputs. It ships as
 ## Language
 
 - **Everything generated in this repository is written in English**: code, identifiers, comments, JSDoc, test names, commit messages, PR and issue text, `README.md`, `AGENTS.md`, `CHANGELOG.md` and everything under `docs/`.
-- **Spanish versions live in [`docs/es/`](docs/es/)** and mirror the English documents: [`README`](docs/es/README.md), [`AGENTS`](docs/es/AGENTS.md), [`CHANGELOG`](docs/es/CHANGELOG.md) and [`schema v1`](docs/es/schema-v1.md). Read them when you need the Spanish text; **when you change an English document, update its Spanish copy in the same change**.
+- **Spanish versions live in [`docs/es/`](docs/es/)** and mirror the English documents: [`README`](docs/es/README.md), [`AGENTS`](docs/es/AGENTS.md), [`CHANGELOG`](docs/es/CHANGELOG.md), [`schema v1`](docs/es/schema-v1.md) and [`UI`](docs/es/ui.md). Read them when you need the Spanish text; **when you change an English document, update its Spanish copy in the same change**.
 - Library texts are never hard-coded: built-in defaults (`src/commons/labels.ts`) are English and every one is overridable through the `labels` prop. Field labels, names and step titles are free text supplied by the user's schema. Demo copy (playground, stories, fixtures, tests) is English too.
 - Reply to people in the language they write to you in; the repository artifacts stay in English.
 
 ## Stack
 
-React 18 · TypeScript (strict) · Tailwind 3 · Zustand (step state) · React Hook Form + Yup (validation) · Storybook 8 · Vite · pnpm (`pnpm-lock.yaml`).
+React 18 · TypeScript (strict) · Plain CSS (`af-*` classes + `--artisan-*` variables) · Zustand (step state) · React Hook Form + Yup (validation) · Storybook 8 · Vite · pnpm (`pnpm-lock.yaml`).
 
 ## Commands
 
@@ -42,17 +42,19 @@ src/
     form/                useArtisanForm (single useForm), useArtisanField (input binding), errors, validators
     buildSchema.ts · conditions.ts · draft.ts · extensions.ts · navigation.ts · store/useArtisanStore.ts
   components/
-    ArtisanForm/         ArtisanForm.tsx (public) · Wizard.tsx · Stepper.tsx · __tests__/ (integration)
+    ArtisanForm/         ArtisanForm.tsx (public) · Wizard.tsx (render) · useWizard.ts (behavior) · Stepper.tsx · __tests__/ (integration)
     Controls/            Previous / Next / Finish buttons
     inputs/<Name>/       <Name>.tsx + <Name>.stories.tsx, one folder per input
     fields/registry.tsx  field registry (render + initial values + rules per type)
     steps/               registry.tsx (step registry) · PaymentStep.tsx · StatusPanel.tsx
+    ui/                  UiContext (classNames, unstyled, components), types.ts (public UI contracts), FieldParts, InputBridge
+    StandaloneForm/      form wrapper for standalone inputs
   integrations/          optional capabilities with their own contract
     payments/            types, mock, Loading, providers/{stripe,lemonsqueezy,mercadopago,paypal} (package subpaths)
     storage/             StorageAdapter + presignedPut, cloudinary, mock
     wait/                WaitStrategy (polling, sse, websocket, callback)
-  commons/               cn.ts, labels.ts (texts), theme.ts (brand color)
-  styles/global.css
+  commons/               cn.ts (clsx), labels.ts (texts)
+  styles/artisanform.css the only stylesheet: plain CSS, `af-*` classes, `--artisan-*` tokens
   __tests__/setup.ts     happy-dom preload for bun test
 playground/              React test app (scenarios in src/scenarios)
 e2e/                     Playwright tests
@@ -80,8 +82,9 @@ A new field type is a `FieldDefinition` in `components/fields/registry.tsx` (ren
 
 - Biome rules (`biome.jsonc`: 2 spaces, single quotes, `;`, trailing comma `all`, 80 columns). Run `pnpm format` before committing; do not mix reformatting with functional changes.
 - One component per folder, `export default`, with its `*.stories.tsx` next to it.
-- Inputs: `forwardRef`, props typed with an `interface`, mandatory `id` + `label`, optional `className` merged through `cn()`. Basic accessibility is mandatory (`label htmlFor`, `aria-invalid`/`aria-describedby` on errors).
-- Styles only with Tailwind + `cn()`. No new CSS except `src/styles/global.css`.
+- Inputs: `forwardRef`, props typed with an `interface`, mandatory `id` + `label`, optional `className` merged through `cx()`. Basic accessibility is mandatory (`label htmlFor`, `aria-invalid`/`aria-describedby` on errors).
+- Styles only in `src/styles/artisanform.css`, as single `af-*` classes (state through `data-*`/`aria-*`) and `--artisan-*` variables: no frameworks, no bare element selectors. Components get class names through `useCx()` so `classNames` and `unstyled` keep working. Tailwind is only used by the playground and Storybook.
+- UI extension points (`components`, contracts in `components/ui/types.ts`) are public API: they never expose React Hook Form or Zustand. See `docs/ui.md`.
 - Global state only in `useArtisanStore`; local UI state in the component. No hardcoded demo state inside components.
 - Everything public is exported from `src/index.ts`.
 - Keep it simple: no dependencies or abstractions without a concrete need.
@@ -92,7 +95,7 @@ A new field type is a `FieldDefinition` in `components/fields/registry.tsx` (ren
 
 ## Current state / known debt
 
-Version 0.2.0 plus the unreleased v1 schema contract: a wizard driven by a `scheme` (0.2.0 `FormSchema` or `ArtisanSchemaV1`) with extensible field and step registries, plugin-based payments (Stripe, Lemon Squeezy, Mercado Pago, PayPal), files through `StorageAdapter`, waiting through `WaitStrategy`, versioned draft snapshots, Biome, a playground and e2e tests. Pending: GitHub CI (AF8, local branch `chore/AF8-ci`; the `gh` token needs the `workflow` scope), publishing the package, deploying Storybook, trying the payment plugins against sandboxes with test credentials, and making the default UI interpret `ui.layout`/`density`/`labelPosition`. Details and roadmap in the README.
+Version 0.2.0 plus the unreleased v1 schema contract: a wizard driven by a `scheme` (0.2.0 `FormSchema` or `ArtisanSchemaV1`) with extensible field and step registries, plugin-based payments (Stripe, Lemon Squeezy, Mercado Pago, PayPal), files through `StorageAdapter`, waiting through `WaitStrategy`, versioned draft snapshots, Biome, a playground and e2e tests. GitHub Actions CI runs lint, typecheck, build, unit and e2e tests on every PR. Pending: publishing the package, deploying Storybook, trying the payment plugins against sandboxes with test credentials, and a public headless API (internal `useWizard` is the starting point). Details and roadmap in the README.
 
 Tasks are GitHub issues with the `AF<n>` code in the title (issue number = n − 6).
 

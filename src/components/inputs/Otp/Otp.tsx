@@ -1,6 +1,7 @@
 import { useRef } from 'react';
-import { cn } from '../../../commons/cn';
 import { useArtisanField } from '../../../engine/form/useArtisanField';
+import { FieldBox, FieldError, FieldHelp } from '../../ui/FieldParts';
+import { useCx } from '../../ui/UiContext';
 
 interface OtpProps {
   id: string;
@@ -28,6 +29,7 @@ const Otp = ({
 }: OtpProps) => {
   const [field, meta, helpers] = useArtisanField<string>(name);
   const error = meta.touched && meta.error ? meta.error : null;
+  const cx = useCx();
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const chars = Array.from({ length }, (_, i) => (field.value ?? '')[i] ?? '');
   const allowed = (c: string) =>
@@ -63,18 +65,22 @@ const Otp = ({
   };
 
   return (
-    <div className={cn('mb-4', className)}>
-      <span
-        id={`${id}-label`}
-        className="block text-sm font-medium text-gray-700"
-      >
+    <FieldBox
+      id={id}
+      label={label}
+      helperText={helperText}
+      error={error}
+      errorCode={meta.code}
+      className={className}
+    >
+      <span id={`${id}-label`} className={cx('label')}>
         {label}
       </span>
       <div
         role="group"
         aria-labelledby={`${id}-label`}
         aria-describedby={error ? `${id}-error` : undefined}
-        className="mt-1 flex gap-2"
+        className={cx('otpGroup')}
       >
         {chars.map((c, i) => (
           <input
@@ -94,24 +100,13 @@ const Otp = ({
             onKeyDown={(e) => onKeyDown(i, e.key)}
             onFocus={(e) => e.target.select()}
             onBlur={() => helpers.setTouched()}
-            className={cn(
-              'h-10 w-10 rounded-md border text-center text-lg',
-              error ? 'border-red-500' : 'border-gray-300',
-            )}
+            className={cx('otpBox')}
           />
         ))}
       </div>
-      {helperText && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
-      {error && (
-        <p
-          className="mt-2 text-sm text-red-600"
-          id={`${id}-error`}
-          aria-live="polite"
-        >
-          {error}
-        </p>
-      )}
-    </div>
+      <FieldHelp id={id} text={helperText} />
+      <FieldError id={id} error={error} />
+    </FieldBox>
   );
 };
 

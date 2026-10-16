@@ -1,6 +1,7 @@
 import { useId } from 'react';
-import { cn } from '../../../commons/cn';
 import { useArtisanField } from '../../../engine/form/useArtisanField';
+import { FieldBox } from '../../ui/FieldParts';
+import { useCx } from '../../ui/UiContext';
 
 interface RatingProps {
   name: string;
@@ -25,6 +26,7 @@ const Rating = ({
   const value = Number(field.value) || 0;
   const error = meta.touched && meta.error ? meta.error : null;
   const labelId = useId();
+  const cx = useCx();
 
   const choose = (n: number) => {
     helpers.setValue(n === value ? '' : n);
@@ -32,15 +34,22 @@ const Rating = ({
   };
 
   return (
-    <div className={cn('mb-4', className)}>
-      <span id={labelId} className="block text-sm font-medium text-gray-700">
+    <FieldBox
+      id={name}
+      label={label}
+      helperText={helperText}
+      error={error}
+      errorCode={meta.code}
+      className={className}
+    >
+      <span id={labelId} className={cx('label')}>
         {label}
       </span>
       <div
         role="radiogroup"
         aria-labelledby={labelId}
         aria-invalid={!!error}
-        className="flex gap-1"
+        className={cx('rating')}
       >
         {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
           <button
@@ -51,22 +60,20 @@ const Rating = ({
             aria-label={`${n} / ${max}`}
             disabled={disabled}
             onClick={() => choose(n)}
-            className={cn(
-              'text-2xl leading-none disabled:opacity-50',
-              n <= value ? 'text-yellow-500' : 'text-gray-300',
-            )}
+            className={cx('star')}
+            data-filled={n <= value || undefined}
           >
             ★
           </button>
         ))}
       </div>
-      {helperText && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
+      {helperText && <p className={cx('description')}>{helperText}</p>}
       {error && (
-        <p className="mt-2 text-sm text-red-600" aria-live="polite">
+        <p className={cx('error')} aria-live="polite">
           {error}
         </p>
       )}
-    </div>
+    </FieldBox>
   );
 };
 

@@ -1,8 +1,28 @@
-import type { ReactNode } from 'react';
-import { cn } from '../../commons/cn';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { useCx } from '../ui/UiContext';
 
-export const actionClass =
-  'inline-block rounded border px-4 py-2 text-sm hover:bg-gray-100';
+/** Secondary action of a state screen (retry, back, links…). */
+export const ActionButton = (
+  props: ButtonHTMLAttributes<HTMLButtonElement>,
+) => {
+  const cx = useCx();
+  return (
+    <button
+      type="button"
+      {...props}
+      className={cx('action', props.className)}
+    />
+  );
+};
+
+export const ActionLink = ({
+  className,
+  ...rest
+}: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+  const cx = useCx();
+  // biome-ignore lint/a11y/useAnchorContent: children come through `rest`
+  return <a {...rest} className={cx('action', className)} />;
+};
 
 type Tone = 'success' | 'error' | 'pending';
 
@@ -10,18 +30,6 @@ const icon: Record<Tone, string> = {
   success: 'M5 13l4 4L19 7',
   error: 'M6 6l12 12M18 6L6 18',
   pending: '',
-};
-
-const circle: Record<Tone, string> = {
-  success: 'bg-green-100 text-green-600',
-  error: 'bg-red-100 text-red-600',
-  pending: 'bg-gray-100',
-};
-
-const text: Record<Tone, string> = {
-  success: 'font-medium',
-  error: 'font-medium text-red-700',
-  pending: 'text-gray-600',
 };
 
 /**
@@ -39,43 +47,35 @@ const StatusPanel = ({
   /** Buttons/links shown under the message. */
   children?: ReactNode;
   className?: string;
-}) => (
-  <div
-    role={tone === 'error' ? 'alert' : 'status'}
-    className={cn(
-      'flex flex-col items-center gap-3 py-6 text-center',
-      className,
-    )}
-  >
-    <span
-      aria-hidden="true"
-      className={cn(
-        'flex h-14 w-14 items-center justify-center rounded-full',
-        circle[tone],
-      )}
+}) => {
+  const cx = useCx();
+  return (
+    <div
+      role={tone === 'error' ? 'alert' : 'status'}
+      className={cx('status', className)}
+      data-tone={tone}
     >
-      {tone === 'pending' ? (
-        <span className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-[var(--artisan-primary,#3b82f6)]" />
-      ) : (
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 24 24"
-          className="h-8 w-8"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={3}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d={icon[tone]} />
-        </svg>
-      )}
-    </span>
-    <p className={cn('text-base', text[tone])}>{message}</p>
-    {children && (
-      <div className="flex flex-wrap justify-center gap-2">{children}</div>
-    )}
-  </div>
-);
+      <span aria-hidden="true" className={cx('statusIcon')}>
+        {tone === 'pending' ? (
+          <span className={cx('spinner')} />
+        ) : (
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={3}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d={icon[tone]} />
+          </svg>
+        )}
+      </span>
+      <p className={cx('statusMessage')}>{message}</p>
+      {children && <div className={cx('statusActions')}>{children}</div>}
+    </div>
+  );
+};
 
 export default StatusPanel;

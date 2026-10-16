@@ -1,26 +1,4 @@
 import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 
-/**
- * Combines and merges Tailwind CSS classes using twMerge and clsx utility
- * functions. twMerge is used to handle conflicts between classes effectively.
- *
- * @param {...ClassValue} inputs - An array of class values to be combined and
- *   merged.
- * @returns {string} - The merged and combined class names as a string.
- */
-export const cn = (...inputs: Array<ClassValue>): string => {
-  return twMerge(clsx(inputs));
-};
-
-/**
- * Source: Tailwind merge:
- * https://github.com/dcastil/tailwind-merge/tree/v2.5.2.
- */
-
-/**
- *
- * By: Zyruks
- * https://github.com/zyruks
- *
- */
+/** Joins class names (`clsx`). Kept as a named export for existing consumers. */
+export const cn = (...inputs: Array<ClassValue>): string => clsx(inputs);

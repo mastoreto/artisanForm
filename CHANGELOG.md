@@ -2,7 +2,16 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
-## Unreleased (Phase 2: React Hook Form)
+## Unreleased (Phase 3: extensible UI)
+
+- **Hybrid rendering:** the engine, the renderer and the UI components are separate. New `ArtisanForm` props: `components` (replace inputs by field `type`, `Stepper`, `Controls`, `FieldWrapper`, `StepHeader`, `FormError`), `classNames` (extra classes per part) and `unstyled`. Replacement inputs receive a neutral `ArtisanInputProps` contract (no React Hook Form or Zustand). Full guide: [docs/ui.md](docs/ui.md).
+- **Styles are no longer tied to Tailwind:** the default UI is plain CSS (`af-*` classes, `--artisan-*` variables, state through `data-*`/`aria-*`), without Tailwind classes or a global reset. **Breaking:** `artisanform/style.css` no longer ships Tailwind's preflight, `commons/theme.ts` is gone and `cn()` is a thin `clsx` wrapper (`tailwind-merge` removed).
+- **Semantic `ui` is interpreted:** form `density` and `labelPosition` (and the `data-layout` hook), step `columns`, field `span` (legacy `width` still maps to it); `variant` reaches custom components as `field.uiVariant`.
+- **Custom steps:** new stable `ArtisanStepApi` (`ctx.api`): owned writes only, errors, `next()`/`back()` through the engine's rules. `goTo`/`submit` on `StepContext` remain but are not recommended.
+- Registries fail early with the type name when an entry is incomplete. `useWizard` (internal) now holds all the wizard behavior; `Wizard` only renders.
+- New playground scenarios: semantic layout, custom components, extensions with a JSON schema, and three ways to style.
+
+## Phase 2: React Hook Form
 
 - **Engine:** values, registration, validation and field arrays now run on React Hook Form (one `useForm` per wizard, Yup through `@hookform/resolvers`). Formik is gone. The v1 contract, Yup rules, Zustand step state, payments, storage and waits are unchanged.
 - **Breaking (install):** `react-hook-form` is now a peer dependency (replaces `formik`). Standalone inputs go inside the new `StandaloneForm` (instead of `<Formik>`); no React Hook Form import needed. The wizard re-renders only on changes to values that conditions read, so typing re-renders just the typed field.

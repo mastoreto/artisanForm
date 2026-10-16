@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "contact-json",
+  "ui": { "density": "comfortable", "labelPosition": "top" },
+  "steps": [
+    {
+      "id": "who",
+      "type": "form",
+      "title": "Who are you?",
+      "ui": { "columns": 2 },
+      "fields": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "label": "Full name",
+          "required": true,
+          "ui": { "span": 2 }
+        },
+        {
+          "type": "email",
+          "name": "email",
+          "label": "Email",
+          "required": true,
+          "ui": { "span": 1 }
+        },
+        {
+          "type": "x-satisfaction",
+          "name": "satisfaction",
+          "label": "How was it?",
+          "ui": { "span": 1 }
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "type": "x-verify",
+      "title": "Verify",
+      "config": { "resultName": "verified" }
+    }
+  ]
+}

@@ -17,12 +17,49 @@ import {
   definitionOf,
   type FieldRegistry,
   isSecretField,
+  renderField,
 } from '../fields/registry';
+import { useComponents, useCx } from '../ui/UiContext';
 import PaymentStep from './PaymentStep';
-import StatusPanel, { actionClass } from './StatusPanel';
+import StatusPanel, { ActionButton, ActionLink } from './StatusPanel';
 
-/** What a step can read and do; passed to `StepDefinition.render` and `custom` steps. */
+/**
+ * The stable surface for custom steps. It cannot skip the navigation rules:
+ * moving on goes through `next()` (validation, `beforeNext`, submit on the last
+ * step) and values can only be written under names the step owns (its fields
+ * and its `resultName`).
+ */
+export interface ArtisanStepApi {
+  step: {
+    id: string;
+    title: string;
+    kind: string;
+    index: number;
+    total: number;
+  };
+  /** Current form values (read-only). */
+  values: Readonly<FormValues>;
+  /** Writes a value this step owns; any other name throws. */
+  setValue(name: string, value: unknown): void;
+  /** Validation messages of this step's fields, by value name. */
+  errors: Readonly<Record<string, string>>;
+  next(): Promise<void>;
+  back(): void;
+  submitState: SubmitState;
+  submitError: string | null;
+  /** Message of the last blocked transition (`beforeNext`). */
+  error: string | null;
+  labels: ArtisanLabels;
+}
+
+/**
+ * What a step can read and do; passed to `StepDefinition.render` and `custom` steps.
+ * Prefer `api` in new code: the rest is kept for compatibility (`goTo` and
+ * `submit` bypass validation and are deprecated for custom steps).
+ */
 export interface StepContext {
+  /** The stable API for custom steps. */
+  api: ArtisanStepApi;
   step: StepSchema;
   index: number;
   total: number;
@@ -59,29 +96,49 @@ export interface StepDefinition {
 
 export type StepRegistry = Record<string, StepDefinition>;
 
-const FormStep = ({ fields, fieldRegistry, labels, storage }: StepContext) => (
-  <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
-    {fields.map((f) => {
-      const def = definitionOf(fieldRegistry, f);
-      return (
-        <div
-          key={f.name}
-          className={f.width === 'half' ? 'mb-4' : 'mb-4 sm:col-span-2'}
-        >
-          {def.groupLabel && (
-            <span className="block text-sm font-medium text-gray-700">
-              {f.label}
-            </span>
-          )}
-          {def.render(f, { labels, storage, registry: fieldRegistry })}
-          {def.groupLabel && f.helperText && (
-            <p className="mt-1 text-sm text-gray-500">{f.helperText}</p>
-          )}
-        </div>
+/** Fails early, with the kind name, when a custom step has no `render`. */
+export const assertStepRegistry = (registry: StepRegistry): StepRegistry => {
+  for (const [kind, def] of Object.entries(registry)) {
+    if (typeof def?.render !== 'function')
+      throw new Error(
+        `Step kind "${kind}" is incomplete: it needs a \`render\` function`,
       );
-    })}
-  </div>
-);
+  }
+  return registry;
+};
+
+const FormStep = ({ fields, fieldRegistry, labels, storage }: StepContext) => {
+  const cx = useCx();
+  const components = useComponents();
+  return (
+    <div className={cx('fieldGrid')}>
+      {fields.map((f) => {
+        const def = definitionOf(fieldRegistry, f);
+        return (
+          <div
+            key={f.name}
+            className={cx('fieldCell')}
+            data-span={f.width === 'half' ? 1 : 2}
+          >
+            {def.groupLabel && (
+              <span className={cx('groupLabel')}>{f.label}</span>
+            )}
+            {renderField(def, f, {
+              labels,
+              storage,
+              registry: fieldRegistry,
+              cx,
+              components,
+            })}
+            {def.groupLabel && f.helperText && (
+              <p className={cx('description')}>{f.helperText}</p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 const displayValue = (
   f: FieldSchema,
@@ -129,48 +186,51 @@ const ReviewStep = ({
   labels,
   goTo,
   fieldRegistry,
-}: StepContext) => (
-  <div className="space-y-6">
-    {steps.slice(0, index).map((s, i) => {
-      const shown = visibleFields(s, values).filter(
-        (f) =>
-          Object.keys(definitionOf(fieldRegistry, f).initialValues(f)).length >
-          0,
-      );
-      if (shown.length === 0) return null;
-      return (
-        <section key={s.title} aria-label={s.title}>
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">{s.title}</h3>
-            <button
-              type="button"
-              className="text-sm underline"
-              onClick={() => goTo(i)}
-            >
-              {labels.edit}
-              <span className="sr-only">{` ${s.title}`}</span>
-            </button>
-          </div>
-          <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-            {shown.map((f) => (
-              <div key={f.name} className="contents">
-                <dt className="text-gray-500">{f.label}</dt>
-                <dd>
-                  {displayValue(
-                    f,
-                    values,
-                    labels,
-                    isSecretField(fieldRegistry, f),
-                  )}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      );
-    })}
-  </div>
-);
+}: StepContext) => {
+  const cx = useCx();
+  return (
+    <div className={cx('review')}>
+      {steps.slice(0, index).map((s, i) => {
+        const shown = visibleFields(s, values).filter(
+          (f) =>
+            Object.keys(definitionOf(fieldRegistry, f).initialValues(f))
+              .length > 0,
+        );
+        if (shown.length === 0) return null;
+        return (
+          <section key={s.title} aria-label={s.title}>
+            <div className={cx('arrayItemHeader')}>
+              <h3 className={cx('statusTitle')}>{s.title}</h3>
+              <button
+                type="button"
+                className={cx('link')}
+                onClick={() => goTo(i)}
+              >
+                {labels.edit}
+                <span className={cx('srOnly')}>{` ${s.title}`}</span>
+              </button>
+            </div>
+            <dl className={cx('reviewList')}>
+              {shown.map((f) => (
+                <div key={f.name} className={cx('reviewRow')}>
+                  <dt className={cx('muted')}>{f.label}</dt>
+                  <dd>
+                    {displayValue(
+                      f,
+                      values,
+                      labels,
+                      isSecretField(fieldRegistry, f),
+                    )}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        );
+      })}
+    </div>
+  );
+};
 
 interface ResultAction {
   label: string;
@@ -199,20 +259,14 @@ const ResultStep = ({
           labels.submitError
         }
       >
-        <button
-          type="button"
-          className={actionClass}
-          onClick={() => void submit()}
-        >
+        <ActionButton onClick={() => void submit()}>
           {labels.retry}
-        </button>
-        <button
-          type="button"
-          className={actionClass}
+        </ActionButton>
+        <ActionButton
           onClick={() => goTo(Math.max(0, steps.indexOf(step) - 1))}
         >
           {labels.backToForm}
-        </button>
+        </ActionButton>
       </StatusPanel>
     );
   }
@@ -224,18 +278,13 @@ const ResultStep = ({
       >
         {actions.map((a) =>
           a.href ? (
-            <a key={a.label} href={a.href} className={actionClass}>
+            <ActionLink key={a.label} href={a.href}>
               {a.label}
-            </a>
+            </ActionLink>
           ) : (
-            <button
-              key={a.label}
-              type="button"
-              className={actionClass}
-              onClick={a.onClick}
-            >
+            <ActionButton key={a.label} onClick={a.onClick}>
               {a.label}
-            </button>
+            </ActionButton>
           ),
         )}
       </StatusPanel>
@@ -247,26 +296,23 @@ const ResultStep = ({
 /** Terms text (and/or a link) plus the acceptance checkbox (a required field). */
 const TermsStep = (ctx: StepContext) => {
   const { step, labels } = ctx;
+  const cx = useCx();
   const content = step.content as ReactNode;
   const href = step.href as string | undefined;
   return (
     <>
       {content && (
-        <section
-          tabIndex={0}
-          aria-label={step.title}
-          className="mb-4 max-h-64 overflow-auto whitespace-pre-line rounded border p-3 text-sm"
-        >
+        <section tabIndex={0} aria-label={step.title} className={cx('terms')}>
           {content}
         </section>
       )}
       {href && (
-        <p className="mb-4 text-sm">
+        <p className={cx('text')}>
           <a
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline"
+            className={cx('link')}
           >
             {labels.readFullTerms}
           </a>
@@ -331,20 +377,12 @@ const PendingStep = (ctx: StepContext) => {
     const target = step.failTo as number | undefined;
     return (
       <StatusPanel tone="error" message={status.message ?? labels.waitFailed}>
-        <button
-          type="button"
-          className={actionClass}
-          onClick={() => setAttempt((n) => n + 1)}
-        >
+        <ActionButton onClick={() => setAttempt((n) => n + 1)}>
           {labels.retry}
-        </button>
-        <button
-          type="button"
-          className={actionClass}
-          onClick={() => goTo(target ?? Math.max(0, index - 1))}
-        >
+        </ActionButton>
+        <ActionButton onClick={() => goTo(target ?? Math.max(0, index - 1))}>
           {labels.backToForm}
-        </button>
+        </ActionButton>
       </StatusPanel>
     );
   }
@@ -398,7 +436,7 @@ export const stepDefinitionOf = (
 ): StepDefinition =>
   registry[step.kind ?? 'form'] ?? {
     render: () => (
-      <p role="alert" className="text-sm text-red-600">
+      <p role="alert" className="af-error">
         {`Unknown step kind "${step.kind}"`}
       </p>
     ),

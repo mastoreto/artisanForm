@@ -88,7 +88,7 @@
     },
     {
       // Tailwind v3 `@tailwind` directives.
-      "includes": ["src/styles/global.css"],
+      "includes": ["playground/src/playground.css", ".storybook/storybook.css"],
       "linter": { "rules": { "suspicious": { "noUnknownAtRules": "off" } } }
     },
     {

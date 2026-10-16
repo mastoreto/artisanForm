@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ActionButton } from '../../../components/steps/StatusPanel';
 import Loading from '../Loading';
 import type {
   EmbeddedRenderProps,
@@ -107,13 +108,9 @@ const Overlay = ({
     return <Loading message={labels.loadingPayment} />;
   }
   return (
-    <button
-      type="button"
-      className="rounded border px-4 py-2 text-sm hover:bg-gray-100"
-      onClick={() => lemon().LemonSqueezy?.Url.Open(url)}
-    >
+    <ActionButton onClick={() => lemon().LemonSqueezy?.Url.Open(url)}>
       {labels.pay}
-    </button>
+    </ActionButton>
   );
 };
 

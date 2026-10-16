@@ -1,6 +1,6 @@
-import { cn } from '../../../commons/cn';
-import { theme } from '../../../commons/theme';
 import { useArtisanField } from '../../../engine/form/useArtisanField';
+import { FieldBox, FieldHelp, FieldLabel } from '../../ui/FieldParts';
+import { useCx } from '../../ui/UiContext';
 
 interface RangeProps {
   id: string;
@@ -26,16 +26,20 @@ const Range = ({
   helperText,
   className,
 }: RangeProps) => {
+  const cx = useCx();
   const [field, , helpers] = useArtisanField<number | string>(name);
   const value =
     field.value === '' || field.value == null ? min : Number(field.value);
   return (
-    <div className={cn('mb-4', className)}>
-      <div className="flex items-center justify-between">
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-          {label}
-        </label>
-        <output htmlFor={id} className="text-sm text-gray-600">
+    <FieldBox
+      id={id}
+      label={label}
+      helperText={helperText}
+      className={className}
+    >
+      <div className={cx('rangeValue')}>
+        <FieldLabel htmlFor={id}>{label}</FieldLabel>
+        <output htmlFor={id} className={cx('muted')}>
           {value}
         </output>
       </div>
@@ -51,14 +55,10 @@ const Range = ({
         aria-describedby={helperText ? `${id}-help` : undefined}
         onChange={(e) => helpers.setValue(Number(e.target.value))}
         onBlur={field.onBlur}
-        className={cn('mt-1 w-full', theme.accent)}
+        className={cx('range')}
       />
-      {helperText && (
-        <p className="mt-1 text-sm text-gray-500" id={`${id}-help`}>
-          {helperText}
-        </p>
-      )}
-    </div>
+      <FieldHelp id={id} text={helperText} />
+    </FieldBox>
   );
 };
 
