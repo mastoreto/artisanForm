@@ -4,7 +4,7 @@ Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se 
 
 ## Stack
 
-React 18 · TypeScript (strict) · Tailwind 3 · Zustand (estado de pasos) · Formik + Yup (declarados, **aún sin usar**) · Storybook 8 · Vite · pnpm (hay `pnpm-lock.yaml`; el README menciona bun, está desactualizado).
+React 18 · TypeScript (strict) · Tailwind 3 · Zustand (estado de pasos) · Formik + Yup (validación) · Storybook 8 · Vite · pnpm (hay `pnpm-lock.yaml`).
 
 ## Comandos
 
@@ -16,7 +16,8 @@ pnpm lint              # prettier --check
 pnpm format            # prettier --write
 ```
 
-No hay tests ni script de build/typecheck todavía. Hasta que existan, la verificación mínima de una feature es: `pnpm lint` + `npx tsc --noEmit` + la story renderiza sin errores.
+Además: `pnpm build` (librería), `pnpm typecheck` y `bun test` (tests `*.test.ts` junto al código).
+Verificación mínima de una feature: `pnpm lint` + `pnpm typecheck` + `pnpm build` + `bun test` + la story renderiza sin errores.
 
 ## Estructura
 
@@ -25,10 +26,10 @@ src/
   commons/cn/            helper cn() (clsx + tailwind-merge)
   components/
     ArtisanControls/     botones Anterior / Siguiente / Finalizar
+    ArtisanForm/         contenedor wizard: scheme → pasos, validación (+ buildSchema.test.ts)
     ArtisanInputs/<Name>/<Name>.tsx + <Name>.stories.tsx
-  stores/useArtisanStore.ts   step, processStep, isFinalStep, scheme
+  stores/useArtisanStore.ts   step, processStep, isFinalStep
   index.ts               entry de la lib (exports públicos)
-src/stories/             boilerplate de Storybook (borrable)
 ```
 
 ## Flujo de trabajo por ramas
@@ -59,4 +60,4 @@ src/stories/             boilerplate de Storybook (borrable)
 
 ## Estado actual / deuda conocida
 
-Ver "Nivel de funcionalidad" en la última revisión; resumen: los inputs son maquetas visuales sin validación real, `index.ts` es un placeholder y `scheme` del store no se usa. Prioridad: conectar Formik/Yup, `scheme` → render dinámico, y exportar la API.
+Funcionan: inputs con Formik/Yup, `DynamicSelect`, contenedor `ArtisanForm` por `scheme`, API exportada y build de la librería. Pendiente: publicar el CSS de Tailwind con la librería, marcar dependencias como externals/peer, tests de componentes y probar el flujo en navegador. Detalle en el README.
