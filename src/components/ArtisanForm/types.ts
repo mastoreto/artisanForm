@@ -3,6 +3,14 @@ export interface FieldOption {
   label: string;
 }
 
+/** Shows an element only when `field` holds one of `equals` (any value if omitted). */
+export interface Condition {
+  field: string;
+  equals?: string | string[];
+  /** Negates the condition. */
+  not?: boolean;
+}
+
 export interface FieldSchema {
   type:
     | 'text'
@@ -33,10 +41,16 @@ export interface FieldSchema {
   defaultValue?: string | string[];
   disabled?: boolean;
   helperText?: string;
+  /** Cross-field rule: value must equal the value of this field (e.g. password confirmation). */
+  sameAs?: string;
+  /** Hidden (not rendered, validated or submitted) unless the condition holds. */
+  showIf?: Condition;
 }
 
 export interface StepSchema {
   title: string;
+  /** The whole step is skipped unless the condition holds. */
+  showIf?: Condition;
   fields: FieldSchema[];
 }
 
