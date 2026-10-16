@@ -6,14 +6,6 @@ import {
   useArtisanStore,
 } from '../../stores/useArtisanStore';
 import Controls from '../ArtisanControls/Controls';
-import Check from '../ArtisanInputs/Check/Check';
-import DateInput from '../ArtisanInputs/Date/Date';
-import DynamicSelect from '../ArtisanInputs/DynamicSelect/DynamicSelect';
-import Password from '../ArtisanInputs/Password/Password';
-import Radio from '../ArtisanInputs/Radio/Radio';
-import Select from '../ArtisanInputs/Select/Select';
-import Text from '../ArtisanInputs/Text/Text';
-import Textarea from '../ArtisanInputs/Textarea/Textarea';
 import {
   buildInitialValues,
   buildValidationSchema,
@@ -21,8 +13,13 @@ import {
 } from './buildSchema';
 import { visibleFields, visibleSteps } from './conditions';
 import { clearDraft, loadDraft, saveDraft, withoutSecrets } from './draft';
+import {
+  defaultFieldRegistry,
+  definitionOf,
+  type FieldRegistry,
+} from './fields';
 import Stepper from './Stepper';
-import type { FieldSchema, FormSchema } from './types';
+import type { FormSchema } from './types';
 
 interface ArtisanFormProps {
   scheme: FormSchema;
@@ -42,6 +39,8 @@ interface ArtisanFormProps {
   className?: string;
   /** Saves values and step to localStorage under this key and restores them on mount. Passwords are never saved; the draft is cleared on submit. */
   persistKey?: string;
+  /** Custom field types, merged over the built-in ones (see `defaultFieldRegistry`). */
+  fields?: FieldRegistry;
 }
 
 const ValuesWatcher = ({
@@ -61,56 +60,9 @@ const ValuesWatcher = ({
   return null;
 };
 
-const isChoice = (f: FieldSchema) =>
-  ['select', 'dynamicSelect', 'check', 'radio'].includes(f.type);
-
-const renderField = (f: FieldSchema, labels: ArtisanLabels) => {
-  const text = {
-    id: f.name,
-    name: f.name,
-    label: f.label,
-    placeholder: f.placeholder,
-    disabled: f.disabled,
-    helperText: f.helperText,
-  };
-  const choice = {
-    name: f.name,
-    options: f.options ?? [],
-    disabled: f.disabled,
-  };
-  switch (f.type) {
-    case 'text':
-    case 'email':
-    case 'number':
-      return <Text {...text} type={f.type} />;
-    case 'textarea':
-      return <Textarea {...text} />;
-    case 'password':
-      return <Password {...text} />;
-    case 'date':
-      return <DateInput {...text} />;
-    case 'select':
-      return <Select {...choice} />;
-    case 'dynamicSelect':
-      return (
-        <DynamicSelect
-          {...choice}
-          dependentName={f.dependentName ?? `${f.name}Dependent`}
-          dependentOptions={f.dependentOptions}
-          loadDependentOptions={f.loadDependentOptions}
-          loadingText={labels.loadingOptions}
-          errorText={labels.loadOptionsError}
-        />
-      );
-    case 'check':
-      return <Check {...choice} label={f.label} />;
-    case 'radio':
-      return <Radio {...choice} label={f.label} />;
-  }
-};
-
 interface WizardProps {
   scheme: FormSchema;
+  registry: FieldRegistry;
   labels: ArtisanLabels;
   className?: string;
   onChange?: (values: FormikValues) => void;
@@ -122,6 +74,7 @@ interface WizardProps {
 /** Renders the current step; lives inside <Formik> to read live values. */
 const Wizard = ({
   scheme,
+  registry,
   labels,
   className,
   onChange,
@@ -162,7 +115,10 @@ const Wizard = ({
 
   useEffect(() => {
     if (persistKey)
-      saveDraft(persistKey, { values: withoutSecrets(scheme, values), step });
+      saveDraft(persistKey, {
+        values: withoutSecrets(scheme, values, registry),
+        step,
+      });
   }, [values, step]);
 
   // After a blocked "Siguiente", move focus to the first invalid field.
@@ -177,7 +133,7 @@ const Wizard = ({
 
   // Validate only the current step's visible fields before moving forward.
   const handleNext = async () => {
-    const names = fields.flatMap(fieldNames);
+    const names = fields.flatMap((f) => fieldNames(f, registry));
     const errors = await validateForm();
     await setTouched({
       ...touched,
@@ -198,13 +154,13 @@ const Wizard = ({
       <h2 className="mb-4 text-lg font-semibold">{current.title}</h2>
       {fields.map((f) => (
         <div key={f.name} className="mb-4">
-          {isChoice(f) && (
+          {definitionOf(registry, f).groupLabel && (
             <span className="block text-sm font-medium text-gray-700">
               {f.label}
             </span>
           )}
-          {renderField(f, labels)}
-          {isChoice(f) && f.helperText && (
+          {definitionOf(registry, f).render(f, { labels })}
+          {definitionOf(registry, f).groupLabel && f.helperText && (
             <p className="mt-1 text-sm text-gray-500">{f.helperText}</p>
           )}
         </div>
@@ -223,9 +179,14 @@ const ArtisanFormInner = ({
   onSubmit,
   initialValues: initialOverrides,
   labels: labelOverrides,
+  fields,
   ...wizard
 }: ArtisanFormProps) => {
   const { persistKey } = wizard;
+  const registry = useMemo(
+    () => ({ ...defaultFieldRegistry, ...fields }),
+    [fields],
+  );
   // Read once on mount; the draft wins over defaults and `initialValues`.
   const draft = useMemo(
     () => (persistKey ? loadDraft(persistKey) : null),
@@ -233,26 +194,26 @@ const ArtisanFormInner = ({
   );
   const initialValues = useMemo(
     () => ({
-      ...buildInitialValues(scheme),
+      ...buildInitialValues(scheme, registry),
       ...initialOverrides,
       ...draft?.values,
     }),
-    [scheme, draft],
+    [scheme, draft, registry],
   );
   const labels = useMemo(
     () => ({ ...defaultLabels, ...labelOverrides }),
     [labelOverrides],
   );
   const validationSchema = useMemo(
-    () => buildValidationSchema(scheme, labels),
-    [scheme, labels],
+    () => buildValidationSchema(scheme, labels, registry),
+    [scheme, labels, registry],
   );
 
   // Hidden steps/fields are not part of the submitted values.
   const handleSubmit = async (values: FormikValues) => {
     const shown = new Set(
       visibleSteps(scheme, values).flatMap((step) =>
-        visibleFields(step, values).flatMap(fieldNames),
+        visibleFields(step, values).flatMap((f) => fieldNames(f, registry)),
       ),
     );
     await onSubmit(
@@ -269,6 +230,7 @@ const ArtisanFormInner = ({
     >
       <Wizard
         scheme={scheme}
+        registry={registry}
         labels={labels}
         {...wizard}
         step={

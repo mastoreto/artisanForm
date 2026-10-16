@@ -412,3 +412,32 @@ test('persistKey restores the draft (without passwords) and clears it on submit'
   await user.click(screen.getByText('Finalizar'));
   await waitFor(() => expect(localStorage.getItem('artisanform:t')).toBeNull());
 });
+
+test('custom field types plug in through the `fields` registry', async () => {
+  const user = userEvent.setup();
+  const onSubmit = mock((_: unknown) => {});
+  render(
+    <ArtisanForm
+      onSubmit={onSubmit}
+      scheme={{
+        steps: [
+          {
+            title: 'Custom',
+            fields: [{ type: 'stars', name: 'rating', label: 'Rating' }],
+          },
+        ],
+      }}
+      fields={{
+        stars: {
+          initialValues: (f) => ({ [f.name]: 3 }),
+          rules: () => ({}),
+          render: (f) => <span>{`custom ${f.label}`}</span>,
+        },
+      }}
+    />,
+  );
+  expect(screen.getByText('custom Rating')).toBeTruthy();
+  await user.click(screen.getByText('Finalizar'));
+  await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+  expect(onSubmit.mock.calls[0][0]).toEqual({ rating: 3 });
+});
