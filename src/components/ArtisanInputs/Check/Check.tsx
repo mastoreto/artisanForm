@@ -10,9 +10,11 @@ interface CheckProps {
   name: string;
   options: Option[];
   disabled?: boolean;
+  /** Accessible name of the group. */
+  label?: string;
 }
 
-const Check = ({ name, options, disabled }: CheckProps) => {
+const Check = ({ name, options, disabled, label }: CheckProps) => {
   const [field, meta, helpers] = useField<string[]>(name);
   const error = meta.touched && meta.error ? meta.error : null;
   const selected = field.value ?? [];
@@ -28,7 +30,14 @@ const Check = ({ name, options, disabled }: CheckProps) => {
 
   return (
     <div>
-      <div className="flex flex-wrap">
+      <div
+        className="flex flex-wrap"
+        role="group"
+        aria-label={label}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${name}-error` : undefined}
+        tabIndex={-1}
+      >
         {options.map((option) => (
           <button
             type="button"
@@ -47,7 +56,15 @@ const Check = ({ name, options, disabled }: CheckProps) => {
           </button>
         ))}
       </div>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && (
+        <p
+          className="mt-2 text-sm text-red-600"
+          id={`${name}-error`}
+          aria-live="polite"
+        >
+          {error}
+        </p>
+      )}
     </div>
   );
 };

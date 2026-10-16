@@ -71,8 +71,8 @@ test('blocks "Siguiente" while the current step has errors', async () => {
   const { user } = setup();
   await user.click(screen.getByText('Siguiente'));
   expect(await screen.findByText('Campo requerido')).toBeTruthy();
-  expect(screen.getByText('Step one')).toBeTruthy();
-  expect(screen.queryByText('Step two')).toBeNull();
+  expect(screen.getByRole('heading', { name: 'Step one' })).toBeTruthy();
+  expect(screen.queryByRole('heading', { name: 'Step two' })).toBeNull();
 });
 
 test('dependent select follows the parent value', async () => {
@@ -87,15 +87,15 @@ test('full flow: advance, go back, submit with all values', async () => {
   const { user, onSubmit } = setup();
   await user.type(screen.getByLabelText('Nombre'), 'Ana');
   await user.click(screen.getByText('Siguiente'));
-  expect(await screen.findByText('Step two')).toBeTruthy();
+  expect(await screen.findByRole('heading', { name: 'Step two' })).toBeTruthy();
 
   await user.click(screen.getByText('Anterior'));
-  expect(await screen.findByText('Step one')).toBeTruthy();
+  expect(await screen.findByRole('heading', { name: 'Step one' })).toBeTruthy();
   expect((screen.getByLabelText('Nombre') as HTMLInputElement).value).toBe(
     'Ana',
   );
   await user.click(screen.getByText('Siguiente'));
-  await screen.findByText('Step two');
+  await screen.findByRole('heading', { name: 'Step two' });
 
   // Radio is required: submit is blocked until a plan is chosen.
   await user.click(screen.getByText('Finalizar'));
@@ -136,8 +136,8 @@ test('two forms on the same page keep independent steps', async () => {
   const b = within(screen.getByTestId('b'));
   await user.type(a.getByLabelText('Nombre'), 'Ana');
   await user.click(a.getByText('Siguiente'));
-  expect(await a.findByText('Step two')).toBeTruthy();
-  expect(b.getByText('Step one')).toBeTruthy();
+  expect(await a.findByRole('heading', { name: 'Step two' })).toBeTruthy();
+  expect(b.getByRole('heading', { name: 'Step one' })).toBeTruthy();
 });
 
 test('initialValues, onChange and onStepChange', async () => {
@@ -189,7 +189,34 @@ test('controlled step prop moves the wizard', async () => {
   const { rerender } = render(
     <ArtisanForm scheme={scheme} onSubmit={noop} step={0} />,
   );
-  expect(screen.getByText('Step one')).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Step one' })).toBeTruthy();
   rerender(<ArtisanForm scheme={scheme} onSubmit={noop} step={1} />);
-  expect(await screen.findByText('Step two')).toBeTruthy();
+  expect(await screen.findByRole('heading', { name: 'Step two' })).toBeTruthy();
+});
+
+test('progress indicator and focus on the first invalid field', async () => {
+  const { user } = setup();
+  const nav = screen.getByRole('navigation', { name: 'Progreso' });
+  expect(nav.querySelector('[aria-current="step"]')?.textContent).toContain(
+    'Step one',
+  );
+  await user.click(screen.getByText('Siguiente'));
+  await waitFor(() =>
+    expect(document.activeElement).toBe(screen.getByLabelText('Nombre')),
+  );
+  expect(screen.getByLabelText('Nombre').getAttribute('aria-invalid')).toBe(
+    'true',
+  );
+});
+
+test('radio group is exposed with radio roles', async () => {
+  const { user } = setup();
+  await user.type(screen.getByLabelText('Nombre'), 'Ana');
+  await user.click(screen.getByText('Siguiente'));
+  await screen.findByRole('heading', { name: 'Step two' });
+  expect(screen.getByRole('radiogroup', { name: 'Plan' })).toBeTruthy();
+  await user.click(screen.getByRole('radio', { name: 'Pro' }));
+  expect(
+    screen.getByRole('radio', { name: 'Pro' }).getAttribute('aria-checked'),
+  ).toBe('true');
 });
