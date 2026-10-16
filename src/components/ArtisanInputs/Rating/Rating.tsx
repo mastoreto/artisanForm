@@ -1,4 +1,5 @@
 import { useField } from 'formik';
+import { useId } from 'react';
 import { cn } from '../../../commons/cn';
 
 interface RatingProps {
@@ -23,6 +24,7 @@ const Rating = ({
   const [field, meta, helpers] = useField<number | string>(name);
   const value = Number(field.value) || 0;
   const error = meta.touched && meta.error ? meta.error : null;
+  const labelId = useId();
 
   const choose = (n: number) => {
     helpers.setValue(n === value ? '' : n);
@@ -31,9 +33,12 @@ const Rating = ({
 
   return (
     <div className={cn('mb-4', className)}>
+      <span id={labelId} className="block text-sm font-medium text-gray-700">
+        {label}
+      </span>
       <div
         role="radiogroup"
-        aria-label={label}
+        aria-labelledby={labelId}
         aria-invalid={!!error}
         className="flex gap-1"
       >

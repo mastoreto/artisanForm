@@ -309,7 +309,7 @@ const FileUpload = ({
         ))}
         {pending.map((p) => (
           <li key={p.key} className="flex items-center gap-3 text-sm">
-            {p.preview && (
+            {p.preview && p.status === 'uploading' && (
               <img
                 src={p.preview}
                 alt=""
@@ -319,12 +319,19 @@ const FileUpload = ({
             <span className="flex-1 truncate">{p.file.name}</span>
             {p.status === 'uploading' ? (
               <>
-                <progress
-                  value={p.progress}
-                  max={100}
+                <div
+                  role="progressbar"
                   aria-label={p.file.name}
-                  className="w-24"
-                />
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={p.progress}
+                  className="h-2 w-24 overflow-hidden rounded-full bg-gray-200"
+                >
+                  <div
+                    className={cn('h-full transition-[width]', theme.bg)}
+                    style={{ width: `${p.progress}%` }}
+                  />
+                </div>
                 <button
                   type="button"
                   className="underline"
