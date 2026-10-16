@@ -30,4 +30,4 @@ export const visibleSteps = (scheme: FormSchema, values: Values) =>
   scheme.steps.filter((s) => isStepVisible(s, values));
 
 export const visibleFields = (step: StepSchema, values: Values) =>
-  step.fields.filter((f) => isFieldVisible(f, values));
+  (step.fields ?? []).filter((f) => isFieldVisible(f, values));

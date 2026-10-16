@@ -77,11 +77,37 @@ export interface FieldSchema {
   [extra: string]: unknown;
 }
 
+/** Per-step overrides for the wizard's navigation buttons. */
+export interface StepControls {
+  /** Hide the whole control bar. */
+  hidden?: boolean;
+  hidePrevious?: boolean;
+  hideNext?: boolean;
+  /** Keep "Siguiente"/"Finalizar" visible but disabled. */
+  nextDisabled?: boolean;
+  nextLabel?: string;
+  previousLabel?: string;
+}
+
+/** Outcome of `beforeNext`: return `{ error }` to block with a message. */
+export type BeforeNextResult = undefined | { error: string };
+
 export interface StepSchema {
   title: string;
+  /** Step type; `form` (default) renders `fields`. See `defaultStepRegistry`. */
+  kind?: string;
+  fields?: FieldSchema[];
   /** The whole step is skipped unless the condition holds. */
   showIf?: Condition;
-  fields: FieldSchema[];
+  /** Runs after the step validates and before moving on; throw or return `{ error }` to stay. */
+  beforeNext?: (
+    values: Record<string, unknown>,
+  ) => BeforeNextResult | Promise<BeforeNextResult>;
+  /** Runs every time the step becomes the current one. */
+  onEnter?: (values: Record<string, unknown>) => void;
+  controls?: StepControls;
+  /** Extra properties read by custom step kinds (e.g. `render` for `custom`). */
+  [extra: string]: unknown;
 }
 
 export interface FormSchema {

@@ -47,7 +47,7 @@ export const withoutSecrets = (
 ) => {
   const secret = new Set(
     scheme.steps.flatMap((s) =>
-      s.fields
+      (s.fields ?? [])
         .filter((f) => definitionOf(registry, f).secret)
         .flatMap((f) =>
           Object.keys(definitionOf(registry, f).initialValues(f)),

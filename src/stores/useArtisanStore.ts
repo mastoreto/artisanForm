@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { createContext, createElement, useContext, useState } from 'react';
 import { createStore, useStore } from 'zustand';
 
+export type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
+
 interface ArtisanFormState {
   step: number;
   processStep: number;
@@ -9,6 +11,9 @@ interface ArtisanFormState {
   setStep: (value: number) => void;
   setProcessStep: (value: number) => void;
   setIsFinalStep: (value: boolean) => void;
+  submitState: SubmitState;
+  submitError: string | null;
+  setSubmitState: (state: SubmitState, error?: string | null) => void;
 }
 
 const createArtisanStore = () =>
@@ -19,6 +24,10 @@ const createArtisanStore = () =>
     setStep: (value: number) => set({ step: value }),
     setProcessStep: (value: number) => set({ processStep: value }),
     setIsFinalStep: (value: boolean) => set({ isFinalStep: value }),
+    submitState: 'idle',
+    submitError: null,
+    setSubmitState: (state, error = null) =>
+      set({ submitState: state, submitError: error }),
   }));
 
 // Fallback for components rendered outside an ArtisanStoreProvider

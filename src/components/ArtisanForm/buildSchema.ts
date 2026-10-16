@@ -9,7 +9,7 @@ import {
 import type { Condition, FieldSchema, FormSchema } from './types';
 
 const allFields = (scheme: FormSchema): FieldSchema[] =>
-  scheme.steps.flatMap((step) => step.fields);
+  scheme.steps.flatMap((step) => step.fields ?? []);
 
 /** Form value names a field owns (a dynamicSelect owns two). */
 export const fieldNames = (
@@ -46,7 +46,7 @@ export const buildValidationSchema = (
   Yup.object(
     Object.fromEntries(
       scheme.steps.flatMap((step) =>
-        step.fields.flatMap((f) => {
+        (step.fields ?? []).flatMap((f) => {
           const conds = [step.showIf, f.showIf].filter(
             (c): c is Condition => !!c,
           );

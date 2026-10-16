@@ -8,6 +8,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ArtisanForm from './ArtisanForm';
+import type { StepContext } from './steps';
 import type { FormSchema } from './types';
 
 afterEach(cleanup);
@@ -521,4 +522,90 @@ test('tel, url, date limits and native attributes', async () => {
   expect(await screen.findByText('Teléfono inválido')).toBeTruthy();
   expect(screen.getByText('URL inválida')).toBeTruthy();
   expect(screen.getByText('Desde el 2030-01-01')).toBeTruthy();
+});
+
+test('beforeNext blocks with its error; throwing also blocks', async () => {
+  const user = userEvent.setup();
+  let allow = false;
+  render(
+    <ArtisanForm
+      onSubmit={() => {}}
+      scheme={{
+        steps: [
+          {
+            title: 'Gate',
+            fields: [{ type: 'text', name: 'a', label: 'A' }],
+            beforeNext: async () =>
+              allow ? undefined : { error: 'Servicio no disponible' },
+          },
+          { title: 'After', fields: [{ type: 'text', name: 'b', label: 'B' }] },
+        ],
+      }}
+    />,
+  );
+  await user.click(screen.getByText('Siguiente'));
+  expect(await screen.findByText('Servicio no disponible')).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Gate' })).toBeTruthy();
+
+  allow = true;
+  await user.click(screen.getByText('Siguiente'));
+  expect(await screen.findByRole('heading', { name: 'After' })).toBeTruthy();
+  expect(screen.queryByText('Servicio no disponible')).toBeNull();
+});
+
+test('custom step reads context, drives navigation and honors controls and onEnter', async () => {
+  const user = userEvent.setup();
+  const onEnter = mock((_: unknown) => {});
+  render(
+    <ArtisanForm
+      onSubmit={() => {}}
+      scheme={{
+        steps: [
+          { title: 'First', fields: [{ type: 'text', name: 'a', label: 'A' }] },
+          {
+            title: 'Custom',
+            kind: 'custom',
+            controls: { hidden: true },
+            onEnter,
+            render: (ctx: StepContext) => (
+              <button type="button" onClick={() => ctx.back()}>
+                {`custom step ${ctx.index + 1}/${ctx.total}`}
+              </button>
+            ),
+          },
+        ],
+      }}
+    />,
+  );
+  await user.click(screen.getByText('Siguiente'));
+  const custom = await screen.findByText('custom step 2/2');
+  expect(onEnter).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText('Finalizar')).toBeNull();
+  expect(screen.queryByText('Anterior')).toBeNull();
+  await user.click(custom);
+  expect(await screen.findByRole('heading', { name: 'First' })).toBeTruthy();
+});
+
+test('a failing onSubmit shows an error and can be retried', async () => {
+  const user = userEvent.setup();
+  let fail = true;
+  const onSubmit = mock(async () => {
+    if (fail) throw new Error('Boom');
+  });
+  render(
+    <ArtisanForm
+      onSubmit={onSubmit}
+      scheme={{
+        steps: [
+          { title: 'S', fields: [{ type: 'text', name: 'a', label: 'A' }] },
+        ],
+      }}
+    />,
+  );
+  await user.click(screen.getByText('Finalizar'));
+  expect(await screen.findByText('Boom')).toBeTruthy();
+  fail = false;
+  await user.click(screen.getByText('Finalizar'));
+  await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2));
+  await waitFor(() => expect(screen.queryByText('Boom')).toBeNull());
 });

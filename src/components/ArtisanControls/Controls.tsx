@@ -9,6 +9,11 @@ interface ControlsProps {
   /** Disables "Finalizar" while a submit is in flight. */
   isSubmitting?: boolean;
   labels?: Partial<Pick<ArtisanLabels, 'previous' | 'next' | 'submit'>>;
+  /** Replaces the default "go back" behavior. */
+  onPrevious?: () => void;
+  hidePrevious?: boolean;
+  hideNext?: boolean;
+  nextDisabled?: boolean;
   /** Extra classes for the container / for every button. */
   className?: string;
   buttonClassName?: string;
@@ -16,6 +21,10 @@ interface ControlsProps {
 
 const Controls = ({
   onNext,
+  onPrevious,
+  hidePrevious,
+  hideNext,
+  nextDisabled,
   isSubmitting,
   labels,
   className,
@@ -67,29 +76,30 @@ const Controls = ({
 
   return (
     <div className={cn(classes.container, className)}>
-      {processStep > 0 && step > 0 && (
+      {processStep > 0 && step > 0 && !hidePrevious && (
         <button
           type="button"
           className={cn(classes.button, buttonClassName)}
-          onClick={() => handlePrevious()}
+          onClick={() => (onPrevious ?? handlePrevious)()}
         >
           {text.previous}
         </button>
       )}
-      {!isFinalStep && (
+      {!isFinalStep && !hideNext && (
         <button
           type="button"
           className={cn(classes.button, buttonClassName)}
           onClick={() => (onNext ?? handleNext)()}
+          disabled={nextDisabled}
         >
           {text.next}
         </button>
       )}
-      {isFinalStep && (
+      {isFinalStep && !hideNext && (
         <button
           type="submit"
           className={cn(classes.button, buttonClassName)}
-          disabled={isSubmitting}
+          disabled={isSubmitting || nextDisabled}
         >
           {text.submit}
         </button>
