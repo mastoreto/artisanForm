@@ -3,7 +3,6 @@ import { create } from 'zustand';
 interface ArtisanFormState {
   step: number;
   processStep: number;
-  scheme: object;
   isFinalStep: boolean;
   setStep: (value: number) => void;
   setProcessStep: (value: number) => void;
@@ -13,7 +12,6 @@ interface ArtisanFormState {
 export const useArtisanStore = create<ArtisanFormState>((set) => ({
   step: 0,
   processStep: 0,
-  scheme: {},
   isFinalStep: false,
   setStep: (value: number) => set({ step: value }),
   setProcessStep: (value: number) => set({ processStep: value }),
