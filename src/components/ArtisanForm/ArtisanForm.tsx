@@ -6,6 +6,7 @@ import DateInput from '../ArtisanInputs/Date/Date';
 import Password from '../ArtisanInputs/Password/Password';
 import Radio from '../ArtisanInputs/Radio/Radio';
 import Select from '../ArtisanInputs/Select/Select';
+import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
 import Stepper from './Stepper';
 import Text from '../ArtisanInputs/Text/Text';
 import Textarea from '../ArtisanInputs/Textarea/Textarea';
@@ -33,6 +34,8 @@ interface ArtisanFormProps {
   onChange?: (values: FormikValues) => void;
   /** Drives the wizard to this step when it changes (pair with onStepChange). */
   step?: number;
+  /** Overrides any UI text or validation message (default: Spanish). */
+  labels?: Partial<ArtisanLabels>;
 }
 
 const ValuesWatcher = ({
@@ -104,6 +107,7 @@ const ArtisanFormInner = ({
   onStepChange,
   onChange,
   step: stepProp,
+  labels: labelOverrides,
 }: ArtisanFormProps) => {
   const step = useArtisanStore((s) => s.step);
   const setStep = useArtisanStore((s) => s.setStep);
@@ -114,9 +118,13 @@ const ArtisanFormInner = ({
     () => ({ ...buildInitialValues(scheme), ...initialOverrides }),
     [scheme],
   );
+  const labels = useMemo(
+    () => ({ ...defaultLabels, ...labelOverrides }),
+    [labelOverrides],
+  );
   const validationSchema = useMemo(
-    () => buildValidationSchema(scheme),
-    [scheme],
+    () => buildValidationSchema(scheme, labels),
+    [scheme, labels],
   );
   const current = scheme.steps[step];
   const formRef = useRef<HTMLFormElement>(null);
@@ -176,7 +184,7 @@ const ArtisanFormInner = ({
         return (
           <Form noValidate ref={formRef}>
             {onChange && <ValuesWatcher onChange={onChange} />}
-            <Stepper steps={scheme.steps} current={step} />
+            <Stepper steps={scheme.steps} current={step} labels={labels} />
             <h2 className="mb-4 text-lg font-semibold">{current.title}</h2>
             {current.fields.map((f) => (
               <div key={f.name} className="mb-4">
@@ -191,7 +199,11 @@ const ArtisanFormInner = ({
                 )}
               </div>
             ))}
-            <Controls onNext={handleNext} isSubmitting={isSubmitting} />
+            <Controls
+              onNext={handleNext}
+              isSubmitting={isSubmitting}
+              labels={labels}
+            />
           </Form>
         );
       }}

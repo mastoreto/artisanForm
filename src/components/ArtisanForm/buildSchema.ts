@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
 import type { FieldSchema, FormSchema } from './types';
 
 const allFields = (scheme: FormSchema): FieldSchema[] =>
@@ -25,8 +26,8 @@ export const buildInitialValues = (scheme: FormSchema) =>
     }),
   );
 
-const buildField = (f: FieldSchema) => {
-  const msg = 'Campo requerido';
+const buildField = (f: FieldSchema, labels: ArtisanLabels) => {
+  const msg = labels.required;
   if (f.type === 'check') {
     const s = Yup.array().of(Yup.string().required());
     return f.required ? s.min(1, msg) : s;
@@ -34,36 +35,39 @@ const buildField = (f: FieldSchema) => {
   if (f.type === 'number') {
     let n = Yup.number()
       .transform((v, original) => (original === '' ? undefined : v))
-      .typeError('Número inválido');
-    if (f.min !== undefined) n = n.min(f.min, `Mínimo ${f.min}`);
-    if (f.max !== undefined) n = n.max(f.max, `Máximo ${f.max}`);
+      .typeError(labels.invalidNumber);
+    if (f.min !== undefined) n = n.min(f.min, labels.minValue(f.min));
+    if (f.max !== undefined) n = n.max(f.max, labels.maxValue(f.max));
     return f.required ? n.required(msg) : n;
   }
   let s = Yup.string();
   // Length checks skip empty values so optional fields can stay blank.
   if (f.min) {
     const min = f.min;
-    s = s.test('min', `Mínimo ${min} caracteres`, (v) => !v || v.length >= min);
+    s = s.test('min', labels.minLength(min), (v) => !v || v.length >= min);
   }
   if (f.max) {
     const max = f.max;
-    s = s.test('max', `Máximo ${max} caracteres`, (v) => !v || v.length <= max);
+    s = s.test('max', labels.maxLength(max), (v) => !v || v.length <= max);
   }
-  if (f.type === 'email') s = s.email('Email inválido');
+  if (f.type === 'email') s = s.email(labels.invalidEmail);
   if (f.pattern) {
     s = s.matches(new RegExp(f.pattern), {
-      message: 'Formato inválido',
+      message: labels.invalidPattern,
       excludeEmptyString: true,
     });
   }
   return f.required ? s.required(msg) : s;
 };
 
-export const buildValidationSchema = (scheme: FormSchema) =>
+export const buildValidationSchema = (
+  scheme: FormSchema,
+  labels: ArtisanLabels = defaultLabels,
+) =>
   Yup.object(
     Object.fromEntries(
       allFields(scheme).flatMap((f) =>
-        fieldNames(f).map((n) => [n, buildField(f)]),
+        fieldNames(f).map((n) => [n, buildField(f, labels)]),
       ),
     ),
   );

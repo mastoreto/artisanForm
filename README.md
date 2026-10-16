@@ -127,7 +127,7 @@ pnpm add artisanform react react-dom formik yup zustand
 
 ## API pública (`src/index.ts`)
 
-`ArtisanForm`, `Controls`, `TextInput`, `Textarea`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`, `useArtisanStore`, `cn` y los tipos `FormSchema`, `StepSchema`, `FieldSchema`.
+`ArtisanForm`, `Controls`, `TextInput`, `Textarea`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`, `useArtisanStore`, `cn`, `defaultLabels` y los tipos `ArtisanLabels`, `FormSchema`, `StepSchema`, `FieldSchema`.
 
 Los inputs sueltos usan `useField` de Formik: reciben `name` (no `value`/`onChange`) y **deben renderizarse dentro de un `<Formik>`**. Muestran el error de Yup cuando el campo fue tocado.
 
@@ -175,7 +175,7 @@ Cada tarea es un issue de GitHub (`AF<n>` en el título) y una rama desde `devel
 ### Brechas conocidas
 
 - El flujo en navegador no está verificado automáticamente (solo hay tests de `buildSchema`).
-- Scheme limitado a pasos lineales sin lógica condicional; textos fijos en español.
+- Scheme limitado a pasos lineales sin lógica condicional.
 
 ### Historial
 

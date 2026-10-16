@@ -19,3 +19,4 @@ export {
   useArtisanStore,
 } from './stores/useArtisanStore';
 export { cn } from './commons/cn';
+export { defaultLabels, type ArtisanLabels } from './commons/labels';
