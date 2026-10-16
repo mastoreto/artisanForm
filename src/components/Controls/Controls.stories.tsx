@@ -33,16 +33,18 @@ export default meta;
 
 type Story = StoryObj<Args>;
 
+const FinalStepControls = (args: Args) => {
+  const setIsFinalStep = useArtisanStore((state) => state.setIsFinalStep);
+
+  useEffect(() => {
+    setIsFinalStep(args.isFinalStep);
+  }, [args.isFinalStep]);
+
+  return <Controls />;
+};
+
 export const Default: Story = {
-  render: (args: Args) => {
-    const setIsFinalStep = useArtisanStore((state) => state.setIsFinalStep);
-
-    useEffect(() => {
-      setIsFinalStep(args.isFinalStep);
-    }, [args.isFinalStep]);
-
-    return <Controls />;
-  },
+  render: (args: Args) => <FinalStepControls {...args} />,
   args: {
     isFinalStep: true,
     step: 0,

@@ -338,6 +338,7 @@ const PendingStep = (ctx: StepContext) => {
 
   useEffect(() => {
     if (!wait) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset when the wait is retried; subscription starts below
     setStatus({ status: 'pending' });
     setResolved(null);
     advanced.current = false;

@@ -3,12 +3,11 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import tsconfigPaths from 'vite-tsconfig-paths';
+import { reactCompiler } from './react-compiler.ts';
 
 export default defineConfig({
   plugins: [
-    react(),
-    tsconfigPaths(),
+    react({ compiler: reactCompiler }),
     dts({
       include: ['src/**/*'],
       exclude: [
@@ -21,7 +20,9 @@ export default defineConfig({
     }),
   ],
   build: {
+    sourcemap: true,
     lib: {
+      cssFileName: 'style',
       // Provider plugins are separate entries so their SDKs stay optional.
       entry: {
         index: 'src/index.ts',
@@ -32,13 +33,13 @@ export default defineConfig({
           'src/integrations/payments/providers/mercadopago.tsx',
         'payments/paypal': 'src/integrations/payments/providers/paypal.tsx',
       },
-      formats: ['es', 'cjs'],
-      fileName: (format, name) =>
-        `${name === 'index' ? 'artisanForm' : name}.${format === 'es' ? 'es.js' : 'cjs'}`,
+      // ESM only: nothing was published as CJS yet and there is no need for it.
+      formats: ['es'],
+      fileName: (_format, name) => `${name}.js`,
     },
     rollupOptions: {
       external: (id) =>
-        /^(react|react-dom|react-hook-form|@hookform|yup|zustand|@stripe|@mercadopago|@paypal)(\/|$)/.test(
+        /^(react|react-dom|react-compiler-runtime|react-hook-form|@hookform|yup|zustand|@stripe|@mercadopago|@paypal)(\/|$)/.test(
           id,
         ),
     },

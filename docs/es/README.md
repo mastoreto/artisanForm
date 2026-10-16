@@ -10,14 +10,14 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 
 | Área                     | Tecnología                                  |
 | ------------------------ | ------------------------------------------- |
-| UI                       | React 18, TypeScript (strict)               |
+| UI                       | React 18 o 19, TypeScript 6 (strict)        |
 | Estilos                  | CSS plano con variables `--artisan-*` (Tailwind solo en playground y Storybook) |
 | Estado de pasos          | Zustand 5                                   |
 | Formularios y validación | React Hook Form 7 + Yup                     |
-| Documentación            | Storybook 8 (`@storybook/react-vite`)       |
-| Build                    | Vite 5 en modo librería + `vite-plugin-dts` |
+| Documentación            | Storybook 10 (`@storybook/react-vite`)      |
+| Build                    | Vite 8 en modo librería (Rolldown/Oxc) + React Compiler (Rust) + `vite-plugin-dts` |
 | Tests                    | `bun test` + Testing Library (happy-dom), Playwright (e2e) |
-| Formato y lint           | Biome 2                                     |
+| Formato y lint           | Biome 2 (+ ESLint solo para las reglas de React Hooks / Compiler) |
 | Gestor de paquetes       | pnpm                                        |
 
 ## Primeros pasos
@@ -31,7 +31,9 @@ pnpm storybook   # http://localhost:6006
 | --------------------------- | ---------------------------------------------------- |
 | `pnpm storybook`            | Storybook en desarrollo (puerto 6006)                |
 | `pnpm build-storybook`      | Storybook estático                                   |
-| `pnpm build`                | Build de la librería en `dist/` (ES + CJS + `.d.ts`) |
+| `pnpm build`                | Build de la librería en `dist/` (ESM + `.d.ts`, compilada con React Compiler) |
+| `pnpm lint:react`           | ESLint con las reglas de React Hooks y React Compiler |
+| `pnpm check:dist` / `check:package` | Inspecciona la salida / valida el paquete (`publint`, `attw`) |
 | `pnpm typecheck`            | `tsc --noEmit`                                       |
 | `pnpm lint` / `pnpm format` | Biome check / check --write                         |
 | `pnpm playground`           | App React de prueba (http://localhost:5173) que usa `src/` con HMR; escenarios en `?demo=<id>` |
@@ -339,6 +341,23 @@ Los ajustes semánticos `ui` del esquema (`columns`, `span`, `density`, `labelPo
 ```bash
 pnpm add artisanform react react-dom react-hook-form yup zustand
 ```
+
+### Compatibilidad
+
+| Requisito | Soportado (probado) |
+| --- | --- |
+| React / React DOM | `^18.3.1 \|\| ^19.0.0` (18.3.1 y 19.3.1 probadas en apps Vite limpias, más SSR en Node) |
+| Formato de módulo | **Solo ESM** (`"type": "module"`); `require()` de CommonJS no está soportado |
+| TypeScript | `moduleResolution` `bundler`, `node16` o `nodenext`. El `node10` heredado no resuelve los tipos de `artisanform/payments/*` |
+| Herramientas de build | Cualquier bundler que entienda `exports`; hay que importar `artisanform/style.css` una vez |
+
+**React Compiler.** El código publicado ya está compilado con React Compiler (`oxc-transform-react` en Rust mediante `@vitejs/plugin-react`, `target: '18'`). Quien consume la librería **no necesita configurar el compilador**. La salida importa `react-compiler-runtime` (dependencia normal de este paquete), que funciona en React 18 y 19; React sigue siendo externo, así que hay una sola copia de React en tu app. Tu propia app puede activar u omitir el compilador por su cuenta.
+
+**Renderizado en servidor.** El paquete compilado se renderiza con `react-dom/server` (verificado en el test de consumo). Los borradores (`persistKey`) leen `localStorage` solo en el cliente.
+
+**Migración desde 0.2.x.** (1) Usa una cadena de herramientas que entienda ESM: se eliminó el `main`/CJS. (2) Cambiaron los nombres de archivo de `dist` (`dist/index.js`, `dist/payments/<nombre>.js`); importa siempre por el nombre del paquete y sus `exports`. (3) Con `@types/react` 19, `JSX` ya no es un espacio de nombres global; los tipos de ArtisanForm ya no lo referencian.
+
+**Limitaciones conocidas.** Los proveedores de pago (`artisanform/payments/*`) cargan sus SDK opcionales de forma diferida, por lo que React Compiler omite algunas de sus funciones (sin cambio de comportamiento). `useWizard` queda fuera del compilador a propósito porque lee estado mutable del formulario durante el render (ver su comentario). El lint de React Hooks reporta avisos `exhaustive-deps` en efectos que dependen deliberadamente de pocos valores; están registrados como deuda.
 
 ## API pública (`src/index.ts`)
 

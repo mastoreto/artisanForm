@@ -29,7 +29,10 @@ export const useArtisanField = <T = unknown>(
   const ui = useContext(FormUiContext);
   const validators = ui?.validators;
   const validateRef = useRef(options?.validate);
-  validateRef.current = options?.validate;
+  const validate = options?.validate;
+  useEffect(() => {
+    validateRef.current = validate;
+  });
   const hasValidate = !!options?.validate;
   useEffect(() => {
     if (!validators || !hasValidate) return;

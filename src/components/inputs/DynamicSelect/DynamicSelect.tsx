@@ -45,6 +45,7 @@ const DynamicSelect = ({
   useEffect(() => {
     if (!loadDependentOptions) return;
     let stale = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async loading state follows the parent value
     setStatus('loading');
     setLoaded([]);
     loadDependentOptions(parent.value)

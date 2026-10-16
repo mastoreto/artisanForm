@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMemo, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { type Resolver, useForm } from 'react-hook-form';
 import type { AnyObjectSchema } from 'yup';
 import type { FormValues } from './types';
@@ -13,7 +13,7 @@ export const useArtisanForm = (
   defaultValues: FormValues,
   validationSchema: AnyObjectSchema,
 ) => {
-  const validators = useRef<FieldValidators>(new Map()).current;
+  const [validators] = useState<FieldValidators>(() => new Map());
   const resolver = useMemo(
     () =>
       withFieldValidators(
