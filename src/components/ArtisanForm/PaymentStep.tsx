@@ -1,9 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import type { PaymentPlugin, PaymentResult } from '../../payments/types';
+import StatusPanel, { actionClass } from './StatusPanel';
 import type { StepContext } from './steps';
-
-const actionClass =
-  'inline-block rounded border px-4 py-2 text-sm hover:bg-gray-100';
 
 const newKey = () =>
   globalThis.crypto?.randomUUID?.() ??
@@ -113,19 +111,11 @@ const PaymentStep = (ctx: StepContext) => {
   };
 
   if (available.length === 0) {
-    return (
-      <p role="alert" className="text-sm text-red-600">
-        {labels.noPaymentPlugin}
-      </p>
-    );
+    return <StatusPanel tone="error" message={labels.noPaymentPlugin} />;
   }
 
   if (outcome) {
-    return (
-      <p role="status" className="text-gray-600">
-        {labels.paymentProcessing}
-      </p>
-    );
+    return <StatusPanel tone="pending" message={labels.paymentProcessing} />;
   }
 
   return (
@@ -175,24 +165,21 @@ const PaymentStep = (ctx: StepContext) => {
         </button>
       )}
       {failure && (
-        <div role="alert" className="space-y-3">
-          <p className="text-red-600">{failure}</p>
+        <StatusPanel tone="error" message={failure}>
           <button type="button" className={actionClass} onClick={retry}>
             {labels.retry}
-          </button>{' '}
+          </button>
           {available.length > 1 && (
-            <>
-              <button
-                type="button"
-                className={actionClass}
-                onClick={() => {
-                  retry();
-                  setChosen(null);
-                }}
-              >
-                {labels.changeMethod}
-              </button>{' '}
-            </>
+            <button
+              type="button"
+              className={actionClass}
+              onClick={() => {
+                retry();
+                setChosen(null);
+              }}
+            >
+              {labels.changeMethod}
+            </button>
           )}
           <button
             type="button"
@@ -201,7 +188,7 @@ const PaymentStep = (ctx: StepContext) => {
           >
             {labels.backToForm}
           </button>
-        </div>
+        </StatusPanel>
       )}
     </div>
   );
