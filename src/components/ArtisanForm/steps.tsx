@@ -55,11 +55,14 @@ export interface StepDefinition {
 export type StepRegistry = Record<string, StepDefinition>;
 
 const FormStep = ({ fields, fieldRegistry, labels, storage }: StepContext) => (
-  <>
+  <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
     {fields.map((f) => {
       const def = definitionOf(fieldRegistry, f);
       return (
-        <div key={f.name} className="mb-4">
+        <div
+          key={f.name}
+          className={f.width === 'half' ? 'mb-4' : 'mb-4 sm:col-span-2'}
+        >
           {def.groupLabel && (
             <span className="block text-sm font-medium text-gray-700">
               {f.label}
@@ -72,7 +75,7 @@ const FormStep = ({ fields, fieldRegistry, labels, storage }: StepContext) => (
         </div>
       );
     })}
-  </>
+  </div>
 );
 
 const displayValue = (
@@ -87,6 +90,9 @@ const displayValue = (
     typeof v === 'object' && v !== null && 'name' in v
       ? String((v as { name: unknown }).name)
       : (options?.find((o) => o.value === v)?.label ?? String(v ?? ''));
+  if (f.type === 'daterange') {
+    return `${raw ?? ''} – ${values[f.endName ?? `${f.name}End`] ?? ''}`;
+  }
   if (typeof raw === 'boolean') return raw ? labels.yes : labels.no;
   if (Array.isArray(raw))
     return raw.map((v) => labelOf(f.options, v)).join(', ');
@@ -111,7 +117,11 @@ const ReviewStep = ({
 }: StepContext) => (
   <div className="space-y-6">
     {steps.slice(0, index).map((s, i) => {
-      const shown = visibleFields(s, values);
+      const shown = visibleFields(s, values).filter(
+        (f) =>
+          Object.keys(definitionOf(fieldRegistry, f).initialValues(f)).length >
+          0,
+      );
       if (shown.length === 0) return null;
       return (
         <section key={s.title} aria-label={s.title}>

@@ -4,11 +4,15 @@ import type { ArtisanLabels } from '../../commons/labels';
 import type { StorageMap } from '../../storage/types';
 import Check from '../ArtisanInputs/Check/Check';
 import Checkbox from '../ArtisanInputs/Checkbox/Checkbox';
+import Combobox from '../ArtisanInputs/Combobox/Combobox';
 import DateInput from '../ArtisanInputs/Date/Date';
 import DynamicSelect from '../ArtisanInputs/DynamicSelect/DynamicSelect';
 import FileUpload from '../ArtisanInputs/FileUpload/FileUpload';
+import Otp from '../ArtisanInputs/Otp/Otp';
 import Password from '../ArtisanInputs/Password/Password';
 import Radio from '../ArtisanInputs/Radio/Radio';
+import Range from '../ArtisanInputs/Range/Range';
+import Rating from '../ArtisanInputs/Rating/Rating';
 import Select from '../ArtisanInputs/Select/Select';
 import Text from '../ArtisanInputs/Text/Text';
 import Textarea from '../ArtisanInputs/Textarea/Textarea';
@@ -56,6 +60,12 @@ const nativeProps = (f: FieldSchema) =>
       maxLength: f.maxLength,
     }).filter(([, v]) => v !== undefined),
   );
+
+const adornments = (f: FieldSchema) => ({
+  mask: f.mask,
+  prefix: f.prefix,
+  suffix: f.suffix,
+});
 
 const choiceProps = (f: FieldSchema) => ({
   name: f.name,
@@ -134,11 +144,193 @@ const fileDefinition = (image: boolean): FieldDefinition => ({
   ),
 });
 
+const dateLike = (
+  type: 'date' | 'time' | 'datetime-local' | 'month',
+): FieldDefinition => ({
+  initialValues: (f) => single(f),
+  rules: (f, labels) =>
+    stringRules(f, labels, (s) => {
+      const { minDate, maxDate } = f;
+      let d = s;
+      if (minDate) {
+        d = d.test(
+          'minDate',
+          labels.minDate(minDate),
+          (v) => !v || v >= minDate,
+        );
+      }
+      if (maxDate) {
+        d = d.test(
+          'maxDate',
+          labels.maxDate(maxDate),
+          (v) => !v || v <= maxDate,
+        );
+      }
+      return d;
+    }),
+  render: (f) => (
+    <DateInput
+      {...textProps(f)}
+      type={type}
+      inputProps={{ min: f.minDate, max: f.maxDate, ...nativeProps(f) }}
+    />
+  ),
+});
+
+/** Display-only content: owns no form values. */
+const content = (render: FieldDefinition['render']): FieldDefinition => ({
+  initialValues: () => ({}),
+  rules: () => ({}),
+  render,
+});
+
+const calloutStyle = {
+  info: 'border-blue-300 bg-blue-50 text-blue-900',
+  success: 'border-green-300 bg-green-50 text-green-900',
+  warning: 'border-yellow-300 bg-yellow-50 text-yellow-900',
+  error: 'border-red-300 bg-red-50 text-red-900',
+} as const;
+
+const optionsOf = (f: FieldSchema) => f.options ?? [];
+
 export const defaultFieldRegistry: FieldRegistry = {
+  heading: content((f) => (
+    <h3 className="text-base font-semibold">{f.label}</h3>
+  )),
+  paragraph: content((f) => <p className="text-sm text-gray-600">{f.label}</p>),
+  callout: content((f) => (
+    <p
+      role={f.variant === 'error' || f.variant === 'warning' ? 'alert' : 'note'}
+      className={`rounded-md border p-3 text-sm ${calloutStyle[f.variant ?? 'info']}`}
+    >
+      {f.label}
+    </p>
+  )),
+  divider: content(() => <hr className="border-gray-200" />),
+  time: dateLike('time'),
+  datetime: dateLike('datetime-local'),
+  month: dateLike('month'),
+  daterange: {
+    initialValues: (f) => ({
+      [f.name]: f.defaultValue ?? '',
+      [f.endName ?? `${f.name}End`]: '',
+    }),
+    rules: (f, labels) => {
+      const end = f.endName ?? `${f.name}End`;
+      const start = stringRules(f, labels)[f.name];
+      return {
+        [f.name]: start,
+        [end]: required(
+          Yup.string().test(
+            'range',
+            labels.endBeforeStart,
+            (v, ctx) => !v || !ctx.parent[f.name] || v >= ctx.parent[f.name],
+          ),
+          f,
+          labels,
+        ),
+      };
+    },
+    render: (f, { labels }) => {
+      const end = f.endName ?? `${f.name}End`;
+      return (
+        <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+          <DateInput
+            {...textProps(f)}
+            inputProps={{ min: f.minDate, max: f.maxDate }}
+          />
+          <DateInput
+            {...textProps(f)}
+            id={end}
+            name={end}
+            label={f.endLabel ?? labels.dateTo}
+            inputProps={{ min: f.minDate, max: f.maxDate }}
+          />
+        </div>
+      );
+    },
+  },
+  range: {
+    initialValues: (f) => ({ [f.name]: f.defaultValue ?? f.min ?? 0 }),
+    rules: (f, labels) => {
+      let n = Yup.number().typeError(labels.invalidNumber);
+      if (f.min !== undefined) n = n.min(f.min, labels.minValue(f.min));
+      if (f.max !== undefined) n = n.max(f.max, labels.maxValue(f.max));
+      return { [f.name]: n };
+    },
+    render: (f) => (
+      <Range
+        {...textProps(f)}
+        min={f.min}
+        max={f.max}
+        step={Number(f.step) || 1}
+      />
+    ),
+  },
+  rating: {
+    initialValues: (f) => single(f),
+    rules: (f, labels) => ({
+      [f.name]: required(
+        Yup.number().transform((v, o) => (o === '' ? undefined : v)),
+        f,
+        labels,
+      ),
+    }),
+    render: (f) => <Rating {...textProps(f)} max={f.length} />,
+  },
+  otp: {
+    initialValues: (f) => single(f),
+    rules: (f, labels) => {
+      const length = f.length ?? 6;
+      const s = Yup.string().test(
+        'otp',
+        labels.minLength(length),
+        (v) => !v || v.length === length,
+      );
+      return { [f.name]: required(s, f, labels) };
+    },
+    render: (f) => (
+      <Otp {...textProps(f)} length={f.length} charset={f.charset} />
+    ),
+  },
+  combobox: {
+    groupLabel: false,
+    initialValues: (f) => single(f),
+    rules: (f, labels) => stringRules(f, labels),
+    render: (f, { labels }) => (
+      <Combobox
+        {...textProps(f)}
+        options={optionsOf(f)}
+        loadOptions={f.loadOptions}
+        labels={labels}
+      />
+    ),
+  },
+  multiselect: {
+    initialValues: (f) => single(f, []),
+    rules: (f, labels) => {
+      const s = Yup.array().of(Yup.string().required());
+      return { [f.name]: f.required ? s.min(1, labels.required) : s };
+    },
+    render: (f, { labels }) => (
+      <Combobox
+        {...textProps(f)}
+        multiple
+        options={optionsOf(f)}
+        loadOptions={f.loadOptions}
+        labels={labels}
+      />
+    ),
+  },
   text: {
     ...textLike(),
     render: (f) => (
-      <Text {...textProps(f)} type="text" inputProps={nativeProps(f)} />
+      <Text
+        {...textProps(f)}
+        {...adornments(f)}
+        type="text"
+        inputProps={nativeProps(f)}
+      />
     ),
   },
   tel: {
@@ -215,6 +407,7 @@ export const defaultFieldRegistry: FieldRegistry = {
     render: (f) => (
       <Text
         {...textProps(f)}
+        {...adornments(f)}
         type="number"
         inputProps={{
           inputMode: 'decimal',
@@ -242,35 +435,7 @@ export const defaultFieldRegistry: FieldRegistry = {
   },
   file: fileDefinition(false),
   image: fileDefinition(true),
-  date: {
-    initialValues: (f) => single(f),
-    rules: (f, labels) =>
-      stringRules(f, labels, (s) => {
-        const { minDate, maxDate } = f;
-        let d = s;
-        if (minDate) {
-          d = d.test(
-            'minDate',
-            labels.minDate(minDate),
-            (v) => !v || v >= minDate,
-          );
-        }
-        if (maxDate) {
-          d = d.test(
-            'maxDate',
-            labels.maxDate(maxDate),
-            (v) => !v || v <= maxDate,
-          );
-        }
-        return d;
-      }),
-    render: (f) => (
-      <DateInput
-        {...textProps(f)}
-        inputProps={{ min: f.minDate, max: f.maxDate, ...nativeProps(f) }}
-      />
-    ),
-  },
+  date: dateLike('date'),
   select: {
     groupLabel: true,
     initialValues: (f) => ({ [f.name]: firstOption(f) }),

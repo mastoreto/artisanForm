@@ -11,6 +11,10 @@ export interface ArtisanLabels {
   required: string;
   submitError: string;
   edit: string;
+  noResults: string;
+  searching: string;
+  dateTo: string;
+  endBeforeStart: string;
   pay: string;
   loadingPayment: string;
   payWith: (name: string) => string;
@@ -67,6 +71,10 @@ export const defaultLabels: ArtisanLabels = {
   required: 'Campo requerido',
   submitError: 'No se pudo enviar el formulario',
   edit: 'Editar',
+  noResults: 'Sin resultados',
+  searching: 'Buscando…',
+  dateTo: 'Hasta',
+  endBeforeStart: 'La fecha final es anterior a la inicial',
   pay: 'Pagar',
   loadingPayment: 'Cargando el medio de pago…',
   payWith: (name) => `Pagar con ${name}`,
