@@ -78,7 +78,6 @@ const Otp = ({
       >
         {chars.map((c, i) => (
           <input
-            // biome-ignore lint/suspicious/noArrayIndexKey: fixed number of boxes
             key={i}
             ref={(el) => {
               refs.current[i] = el;

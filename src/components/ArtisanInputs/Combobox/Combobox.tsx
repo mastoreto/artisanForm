@@ -192,7 +192,6 @@ const Combobox = ({
         {open && (
           <ul
             id={listId}
-            // biome-ignore lint/a11y/useSemanticElements: custom listbox popup of the combobox pattern
             role="listbox"
             aria-multiselectable={multiple || undefined}
             className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md border bg-white shadow"

@@ -198,3 +198,76 @@ test('multiselect shows chips, removes them and supports async search', async ()
   await user.click(screen.getByText('Finalizar'));
   expect(await submitted(onSubmit)).toEqual({ langs: ['ts'] });
 });
+
+test('array field: add and remove rows, validate each row, submit the list', async () => {
+  const { user, onSubmit } = setup([
+    {
+      type: 'array',
+      name: 'people',
+      label: 'Personas',
+      minItems: 1,
+      maxItems: 3,
+      itemFields: [
+        { type: 'text', name: 'name', label: 'Nombre', required: true },
+        { type: 'email', name: 'mail', label: 'Mail' },
+      ],
+    },
+  ]);
+  // starts empty: minItems must be satisfied
+  await user.click(screen.getByText('Finalizar'));
+  expect(await screen.findByText('Agregá al menos 1')).toBeTruthy();
+
+  await user.click(screen.getByText('Agregar otro'));
+  await user.click(screen.getByText('Agregar otro'));
+  expect(screen.getAllByLabelText('Nombre')).toHaveLength(2);
+
+  // a row with a missing required field blocks the submit
+  await user.type(screen.getAllByLabelText('Nombre')[0], 'Ana');
+  await user.type(screen.getAllByLabelText('Mail')[0], 'ana@x.co');
+  await user.click(screen.getByText('Finalizar'));
+  expect(await screen.findByText('Campo requerido')).toBeTruthy();
+  expect(onSubmit).not.toHaveBeenCalled();
+
+  await user.click(screen.getByLabelText('Quitar elemento 2'));
+  expect(screen.getAllByLabelText('Nombre')).toHaveLength(1);
+  await user.click(screen.getByText('Finalizar'));
+  expect(await submitted(onSubmit)).toEqual({
+    people: [{ name: 'Ana', mail: 'ana@x.co' }],
+  });
+});
+
+test('array field: maxItems disables "add" and secrets inside rows are not drafted', async () => {
+  localStorage.clear();
+  const user = userEvent.setup();
+  render(
+    <ArtisanForm
+      onSubmit={() => {}}
+      persistKey="arr"
+      scheme={{
+        steps: [
+          {
+            title: 'S',
+            fields: [
+              {
+                type: 'array',
+                name: 'cards',
+                label: 'Claves',
+                maxItems: 1,
+                itemFields: [{ type: 'password', name: 'pin', label: 'PIN' }],
+              },
+            ],
+          },
+        ],
+      }}
+    />,
+  );
+  await user.click(screen.getByText('Agregar otro'));
+  await user.type(screen.getByLabelText('PIN'), 'abcd');
+  expect((screen.getByText('Agregar otro') as HTMLButtonElement).disabled).toBe(
+    true,
+  );
+  await waitFor(() =>
+    expect(localStorage.getItem('artisanform:arr')).toBeTruthy(),
+  );
+  expect(localStorage.getItem('artisanform:arr')).not.toContain('abcd');
+});

@@ -1,4 +1,10 @@
-import { Form, Formik, type FormikValues, useFormikContext } from 'formik';
+import {
+  Form,
+  Formik,
+  type FormikValues,
+  setNestedObjectValues,
+  useFormikContext,
+} from 'formik';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import type { PluginsConfig } from '../../payments/types';
@@ -196,7 +202,15 @@ const Wizard = ({
       const errors = await validateForm();
       await setTouched({
         ...touched,
-        ...Object.fromEntries(names.map((n) => [n, true])),
+        // Nested values (array rows) need a nested `touched` to show their errors.
+        ...Object.fromEntries(
+          names.map((n) => [
+            n,
+            typeof values[n] === 'object' && values[n] !== null
+              ? setNestedObjectValues(values[n], true)
+              : true,
+          ]),
+        ),
       });
       if (names.some((n) => errors[n])) {
         setFocusTick((t) => t + 1);

@@ -22,6 +22,7 @@ export type BuiltInFieldType =
   | 'password'
   | 'date'
   | 'checkbox'
+  | 'array'
   | 'time'
   | 'datetime'
   | 'month'
@@ -105,6 +106,12 @@ export interface FieldSchema {
   variant?: 'info' | 'success' | 'warning' | 'error';
   /** In a form step: `half` shares a row with the next `half` field. */
   width?: 'full' | 'half';
+  /** array: the fields of each row (nested arrays/conditions are not supported). */
+  itemFields?: FieldSchema[];
+  /** array: row count limits and the add button text. */
+  minItems?: number;
+  maxItems?: number;
+  addLabel?: string;
   /** Number step. */
   step?: number | string;
   /** date: earliest / latest allowed value (YYYY-MM-DD). */

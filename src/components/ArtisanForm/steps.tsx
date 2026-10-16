@@ -7,7 +7,7 @@ import type { StorageMap } from '../../storage/types';
 import type { SubmitState } from '../../stores/useArtisanStore';
 import type { WaitStatus, WaitStrategy } from '../../wait';
 import { visibleFields } from './conditions';
-import { definitionOf, type FieldRegistry } from './fields';
+import { definitionOf, type FieldRegistry, isSecretField } from './fields';
 import PaymentStep from './PaymentStep';
 import type {
   FieldOption,
@@ -68,7 +68,7 @@ const FormStep = ({ fields, fieldRegistry, labels, storage }: StepContext) => (
               {f.label}
             </span>
           )}
-          {def.render(f, { labels, storage })}
+          {def.render(f, { labels, storage, registry: fieldRegistry })}
           {def.groupLabel && f.helperText && (
             <p className="mt-1 text-sm text-gray-500">{f.helperText}</p>
           )}
@@ -90,6 +90,16 @@ const displayValue = (
     typeof v === 'object' && v !== null && 'name' in v
       ? String((v as { name: unknown }).name)
       : (options?.find((o) => o.value === v)?.label ?? String(v ?? ''));
+  if (f.type === 'array' && Array.isArray(raw)) {
+    return (raw as Record<string, unknown>[])
+      .map((row) =>
+        (f.itemFields ?? [])
+          .map((sub) => String(row[sub.name] ?? ''))
+          .filter(Boolean)
+          .join(' · '),
+      )
+      .join(' | ');
+  }
   if (f.type === 'daterange') {
     return `${raw ?? ''} – ${values[f.endName ?? `${f.name}End`] ?? ''}`;
   }
@@ -145,7 +155,7 @@ const ReviewStep = ({
                     f,
                     values,
                     labels,
-                    !!definitionOf(fieldRegistry, f).secret,
+                    isSecretField(fieldRegistry, f),
                   )}
                 </dd>
               </div>

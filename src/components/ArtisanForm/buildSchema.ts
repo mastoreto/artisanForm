@@ -50,9 +50,9 @@ export const buildValidationSchema = (
           const conds = [step.showIf, f.showIf].filter(
             (c): c is Condition => !!c,
           );
-          return Object.entries(definitionOf(registry, f).rules(f, labels)).map(
-            ([name, schema]) => [name, withConditions(schema, conds)],
-          );
+          return Object.entries(
+            definitionOf(registry, f).rules(f, labels, registry),
+          ).map(([name, schema]) => [name, withConditions(schema, conds)]);
         }),
       ),
     ),
