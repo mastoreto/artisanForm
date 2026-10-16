@@ -25,6 +25,7 @@ export default defineConfig({
       entry: {
         index: 'src/index.ts',
         'payments/stripe': 'src/payments/stripe.tsx',
+        'payments/lemonsqueezy': 'src/payments/lemonsqueezy.tsx',
       },
       formats: ['es', 'cjs'],
       fileName: (format, name) =>
