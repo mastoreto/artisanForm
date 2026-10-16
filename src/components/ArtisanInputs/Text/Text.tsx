@@ -3,6 +3,31 @@ import { forwardRef, type InputHTMLAttributes } from 'react';
 import { cn } from '../../../commons/cn';
 import { theme } from '../../../commons/theme';
 
+/** `#` digit, `A` letter, `*` alphanumeric; anything else is a literal. */
+export const applyMask = (raw: string, mask: string): string => {
+  let out = '';
+  let i = 0;
+  for (const m of mask) {
+    if (i >= raw.length) break;
+    if (m === '#' || m === 'A' || m === '*') {
+      // Skip characters that cannot go in this slot.
+      const ok = (c: string) =>
+        m === '#'
+          ? /\d/.test(c)
+          : m === 'A'
+            ? /[a-zA-Z]/.test(c)
+            : /[a-zA-Z0-9]/.test(c);
+      while (i < raw.length && !ok(raw[i])) i++;
+      if (i >= raw.length) break;
+      out += raw[i++];
+    } else {
+      out += m;
+      if (raw[i] === m) i++;
+    }
+  }
+  return out;
+};
+
 interface TextInputProps {
   id: string;
   name: string;
@@ -11,6 +36,11 @@ interface TextInputProps {
   className?: string;
   disabled?: boolean;
   helperText?: string;
+  /** Input mask: `#` digit, `A` letter, `*` any alphanumeric; other characters are literal (e.g. `##-########-#`). */
+  mask?: string;
+  /** Adornments shown inside the field (e.g. a currency symbol). */
+  prefix?: string;
+  suffix?: string;
   /** Native attributes forwarded to the element (autoComplete, inputMode, maxLength…). */
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
   type?: 'text' | 'email' | 'number' | 'tel' | 'url';
@@ -26,6 +56,9 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       className,
       disabled,
       helperText,
+      mask,
+      prefix,
+      suffix,
       inputProps,
       type = 'text',
     },
@@ -53,19 +86,35 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         <label htmlFor={id} className="block text-sm font-medium text-gray-700">
           {label}
         </label>
-        <input
-          {...inputProps}
-          {...field}
-          value={field.value ?? ''}
-          type={type}
-          id={id}
-          placeholder={placeholder}
-          disabled={disabled}
-          className={classes.input}
-          aria-invalid={!!error}
-          aria-describedby={describedBy}
-          ref={ref}
-        />
+        <div className="relative">
+          {prefix && (
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-gray-500">
+              {prefix}
+            </span>
+          )}
+          <input
+            {...inputProps}
+            {...field}
+            onChange={(e) => {
+              if (mask) e.target.value = applyMask(e.target.value, mask);
+              field.onChange(e);
+            }}
+            value={field.value ?? ''}
+            type={type}
+            id={id}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={cn(classes.input, prefix && 'pl-8', suffix && 'pr-10')}
+            aria-invalid={!!error}
+            aria-describedby={describedBy}
+            ref={ref}
+          />
+          {suffix && (
+            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500">
+              {suffix}
+            </span>
+          )}
+        </div>
         {helperText && (
           <p className="mt-1 text-sm text-gray-500" id={`${id}-help`}>
             {helperText}

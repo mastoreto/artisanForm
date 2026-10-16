@@ -22,6 +22,19 @@ export type BuiltInFieldType =
   | 'password'
   | 'date'
   | 'checkbox'
+  | 'time'
+  | 'datetime'
+  | 'month'
+  | 'daterange'
+  | 'range'
+  | 'rating'
+  | 'otp'
+  | 'combobox'
+  | 'multiselect'
+  | 'heading'
+  | 'paragraph'
+  | 'callout'
+  | 'divider'
   | 'file'
   | 'image'
   | 'switch'
@@ -74,6 +87,24 @@ export interface FieldSchema {
   /** Key of the `storage` adapter to use (default: the single/`default` one). */
   storage?: string;
   capture?: 'user' | 'environment';
+  /** Input mask for text fields: `#` digit, `A` letter, `*` alphanumeric, others literal. */
+  mask?: string;
+  /** Adornments inside a text field (e.g. `$`). */
+  prefix?: string;
+  suffix?: string;
+  /** daterange: name and label of the end date. */
+  endName?: string;
+  endLabel?: string;
+  /** rating: number of stars. otp: number of characters. */
+  length?: number;
+  /** otp: allowed characters. */
+  charset?: 'numeric' | 'alphanumeric';
+  /** combobox/multiselect: async search by typed text (replaces `options`). */
+  loadOptions?: (query: string) => Promise<FieldOption[]>;
+  /** callout style. */
+  variant?: 'info' | 'success' | 'warning' | 'error';
+  /** In a form step: `half` shares a row with the next `half` field. */
+  width?: 'full' | 'half';
   /** Number step. */
   step?: number | string;
   /** date: earliest / latest allowed value (YYYY-MM-DD). */

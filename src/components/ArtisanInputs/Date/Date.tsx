@@ -11,6 +11,8 @@ interface DateInputProps {
   className?: string;
   disabled?: boolean;
   helperText?: string;
+  /** Native input type (default `date`). */
+  type?: 'date' | 'time' | 'datetime-local' | 'month';
   /** Native attributes forwarded to the element (autoComplete, inputMode, maxLength…). */
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
 }
@@ -26,6 +28,7 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
       disabled,
       helperText,
       inputProps,
+      type = 'date',
     },
     ref,
   ) => {
@@ -55,7 +58,7 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
           {...inputProps}
           {...field}
           value={field.value ?? ''}
-          type="date"
+          type={type}
           id={id}
           placeholder={placeholder}
           disabled={disabled}
