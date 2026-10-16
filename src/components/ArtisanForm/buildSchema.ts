@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
-import { matchesCondition } from './conditions';
+import { fieldsOf, matchesCondition } from './conditions';
 import {
   defaultFieldRegistry,
   definitionOf,
@@ -9,7 +9,7 @@ import {
 import type { Condition, FieldSchema, FormSchema } from './types';
 
 const allFields = (scheme: FormSchema): FieldSchema[] =>
-  scheme.steps.flatMap((step) => step.fields ?? []);
+  scheme.steps.flatMap((step) => fieldsOf(step));
 
 /** Form value names a field owns (a dynamicSelect owns two). */
 export const fieldNames = (
@@ -46,7 +46,7 @@ export const buildValidationSchema = (
   Yup.object(
     Object.fromEntries(
       scheme.steps.flatMap((step) =>
-        (step.fields ?? []).flatMap((f) => {
+        fieldsOf(step).flatMap((f) => {
           const conds = [step.showIf, f.showIf].filter(
             (c): c is Condition => !!c,
           );

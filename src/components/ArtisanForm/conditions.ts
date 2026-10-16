@@ -1,3 +1,4 @@
+import { defaultLabels } from '../../commons/labels';
 import type { Condition, FieldSchema, FormSchema, StepSchema } from './types';
 
 type Values = Record<string, unknown>;
@@ -29,5 +30,20 @@ export const isFieldVisible = (field: FieldSchema, values: Values) =>
 export const visibleSteps = (scheme: FormSchema, values: Values) =>
   scheme.steps.filter((s) => isStepVisible(s, values));
 
+/** A step's fields; a `terms` step without any gets its acceptance checkbox. */
+export const fieldsOf = (step: StepSchema): FieldSchema[] => {
+  if (step.fields) return step.fields;
+  if (step.kind !== 'terms') return [];
+  return [
+    {
+      type: 'checkbox',
+      name: (step.acceptName as string | undefined) ?? 'termsAccepted',
+      label:
+        (step.acceptLabel as string | undefined) ?? defaultLabels.acceptTerms,
+      required: true,
+    },
+  ];
+};
+
 export const visibleFields = (step: StepSchema, values: Values) =>
-  (step.fields ?? []).filter((f) => isFieldVisible(f, values));
+  fieldsOf(step).filter((f) => isFieldVisible(f, values));

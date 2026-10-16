@@ -2,7 +2,7 @@ import type { FormikValues } from 'formik';
 import type { ReactNode } from 'react';
 import type { ArtisanLabels } from '../../commons/labels';
 import type { SubmitState } from '../../stores/useArtisanStore';
-import { isFieldVisible } from './conditions';
+import { visibleFields } from './conditions';
 import { definitionOf, type FieldRegistry } from './fields';
 import type {
   FieldOption,
@@ -99,7 +99,7 @@ const ReviewStep = ({
 }: StepContext) => (
   <div className="space-y-6">
     {steps.slice(0, index).map((s, i) => {
-      const shown = (s.fields ?? []).filter((f) => isFieldVisible(f, values));
+      const shown = visibleFields(s, values);
       if (shown.length === 0) return null;
       return (
         <section key={s.title} aria-label={s.title}>
@@ -210,8 +210,43 @@ const ResultStep = ({
   );
 };
 
+/** Terms text (and/or a link) plus the acceptance checkbox (a required field). */
+const TermsStep = (ctx: StepContext) => {
+  const { step, labels } = ctx;
+  const content = step.content as ReactNode;
+  const href = step.href as string | undefined;
+  return (
+    <>
+      {content && (
+        <section
+          tabIndex={0}
+          aria-label={step.title}
+          className="mb-4 max-h-64 overflow-auto whitespace-pre-line rounded border p-3 text-sm"
+        >
+          {content}
+        </section>
+      )}
+      {href && (
+        <p className="mb-4 text-sm">
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            {labels.readFullTerms}
+          </a>
+        </p>
+      )}
+      <FormStep {...ctx} />
+    </>
+  );
+};
+
 export const defaultStepRegistry: StepRegistry = {
   form: { render: (ctx) => <FormStep {...ctx} /> },
+  /** Terms text (`content`) and/or link (`href`) plus a required acceptance checkbox. */
+  terms: { render: (ctx) => <TermsStep {...ctx} /> },
   /** Summary of the previous steps with "edit" shortcuts. */
   review: { render: (ctx) => <ReviewStep {...ctx} /> },
   /** Outcome screen after `onSubmit`; place it last. */

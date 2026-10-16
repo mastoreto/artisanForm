@@ -30,6 +30,11 @@
   },
   "overrides": [
     {
+      // The scrollable terms text must be reachable with the keyboard.
+      "includes": ["src/components/ArtisanForm/steps.tsx"],
+      "linter": { "rules": { "a11y": { "noNoninteractiveTabindex": "off" } } }
+    },
+    {
       // Tailwind v3 `@tailwind` directives.
       "includes": ["src/styles/global.css"],
       "linter": { "rules": { "suspicious": { "noUnknownAtRules": "off" } } }
