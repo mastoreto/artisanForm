@@ -99,7 +99,7 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 
 | Propiedad | Descripción |
 | --- | --- |
-| `kind` | Tipo de paso: `form` (por defecto), `review`, `result`, `custom` (más los que registres con `stepTypes`). |
+| `kind` | Tipo de paso: `form` (por defecto), `terms`, `review`, `result`, `custom` (más los que registres con `stepTypes`). |
 | `beforeNext(values)` | Corre tras validar el paso y antes de avanzar. Devolvé `{ error }` o lanzá un error para bloquear mostrando el mensaje (ej. crear una orden en tu backend). |
 | `onEnter(values)` | Corre cada vez que el paso pasa a ser el actual. |
 | `controls` | `hidden`, `hidePrevious`, `hideNext`, `nextDisabled`, `nextLabel`, `previousLabel`. |
@@ -107,6 +107,7 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 
 `ctx` (`StepContext`) expone `values`, `setFieldValue`, `next()`, `back()`, `goTo(i)`, `submit()`, `submitState` (`idle` \| `submitting` \| `success` \| `error`), `error` y más. Si `onSubmit` lanza, el error se muestra y "Finalizar" permite reintentar.
 
+- **`terms`**: texto de términos (`content`: texto o JSX, con scroll) y/o enlace (`href`) más un checkbox de aceptación obligatorio (valor `termsAccepted`; cambialo con `acceptName`/`acceptLabel`, o definí tus propios `fields`).
 - **`review`**: resumen de todos los pasos anteriores con un botón "Editar" por paso (contraseñas enmascaradas; opciones con su etiqueta).
 - **`result`**: pantalla final tras `onSubmit`. Props del paso: `message`, `errorMessage`, `actions: [{ label, href? , onClick? }]`. Se muestra al terminar el envío (éxito o error); en error ofrece "Reintentar" y "Volver al formulario". El último paso que no es `result` es el que envía.
 

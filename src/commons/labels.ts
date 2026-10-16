@@ -11,6 +11,8 @@ export interface ArtisanLabels {
   required: string;
   submitError: string;
   edit: string;
+  acceptTerms: string;
+  readFullTerms: string;
   yes: string;
   no: string;
   retry: string;
@@ -43,6 +45,8 @@ export const defaultLabels: ArtisanLabels = {
   required: 'Campo requerido',
   submitError: 'No se pudo enviar el formulario',
   edit: 'Editar',
+  acceptTerms: 'Acepto los términos y condiciones',
+  readFullTerms: 'Leer el documento completo',
   yes: 'Sí',
   no: 'No',
   retry: 'Reintentar',

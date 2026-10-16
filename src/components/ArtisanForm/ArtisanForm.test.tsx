@@ -669,3 +669,38 @@ test('result step: success after onSubmit; error shows retry and recovers', asyn
   expect(onSubmit).toHaveBeenCalledTimes(2);
   expect(screen.queryByText('Finalizar')).toBeNull();
 });
+
+test('terms step shows the text and requires acceptance', async () => {
+  const user = userEvent.setup();
+  const onSubmit = mock((_: unknown) => {});
+  render(
+    <ArtisanForm
+      onSubmit={onSubmit}
+      scheme={{
+        steps: [
+          {
+            title: 'Términos',
+            kind: 'terms',
+            content: 'Texto de los términos',
+            href: 'https://example.com/terms',
+          },
+        ],
+      }}
+    />,
+  );
+  expect(screen.getByText('Texto de los términos')).toBeTruthy();
+  expect(
+    screen
+      .getByRole('link', { name: 'Leer el documento completo' })
+      .getAttribute('href'),
+  ).toBe('https://example.com/terms');
+
+  await user.click(screen.getByText('Finalizar'));
+  expect(await screen.findByText('Campo requerido')).toBeTruthy();
+  expect(onSubmit).not.toHaveBeenCalled();
+
+  await user.click(screen.getByLabelText('Acepto los términos y condiciones'));
+  await user.click(screen.getByText('Finalizar'));
+  await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+  expect(onSubmit.mock.calls[0][0]).toEqual({ termsAccepted: true });
+});
