@@ -267,12 +267,12 @@ test('conditions: operators, shapes, references and depth', () => {
         ],
       }),
     ),
-  ).toEqual(['unknown-field-reference @ ' + w + '.all[2].field']);
+  ).toEqual([`unknown-field-reference @ ${w}.all[2].field`]);
 
   let deep: unknown = { field: 'kind', operator: 'filled' };
   for (let i = 0; i < 40; i++) deep = { not: deep };
   expect(errors(withCond(deep))).toContain(
-    'too-deep @ steps[0].fields[2].visibleWhen' + '.not'.repeat(33),
+    `too-deep @ steps[0].fields[2].visibleWhen${'.not'.repeat(33)}`,
   );
 });
 
@@ -303,7 +303,9 @@ test('validation hints are checked per field family', () => {
 
 test('required companions and array row limits', () => {
   const noOptions = valid();
-  delete (noOptions.steps[0].fields?.[0] as Record<string, unknown>).options;
+  const first = (noOptions.steps[0] as { fields: Record<string, unknown>[] })
+    .fields[0];
+  delete first.options;
   expect(errors(noOptions)).toEqual([
     'missing-property @ steps[0].fields[0].options',
   ]);

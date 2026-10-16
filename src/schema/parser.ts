@@ -53,8 +53,10 @@ const isObj = (v: unknown): v is Obj => {
 
 class Collector {
   issues: SchemaIssue[] = [];
-  error(code: string, path: string, message: string) {
+  /** Returns `undefined` so callers can `return c.error(…)` to stop checking an element. */
+  error(code: string, path: string, message: string): undefined {
     this.issues.push({ severity: 'error', code, path, message });
+    return undefined;
   }
   warn(code: string, path: string, message: string) {
     this.issues.push({ severity: 'warning', code, path, message });
@@ -63,7 +65,7 @@ class Collector {
 
 // ---- generic value checks ----
 
-const checkJSON = (v: unknown, path: string, c: Collector, depth = 0): void => {
+const checkJSON = (v: unknown, path: string, c: Collector, depth = 0) => {
   if (depth > MAX_DEPTH) return c.error('too-deep', path, 'nested too deeply');
   if (v === null || ['string', 'boolean'].includes(typeof v)) return;
   if (typeof v === 'number') {
@@ -72,7 +74,8 @@ const checkJSON = (v: unknown, path: string, c: Collector, depth = 0): void => {
     return;
   }
   if (Array.isArray(v)) {
-    v.forEach((item, i) => checkJSON(item, `${path}[${i}]`, c, depth + 1));
+    for (const [i, item] of v.entries())
+      checkJSON(item, `${path}[${i}]`, c, depth + 1);
     return;
   }
   if (isObj(v)) {
@@ -248,7 +251,7 @@ export const parseArtisanSchema = (
   };
 
   // ---- conditions ----
-  const checkCondition = (cond: unknown, path: string, depth = 0): void => {
+  const checkCondition = (cond: unknown, path: string, depth = 0) => {
     if (depth > MAX_DEPTH)
       return c.error('too-deep', path, 'condition nested too deeply');
     if (!isObj(cond))
@@ -263,9 +266,8 @@ export const parseArtisanSchema = (
           `${path}.${k}`,
           'must be an array of conditions',
         );
-      list.forEach((item, i) =>
-        checkCondition(item, `${path}.${k}[${i}]`, depth + 1),
-      );
+      for (const [i, item] of list.entries())
+        checkCondition(item, `${path}.${k}[${i}]`, depth + 1);
       return;
     }
     if ('not' in cond) {
@@ -327,17 +329,15 @@ export const parseArtisanSchema = (
         path,
         'must be an array of { value, label }',
       );
-    v.forEach((o, i) => {
-      if (!isObj(o))
-        return c.error(
-          'invalid-type',
-          `${path}[${i}]`,
-          'must be { value, label }',
-        );
+    for (const [i, o] of v.entries()) {
+      if (!isObj(o)) {
+        c.error('invalid-type', `${path}[${i}]`, 'must be { value, label }');
+        continue;
+      }
       checkKeys(o, ['value', 'label'], `${path}[${i}]`, c);
       need.string(o.value, `${path}[${i}].value`, c, true);
       need.string(o.label, `${path}[${i}].label`, c, true);
-    });
+    }
   };
 
   const validationKeys: Partial<Record<NativeFieldType, readonly string[]>> =
@@ -450,7 +450,7 @@ export const parseArtisanSchema = (
     },
   };
 
-  const checkField = (f: unknown, path: string, inArray = false): void => {
+  const checkField = (f: unknown, path: string, inArray = false) => {
     if (!isObj(f))
       return c.error('invalid-type', path, 'a field must be an object');
     const type = f.type;
@@ -621,7 +621,7 @@ export const parseArtisanSchema = (
     },
   };
 
-  const checkStep = (s: unknown, path: string): void => {
+  const checkStep = (s: unknown, path: string) => {
     if (!isObj(s))
       return c.error('invalid-type', path, 'a step must be an object');
     const type = s.type;
@@ -669,7 +669,7 @@ export const parseArtisanSchema = (
       else if (k === 'fields') {
         if (!Array.isArray(v))
           c.error('invalid-type', p, 'must be an array of fields');
-        else v.forEach((f, i) => checkField(f, `${p}[${i}]`));
+        else for (const [i, f] of v.entries()) checkField(f, `${p}[${i}]`);
       } else if (k === 'providers') {
         if (!Array.isArray(v) || v.length === 0)
           c.error(
@@ -678,14 +678,13 @@ export const parseArtisanSchema = (
             'must be a non-empty array of provider ids',
           );
         else
-          v.forEach((id, i) =>
+          for (const [i, id] of v.entries())
             reference(
               id,
               pol.paymentProviders,
               `${p}[${i}]`,
               'payment provider',
-            ),
-          );
+            );
       } else if (k === 'strategy')
         reference(v, pol.waitStrategies, p, 'wait strategy');
       else if (k === 'renderer') reference(v, pol.renderers, p, 'renderer');
@@ -709,15 +708,17 @@ export const parseArtisanSchema = (
       } else if (k === 'actions') {
         if (!Array.isArray(v)) c.error('invalid-type', p, 'must be an array');
         else
-          v.forEach((a, i) => {
-            if (!isObj(a))
-              return c.error('invalid-type', `${p}[${i}]`, 'must be an object');
+          for (const [i, a] of v.entries()) {
+            if (!isObj(a)) {
+              c.error('invalid-type', `${p}[${i}]`, 'must be an object');
+              continue;
+            }
             checkKeys(a, ['label', 'href', 'action'], `${p}[${i}]`, c);
             need.string(a.label, `${p}[${i}].label`, c, true);
             if (a.href !== undefined) need.string(a.href, `${p}[${i}].href`, c);
             if (a.action !== undefined)
               reference(a.action, pol.actions, `${p}[${i}].action`, 'action');
-          });
+          }
       } else if (k === 'config') {
         if (!isObj(v)) c.error('invalid-type', p, 'must be an object');
       } else need.string(v, p, c, true); // message, errorMessage, summary, content, href
@@ -761,7 +762,7 @@ export const parseArtisanSchema = (
     c.error('invalid-type', 'steps', 'steps must be an array');
   else if (input.steps.length === 0)
     c.error('empty-steps', 'steps', 'a schema needs at least one step');
-  else input.steps.forEach((s, i) => checkStep(s, `steps[${i}]`));
+  else for (const [i, s] of input.steps.entries()) checkStep(s, `steps[${i}]`);
 
   for (const r of refs.fieldRefs) {
     if (!refs.fieldNames.has(r.name))
