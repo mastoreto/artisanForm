@@ -45,5 +45,13 @@ export const fieldsOf = (step: StepSchema): FieldSchema[] => {
   ];
 };
 
+/** Form values a step stores for itself (outside its fields), e.g. a payment record. */
+export const storedName = (step: StepSchema): string | undefined =>
+  typeof step.resultName === 'string'
+    ? step.resultName
+    : step.kind === 'payment'
+      ? 'payment'
+      : undefined;
+
 export const visibleFields = (step: StepSchema, values: Values) =>
   fieldsOf(step).filter((f) => isFieldVisible(f, values));

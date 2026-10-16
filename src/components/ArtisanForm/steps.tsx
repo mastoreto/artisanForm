@@ -2,11 +2,13 @@ import type { FormikValues } from 'formik';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type { ArtisanLabels } from '../../commons/labels';
+import type { PaymentPlugin } from '../../payments/types';
 import type { StorageMap } from '../../storage/types';
 import type { SubmitState } from '../../stores/useArtisanStore';
 import type { WaitStatus, WaitStrategy } from '../../wait';
 import { visibleFields } from './conditions';
 import { definitionOf, type FieldRegistry } from './fields';
+import PaymentStep from './PaymentStep';
 import type {
   FieldOption,
   FieldSchema,
@@ -24,6 +26,10 @@ export interface StepContext {
   labels: ArtisanLabels;
   fieldRegistry: FieldRegistry;
   storage: StorageMap;
+  plugins: {
+    payments: Record<string, PaymentPlugin>;
+    navigate: (url: string) => void;
+  };
   /** All currently visible steps (in order). */
   steps: StepSchema[];
   /** The step's fields that are currently visible. */
@@ -331,6 +337,11 @@ const PendingStep = (ctx: StepContext) => {
 };
 
 export const defaultStepRegistry: StepRegistry = {
+  /** Takes a payment through a plugin (`provider`/`providers`), embedded or via redirect. */
+  payment: {
+    render: (ctx) => <PaymentStep {...ctx} />,
+    controls: { hidden: true },
+  },
   form: { render: (ctx) => <FormStep {...ctx} /> },
   /** Waits for a `wait` strategy (polling, sse, websocket, callback); auto-advances on success. */
   pending: {

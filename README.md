@@ -99,7 +99,7 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 
 | Propiedad | Descripción |
 | --- | --- |
-| `kind` | Tipo de paso: `form` (por defecto), `terms`, `pending`, `review`, `result`, `custom` (más los que registres con `stepTypes`). |
+| `kind` | Tipo de paso: `form` (por defecto), `terms`, `payment`, `pending`, `review`, `result`, `custom` (más los que registres con `stepTypes`). |
 | `beforeNext(values)` | Corre tras validar el paso y antes de avanzar. Devolvé `{ error }` o lanzá un error para bloquear mostrando el mensaje (ej. crear una orden en tu backend). |
 | `onEnter(values)` | Corre cada vez que el paso pasa a ser el actual. |
 | `controls` | `hidden`, `hidePrevious`, `hideNext`, `nextDisabled`, `nextLabel`, `previousLabel`. |
@@ -110,6 +110,41 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 - **`terms`**: texto de términos (`content`: texto o JSX, con scroll) y/o enlace (`href`) más un checkbox de aceptación obligatorio (valor `termsAccepted`; cambialo con `acceptName`/`acceptLabel`, o definí tus propios `fields`).
 - **`review`**: resumen de todos los pasos anteriores con un botón "Editar" por paso (contraseñas enmascaradas; opciones con su etiqueta).
 - **`result`**: pantalla final tras `onSubmit`. Props del paso: `message`, `errorMessage`, `actions: [{ label, href? , onClick? }]`. Se muestra al terminar el envío (éxito o error); en error ofrece "Reintentar" y "Volver al formulario". El último paso que no es `result` es el que envía.
+
+### Pagos
+
+`kind: 'payment'` cobra a través de un **plugin**. Stripe, Lemon Squeezy, Mercado Pago y PayPal son plugins (ver más abajo) y podés escribir el tuyo con el mismo contrato `PaymentPlugin`. Props del paso: `provider` (id del plugin) o `providers` (el usuario elige), `summary` (texto/JSX informativo) y `resultName` (por defecto `payment`: se guarda `{ provider, status, reference }` y viaja en `onSubmit`).
+
+```tsx
+<ArtisanForm
+  scheme={{ steps: [
+    { title: 'Plan', fields: [/* … */] },
+    { title: 'Pago', kind: 'payment', providers: ['stripe', 'mercadopago'], summary: 'Plan Pro' },
+    { title: 'Confirmación', kind: 'pending', wait: polling(checkOrder) },
+    { title: 'Listo', kind: 'result' },
+  ] }}
+  plugins={{ payments: [stripe({ /* … */ }), mercadopago({ /* … */ })] }}
+  persistKey="checkout"   // necesario para los checkouts con redirect
+  onSubmit={save}
+/>
+```
+
+- **Embebido** (`mode: 'embedded'`): el plugin monta la UI hospedada del proveedor (`render({ request, onResult })`).
+- **Redirect** (`mode: 'redirect'`): `start(request)` crea el checkout (vía tu backend) y devuelve su URL; el usuario vuelve a tu página y `resume(params)` lee el resultado. Con `persistKey` el wizard vuelve al paso de pago. `plugins.navigate` reemplaza `location.assign`.
+- Resultados: `succeeded` avanza; `processing` avanza para que un paso `pending` lo confirme (webhook); `failed` muestra el error con "Reintentar" (nueva `idempotencyKey`) y "Volver".
+
+**Seguridad:** la librería **nunca toca datos de tarjeta** (UI hospedada o redirect) y el **monto/moneda/items los define y verifica tu servidor** (`PaymentRequest` no incluye importes). Usá `idempotencyKey` en tu backend para evitar cobros dobles y confirmá el pago real por webhook, no por lo que reporta el navegador. `mockPayment()` simula un proveedor para demos y tests.
+
+**Plugin propio:**
+
+```ts
+const miProveedor: PaymentPlugin = {
+  id: 'mio', name: 'Mi proveedor', mode: 'redirect',
+  start: async (req) => ({ url: (await fetch('/api/checkout', { method: 'POST', headers: { 'Idempotency-Key': req.idempotencyKey }, body: JSON.stringify(req.values) }).then(r => r.json())).url }),
+  resume: (params) => params.get('status') === 'ok' ? { status: 'succeeded', reference: params.get('ref') ?? undefined } : null,
+  resumeKeys: ['status', 'ref'],
+};
+```
 
 ### Espera de confirmación
 
