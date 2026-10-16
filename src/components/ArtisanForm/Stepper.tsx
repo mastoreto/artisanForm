@@ -1,16 +1,18 @@
 import { cn } from '../../commons/cn';
+import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
 import type { StepSchema } from './types';
 
 interface StepperProps {
   steps: StepSchema[];
   current: number;
+  labels?: ArtisanLabels;
 }
 
 /** Progress indicator; also announces the step change to screen readers. */
-const Stepper = ({ steps, current }: StepperProps) => (
-  <nav aria-label="Progreso" className="mb-4">
+const Stepper = ({ steps, current, labels = defaultLabels }: StepperProps) => (
+  <nav aria-label={labels.progress} className="mb-4">
     <p className="sr-only" aria-live="polite">
-      {`Paso ${current + 1} de ${steps.length}: ${steps[current]?.title ?? ''}`}
+      {labels.step(current + 1, steps.length, steps[current]?.title ?? '')}
     </p>
     <ol className="flex gap-2">
       {steps.map((step, i) => (
@@ -24,7 +26,7 @@ const Stepper = ({ steps, current }: StepperProps) => (
               : 'border-gray-300 text-gray-500',
           )}
         >
-          <span className="sr-only">{`Paso ${i + 1}: `}</span>
+          <span className="sr-only">{labels.stepItem(i + 1)}</span>
           {step.title}
         </li>
       ))}

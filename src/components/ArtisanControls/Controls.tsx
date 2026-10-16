@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../../commons/cn';
+import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
 import { useArtisanStore } from '../../stores/useArtisanStore';
 
 interface ControlsProps {
@@ -7,14 +8,21 @@ interface ControlsProps {
   onNext?: () => void;
   /** Disables "Finalizar" while a submit is in flight. */
   isSubmitting?: boolean;
+  labels?: Partial<Pick<ArtisanLabels, 'previous' | 'next' | 'submit'>>;
 }
 
-const Controls = ({ onNext, isSubmitting }: ControlsProps): JSX.Element => {
+const Controls = ({
+  onNext,
+  isSubmitting,
+  labels,
+}: ControlsProps): JSX.Element => {
   const isFinalStep = useArtisanStore((state) => state.isFinalStep);
   const step = useArtisanStore((state) => state.step);
   const processStep = useArtisanStore((state) => state.processStep);
   const setStep = useArtisanStore((state) => state.setStep);
   const setProcessStep = useArtisanStore((state) => state.setProcessStep);
+
+  const text = { ...defaultLabels, ...labels };
 
   const classes = {
     container: cn(
@@ -60,7 +68,7 @@ const Controls = ({ onNext, isSubmitting }: ControlsProps): JSX.Element => {
           className={classes.button}
           onClick={() => handlePrevious()}
         >
-          Anterior
+          {text.previous}
         </button>
       )}
       {!isFinalStep && (
@@ -69,7 +77,7 @@ const Controls = ({ onNext, isSubmitting }: ControlsProps): JSX.Element => {
           className={classes.button}
           onClick={() => (onNext ?? handleNext)()}
         >
-          Siguiente
+          {text.next}
         </button>
       )}
       {isFinalStep && (
@@ -78,7 +86,7 @@ const Controls = ({ onNext, isSubmitting }: ControlsProps): JSX.Element => {
           className={classes.button}
           disabled={isSubmitting}
         >
-          Finalizar
+          {text.submit}
         </button>
       )}
     </div>

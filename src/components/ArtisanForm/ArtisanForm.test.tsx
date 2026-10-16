@@ -220,3 +220,17 @@ test('radio group is exposed with radio roles', async () => {
     screen.getByRole('radio', { name: 'Pro' }).getAttribute('aria-checked'),
   ).toBe('true');
 });
+
+test('labels override buttons and validation messages', async () => {
+  const user = userEvent.setup();
+  render(
+    <ArtisanForm
+      scheme={scheme}
+      onSubmit={() => {}}
+      labels={{ next: 'Next', required: 'Required' }}
+    />,
+  );
+  await user.click(screen.getByText('Next'));
+  expect(await screen.findByText('Required')).toBeTruthy();
+  expect(screen.queryByText('Siguiente')).toBeNull();
+});
