@@ -38,6 +38,7 @@ export type {
   PaymentResult,
   PluginsConfig,
 } from './payments/types';
+export * from './schema';
 export { type CloudinaryOptions, cloudinary } from './storage/cloudinary';
 export { mockStorage } from './storage/mock';
 export {
