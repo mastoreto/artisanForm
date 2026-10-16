@@ -1,4 +1,4 @@
-import type { JSONValue } from '../schema/types';
+import type { JSONValue } from '../schema/contract/types';
 
 /**
  * What a draft stores. Plain JSON; never secrets (passwords, tokens, anything

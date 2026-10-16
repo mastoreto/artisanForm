@@ -359,17 +359,20 @@ Los inputs sueltos usan `useField` de Formik: reciben `name` (no `value`/`onChan
 ├── e2e/                     Tests de Playwright (contra el playground)
 ├── playground/              App React de prueba; escenarios en src/scenarios/
 ├── src/
-│   ├── commons/             cn(), labels, theme
-│   ├── components/
-│   │   ├── ArtisanControls/ Botones Anterior / Siguiente / Finalizar
-│   │   ├── ArtisanForm/     Wizard: tipos, registro de campos y pasos, validación, borrador, PaymentStep
-│   │   └── ArtisanInputs/   Un componente por tipo de input (+ stories)
-│   ├── schema/              Contrato público v1: tipos, condiciones, parser, normalize, adaptador 0.2.0
+│   ├── schema/              Contrato público v1: contract/, legacy/ (adaptador 0.2.0), parser, normalize
 │   ├── persistence/         Snapshots de borradores versionados
-│   ├── payments/            PaymentPlugin, mock y plugins (stripe, lemonsqueezy, mercadopago, paypal)
-│   ├── storage/             StorageAdapter, presignedPut, cloudinary, mock
-│   ├── wait/                WaitStrategy: polling, sse, websocket, callback
-│   ├── stores/              Estado de pasos por instancia (zustand)
+│   ├── engine/              Ejecuta un esquema: proyección, validación, borradores, estado de pasos
+│   ├── components/
+│   │   ├── ArtisanForm/     ArtisanForm, Wizard, Stepper
+│   │   ├── Controls/        Botones Anterior / Siguiente / Finalizar
+│   │   ├── inputs/          Un componente por tipo de input (+ stories)
+│   │   ├── fields/          Registro de campos (render, valores, reglas por tipo)
+│   │   └── steps/           Registro de pasos + PaymentStep, StatusPanel
+│   ├── integrations/
+│   │   ├── payments/        PaymentPlugin, mock y proveedores (stripe, lemonsqueezy, mercadopago, paypal)
+│   │   ├── storage/         StorageAdapter, presignedPut, cloudinary, mock
+│   │   └── wait/            WaitStrategy: polling, sse, websocket, callback
+│   ├── commons/             cn, labels, theme
 │   └── index.ts             Entry de la librería
 ├── AGENTS.md                Forma de trabajo (humanos y agentes)
 └── vite.config.ts · tailwind.config.js · tsconfig.json · biome.jsonc · playwright.config.ts

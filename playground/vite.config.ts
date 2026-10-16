@@ -13,7 +13,7 @@ export default defineConfig({
       // Subpaths first: the bare name would otherwise swallow them.
       {
         find: /^artisanform\/payments\/(.*)$/,
-        replacement: `${resolve(repo, 'src/payments')}/$1.tsx`,
+        replacement: `${resolve(repo, 'src/integrations/payments/providers')}/$1.tsx`,
       },
       { find: /^artisanform$/, replacement: resolve(repo, 'src/index.ts') },
     ],

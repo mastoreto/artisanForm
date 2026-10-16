@@ -1,7 +1,7 @@
 import { cn } from '../../commons/cn';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import { theme } from '../../commons/theme';
-import type { StepSchema } from './types';
+import type { StepSchema } from '../../schema/legacy/types';
 
 interface StepperProps {
   steps: StepSchema[];

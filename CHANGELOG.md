@@ -12,6 +12,7 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 - **Draft snapshots** (`ArtisanSnapshotV1`): step by id, `formId`/`formRevision`, incompatibility detection with `onSnapshotConflict` (default: back up and start clean), restoration of 0.2.0 drafts and always-JSON values.
 - **Compatibility**: `FormSchema`/`FieldSchema`/`StepSchema` are `@deprecated` but keep working; no export was removed. A 0.2.0 form and its v1 equivalent render the same HTML.
 - Documentation: [docs/schema-v1.md](docs/schema-v1.md).
+- Source reorganized by layers (`schema/{contract,legacy}`, `engine/`, `components/{ArtisanForm,Controls,inputs,fields,steps}`, `integrations/{payments,storage,wait}`, tests in `__tests__/`). The public API and package subpaths are unchanged; only the `types` entries of the `artisanform/payments/*` exports point to the new declaration files.
 - Documentation language: everything is now written in English; Spanish versions live in [docs/es/](docs/es/).
 
 ## 0.2.0 (unreleased)

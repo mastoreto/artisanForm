@@ -56,9 +56,9 @@
       // Positional rows/boxes (no stable identity) and the combobox popup
       // (custom listbox of the ARIA combobox pattern).
       "includes": [
-        "src/components/ArtisanInputs/ArrayField/ArrayField.tsx",
-        "src/components/ArtisanInputs/Otp/Otp.tsx",
-        "src/components/ArtisanInputs/Combobox/Combobox.tsx"
+        "src/components/inputs/ArrayField/ArrayField.tsx",
+        "src/components/inputs/Otp/Otp.tsx",
+        "src/components/inputs/Combobox/Combobox.tsx"
       ],
       "linter": {
         "rules": {
@@ -71,7 +71,7 @@
       // ARIA combobox pattern: the listbox/options live in a popup while DOM
       // focus stays on the input (aria-activedescendant), so options are not
       // tabbable by design.
-      "includes": ["src/components/ArtisanInputs/Combobox/Combobox.tsx"],
+      "includes": ["src/components/inputs/Combobox/Combobox.tsx"],
       "linter": {
         "rules": {
           "a11y": {
@@ -83,7 +83,7 @@
     },
     {
       // The scrollable terms text must be reachable with the keyboard.
-      "includes": ["src/components/ArtisanForm/steps.tsx"],
+      "includes": ["src/components/steps/registry.tsx"],
       "linter": { "rules": { "a11y": { "noNoninteractiveTabindex": "off" } } }
     },
     {
@@ -95,10 +95,10 @@
       // Chip-styled buttons exposed with group/radio roles (a native
       // fieldset/radio input would defeat the design); static step list.
       "includes": [
-        "src/components/ArtisanInputs/Check/Check.tsx",
-        "src/components/ArtisanInputs/Radio/Radio.tsx",
-        "src/components/ArtisanInputs/Rating/Rating.tsx",
-        "src/components/ArtisanForm/PaymentStep.tsx",
+        "src/components/inputs/Check/Check.tsx",
+        "src/components/inputs/Radio/Radio.tsx",
+        "src/components/inputs/Rating/Rating.tsx",
+        "src/components/steps/PaymentStep.tsx",
         "src/components/ArtisanForm/Stepper.tsx"
       ],
       "linter": {
@@ -110,7 +110,7 @@
     },
     {
       // Yup's `when({ is, then, otherwise })` API requires a `then` key.
-      "includes": ["src/components/ArtisanForm/buildSchema.ts"],
+      "includes": ["src/engine/buildSchema.ts"],
       "linter": { "rules": { "suspicious": { "noThenProperty": "off" } } }
     }
   ],

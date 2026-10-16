@@ -30,28 +30,39 @@ Minimum verification for a change: `pnpm lint` + `pnpm typecheck` + `pnpm build`
 
 ```
 src/
-  commons/               cn(), labels (texts), theme (brand color)
-  components/
-    ArtisanControls/     Previous / Next / Finish buttons
-    ArtisanForm/         wizard: types, fields.tsx (field registry), steps.tsx (step registry),
-                         buildSchema, conditions, draft, PaymentStep (+ tests)
-    ArtisanInputs/<Name>/<Name>.tsx + <Name>.stories.tsx
-  schema/                public v1 contract (JSON): types, specs, conditions, parser, normalize, legacy.
-                         Must NOT import react/formik/yup/zustand (test + Biome rule)
+  index.ts               library entry (public exports only)
+  schema/                public v1 contract (JSON). Must NOT import react/formik/yup/zustand (test + Biome rule)
+    contract/            types, fields, steps, define, specs, conditions, json, errors
+    legacy/              the 0.2.0 shape (types.ts) + the adapter to v1 (adapter.ts)
+    parser.ts · normalize.ts
+    __tests__/           + fixtures/ (0.2.0 schemas mirroring the playground)
   persistence/           ArtisanSnapshotV1 and draft storage (does not import the engine either)
-  payments/              PaymentPlugin + mock and per-provider plugins (package subpaths)
-  storage/               StorageAdapter + presignedPut, cloudinary, mock
-  wait/                  WaitStrategy (polling, sse, websocket, callback)
-  stores/                per-instance step state
-  index.ts               library entry (public exports)
+  engine/                runs a schema; Formik/Yup/Zustand live here
+    project.ts           normalized schema → the shape the wizard consumes (the only seam that knows both)
+    buildSchema.ts · conditions.ts · draft.ts · extensions.ts · store/useArtisanStore.ts
+  components/
+    ArtisanForm/         ArtisanForm.tsx (public) · Wizard.tsx · Stepper.tsx · __tests__/ (integration)
+    Controls/            Previous / Next / Finish buttons
+    inputs/<Name>/       <Name>.tsx + <Name>.stories.tsx, one folder per input
+    fields/registry.tsx  field registry (render + initial values + rules per type)
+    steps/               registry.tsx (step registry) · PaymentStep.tsx · StatusPanel.tsx
+  integrations/          optional capabilities with their own contract
+    payments/            types, mock, Loading, providers/{stripe,lemonsqueezy,mercadopago,paypal} (package subpaths)
+    storage/             StorageAdapter + presignedPut, cloudinary, mock
+    wait/                WaitStrategy (polling, sse, websocket, callback)
+  commons/               cn.ts, labels.ts (texts), theme.ts (brand color)
+  styles/global.css
+  __tests__/setup.ts     happy-dom preload for bun test
 playground/              React test app (scenarios in src/scenarios)
 e2e/                     Playwright tests
 docs/                    English guides; docs/es/ has the Spanish versions
 ```
 
-A schema is normalized (`schema/normalize.ts`) and projected to the engine (`ArtisanForm/project.ts`): that is the only seam that knows both shapes. A new field or step in the v1 contract needs its type in `schema/fields.ts|steps.ts`, its entry in `schema/specs.ts` (the compiler enforces it), the parser and the projection. Guide: `docs/schema-v1.md`.
+Tests live in a `__tests__/` folder next to the code they cover (stories stay beside their component). Root config files (`vite`, `tailwind`, `postcss`, `biome`, `tsconfig`, `bunfig`, `playwright`) stay at the root because the tools look for them there.
 
-A new field type is a `FieldDefinition` in `fields.tsx` (render, initial values, rules) plus its component in `ArtisanInputs`. A new step type is a `StepDefinition` in `steps.tsx`. State screens (result, waiting, payment) share `StatusPanel` (icon/spinner + message + actions) so they look alike.
+A schema is normalized (`schema/normalize.ts`) and projected to the engine (`engine/project.ts`): that is the only seam that knows both shapes. A new field or step in the v1 contract needs its type in `schema/contract/fields.ts|steps.ts`, its entry in `schema/contract/specs.ts` (the compiler enforces it), the parser and the projection. Guide: `docs/schema-v1.md`.
+
+A new field type is a `FieldDefinition` in `components/fields/registry.tsx` (render, initial values, rules) plus its component in `components/inputs`. A new step type is a `StepDefinition` in `components/steps/registry.tsx`. State screens (result, waiting, payment) share `StatusPanel` (icon/spinner + message + actions) so they look alike.
 
 ## Branch workflow
 
