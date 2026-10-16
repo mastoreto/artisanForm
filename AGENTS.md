@@ -23,14 +23,22 @@ Verificación mínima de una feature: `pnpm lint` + `pnpm typecheck` + `pnpm bui
 
 ```
 src/
-  commons/cn/            helper cn() (clsx + tailwind-merge)
+  commons/               cn(), labels (textos), theme (color de marca)
   components/
     ArtisanControls/     botones Anterior / Siguiente / Finalizar
-    ArtisanForm/         contenedor wizard: scheme → pasos, validación (+ buildSchema.test.ts)
+    ArtisanForm/         wizard: types, fields.tsx (registro de campos), steps.tsx (registro de pasos),
+                         buildSchema, conditions, draft, PaymentStep (+ tests)
     ArtisanInputs/<Name>/<Name>.tsx + <Name>.stories.tsx
-  stores/useArtisanStore.ts   step, processStep, isFinalStep
+  payments/              PaymentPlugin + mock y plugins por proveedor (subpaths del paquete)
+  storage/               StorageAdapter + presignedPut, cloudinary, mock
+  wait/                  WaitStrategy (polling, sse, websocket, callback)
+  stores/                estado de pasos por instancia
   index.ts               entry de la lib (exports públicos)
+playground/              app React de prueba (escenarios en src/scenarios)
+e2e/                     tests de Playwright
 ```
+
+Un tipo de campo nuevo = una `FieldDefinition` en `fields.tsx` (render, valores iniciales, reglas) + su componente en `ArtisanInputs`. Un tipo de paso nuevo = una `StepDefinition` en `steps.tsx`.
 
 ## Flujo de trabajo por ramas
 
@@ -60,8 +68,10 @@ src/
 
 ## Estado actual / deuda conocida
 
-Versión 0.1.0 candidata: `ArtisanForm` por `scheme` (condicionales, async, borrador, labels, theming), inputs con Formik/Yup, build ES+CJS con peer deps, estilos distribuibles y tests (`bun test`, happy-dom). Pendiente: CI en GitHub (AF8, rama local `chore/AF8-ci`; el token de `gh` necesita scope `workflow`), publicar el paquete y desplegar Storybook. Detalle y hoja de ruta en el README.
+Versión 0.2.0: wizard por `scheme` con registros extensibles de campos y pasos, pagos por plugin (Stripe, Lemon Squeezy, Mercado Pago, PayPal), archivos con `StorageAdapter`, esperas con `WaitStrategy`, Biome, playground y e2e. Pendiente: CI en GitHub (AF8, rama local `chore/AF8-ci`; el token de `gh` necesita scope `workflow`), publicar el paquete, desplegar Storybook y probar los plugins de pago contra sandbox con credenciales de prueba. Detalle y hoja de ruta en el README.
 
-Las tareas son issues de GitHub con el código `AF<n>` en el título (AF8 = issue #2, AF<n> = issue #n-6).
+Las tareas son issues de GitHub con el código `AF<n>` en el título (issue = n-6 hasta AF21; AF22 = issue #16, es decir, n-6 también).
 
-Convención de tests: `*.test.ts(x)` junto al código, `bun test` (preload en `bunfig.toml` con happy-dom), Testing Library para componentes.
+Convenciones de tests: `*.test.ts(x)` junto al código con `bun test` (happy-dom + Testing Library, preload en `bunfig.toml`); flujos en navegador real en `e2e/` con Playwright contra `pnpm playground`. Si el playground ya corre y los cambios no se reflejan, reinicialo (HMR puede quedar desactualizado).
+
+Principios que no se negocian: la librería **no maneja secretos ni datos de tarjeta**; montos, órdenes y firmas de subida los resuelve el backend del usuario; los SDK de terceros son peers opcionales en subpaths.

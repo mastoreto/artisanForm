@@ -75,7 +75,7 @@
     "playground": "vite --config playground/vite.config.ts",
     "e2e": "playwright test"
   },
-  "version": "0.1.0",
+  "version": "0.2.0",
   "sideEffects": [
     "**/*.css"
   ],
