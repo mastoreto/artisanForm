@@ -47,6 +47,8 @@ export interface FieldDefinition {
   ) => Record<string, Yup.AnySchema>;
   /** The wrapper renders the label (group-like fields without a native one). */
   groupLabel?: boolean;
+  /** The group label is a real `<label for>` of the control (native single control). */
+  labelFor?: boolean;
   /** Never written to drafts (e.g. passwords). May depend on the field (arrays). */
   secret?: boolean | ((field: FieldSchema, registry: FieldRegistry) => boolean);
 }
@@ -278,9 +280,14 @@ const arrayDefinition: FieldDefinition = {
             const def = definitionOf(ctx.registry, s);
             return (
               <div key={path} className={ctx.cx('arrayRow')}>
-                {def.groupLabel && (
-                  <span className={ctx.cx('groupLabel')}>{s.label}</span>
-                )}
+                {def.groupLabel &&
+                  (def.labelFor ? (
+                    <label htmlFor={path} className={ctx.cx('groupLabel')}>
+                      {s.label}
+                    </label>
+                  ) : (
+                    <span className={ctx.cx('groupLabel')}>{s.label}</span>
+                  ))}
                 {renderField(def, row, ctx)}
               </div>
             );
@@ -540,6 +547,7 @@ export const defaultFieldRegistry: FieldRegistry = {
   date: dateLike('date'),
   select: {
     groupLabel: true,
+    labelFor: true,
     initialValues: (f) => ({ [f.name]: firstOption(f) }),
     rules: (f, labels) => stringRules(f, labels),
     render: (f) => <Select {...choiceProps(f)} />,

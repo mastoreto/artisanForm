@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": [],
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "paths": { "@/components/ui/*": ["./stubs/*"] }
+  },
+  "include": ["kit.tsx", "stubs"]
+}

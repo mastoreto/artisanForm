@@ -66,3 +66,50 @@ test('the same form is styled by tokens, Tailwind classes or plain CSS', async (
   await expect(page.locator('.plain-input').first()).toBeVisible();
   void bg;
 });
+
+test('the Bootstrap kit styles the wizard with Bootstrap classes', async ({
+  page,
+}) => {
+  await page.goto('/?demo=kits');
+  await expect(page.getByLabel('Name')).toHaveClass(/form-control/);
+  await expect(page.getByLabel('Plan')).toHaveClass(/form-select/);
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.getByText('Required field').first()).toBeVisible();
+  await expect(page.getByLabel('Name')).toBeFocused();
+  await page.getByLabel('Name').fill('Ana');
+  await page.getByLabel('Email').fill('ana@example.com');
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.getByText('Saved')).toBeVisible();
+});
+
+test('the Material UI kit renders MUI controls and keeps validation', async ({
+  page,
+}) => {
+  await page.goto('/?demo=mui');
+  await expect(page.locator('.MuiOutlinedInput-root').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.getByText('Required field').first()).toBeVisible();
+  await expect(page.getByLabel('Name')).toBeFocused();
+  await page.getByLabel('Name').fill('Ana');
+  await page.getByLabel('Email').fill('ana@example.com');
+  await page.getByLabel('Plan').selectOption('pro');
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.getByText('Saved')).toBeVisible();
+});
+
+test('the Tailwind kit styles the wizard with utilities only', async ({
+  page,
+}) => {
+  await page.goto('/?demo=tailwind');
+  await expect(page.getByLabel('Name')).toHaveClass(/rounded-md/);
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.getByLabel('Name')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByLabel('Name')).toHaveCSS(
+    'border-top-color',
+    'rgb(239, 68, 68)',
+  );
+  await page.getByLabel('Name').fill('Ana');
+  await page.getByLabel('Email').fill('ana@example.com');
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.getByText('Saved')).toBeVisible();
+});

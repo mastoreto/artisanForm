@@ -57,6 +57,7 @@ src/
   commons/               cn.ts (clsx), labels.ts (texts)
   styles/artisanform.css the only stylesheet: plain CSS, `af-*` classes, `--artisan-*` tokens
   __tests__/setup.ts     happy-dom preload for bun test
+packages/                workspace packages: ui-bootstrap, ui-mui, ui-tailwind, ui-scss (kits), ui-shadcn (template + registry item)
 playground/              React test app (scenarios in src/scenarios)
 e2e/                     Playwright tests
 docs/                    English guides; docs/es/ has the Spanish versions

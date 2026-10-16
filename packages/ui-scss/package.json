@@ -1,0 +1,23 @@
+{
+  "name": "@artisanform/ui-scss",
+  "version": "0.1.0",
+  "description": "Sass theme (tokens mixin) for ArtisanForm",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "scss"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "sass": "./scss/_index.scss",
+      "default": "./scss/_index.scss"
+    }
+  },
+  "peerDependencies": {
+    "artisanform": "workspace:^"
+  },
+  "devDependencies": {
+    "artisanform": "workspace:*"
+  }
+}

@@ -11,13 +11,15 @@ interface SelectProps {
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ name, options, disabled, className }, ref) => {
-    const [field] = useArtisanField<string>(name);
+    const [field, meta] = useArtisanField<string>(name);
     const cx = useCx();
 
     return (
       <div className={cx('selectWrap')}>
         <select
           {...field}
+          id={name}
+          aria-invalid={!!meta.error}
           value={field.value ?? ''}
           ref={ref}
           disabled={disabled}

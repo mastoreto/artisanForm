@@ -5,7 +5,7 @@
 import { execSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 
 const major = process.argv[2] ?? '19';
 const root = process.cwd();

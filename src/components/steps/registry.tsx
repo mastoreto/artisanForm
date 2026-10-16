@@ -120,9 +120,14 @@ const FormStep = ({ fields, fieldRegistry, labels, storage }: StepContext) => {
             className={cx('fieldCell')}
             data-span={f.width === 'half' ? 1 : 2}
           >
-            {def.groupLabel && (
-              <span className={cx('groupLabel')}>{f.label}</span>
-            )}
+            {def.groupLabel &&
+              (def.labelFor ? (
+                <label htmlFor={f.name} className={cx('groupLabel')}>
+                  {f.label}
+                </label>
+              ) : (
+                <span className={cx('groupLabel')}>{f.label}</span>
+              ))}
             {renderField(def, f, {
               labels,
               storage,
