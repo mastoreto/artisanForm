@@ -1,4 +1,5 @@
 import { ArtisanForm, type FormSchema, mockPayment } from 'artisanform';
+import { stripe } from 'artisanform/payments/stripe';
 import { useState } from 'react';
 
 const scheme: FormSchema = {
@@ -21,14 +22,20 @@ const scheme: FormSchema = {
     {
       title: 'Pago',
       kind: 'payment',
-      providers: ['card', 'hosted', 'declined'],
+      providers: ['card', 'hosted', 'declined', 'stripe'],
       summary: 'Total a pagar lo calcula tu servidor.',
     },
     { title: 'Listo', kind: 'result', message: 'Pago registrado' },
   ],
 };
 
+// Real Stripe plugin whose backend never answers: shows the loading state.
 const payments = [
+  stripe({
+    publishableKey: 'pk_test_playground',
+    name: 'Stripe (cargando)',
+    createPaymentIntent: () => new Promise(() => {}),
+  }),
   mockPayment({ id: 'card', name: 'Tarjeta (embebido)', delay: 300 }),
   mockPayment({ id: 'hosted', name: 'Checkout (redirect)', mode: 'redirect' }),
   mockPayment({

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Loading from './Loading';
 import type {
   EmbeddedRenderProps,
   PaymentPlugin,
@@ -86,11 +87,7 @@ const Brick = ({
   }, []);
 
   if (!ui) {
-    return (
-      <p role="status" className="text-gray-600">
-        {labels.loadingPayment}
-      </p>
-    );
+    return <Loading message={labels.loadingPayment} />;
   }
   const { amount, preferenceId, customization } = options.brick ?? {
     amount: 0,
