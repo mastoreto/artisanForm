@@ -1,22 +1,25 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef } from 'react';
+import { useField } from 'formik';
 import { cn } from '../../../commons/cn';
 
 interface TextInputProps {
   id: string;
+  name: string;
   label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   className?: string;
 }
 
 const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
-  ({ id, label, value, onChange, placeholder, className }, ref) => {
-    const [error, setError] = useState<string | null>('Error Message');
+  ({ id, name, label, placeholder, className }, ref) => {
+    const [field, meta] = useField<string>(name);
+    const error = meta.touched && meta.error ? meta.error : null;
 
     const classes = {
       input: cn(
-        `mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${className}`,
+        'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm',
+        error && 'border-red-500',
+        className,
       ),
     };
 
@@ -26,12 +29,14 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           {label}
         </label>
         <input
+          {...field}
+          value={field.value ?? ''}
           type="text"
           id={id}
-          value={value}
-          onChange={onChange}
           placeholder={placeholder}
           className={classes.input}
+          aria-invalid={!!error}
+          aria-describedby={error ? `${id}-error` : undefined}
           ref={ref}
         />
         {error && (

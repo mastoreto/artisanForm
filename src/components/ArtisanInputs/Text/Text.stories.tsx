@@ -1,45 +1,33 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import * as Yup from 'yup';
+import { withFormik } from '../../../../.storybook/withFormik';
 import Text from './Text';
 
-interface TextInputProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  className?: string;
-}
-
-const meta: Meta<TextInputProps> = {
+const meta: Meta<typeof Text> = {
   title: 'Controls/Artisan Inputs/Text',
   component: Text,
   tags: ['autodocs'],
-  argTypes: {
-    label: {
-      control: 'text',
-      defaultValue: 'Label',
-    },
-    placeholder: {
-      control: 'text',
-      defaultValue: 'Enter text here',
-    },
-    value: {
-      control: 'text',
-      defaultValue: 'Input Text',
-    },
-  },
+  args: { id: 'text-input', name: 'field', label: 'Text Input' },
 };
 
 export default meta;
 
-type Story = StoryObj<TextInputProps>;
+type Story = StoryObj<typeof Text>;
 
 export const Default: Story = {
-  args: {
-    id: 'text-input',
-    label: 'Text Input',
-    value: 'Input Text',
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      console.log(e.target.value),
-  },
+  decorators: [withFormik({ field: '' })],
+};
+
+/** Submit (or blur) the empty field to see the Yup error. */
+export const WithValidation: Story = {
+  decorators: [
+    withFormik(
+      { field: '' },
+      {
+        field: Yup.string()
+          .required('Campo requerido')
+          .min(3, 'Mínimo 3 caracteres'),
+      },
+    ),
+  ],
 };

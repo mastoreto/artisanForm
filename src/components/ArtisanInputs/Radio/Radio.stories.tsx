@@ -1,41 +1,35 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import * as Yup from 'yup';
+import { withFormik } from '../../../../.storybook/withFormik';
 import Radio from './Radio';
 
-interface Option {
-    label: string;
-    value: string;
-  }
-  
-  interface RadioProps {
-    options: Option[];
-  }
+const options = [
+  { value: '1', label: 'Option 1' },
+  { value: '2', label: 'Option 2' },
+  { value: '3', label: 'Option 3' },
+];
 
-const meta: Meta<RadioProps> = {
+const meta: Meta<typeof Radio> = {
   title: 'Controls/Artisan Inputs/Radio',
   component: Radio,
   tags: ['autodocs'],
-  argTypes: {
-    options: {
-      control: 'object',
-      defaultValue: [
-        { value: '1', label: 'Option 1' },
-        { value: '2', label: 'Option 2' },
-        { value: '3', label: 'Option 3' },
-      ],
-    },
-  },
+  args: { name: 'field', options },
 };
 
 export default meta;
 
-type Story = StoryObj<RadioProps>;
+type Story = StoryObj<typeof Radio>;
 
 export const Default: Story = {
-  args: {
-    options: [
-      { value: '1', label: 'Option 1' },
-      { value: '2', label: 'Option 2' },
-      { value: '3', label: 'Option 3' },
-    ],
-  },
+  decorators: [withFormik({ field: '' })],
+};
+
+/** Submit without choosing to see the Yup error. */
+export const WithValidation: Story = {
+  decorators: [
+    withFormik(
+      { field: '' },
+      { field: Yup.string().required('Elegí una opción') },
+    ),
+  ],
 };
