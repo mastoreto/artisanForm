@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
 import * as Yup from 'yup';
 import type { ArtisanLabels } from '../../commons/labels';
+import type { StorageMap } from '../../storage/types';
 import Check from '../ArtisanInputs/Check/Check';
 import Checkbox from '../ArtisanInputs/Checkbox/Checkbox';
 import DateInput from '../ArtisanInputs/Date/Date';
 import DynamicSelect from '../ArtisanInputs/DynamicSelect/DynamicSelect';
+import FileUpload from '../ArtisanInputs/FileUpload/FileUpload';
 import Password from '../ArtisanInputs/Password/Password';
 import Radio from '../ArtisanInputs/Radio/Radio';
 import Select from '../ArtisanInputs/Select/Select';
@@ -14,6 +16,8 @@ import type { FieldSchema } from './types';
 
 export interface FieldContext {
   labels: ArtisanLabels;
+  /** Storage adapters by key (see the `storage` prop of ArtisanForm). */
+  storage: StorageMap;
 }
 
 /** Everything the wizard needs to know about one field `type`. */
@@ -102,6 +106,33 @@ const textLike = (
 
 const firstOption = (f: FieldSchema) =>
   (f.defaultValue as string | undefined) ?? f.options?.[0]?.value ?? '';
+
+const fileDefinition = (image: boolean): FieldDefinition => ({
+  initialValues: (f) => single(f, []),
+  rules: (f, labels) => {
+    let a = Yup.array();
+    if (f.maxFiles) {
+      const max = f.maxFiles;
+      a = a.max(max, labels.tooManyFiles(max));
+    }
+    const min = f.minFiles ?? (f.required ? 1 : 0);
+    if (min > 0)
+      a = a.min(min, f.minFiles ? labels.minFiles(min) : labels.required);
+    return { [f.name]: a };
+  },
+  render: (f, { labels, storage }) => (
+    <FileUpload
+      {...textProps(f)}
+      storage={storage[f.storage ?? 'default'] ?? Object.values(storage)[0]}
+      accept={f.accept ?? (image ? 'image/*' : undefined)}
+      maxSize={f.maxSize}
+      maxFiles={f.maxFiles}
+      capture={f.capture}
+      preview={image}
+      labels={labels}
+    />
+  ),
+});
 
 export const defaultFieldRegistry: FieldRegistry = {
   text: {
@@ -209,6 +240,8 @@ export const defaultFieldRegistry: FieldRegistry = {
       />
     ),
   },
+  file: fileDefinition(false),
+  image: fileDefinition(true),
   date: {
     initialValues: (f) => single(f),
     rules: (f, labels) =>
