@@ -15,6 +15,7 @@ export default defineConfig({
         'src/**/*.stories.tsx',
         'src/**/*.test.ts',
         'src/**/*.test.tsx',
+        'src/**/__tests__/**',
         '.storybook/**/*',
       ],
     }),
@@ -24,10 +25,12 @@ export default defineConfig({
       // Provider plugins are separate entries so their SDKs stay optional.
       entry: {
         index: 'src/index.ts',
-        'payments/stripe': 'src/payments/stripe.tsx',
-        'payments/lemonsqueezy': 'src/payments/lemonsqueezy.tsx',
-        'payments/mercadopago': 'src/payments/mercadopago.tsx',
-        'payments/paypal': 'src/payments/paypal.tsx',
+        'payments/stripe': 'src/integrations/payments/providers/stripe.tsx',
+        'payments/lemonsqueezy':
+          'src/integrations/payments/providers/lemonsqueezy.tsx',
+        'payments/mercadopago':
+          'src/integrations/payments/providers/mercadopago.tsx',
+        'payments/paypal': 'src/integrations/payments/providers/paypal.tsx',
       },
       formats: ['es', 'cjs'],
       fileName: (format, name) =>

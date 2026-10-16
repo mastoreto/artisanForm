@@ -29,12 +29,12 @@ interface ArtisanSchemaV1 {
 
 | Capa | Dónde | Estado |
 | --- | --- | --- |
-| Contrato público (tipos) | `src/schema/{types,fields,steps,define}.ts` | ✅ |
-| Tablas por tipo (propiedades permitidas) | `src/schema/specs.ts` | ✅ |
-| Condiciones (evaluador puro) | `src/schema/conditions.ts` | ✅ |
+| Contrato público (tipos) | `src/schema/contract/{types,fields,steps,define}.ts` | ✅ |
+| Tablas por tipo (propiedades permitidas) | `src/schema/contract/specs.ts` | ✅ |
+| Condiciones (evaluador puro) | `src/schema/contract/conditions.ts` | ✅ |
 | Parser / validación estructural | `src/schema/parser.ts` | ✅ |
-| Normalización + adaptador 0.2.0 | `src/schema/{normalize,legacy}.ts` | ✅ / 🔁 |
-| Proyección al motor | `src/components/ArtisanForm/project.ts` | ✅ |
+| Normalización + adaptador 0.2.0 | `src/schema/{normalize.ts,legacy/adapter.ts}` | ✅ / 🔁 |
+| Proyección al motor | `src/engine/project.ts` | ✅ |
 | Snapshots de borradores | `src/persistence/` | ✅ |
 
 ## 3. Pasos y campos
@@ -81,7 +81,7 @@ Un campo con una propiedad que su tipo no admite es un **error** del parser (`un
 ] }
 ```
 
-Operadores: `eq neq gt gte lt lte in notIn filled empty`; combinadores `all any not`. Sin `eval`, sin `new Function`, sin callbacks. Reglas (probadas en `src/schema/conditions.test.ts`):
+Operadores: `eq neq gt gte lt lte in notIn filled empty`; combinadores `all any not`. Sin `eval`, sin `new Function`, sin callbacks. Reglas (probadas en `src/schema/__tests__/conditions.test.ts`):
 
 | Caso | Regla |
 | --- | --- |
@@ -222,7 +222,7 @@ interface ArtisanSnapshotV1 {
 `scheme` acepta `FormSchema` (0.2.0) **o** `ArtisanSchemaV1`; ambos pasan por la misma tubería:
 
 ```
-FormSchema (0.2.0) ─► adaptador (legacy.ts) ─┐
+FormSchema (0.2.0) ─► adaptador (legacy/adapter.ts) ─┐
                                               ├─► NormalizedArtisanSchema ─► proyección ─► motor actual
 ArtisanSchemaV1 ───► parser + defaults ───────┘
 ```

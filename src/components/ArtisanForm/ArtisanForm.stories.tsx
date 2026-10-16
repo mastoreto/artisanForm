@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import type { FormSchema } from '../../schema/legacy/types';
 import ArtisanForm from './ArtisanForm';
-import type { FormSchema } from './types';
 
 const scheme: FormSchema = {
   steps: [

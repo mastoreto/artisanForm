@@ -2,62 +2,57 @@ import './styles/global.css';
 
 export { cn } from './commons/cn';
 export { type ArtisanLabels, defaultLabels } from './commons/labels';
-export { default as Controls } from './components/ArtisanControls/Controls';
 export { default as ArtisanForm } from './components/ArtisanForm/ArtisanForm';
-export type { ArtisanExtensions } from './components/ArtisanForm/extensions';
+export { default as Controls } from './components/Controls/Controls';
 export {
   defaultFieldRegistry,
   type FieldContext,
   type FieldDefinition,
   type FieldRegistry,
-} from './components/ArtisanForm/fields';
+} from './components/fields/registry';
+export { default as Check } from './components/inputs/Check/Check';
+export { default as DateInput } from './components/inputs/Date/Date';
+export { default as DynamicSelect } from './components/inputs/DynamicSelect/DynamicSelect';
+export { default as Password } from './components/inputs/Password/Password';
+export { default as Radio } from './components/inputs/Radio/Radio';
+export { default as Select } from './components/inputs/Select/Select';
+export { default as TextInput } from './components/inputs/Text/Text';
+export { default as Textarea } from './components/inputs/Textarea/Textarea';
 export {
   defaultStepRegistry,
   type StepContext,
   type StepDefinition,
   type StepRegistry,
-} from './components/ArtisanForm/steps';
-export type {
-  BuiltInFieldType,
-  FieldSchema,
-  FormSchema,
-  StepSchema,
-} from './components/ArtisanForm/types';
-export { default as Check } from './components/ArtisanInputs/Check/Check';
-export { default as DateInput } from './components/ArtisanInputs/Date/Date';
-export { default as DynamicSelect } from './components/ArtisanInputs/DynamicSelect/DynamicSelect';
-export { default as Password } from './components/ArtisanInputs/Password/Password';
-export { default as Radio } from './components/ArtisanInputs/Radio/Radio';
-export { default as Select } from './components/ArtisanInputs/Select/Select';
-export { default as TextInput } from './components/ArtisanInputs/Text/Text';
-export { default as Textarea } from './components/ArtisanInputs/Textarea/Textarea';
-export { mockPayment } from './payments/mock';
+} from './components/steps/registry';
+export type { ArtisanExtensions } from './engine/extensions';
+export {
+  ArtisanStoreProvider,
+  useArtisanStore,
+} from './engine/store/useArtisanStore';
+export { mockPayment } from './integrations/payments/mock';
 export type {
   EmbeddedRenderProps,
   PaymentPlugin,
   PaymentRequest,
   PaymentResult,
   PluginsConfig,
-} from './payments/types';
-export * from './persistence';
-export * from './schema';
-export { type CloudinaryOptions, cloudinary } from './storage/cloudinary';
-export { mockStorage } from './storage/mock';
+} from './integrations/payments/types';
+export {
+  type CloudinaryOptions,
+  cloudinary,
+} from './integrations/storage/cloudinary';
+export { mockStorage } from './integrations/storage/mock';
 export {
   type PresignedOptions,
   type PresignedTarget,
   presignedPut,
-} from './storage/presigned';
+} from './integrations/storage/presigned';
 export type {
   StorageAdapter,
   StorageMap,
   UploadedFile,
   UploadOptions,
-} from './storage/types';
-export {
-  ArtisanStoreProvider,
-  useArtisanStore,
-} from './stores/useArtisanStore';
+} from './integrations/storage/types';
 export {
   callback,
   polling,
@@ -66,4 +61,12 @@ export {
   type WaitStatus,
   type WaitStrategy,
   websocket,
-} from './wait';
+} from './integrations/wait';
+export * from './persistence';
+export * from './schema';
+export type {
+  BuiltInFieldType,
+  FieldSchema,
+  FormSchema,
+  StepSchema,
+} from './schema/legacy/types';

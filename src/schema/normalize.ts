@@ -1,9 +1,9 @@
-import type { ArtisanSchemaV1 } from './define';
-import { ArtisanSchemaError } from './errors';
-import { cloneJSON } from './json';
-import { adaptLegacySchema, type LegacyFormSchema } from './legacy';
+import type { ArtisanSchemaV1 } from './contract/define';
+import { ArtisanSchemaError } from './contract/errors';
+import { cloneJSON } from './contract/json';
+import type { SchemaIssue } from './contract/types';
+import { adaptLegacySchema, type LegacyFormSchema } from './legacy/adapter';
 import { parseArtisanSchema } from './parser';
-import type { SchemaIssue } from './types';
 
 export interface NormalizeOptions {
   /** Form id for schemas that have none (0.2.0 schemas). */

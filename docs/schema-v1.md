@@ -29,12 +29,12 @@ interface ArtisanSchemaV1 {
 
 | Layer | Where | Status |
 | --- | --- | --- |
-| Public contract (types) | `src/schema/{types,fields,steps,define}.ts` | ✅ |
-| Per-type tables (allowed properties) | `src/schema/specs.ts` | ✅ |
-| Conditions (pure evaluator) | `src/schema/conditions.ts` | ✅ |
+| Public contract (types) | `src/schema/contract/{types,fields,steps,define}.ts` | ✅ |
+| Per-type tables (allowed properties) | `src/schema/contract/specs.ts` | ✅ |
+| Conditions (pure evaluator) | `src/schema/contract/conditions.ts` | ✅ |
 | Parser / structural validation | `src/schema/parser.ts` | ✅ |
-| Normalization + 0.2.0 adapter | `src/schema/{normalize,legacy}.ts` | ✅ / 🔁 |
-| Projection to the engine | `src/components/ArtisanForm/project.ts` | ✅ |
+| Normalization + 0.2.0 adapter | `src/schema/{normalize.ts,legacy/adapter.ts}` | ✅ / 🔁 |
+| Projection to the engine | `src/engine/project.ts` | ✅ |
 | Draft snapshots | `src/persistence/` | ✅ |
 
 ## 3. Steps and fields
@@ -81,7 +81,7 @@ A field with a property its type does not accept is a parser **error** (`unknown
 ] }
 ```
 
-Operators: `eq neq gt gte lt lte in notIn filled empty`; combinators `all any not`. No `eval`, no `new Function`, no callbacks. Rules (tested in `src/schema/conditions.test.ts`):
+Operators: `eq neq gt gte lt lte in notIn filled empty`; combinators `all any not`. No `eval`, no `new Function`, no callbacks. Rules (tested in `src/schema/__tests__/conditions.test.ts`):
 
 | Case | Rule |
 | --- | --- |
@@ -222,7 +222,7 @@ interface ArtisanSnapshotV1 {
 `scheme` accepts a `FormSchema` (0.2.0) **or** an `ArtisanSchemaV1`; both go through the same pipeline:
 
 ```
-FormSchema (0.2.0) ─► adapter (legacy.ts) ─┐
+FormSchema (0.2.0) ─► adapter (legacy/adapter.ts) ─┐
                                             ├─► NormalizedArtisanSchema ─► projection ─► current engine
 ArtisanSchemaV1 ───► parser + defaults ─────┘
 ```

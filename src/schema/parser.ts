@@ -1,14 +1,14 @@
-import type { ArtisanSchemaV1 } from './define';
-import type { NativeFieldType } from './fields';
+import type { ArtisanSchemaV1 } from './contract/define';
+import type { NativeFieldType } from './contract/fields';
 import {
   FIELD_KEYS,
   isExtensionType,
   isNativeFieldType,
   isNativeStepType,
   STEP_KEYS,
-} from './specs';
-import type { NativeStepType } from './steps';
-import type { SchemaIssue } from './types';
+} from './contract/specs';
+import type { NativeStepType } from './contract/steps';
+import type { SchemaIssue } from './contract/types';
 
 /**
  * Which locally registered things a schema may reference. Used for schemas

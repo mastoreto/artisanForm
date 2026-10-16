@@ -32,28 +32,39 @@ Verificación mínima de un cambio: `pnpm lint` + `pnpm typecheck` + `pnpm build
 
 ```
 src/
-  commons/               cn(), labels (textos), theme (color de marca)
-  components/
-    ArtisanControls/     botones Anterior / Siguiente / Finalizar
-    ArtisanForm/         wizard: types, fields.tsx (registro de campos), steps.tsx (registro de pasos),
-                         buildSchema, conditions, draft, PaymentStep (+ tests)
-    ArtisanInputs/<Name>/<Name>.tsx + <Name>.stories.tsx
-  schema/                contrato público v1 (JSON): tipos, specs, condiciones, parser, normalize, legacy.
-                         NO importa react/formik/yup/zustand (test + regla de Biome)
+  index.ts               entry de la lib (solo exports públicos)
+  schema/                contrato público v1 (JSON). NO importa react/formik/yup/zustand (test + regla de Biome)
+    contract/            tipos, fields, steps, define, specs, conditions, json, errors
+    legacy/              la forma 0.2.0 (types.ts) + el adaptador a v1 (adapter.ts)
+    parser.ts · normalize.ts
+    __tests__/           + fixtures/ (esquemas 0.2.0 que reflejan el playground)
   persistence/           ArtisanSnapshotV1 y storage de borradores (tampoco importa el motor)
-  payments/              PaymentPlugin + mock y plugins por proveedor (subpaths del paquete)
-  storage/               StorageAdapter + presignedPut, cloudinary, mock
-  wait/                  WaitStrategy (polling, sse, websocket, callback)
-  stores/                estado de pasos por instancia
-  index.ts               entry de la lib (exports públicos)
+  engine/                ejecuta un esquema; acá viven Formik/Yup/Zustand
+    project.ts           esquema normalizado → la forma que consume el wizard (la única costura que conoce ambas)
+    buildSchema.ts · conditions.ts · draft.ts · extensions.ts · store/useArtisanStore.ts
+  components/
+    ArtisanForm/         ArtisanForm.tsx (público) · Wizard.tsx · Stepper.tsx · __tests__/ (integración)
+    Controls/            botones Anterior / Siguiente / Finalizar
+    inputs/<Name>/       <Name>.tsx + <Name>.stories.tsx, una carpeta por input
+    fields/registry.tsx  registro de campos (render + valores iniciales + reglas por tipo)
+    steps/               registry.tsx (registro de pasos) · PaymentStep.tsx · StatusPanel.tsx
+  integrations/          capacidades opcionales con su propio contrato
+    payments/            types, mock, Loading, providers/{stripe,lemonsqueezy,mercadopago,paypal} (subpaths del paquete)
+    storage/             StorageAdapter + presignedPut, cloudinary, mock
+    wait/                WaitStrategy (polling, sse, websocket, callback)
+  commons/               cn.ts, labels.ts (textos), theme.ts (color de marca)
+  styles/global.css
+  __tests__/setup.ts     preload de happy-dom para bun test
 playground/              app React de prueba (escenarios en src/scenarios)
 e2e/                     tests de Playwright
 docs/                    guías en inglés; docs/es/ tiene las versiones en español
 ```
 
-El esquema se normaliza (`schema/normalize.ts`) y se proyecta al motor (`ArtisanForm/project.ts`): ahí está la única costura que conoce ambas formas. Un campo o paso nuevo en el contrato v1 necesita: su tipo en `schema/fields.ts|steps.ts`, su entrada en `schema/specs.ts` (el compilador lo exige), el parser y la proyección. Guía: [`schema-v1.md`](schema-v1.md).
+Los tests viven en una carpeta `__tests__/` junto al código que cubren (las stories quedan al lado de su componente). Los archivos de configuración de la raíz (`vite`, `tailwind`, `postcss`, `biome`, `tsconfig`, `bunfig`, `playwright`) se quedan ahí porque las herramientas los buscan en ese lugar.
 
-Un tipo de campo nuevo = una `FieldDefinition` en `fields.tsx` (render, valores iniciales, reglas) + su componente en `ArtisanInputs`. Un tipo de paso nuevo = una `StepDefinition` en `steps.tsx`. Las pantallas de estado (resultado, espera, pago) usan `StatusPanel` (icono/spinner + mensaje + acciones) para verse igual.
+El esquema se normaliza (`schema/normalize.ts`) y se proyecta al motor (`engine/project.ts`): ahí está la única costura que conoce ambas formas. Un campo o paso nuevo en el contrato v1 necesita: su tipo en `schema/contract/fields.ts|steps.ts`, su entrada en `schema/contract/specs.ts` (el compilador lo exige), el parser y la proyección. Guía: [`schema-v1.md`](schema-v1.md).
+
+Un tipo de campo nuevo = una `FieldDefinition` en `components/fields/registry.tsx` (render, valores iniciales, reglas) + su componente en `components/inputs`. Un tipo de paso nuevo = una `StepDefinition` en `components/steps/registry.tsx`. Las pantallas de estado (resultado, espera, pago) usan `StatusPanel` (icono/spinner + mensaje + acciones) para verse igual.
 
 ## Flujo de trabajo por ramas
 

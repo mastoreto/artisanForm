@@ -87,22 +87,22 @@
     },
     "./style.css": "./dist/style.css",
     "./payments/stripe": {
-      "types": "./dist/payments/stripe.d.ts",
+      "types": "./dist/integrations/payments/providers/stripe.d.ts",
       "import": "./dist/payments/stripe.es.js",
       "require": "./dist/payments/stripe.cjs"
     },
     "./payments/lemonsqueezy": {
-      "types": "./dist/payments/lemonsqueezy.d.ts",
+      "types": "./dist/integrations/payments/providers/lemonsqueezy.d.ts",
       "import": "./dist/payments/lemonsqueezy.es.js",
       "require": "./dist/payments/lemonsqueezy.cjs"
     },
     "./payments/mercadopago": {
-      "types": "./dist/payments/mercadopago.d.ts",
+      "types": "./dist/integrations/payments/providers/mercadopago.d.ts",
       "import": "./dist/payments/mercadopago.es.js",
       "require": "./dist/payments/mercadopago.cjs"
     },
     "./payments/paypal": {
-      "types": "./dist/payments/paypal.d.ts",
+      "types": "./dist/integrations/payments/providers/paypal.d.ts",
       "import": "./dist/payments/paypal.es.js",
       "require": "./dist/payments/paypal.cjs"
     }

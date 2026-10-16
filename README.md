@@ -361,17 +361,20 @@ Standalone inputs use Formik's `useField`: they take `name` (not `value`/`onChan
 ├── e2e/                     Playwright tests (against the playground)
 ├── playground/              React test app; scenarios in src/scenarios/
 ├── src/
-│   ├── commons/             cn(), labels, theme
-│   ├── components/
-│   │   ├── ArtisanControls/ Previous / Next / Finish buttons
-│   │   ├── ArtisanForm/     Wizard: types, field and step registries, validation, drafts, PaymentStep
-│   │   └── ArtisanInputs/   One component per input type (+ stories)
-│   ├── schema/              Public v1 contract: types, conditions, parser, normalize, legacy adapter
+│   ├── schema/              Public v1 contract: contract/, legacy/ (0.2.0 adapter), parser, normalize
 │   ├── persistence/         Versioned draft snapshots
-│   ├── payments/            PaymentPlugin, mock and plugins (stripe, lemonsqueezy, mercadopago, paypal)
-│   ├── storage/             StorageAdapter, presignedPut, cloudinary, mock
-│   ├── wait/                WaitStrategy: polling, sse, websocket, callback
-│   ├── stores/              Per-instance step state (zustand)
+│   ├── engine/              Runs a schema: projection, validation, drafts, step state
+│   ├── components/
+│   │   ├── ArtisanForm/     ArtisanForm, Wizard, Stepper
+│   │   ├── Controls/        Previous / Next / Finish buttons
+│   │   ├── inputs/          One component per input type (+ stories)
+│   │   ├── fields/          Field registry (render, values, rules per type)
+│   │   └── steps/           Step registry + PaymentStep, StatusPanel
+│   ├── integrations/
+│   │   ├── payments/        PaymentPlugin, mock and providers (stripe, lemonsqueezy, mercadopago, paypal)
+│   │   ├── storage/         StorageAdapter, presignedPut, cloudinary, mock
+│   │   └── wait/            WaitStrategy: polling, sse, websocket, callback
+│   ├── commons/             cn, labels, theme
 │   └── index.ts             Library entry
 ├── AGENTS.md                Working agreements (humans and agents)
 └── vite.config.ts · tailwind.config.js · tsconfig.json · biome.jsonc · playwright.config.ts

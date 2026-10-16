@@ -1,5 +1,5 @@
-import { isJSONValue } from '../schema/json';
-import type { JSONValue } from '../schema/types';
+import { isJSONValue } from '../schema/contract/json';
+import type { JSONValue } from '../schema/contract/types';
 import type {
   ArtisanSnapshotV1,
   ConflictReason,

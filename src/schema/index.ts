@@ -3,12 +3,23 @@ export {
   evaluateCondition,
   fromLegacyCondition,
   isFilled,
-} from './conditions';
-export { type ArtisanSchemaV1, defineForm } from './define';
-export { ArtisanSchemaError } from './errors';
-export type * from './fields';
-export { isJSONValue } from './json';
-export type { LegacyFormSchema } from './legacy';
+} from './contract/conditions';
+export { type ArtisanSchemaV1, defineForm } from './contract/define';
+export { ArtisanSchemaError } from './contract/errors';
+export type * from './contract/fields';
+export { isJSONValue } from './contract/json';
+export {
+  FIELD_KEYS,
+  isExtensionType,
+  isNativeFieldType,
+  isNativeStepType,
+  NATIVE_FIELD_TYPES,
+  NATIVE_STEP_TYPES,
+  STEP_KEYS,
+} from './contract/specs';
+export type * from './contract/steps';
+export type * from './contract/types';
+export type { LegacyFormSchema } from './legacy/adapter';
 export {
   type NormalizedArtisanSchema,
   type NormalizeOptions,
@@ -20,14 +31,3 @@ export {
   parseArtisanSchema,
   type SchemaPolicy,
 } from './parser';
-export {
-  FIELD_KEYS,
-  isExtensionType,
-  isNativeFieldType,
-  isNativeStepType,
-  NATIVE_FIELD_TYPES,
-  NATIVE_STEP_TYPES,
-  STEP_KEYS,
-} from './specs';
-export type * from './steps';
-export type * from './types';
