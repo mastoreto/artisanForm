@@ -122,13 +122,25 @@ Los inputs sueltos usan `useField` de Formik: reciben `name` (no `value`/`onChan
 - API exportada y build de la librería (ES + UMD + tipos).
 - Stories de cada componente y tests de `buildSchema`.
 
-### Pendiente
+### Hoja de ruta
 
-- **CSS de Tailwind** no se publica con la librería: el consumidor necesita Tailwind propio con `content` apuntando a ella.
-- **Dependencias** (`zustand`, `formik`, `yup`, etc.) quedan empaquetadas; falta marcarlas como externals/`peerDependencies`.
-- **Tests de componentes** y verificación del flujo completo en navegador (hoy solo hay tests de `buildSchema`).
-- `DynamicSelect`: sin carga asíncrona de opciones. Wizard: solo pasos lineales, sin validaciones condicionales ni cruzadas.
-- Textos de UI (Anterior/Siguiente/Finalizar, mensajes de error) fijos en español.
+Cada tarea es un issue de GitHub (`AF<n>` en el título) y una rama desde `develop`. Orden recomendado: AF8 → AF11 → AF10 → AF9 → AF12 → AF13/14 → AF15–17 → AF21.
+
+| Etapa                 | Tareas                                                                                                                                                                                                                                                                                                    |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Hacerla consumible | [AF8](https://github.com/mastoreto/artisanForm/issues/2) CI · [AF9](https://github.com/mastoreto/artisanForm/issues/3) distribución del CSS · [AF10](https://github.com/mastoreto/artisanForm/issues/4) peer deps y `exports` · [AF11](https://github.com/mastoreto/artisanForm/issues/5) tests del flujo |
+| 2. Núcleo             | [AF12](https://github.com/mastoreto/artisanForm/issues/6) estado por instancia · [AF13](https://github.com/mastoreto/artisanForm/issues/7) más validaciones en el scheme · [AF14](https://github.com/mastoreto/artisanForm/issues/8) API de `ArtisanForm`                                                 |
+| 3. Experiencia        | [AF15](https://github.com/mastoreto/artisanForm/issues/9) accesibilidad y stepper · [AF16](https://github.com/mastoreto/artisanForm/issues/10) textos configurables · [AF17](https://github.com/mastoreto/artisanForm/issues/11) theming                                                                  |
+| 4. Avanzado           | [AF18](https://github.com/mastoreto/artisanForm/issues/12) condicionales · [AF19](https://github.com/mastoreto/artisanForm/issues/13) opciones async · [AF20](https://github.com/mastoreto/artisanForm/issues/14) borrador                                                                                |
+| 5. Release            | [AF21](https://github.com/mastoreto/artisanForm/issues/15) versión 0.1.0                                                                                                                                                                                                                                  |
+
+### Brechas conocidas
+
+- El CSS de Tailwind no se publica con la librería.
+- `zustand`, `formik` y `yup` van empaquetadas en el bundle; falta declararlas como peer.
+- El store de pasos es global: dos `ArtisanForm` en una página comparten paso.
+- El flujo en navegador no está verificado automáticamente (solo hay tests de `buildSchema`).
+- Scheme limitado a pasos lineales y validaciones `required`/`min`; textos fijos en español.
 
 ### Historial
 
