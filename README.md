@@ -2,7 +2,7 @@
 
 Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con Tailwind, validación con Formik + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
 
-> **Estado:** versión 0.1.0 candidata: funcional y empaquetable (ES + CJS, estilos incluidos). Aún no publicada en ningún registro. Ver [Estado del proyecto](#estado-del-proyecto).
+> **Estado:** versión 0.2.0: wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable y plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal). Aún no publicada en ningún registro. Ver [Estado del proyecto](#estado-del-proyecto).
 
 ## Stack
 
@@ -14,9 +14,7 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 | Formularios y validación | Formik 2 + Yup                              |
 | Documentación            | Storybook 8 (`@storybook/react-vite`)       |
 | Build                    | Vite 5 en modo librería + `vite-plugin-dts` |
-| Tests                    | `pnpm playground` | App React de prueba (http://localhost:5173) que usa `src/` con HMR; escenarios en `?demo=<id>` |
-| `pnpm e2e` | Tests de Playwright (`e2e/`) contra el playground. Primera vez: `npx playwright install chromium` |
-| `bun test`                                  |
+| Tests                    | `bun test` + Testing Library (happy-dom), Playwright (e2e) |
 | Formato y lint           | Biome 2                                     |
 | Gestor de paquetes       | pnpm                                        |
 
@@ -31,10 +29,12 @@ pnpm storybook   # http://localhost:6006
 | --------------------------- | ---------------------------------------------------- |
 | `pnpm storybook`            | Storybook en desarrollo (puerto 6006)                |
 | `pnpm build-storybook`      | Storybook estático                                   |
-| `pnpm build`                | Build de la librería en `dist/` (ES + UMD + `.d.ts`) |
+| `pnpm build`                | Build de la librería en `dist/` (ES + CJS + `.d.ts`) |
 | `pnpm typecheck`            | `tsc --noEmit`                                       |
 | `pnpm lint` / `pnpm format` | Biome check / check --write                         |
-| `bun test`                  | Tests (`*.test.ts`)                                  |
+| `pnpm playground`           | App React de prueba (http://localhost:5173) que usa `src/` con HMR; escenarios en `?demo=<id>` |
+| `pnpm e2e`                  | Tests de Playwright (`e2e/`) contra el playground. Primera vez: `npx playwright install chromium` |
+| `bun test`                  | Tests (`*.test.ts(x)`)                               |
 
 ## Uso
 
@@ -316,7 +316,7 @@ pnpm add artisanform react react-dom formik yup zustand
 
 ## API pública (`src/index.ts`)
 
-`ArtisanForm`, `Controls`, `TextInput`, `Textarea`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`, `useArtisanStore`, `cn`, `defaultLabels` y los tipos `ArtisanLabels`, `FormSchema`, `StepSchema`, `FieldSchema`.
+`ArtisanForm`, los inputs sueltos (`TextInput`, `Textarea`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`), `defaultFieldRegistry`, `defaultStepRegistry`, `presignedPut`, `cloudinary`, `mockStorage`, `polling`, `sse`, `websocket`, `callback`, `mockPayment`, `useArtisanStore`, `cn`, `defaultLabels` y los tipos (`FormSchema`, `StepSchema`, `FieldSchema`, `FieldDefinition`, `StepDefinition`, `StorageAdapter`, `PaymentPlugin`, `WaitStrategy`, `ArtisanLabels`…). Los plugins de pago se importan de `artisanform/payments/<proveedor>`.
 
 Los inputs sueltos usan `useField` de Formik: reciben `name` (no `value`/`onChange`) y **deben renderizarse dentro de un `<Formik>`**. Muestran el error de Yup cuando el campo fue tocado.
 
@@ -326,49 +326,42 @@ Los inputs sueltos usan `useField` de Formik: reciben `name` (no `value`/`onChan
 .
 ├── .github/                 Templates de issues y PR
 ├── .storybook/              Config de Storybook + withFormik (decorator para stories)
+├── e2e/                     Tests de Playwright (contra el playground)
+├── playground/              App React de prueba; escenarios en src/scenarios/
 ├── src/
-│   ├── commons/cn/          Helper cn() (clsx + tailwind-merge)
+│   ├── commons/             cn(), labels, theme
 │   ├── components/
 │   │   ├── ArtisanControls/ Botones Anterior / Siguiente / Finalizar
-│   │   ├── ArtisanForm/     Contenedor: types, buildSchema (+ test), ArtisanForm
-│   │   └── ArtisanInputs/   Text, Password, Date, Select, DynamicSelect, Check, Radio
-│   ├── stores/              useArtisanStore (step, processStep, isFinalStep)
-│   ├── styles/global.css    Directivas de Tailwind
+│   │   ├── ArtisanForm/     Wizard: tipos, registro de campos y pasos, validación, borrador, PaymentStep
+│   │   └── ArtisanInputs/   Un componente por tipo de input (+ stories)
+│   ├── payments/            PaymentPlugin, mock y plugins (stripe, lemonsqueezy, mercadopago, paypal)
+│   ├── storage/             StorageAdapter, presignedPut, cloudinary, mock
+│   ├── wait/                WaitStrategy: polling, sse, websocket, callback
+│   ├── stores/              Estado de pasos por instancia (zustand)
 │   └── index.ts             Entry de la librería
 ├── AGENTS.md                Forma de trabajo (humanos y agentes)
-└── vite.config.ts · tailwind.config.js · tsconfig.json · biome.jsonc
+└── vite.config.ts · tailwind.config.js · tsconfig.json · biome.jsonc · playwright.config.ts
 ```
 
 ## Estado del proyecto
 
 ### Hecho
 
-- Store de pasos, `Controls` y 7 inputs integrados con Formik/Yup.
-- Contenedor `ArtisanForm` dirigido por `scheme`, con validación por paso.
-- `DynamicSelect` con opciones dependientes configurables.
-- API exportada y build de la librería (ES + UMD + tipos).
-- Stories de cada componente y tests de `buildSchema`.
+- Wizard por `scheme` con validación por paso (Formik + Yup), condicionales (`showIf`), borrador (`persistKey`), `labels`, theming y accesibilidad.
+- Más de 30 tipos de campo (texto, fechas, selección, combobox, archivos, repetibles, contenido) y registro para tipos propios.
+- Motor de pasos con `terms`, `payment`, `pending`, `review`, `result` y `custom`.
+- Archivos: `StorageAdapter` + adapters para S3/R2/Backblaze (URL prefirmada) y Cloudinary.
+- Pagos: contrato `PaymentPlugin` y plugins de Stripe, Lemon Squeezy, Mercado Pago y PayPal.
+- Espera: `WaitStrategy` con polling, SSE, WebSocket y callback.
+- Biome (formato + lint), playground en vivo, tests unitarios (`bun test`) y e2e (Playwright).
 
-### Hoja de ruta
+### Pendiente
 
-Cada tarea es un issue de GitHub (`AF<n>` en el título) y una rama desde `develop`.
-
-| Etapa                 | Tareas                                                                                                                                                                                                                                                             | Estado                              |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
-| 1. Hacerla consumible | [AF8](https://github.com/mastoreto/artisanForm/issues/2) CI · [AF9](https://github.com/mastoreto/artisanForm/issues/3) CSS · [AF10](https://github.com/mastoreto/artisanForm/issues/4) peer deps · [AF11](https://github.com/mastoreto/artisanForm/issues/5) tests | AF9–11 hechas; **AF8 pendiente**    |
-| 2. Núcleo             | [AF12](https://github.com/mastoreto/artisanForm/issues/6) estado por instancia · [AF13](https://github.com/mastoreto/artisanForm/issues/7) validaciones · [AF14](https://github.com/mastoreto/artisanForm/issues/8) API                                            | Hechas                              |
-| 3. Experiencia        | [AF15](https://github.com/mastoreto/artisanForm/issues/9) accesibilidad · [AF16](https://github.com/mastoreto/artisanForm/issues/10) labels · [AF17](https://github.com/mastoreto/artisanForm/issues/11) theming                                                   | Hechas                              |
-| 4. Avanzado           | [AF18](https://github.com/mastoreto/artisanForm/issues/12) condicionales · [AF19](https://github.com/mastoreto/artisanForm/issues/13) opciones async · [AF20](https://github.com/mastoreto/artisanForm/issues/14) borrador                                         | Hechas                              |
-| 5. Release            | [AF21](https://github.com/mastoreto/artisanForm/issues/15) versión 0.1.0                                                                                                                                                                                           | CHANGELOG listo; **falta publicar** |
-
-Pendiente: AF8 (el workflow está en la rama local `chore/AF8-ci`; falta el scope `workflow` del token de GitHub para subirlo), `develop` → `master`, publicar el paquete y desplegar Storybook (requiere decidir registro y hosting).
-
-### Brechas conocidas
-
-- Sin CI en GitHub (AF8) ni Storybook desplegado.
-- Paquete sin publicar en ningún registro.
-- Sin tests visuales; los tests corren en happy-dom, no en un navegador real.
-- Validaciones cruzadas limitadas a `sameAs`.
+- **CI en GitHub (AF8):** el workflow está en la rama local `chore/AF8-ci`; subirlo requiere el scope `workflow` del token (`gh auth refresh -s workflow`).
+- **Release:** `develop` → `master`, publicar el paquete (registro a definir) y desplegar Storybook.
+- **Proveedores reales:** los plugins se verifican con mocks de sus SDK; falta probarlos contra sandbox con credenciales de prueba.
+- **Navegador:** los tests de componentes corren en happy-dom; Playwright cubre los flujos del playground (wizard, archivos, espera, pagos mock, campos).
+- Textos por defecto solo en español (configurables con `labels`).
 
 ### Historial
 
@@ -381,6 +374,12 @@ Pendiente: AF8 (el workflow está en la rama local `chore/AF8-ci`; falta el scop
 | AF5 `artisan-form`             | Contenedor `ArtisanForm` y `scheme`              |
 | AF6 `dynamic-select`           | `DynamicSelect` con Formik y soporte en `scheme` |
 | AF7 `cleanup-readme`           | Limpieza del boilerplate y documentación         |
+| AF9–AF20                       | CSS distribuible, peer deps, estado por instancia, API, accesibilidad, labels, theming, condicionales, opciones async, borrador |
+| AF22–AF23                      | Biome; playground y Playwright                   |
+| AF24–AF28                      | Registro de campos, campos básicos, motor de pasos, resultado/revisión, términos |
+| AF29–AF30                      | Campos de archivo con StorageAdapter; paso de espera |
+| AF31–AF35                      | Núcleo de pagos y plugins Stripe, Lemon Squeezy, Mercado Pago, PayPal |
+| AF36–AF37                      | Campos de contenido/avanzados y repetibles       |
 
 ## Flujo de trabajo
 
