@@ -12,7 +12,8 @@ const scheme: FormSchema = {
           label: 'Integrantes',
           minItems: 1,
           maxItems: 3,
-          helperText: 'Entre 1 y 3 personas',
+          helperText:
+            'Entre 1 y 3 personas (probá el nombre «fallar» para simular un error de envío)',
           itemFields: [
             { type: 'text', name: 'name', label: 'Nombre', required: true },
             { type: 'email', name: 'email', label: 'Email', required: true },
@@ -37,7 +38,17 @@ const Repeatables = () => {
   const [result, setResult] = useState<unknown>(null);
   return (
     <>
-      <ArtisanForm scheme={scheme} onSubmit={(v) => setResult(v)} />
+      <ArtisanForm
+        scheme={scheme}
+        onSubmit={async (v) => {
+          await new Promise((r) => setTimeout(r, 700));
+          const members = (v.members ?? []) as { name: string }[];
+          // Demo: a member named "fallar" simulates a server error.
+          if (members.some((m) => m.name === 'fallar'))
+            throw new Error('El servidor rechazó el envío');
+          setResult(v);
+        }}
+      />
       {result !== null && (
         <pre
           data-testid="result"
