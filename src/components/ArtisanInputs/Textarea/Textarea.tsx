@@ -1,5 +1,5 @@
 import { useField } from 'formik';
-import { forwardRef } from 'react';
+import { forwardRef, type TextareaHTMLAttributes } from 'react';
 import { cn } from '../../../commons/cn';
 import { theme } from '../../../commons/theme';
 
@@ -11,10 +11,24 @@ interface TextareaProps {
   className?: string;
   disabled?: boolean;
   helperText?: string;
+  /** Native attributes forwarded to the element (autoComplete, inputMode, maxLength…). */
+  inputProps?: TextareaHTMLAttributes<HTMLTextAreaElement>;
 }
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ id, name, label, placeholder, className, disabled, helperText }, ref) => {
+  (
+    {
+      id,
+      name,
+      label,
+      placeholder,
+      className,
+      disabled,
+      helperText,
+      inputProps,
+    },
+    ref,
+  ) => {
     const [field, meta] = useField<string>(name);
     const error = meta.touched && meta.error ? meta.error : null;
     const describedBy =
@@ -38,6 +52,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           {label}
         </label>
         <textarea
+          {...inputProps}
           {...field}
           value={field.value ?? ''}
           id={id}

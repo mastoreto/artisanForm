@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import * as Yup from 'yup';
 import type { ArtisanLabels } from '../../commons/labels';
 import Check from '../ArtisanInputs/Check/Check';
+import Checkbox from '../ArtisanInputs/Checkbox/Checkbox';
 import DateInput from '../ArtisanInputs/Date/Date';
 import DynamicSelect from '../ArtisanInputs/DynamicSelect/DynamicSelect';
 import Password from '../ArtisanInputs/Password/Password';
@@ -41,6 +42,16 @@ const textProps = (f: FieldSchema) => ({
   disabled: f.disabled,
   helperText: f.helperText,
 });
+
+const nativeProps = (f: FieldSchema) =>
+  Object.fromEntries(
+    Object.entries({
+      autoComplete: f.autoComplete,
+      inputMode: f.inputMode,
+      readOnly: f.readOnly,
+      maxLength: f.maxLength,
+    }).filter(([, v]) => v !== undefined),
+  );
 
 const choiceProps = (f: FieldSchema) => ({
   name: f.name,
@@ -95,11 +106,70 @@ const firstOption = (f: FieldSchema) =>
 export const defaultFieldRegistry: FieldRegistry = {
   text: {
     ...textLike(),
-    render: (f) => <Text {...textProps(f)} type="text" />,
+    render: (f) => (
+      <Text {...textProps(f)} type="text" inputProps={nativeProps(f)} />
+    ),
+  },
+  tel: {
+    ...textLike((s, labels) =>
+      s.matches(/^[+()\d\s.-]{6,}$/, {
+        message: labels.invalidPhone,
+        excludeEmptyString: true,
+      }),
+    ),
+    render: (f) => (
+      <Text
+        {...textProps(f)}
+        type="tel"
+        inputProps={{
+          autoComplete: 'tel',
+          inputMode: 'tel',
+          ...nativeProps(f),
+        }}
+      />
+    ),
+  },
+  url: {
+    ...textLike((s, labels) => s.url(labels.invalidUrl)),
+    render: (f) => (
+      <Text
+        {...textProps(f)}
+        type="url"
+        inputProps={{
+          autoComplete: 'url',
+          inputMode: 'url',
+          ...nativeProps(f),
+        }}
+      />
+    ),
+  },
+  checkbox: {
+    initialValues: (f) => ({ [f.name]: f.defaultValue ?? false }),
+    rules: (f, labels) => ({
+      [f.name]: f.required
+        ? Yup.boolean().oneOf([true], labels.required)
+        : Yup.boolean(),
+    }),
+    render: (f) => <Checkbox {...textProps(f)} variant="checkbox" />,
+  },
+  switch: {
+    initialValues: (f) => ({ [f.name]: f.defaultValue ?? false }),
+    rules: (f, labels) => ({
+      [f.name]: f.required
+        ? Yup.boolean().oneOf([true], labels.required)
+        : Yup.boolean(),
+    }),
+    render: (f) => <Checkbox {...textProps(f)} variant="switch" />,
   },
   email: {
     ...textLike((s, labels) => s.email(labels.invalidEmail)),
-    render: (f) => <Text {...textProps(f)} type="email" />,
+    render: (f) => (
+      <Text
+        {...textProps(f)}
+        type="email"
+        inputProps={{ autoComplete: 'email', ...nativeProps(f) }}
+      />
+    ),
   },
   number: {
     initialValues: (f) => single(f),
@@ -111,20 +181,62 @@ export const defaultFieldRegistry: FieldRegistry = {
       if (f.max !== undefined) n = n.max(f.max, labels.maxValue(f.max));
       return { [f.name]: required(n, f, labels) };
     },
-    render: (f) => <Text {...textProps(f)} type="number" />,
+    render: (f) => (
+      <Text
+        {...textProps(f)}
+        type="number"
+        inputProps={{
+          inputMode: 'decimal',
+          min: f.min,
+          max: f.max,
+          step: f.step,
+          ...nativeProps(f),
+        }}
+      />
+    ),
   },
   textarea: {
     ...textLike(),
-    render: (f) => <Textarea {...textProps(f)} />,
+    render: (f) => <Textarea {...textProps(f)} inputProps={nativeProps(f)} />,
   },
   password: {
     ...textLike(),
     secret: true,
-    render: (f) => <Password {...textProps(f)} />,
+    render: (f) => (
+      <Password
+        {...textProps(f)}
+        inputProps={{ autoComplete: 'current-password', ...nativeProps(f) }}
+      />
+    ),
   },
   date: {
-    ...textLike(),
-    render: (f) => <DateInput {...textProps(f)} />,
+    initialValues: (f) => single(f),
+    rules: (f, labels) =>
+      stringRules(f, labels, (s) => {
+        const { minDate, maxDate } = f;
+        let d = s;
+        if (minDate) {
+          d = d.test(
+            'minDate',
+            labels.minDate(minDate),
+            (v) => !v || v >= minDate,
+          );
+        }
+        if (maxDate) {
+          d = d.test(
+            'maxDate',
+            labels.maxDate(maxDate),
+            (v) => !v || v <= maxDate,
+          );
+        }
+        return d;
+      }),
+    render: (f) => (
+      <DateInput
+        {...textProps(f)}
+        inputProps={{ min: f.minDate, max: f.maxDate, ...nativeProps(f) }}
+      />
+    ),
   },
   select: {
     groupLabel: true,

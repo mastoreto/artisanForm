@@ -441,3 +441,84 @@ test('custom field types plug in through the `fields` registry', async () => {
   await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   expect(onSubmit.mock.calls[0][0]).toEqual({ rating: 3 });
 });
+
+test('checkbox and switch hold booleans; required means "must be checked"', async () => {
+  const user = userEvent.setup();
+  const onSubmit = mock((_: unknown) => {});
+  render(
+    <ArtisanForm
+      onSubmit={onSubmit}
+      scheme={{
+        steps: [
+          {
+            title: 'Booleans',
+            fields: [
+              {
+                type: 'checkbox',
+                name: 'terms',
+                label: 'Acepto',
+                required: true,
+              },
+              { type: 'switch', name: 'news', label: 'Novedades' },
+            ],
+          },
+        ],
+      }}
+    />,
+  );
+  await user.click(screen.getByText('Finalizar'));
+  expect(await screen.findByText('Campo requerido')).toBeTruthy();
+  expect(onSubmit).not.toHaveBeenCalled();
+
+  await user.click(screen.getByLabelText('Acepto'));
+  await user.click(screen.getByRole('switch', { name: 'Novedades' }));
+  await user.click(screen.getByText('Finalizar'));
+  await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+  expect(onSubmit.mock.calls[0][0]).toEqual({ terms: true, news: true });
+});
+
+test('tel, url, date limits and native attributes', async () => {
+  const user = userEvent.setup();
+  render(
+    <ArtisanForm
+      onSubmit={() => {}}
+      scheme={{
+        steps: [
+          {
+            title: 'Native',
+            fields: [
+              { type: 'tel', name: 'phone', label: 'Tel' },
+              { type: 'url', name: 'site', label: 'Sitio' },
+              {
+                type: 'date',
+                name: 'when',
+                label: 'Cuándo',
+                minDate: '2030-01-01',
+              },
+              {
+                type: 'text',
+                name: 'code',
+                label: 'Código',
+                maxLength: 4,
+                autoComplete: 'one-time-code',
+                readOnly: false,
+              },
+            ],
+          },
+        ],
+      }}
+    />,
+  );
+  const code = screen.getByLabelText('Código') as HTMLInputElement;
+  expect(code.maxLength).toBe(4);
+  expect(code.autocomplete).toBe('one-time-code');
+  expect((screen.getByLabelText('Tel') as HTMLInputElement).type).toBe('tel');
+
+  await user.type(screen.getByLabelText('Tel'), 'abc');
+  await user.type(screen.getByLabelText('Sitio'), 'nope');
+  await user.type(screen.getByLabelText('Cuándo'), '2020-01-01');
+  await user.click(screen.getByText('Finalizar'));
+  expect(await screen.findByText('Teléfono inválido')).toBeTruthy();
+  expect(screen.getByText('URL inválida')).toBeTruthy();
+  expect(screen.getByText('Desde el 2030-01-01')).toBeTruthy();
+});

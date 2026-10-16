@@ -1,5 +1,5 @@
 import { useField } from 'formik';
-import { forwardRef } from 'react';
+import { forwardRef, type InputHTMLAttributes } from 'react';
 import { cn } from '../../../commons/cn';
 import { theme } from '../../../commons/theme';
 
@@ -11,7 +11,9 @@ interface TextInputProps {
   className?: string;
   disabled?: boolean;
   helperText?: string;
-  type?: 'text' | 'email' | 'number';
+  /** Native attributes forwarded to the element (autoComplete, inputMode, maxLength…). */
+  inputProps?: InputHTMLAttributes<HTMLInputElement>;
+  type?: 'text' | 'email' | 'number' | 'tel' | 'url';
 }
 
 const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
@@ -24,6 +26,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       className,
       disabled,
       helperText,
+      inputProps,
       type = 'text',
     },
     ref,
@@ -51,6 +54,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           {label}
         </label>
         <input
+          {...inputProps}
           {...field}
           value={field.value ?? ''}
           type={type}
