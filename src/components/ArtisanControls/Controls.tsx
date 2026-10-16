@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../../commons/cn';
+import { theme } from '../../commons/theme';
 import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
 import { useArtisanStore } from '../../stores/useArtisanStore';
 
@@ -9,12 +10,17 @@ interface ControlsProps {
   /** Disables "Finalizar" while a submit is in flight. */
   isSubmitting?: boolean;
   labels?: Partial<Pick<ArtisanLabels, 'previous' | 'next' | 'submit'>>;
+  /** Extra classes for the container / for every button. */
+  className?: string;
+  buttonClassName?: string;
 }
 
 const Controls = ({
   onNext,
   isSubmitting,
   labels,
+  className,
+  buttonClassName,
 }: ControlsProps): JSX.Element => {
   const isFinalStep = useArtisanStore((state) => state.isFinalStep);
   const step = useArtisanStore((state) => state.step);
@@ -38,14 +44,14 @@ const Controls = ({
     button: cn(
       'px-4',
       'py-2',
-      'bg-blue-500',
+      theme.bg,
       'text-white',
       'rounded',
       'shadow',
-      'hover:bg-blue-700',
+      theme.bgHover,
       'focus:outline-none',
       'focus:ring-2',
-      'focus:ring-blue-500',
+      theme.focusRing,
       'focus:ring-opacity-75',
     ),
   };
@@ -61,11 +67,11 @@ const Controls = ({
   };
 
   return (
-    <div className={classes.container}>
+    <div className={cn(classes.container, className)}>
       {processStep > 0 && step > 0 && (
         <button
           type="button"
-          className={classes.button}
+          className={cn(classes.button, buttonClassName)}
           onClick={() => handlePrevious()}
         >
           {text.previous}
@@ -74,7 +80,7 @@ const Controls = ({
       {!isFinalStep && (
         <button
           type="button"
-          className={classes.button}
+          className={cn(classes.button, buttonClassName)}
           onClick={() => (onNext ?? handleNext)()}
         >
           {text.next}
@@ -83,7 +89,7 @@ const Controls = ({
       {isFinalStep && (
         <button
           type="submit"
-          className={classes.button}
+          className={cn(classes.button, buttonClassName)}
           disabled={isSubmitting}
         >
           {text.submit}

@@ -14,6 +14,7 @@ interface DynamicSelectProps {
   /** Options of the second select, keyed by the value of the first one. */
   dependentOptions: Record<string, Option[]>;
   disabled?: boolean;
+  className?: string;
 }
 
 const DynamicSelect = ({
@@ -22,6 +23,7 @@ const DynamicSelect = ({
   options,
   dependentOptions,
   disabled,
+  className,
 }: DynamicSelectProps) => {
   const [parent] = useField<string>(name);
   const [child, , childHelpers] = useField<string>(dependentName);
@@ -35,7 +37,7 @@ const DynamicSelect = ({
   }, [parent.value]);
 
   return (
-    <div>
+    <div className={className}>
       <Select name={name} options={options} disabled={disabled} />
       {childOptions.length > 0 && (
         <div className="mt-4">

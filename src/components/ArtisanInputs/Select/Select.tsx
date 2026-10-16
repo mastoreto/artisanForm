@@ -1,14 +1,16 @@
 import { forwardRef } from 'react';
 import { useField } from 'formik';
+import { cn } from '../../../commons/cn';
 
 interface SelectProps {
   name: string;
   options: { value: string; label: string }[];
   disabled?: boolean;
+  className?: string;
 }
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ name, options, disabled }, ref) => {
+  ({ name, options, disabled, className }, ref) => {
     const [field] = useField<string>(name);
 
     return (
@@ -18,7 +20,10 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           value={field.value ?? ''}
           ref={ref}
           disabled={disabled}
-          className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline disabled:bg-gray-100 disabled:text-gray-500 transition ease-in-out duration-150"
+          className={cn(
+            'block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline disabled:bg-gray-100 disabled:text-gray-500 transition ease-in-out duration-150',
+            className,
+          )}
         >
           {options.map((option) => (
             <option key={option.value} value={option.value}>

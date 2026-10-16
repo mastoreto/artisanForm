@@ -1,5 +1,6 @@
 import { useField } from 'formik';
 import { cn } from '../../../commons/cn';
+import { theme } from '../../../commons/theme';
 
 interface Option {
   label: string;
@@ -12,9 +13,10 @@ interface RadioProps {
   disabled?: boolean;
   /** Accessible name of the group. */
   label?: string;
+  className?: string;
 }
 
-const Radio = ({ name, options, disabled, label }: RadioProps) => {
+const Radio = ({ name, options, disabled, label, className }: RadioProps) => {
   const [field, meta, helpers] = useField<string>(name);
   const error = meta.touched && meta.error ? meta.error : null;
 
@@ -26,7 +28,7 @@ const Radio = ({ name, options, disabled, label }: RadioProps) => {
   return (
     <div>
       <div
-        className="flex flex-wrap"
+        className={cn('flex flex-wrap', className)}
         role="radiogroup"
         aria-label={label}
         aria-invalid={!!error}
@@ -44,7 +46,7 @@ const Radio = ({ name, options, disabled, label }: RadioProps) => {
             className={cn(
               'cursor-pointer select-none m-1 px-4 py-2 border-2 rounded-md transition-colors disabled:cursor-not-allowed disabled:opacity-50',
               field.value === option.value
-                ? 'bg-blue-500 text-white border-blue-500'
+                ? cn('text-white', theme.bg, theme.border)
                 : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100',
             )}
           >

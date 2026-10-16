@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import { useField } from 'formik';
 import { cn } from '../../../commons/cn';
+import { theme } from '../../../commons/theme';
 
 interface TextInputProps {
   id: string;
@@ -36,7 +37,9 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 
     const classes = {
       input: cn(
-        'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500',
+        'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm disabled:bg-gray-100 disabled:text-gray-500',
+        theme.focusRing,
+        theme.focusBorder,
         error && 'border-red-500',
         className,
       ),
