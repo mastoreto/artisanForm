@@ -13,7 +13,7 @@ Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se 
 
 ## Stack
 
-React 18 · TypeScript (strict) · CSS plano (clases `af-*` + variables `--artisan-*`) · Zustand (estado de pasos) · React Hook Form + Yup (validación) · Storybook 8 · Vite · pnpm (hay `pnpm-lock.yaml`).
+React 18/19 · TypeScript 6 (strict) · CSS plano (clases `af-*` + variables `--artisan-*`) · Zustand (estado de pasos) · React Hook Form + Yup (validación) · Storybook 10 · Vite 8 + React Compiler (Rust, `react-compiler.ts`) · pnpm (hay `pnpm-lock.yaml`).
 
 ## Comandos
 
@@ -26,6 +26,7 @@ pnpm format            # biome check --write
 ```
 
 Además: `pnpm playground` (app de prueba en vivo, escenarios en `playground/src/scenarios/`), `pnpm e2e` (Playwright, `e2e/`), `pnpm build` (librería), `pnpm typecheck` y `bun test` (tests `*.test.ts(x)` junto al código).
+Además: `pnpm lint:react` (reglas de React Hooks/Compiler), `pnpm check:dist` y `pnpm check:package` tras un build; `ARTISAN_COMPILER=off` desactiva React Compiler (playground, build, e2e) para comparar comportamiento. No leas estado mutable (`getValues()`, refs) durante el render en código compilado.
 Verificación mínima de un cambio: `pnpm lint` + `pnpm typecheck` + `pnpm build` + `bun test` + la story renderiza sin errores. Verificá el **código de salida** de cada comando, no solo el final de su salida.
 
 ## Estructura

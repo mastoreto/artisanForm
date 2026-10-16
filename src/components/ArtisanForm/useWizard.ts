@@ -76,6 +76,10 @@ export const useWizard = ({
   step: stepProp,
   persistKey,
 }: WizardProps) => {
+  // Opted out of React Compiler on purpose: `values = getValues()` below reads
+  // mutable form state during render. The compiler assumes `getValues` is pure
+  // (stable identity => same result) and would cache a stale snapshot.
+  'use no memo';
   const { control, trigger, setValue, handleSubmit, watch, getValues } =
     useFormContext<FormValues>();
   const { errors: formErrors } = useFormState({ control });
@@ -179,6 +183,7 @@ export const useWizard = ({
       (submitState === 'success' || submitState === 'error') &&
       resultIndex >= 0
     )
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- navigation after submit is a reaction to the store state
       goTo(resultIndex);
   }, [submitState]);
 
@@ -214,11 +219,9 @@ export const useWizard = ({
   const next = async () => {
     if (busy.current) return;
     busy.current = true;
-    try {
-      await advance();
-    } finally {
+    await advance().finally(() => {
       busy.current = false;
-    }
+    });
   };
 
   const advance = async () => {

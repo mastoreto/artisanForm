@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { type ArtisanLabels, defaultLabels } from '../../../commons/labels';
 import { useArtisanField } from '../../../engine/form/useArtisanField';
 import {
@@ -55,8 +55,16 @@ const Combobox = ({
   const [found, setFound] = useState<Option[]>(options);
   const [searching, setSearching] = useState(false);
   // Async options come and go: remember every label seen to render chips.
-  const known = useRef(new Map<string, string>());
-  for (const o of [...options, ...found]) known.current.set(o.value, o.label);
+  const [known, setKnown] = useState(() => new Map<string, string>());
+  // Adjusting state while rendering (not in an effect) is the React-sanctioned
+  // way to derive state from props; it only fires when a label is new.
+  const seen = [...options, ...found].filter(
+    (o) => known.get(o.value) !== o.label,
+  );
+  if (seen.length)
+    setKnown(
+      new Map([...known, ...seen.map((o) => [o.value, o.label] as const)]),
+    );
 
   const selected = multiple
     ? ((field.value as string[] | undefined) ?? [])
@@ -64,25 +72,32 @@ const Combobox = ({
       ? [field.value as string]
       : [];
   const error = meta.touched && meta.error ? meta.error : null;
-  const labelOf = (v: string) => known.current.get(v) ?? v;
+  const labelOf = (v: string) =>
+    [...options, ...found].find((o) => o.value === v)?.label ??
+    known.get(v) ??
+    v;
 
   useEffect(() => {
     if (!loadOptions) {
       const q = query.trim().toLowerCase();
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- local filtering follows the query
       setFound(options.filter((o) => !q || o.label.toLowerCase().includes(q)));
       return;
     }
     let stale = false;
     setSearching(true);
-    const timer = setTimeout(async () => {
-      try {
-        const result = await loadOptions(query);
-        if (!stale) setFound(result);
-      } catch {
-        if (!stale) setFound([]);
-      } finally {
-        if (!stale) setSearching(false);
-      }
+    const timer = setTimeout(() => {
+      Promise.resolve()
+        .then(() => loadOptions(query))
+        .then((result) => {
+          if (!stale) setFound(result);
+        })
+        .catch(() => {
+          if (!stale) setFound([]);
+        })
+        .finally(() => {
+          if (!stale) setSearching(false);
+        });
     }, 200);
     return () => {
       stale = true;

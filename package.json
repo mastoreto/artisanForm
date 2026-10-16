@@ -1,77 +1,78 @@
 {
   "name": "artisanform",
-  "main": "dist/artisanForm.cjs",
-  "module": "dist/artisanForm.es.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "type": "module",
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@biomejs/biome": "2.5.15",
-    "@chromatic-com/storybook": "^1.9.0",
+    "@chromatic-com/storybook": "^5.5.1",
     "@happy-dom/global-registrator": "^21.0.3",
     "@mercadopago/sdk-react": "^1.0.7",
     "@paypal/react-paypal-js": "^10.6.0",
     "@playwright/test": "^1.64.1",
-    "@storybook/addon-essentials": "^8.3.4",
-    "@storybook/addon-interactions": "^8.3.4",
-    "@storybook/addon-links": "^8.3.4",
-    "@storybook/addon-onboarding": "^8.3.4",
-    "@storybook/addon-postcss": "^2.0.0",
-    "@storybook/blocks": "^8.3.4",
-    "@storybook/builder-vite": "^8.3.4",
-    "@storybook/react": "^8.3.4",
-    "@storybook/react-vite": "^8.3.4",
-    "@storybook/test": "^8.3.4",
+    "@storybook/addon-links": "^10.6.2",
+    "@storybook/react": "^10.6.2",
+    "@storybook/react-vite": "^10.6.2",
     "@stripe/react-stripe-js": "^7.0.0",
     "@stripe/stripe-js": "^10.1.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",
-    "@types/bun": "latest",
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.2",
-    "autoprefixer": "^10.4.20",
+    "@types/bun": "1.4.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "ajv": "^8.20.0",
+    "autoprefixer": "^10.6.1",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "happy-dom": "^21.0.3",
-    "postcss": "^8.4.47",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "oxc-transform-react": "~0.152.0",
+    "postcss": "^8.5.30",
+    "publint": "^0.3.25",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-hook-form": "^7.90.0",
-    "sass-embedded": "^1.79.4",
-    "storybook": "^8.3.4",
+    "storybook": "^10.6.2",
     "tailwindcss": "^3.4.13",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.8",
-    "vite-plugin-dts": "^4.2.4",
-    "vite-tsconfig-paths": "^5.0.1",
-    "yup": "^1.4.0",
-    "zustand": "^5.0.1"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.2",
+    "vite": "^8.3.4",
+    "vite-plugin-dts": "^5.1.2",
+    "yup": "^1.7.1",
+    "zustand": "^5.0.15"
   },
   "peerDependencies": {
     "@mercadopago/sdk-react": ">=0.0.19",
     "@paypal/react-paypal-js": ">=8",
     "@stripe/react-stripe-js": ">=2",
     "@stripe/stripe-js": ">=4",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^18.3.1 || ^19.0.0",
+    "react-dom": "^18.3.1 || ^19.0.0",
     "react-hook-form": "^7.90.0",
     "yup": "^1.4.0",
     "zustand": "^5.0.1"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
-    "clsx": "^2.1.1"
+    "clsx": "^2.1.1",
+    "react-compiler-runtime": "^1.0.0"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && node scripts/fix-dts.mjs",
+    "check:dist": "node scripts/check-dist.mjs",
+    "check:package": "publint --strict && attw --pack . --profile esm-only --ignore-rules no-resolution",
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "format": "biome check --write .",
     "lint": "biome check .",
+    "lint:react": "eslint .",
     "playground": "vite --config playground/vite.config.ts",
     "e2e": "playwright test"
   },
@@ -82,29 +83,24 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/artisanForm.es.js",
-      "require": "./dist/artisanForm.cjs"
+      "import": "./dist/index.js"
     },
     "./style.css": "./dist/style.css",
     "./payments/stripe": {
       "types": "./dist/integrations/payments/providers/stripe.d.ts",
-      "import": "./dist/payments/stripe.es.js",
-      "require": "./dist/payments/stripe.cjs"
+      "import": "./dist/payments/stripe.js"
     },
     "./payments/lemonsqueezy": {
       "types": "./dist/integrations/payments/providers/lemonsqueezy.d.ts",
-      "import": "./dist/payments/lemonsqueezy.es.js",
-      "require": "./dist/payments/lemonsqueezy.cjs"
+      "import": "./dist/payments/lemonsqueezy.js"
     },
     "./payments/mercadopago": {
       "types": "./dist/integrations/payments/providers/mercadopago.d.ts",
-      "import": "./dist/payments/mercadopago.es.js",
-      "require": "./dist/payments/mercadopago.cjs"
+      "import": "./dist/payments/mercadopago.js"
     },
     "./payments/paypal": {
       "types": "./dist/integrations/payments/providers/paypal.d.ts",
-      "import": "./dist/payments/paypal.es.js",
-      "require": "./dist/payments/paypal.cjs"
+      "import": "./dist/payments/paypal.js"
     }
   },
   "peerDependenciesMeta": {

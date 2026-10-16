@@ -10,14 +10,14 @@ React library for building multi-step forms (wizards) from a declarative definit
 
 | Area                   | Technology                                                  |
 | ---------------------- | ----------------------------------------------------------- |
-| UI                     | React 18, TypeScript (strict)                               |
+| UI                     | React 18 or 19, TypeScript 6 (strict)                       |
 | Styles                 | Plain CSS with `--artisan-*` variables (Tailwind only for the playground and Storybook) |
 | Step state             | Zustand 5                                                   |
 | Forms and validation   | React Hook Form 7 + Yup                                     |
-| Documentation          | Storybook 8 (`@storybook/react-vite`)                       |
-| Build                  | Vite 5 in library mode + `vite-plugin-dts`                  |
+| Documentation          | Storybook 10 (`@storybook/react-vite`)                      |
+| Build                  | Vite 8 library mode (Rolldown/Oxc) + React Compiler (Rust) + `vite-plugin-dts` |
 | Tests                  | `bun test` + Testing Library (happy-dom), Playwright (e2e)  |
-| Formatting and linting | Biome 2                                                     |
+| Formatting and linting | Biome 2 (+ ESLint only for the React Hooks / Compiler rules) |
 | Package manager        | pnpm                                                        |
 
 ## Getting started
@@ -31,7 +31,9 @@ pnpm storybook   # http://localhost:6006
 | --------------------------- | --------------------------------------------------------------------------------------------------- |
 | `pnpm storybook`            | Storybook dev server (port 6006)                                                                    |
 | `pnpm build-storybook`      | Static Storybook                                                                                    |
-| `pnpm build`                | Library build in `dist/` (ES + CJS + `.d.ts`)                                                       |
+| `pnpm build`                | Library build in `dist/` (ESM + `.d.ts`, compiled with React Compiler)                              |
+| `pnpm lint:react`           | ESLint with the React Hooks and React Compiler rules                                                |
+| `pnpm check:dist` / `check:package` | Inspect the built output / validate the package (`publint`, `attw`)                         |
 | `pnpm typecheck`            | `tsc --noEmit`                                                                                      |
 | `pnpm lint` / `pnpm format` | Biome check / check --write                                                                         |
 | `pnpm playground`           | React test app (http://localhost:5173) that uses `src/` with HMR; scenarios at `?demo=<id>`         |
@@ -339,6 +341,23 @@ The schema's semantic `ui` settings (`columns`, `span`, `density`, `labelPositio
 ```bash
 pnpm add artisanform react react-dom react-hook-form yup zustand
 ```
+
+### Compatibility
+
+| Requirement | Supported (tested) |
+| --- | --- |
+| React / React DOM | `^18.3.1 \|\| ^19.0.0` (18.3.1 and 19.3.1 tested in clean Vite apps, plus Node SSR) |
+| Module format | **ESM only** (`"type": "module"`); CommonJS `require()` is not supported |
+| TypeScript | `moduleResolution` `bundler`, `node16` or `nodenext`. Legacy `node10` cannot resolve the `artisanform/payments/*` types |
+| Build tooling | Any bundler that understands `exports`; `artisanform/style.css` must be imported once |
+
+**React Compiler.** The published code is already compiled with the React Compiler (Rust `oxc-transform-react` through `@vitejs/plugin-react`, `target: '18'`). Consumers need **no compiler configuration**. The output imports `react-compiler-runtime` (a regular dependency of this package), which works on React 18 and 19; React itself stays external, so there is a single copy of React in your app. Your own app can enable or skip the compiler independently.
+
+**Server-side rendering.** The built package renders with `react-dom/server` (checked in the consumer test). Drafts (`persistKey`) read `localStorage` only on the client.
+
+**Migrating from 0.2.x.** (1) Use an ESM-aware toolchain: the `main`/CJS entry is gone. (2) Dist file names changed (`dist/index.js`, `dist/payments/<name>.js`); always import through the package name and its `exports`. (3) With `@types/react` 19, `JSX` is no longer a global namespace; ArtisanForm's types no longer reference it.
+
+**Known limitations.** The payment providers (`artisanform/payments/*`) load their optional SDKs lazily, so React Compiler skips a few of their functions (no behavior change). `useWizard` opts out of the compiler on purpose because it reads mutable form state while rendering (see its comment). The React Hooks lint reports `exhaustive-deps` warnings for effects that are deliberately keyed to a few values; they are tracked as debt.
 
 ## Public API (`src/index.ts`)
 

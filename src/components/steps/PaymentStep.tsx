@@ -45,12 +45,12 @@ const PaymentStep = (ctx: StepContext) => {
     result: PaymentResult;
   } | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const key = useRef(newKey());
+  const [key, setKey] = useState(newKey);
   const advanced = useRef(false);
 
   const request = () => ({
     values,
-    idempotencyKey: key.current,
+    idempotencyKey: key,
     returnUrl: baseUrl(),
     cancelUrl: baseUrl(),
     signal: new AbortController().signal,
@@ -80,6 +80,7 @@ const PaymentStep = (ctx: StepContext) => {
       const url = new URL(window.location.href);
       for (const k of plugin.resumeKeys ?? []) url.searchParams.delete(k);
       window.history.replaceState(null, '', url);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time resume from the return URL (external system: location)
       setChosen(plugin);
       finish(plugin, result);
       return;
@@ -95,7 +96,7 @@ const PaymentStep = (ctx: StepContext) => {
   }, [outcome, values]);
 
   const retry = () => {
-    key.current = newKey();
+    setKey(newKey());
     setFailure(null);
     setBusy(false);
     setAttempt((n) => n + 1);

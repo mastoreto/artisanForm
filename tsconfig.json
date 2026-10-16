@@ -6,6 +6,7 @@
     "module": "ESNext",
     "moduleDetection": "force",
     "jsx": "react-jsx",
+    "types": ["bun", "vite/client"],
     "allowJs": true,
     "declaration": true,
     "outDir": "dist",
@@ -27,6 +28,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": ["src/**/*", "postcss.config.cjs"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

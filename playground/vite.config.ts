@@ -1,13 +1,14 @@
 import { resolve } from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import { reactCompiler } from '../react-compiler.ts';
 
 const repo = resolve(__dirname, '..');
 
 // Consumes the library straight from src/ so edits show up instantly (HMR).
 export default defineConfig({
   root: __dirname,
-  plugins: [react()],
+  plugins: [react({ compiler: reactCompiler })],
   resolve: {
     alias: [
       // Subpaths first: the bare name would otherwise swallow them.

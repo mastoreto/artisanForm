@@ -11,7 +11,7 @@ React library for multi-step forms (wizards) with ready-made inputs. It ships as
 
 ## Stack
 
-React 18 · TypeScript (strict) · Plain CSS (`af-*` classes + `--artisan-*` variables) · Zustand (step state) · React Hook Form + Yup (validation) · Storybook 8 · Vite · pnpm (`pnpm-lock.yaml`).
+React 18/19 · TypeScript 6 (strict) · Plain CSS (`af-*` classes + `--artisan-*` variables) · Zustand (step state) · React Hook Form + Yup (validation) · Storybook 10 · Vite 8 + React Compiler (Rust, `react-compiler.ts`) · pnpm (`pnpm-lock.yaml`).
 
 ## Commands
 
@@ -24,6 +24,7 @@ pnpm format            # biome check --write
 ```
 
 Also: `pnpm playground` (live test app, scenarios in `playground/src/scenarios/`), `pnpm e2e` (Playwright, `e2e/`), `pnpm build` (library), `pnpm typecheck` and `bun test` (`*.test.ts(x)` next to the code).
+Also: `pnpm lint:react` (React Hooks/Compiler rules), `pnpm check:dist` and `pnpm check:package` after a build; `ARTISAN_COMPILER=off` disables the React Compiler (playground, build, e2e) to compare behavior. Never read mutable state (`getValues()`, refs) during render in compiled code.
 Minimum verification for a change: `pnpm lint` + `pnpm typecheck` + `pnpm build` + `bun test` + the story renders without errors. Check the **exit code** of each command, not just the tail of its output.
 
 ## Structure

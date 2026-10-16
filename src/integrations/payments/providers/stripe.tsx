@@ -50,8 +50,9 @@ const PayForm = ({
   labels,
 }: EmbeddedRenderProps & { ui: StripeUi }) => {
   const cx = useCx();
-  const stripe = ui.useStripe();
-  const elements = ui.useElements();
+  const { useStripe, useElements } = ui;
+  const stripe = useStripe();
+  const elements = useElements();
   const [busy, setBusy] = useState(false);
 
   const pay = async () => {

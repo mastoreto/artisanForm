@@ -34,7 +34,7 @@ const Controls = ({
   labels,
   className,
   buttonClassName,
-}: ControlsProps): JSX.Element => {
+}: ControlsProps) => {
   const cx = useCx();
   const storeIsFinal = useArtisanStore((state) => state.isFinalStep);
   const step = useArtisanStore((state) => state.step);

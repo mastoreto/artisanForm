@@ -146,18 +146,16 @@ const ArtisanFormInner = ({
   );
   const scheme = projection.scheme;
   // Read once on mount; the draft wins over defaults and `initialValues`.
-  const draft = useMemo(
-    () =>
-      persistKey
-        ? restoreDraft({
-            persistKey,
-            formId: projection.formId,
-            revision: projection.revision,
-            scheme,
-            onConflict: onSnapshotConflict,
-          })
-        : null,
-    [persistKey],
+  const [draft] = useState(() =>
+    persistKey
+      ? restoreDraft({
+          persistKey,
+          formId: projection.formId,
+          revision: projection.revision,
+          scheme,
+          onConflict: onSnapshotConflict,
+        })
+      : null,
   );
   const initialValues = useMemo(
     () => ({
@@ -165,7 +163,7 @@ const ArtisanFormInner = ({
       ...initialOverrides,
       ...draft?.values,
     }),
-    [scheme, draft, registry],
+    [scheme, draft, registry, initialOverrides],
   );
   const labels = useMemo(
     () => ({ ...defaultLabels, ...labelOverrides }),
