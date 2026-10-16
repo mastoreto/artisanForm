@@ -18,12 +18,12 @@ const scheme: FormSchema = {
     {
       title: 'Step one',
       fields: [
-        { type: 'text', name: 'name', label: 'Nombre', required: true, min: 3 },
+        { type: 'text', name: 'name', label: 'Name', required: true, min: 3 },
         {
           type: 'dynamicSelect',
           name: 'country',
           dependentName: 'city',
-          label: 'Lugar',
+          label: 'Place',
           options: [
             { value: 'ar', label: 'Argentina' },
             { value: 'cl', label: 'Chile' },
@@ -51,7 +51,7 @@ const scheme: FormSchema = {
         {
           type: 'check',
           name: 'topics',
-          label: 'Temas',
+          label: 'Topics',
           options: [
             { value: 'a', label: 'A' },
             { value: 'b', label: 'B' },
@@ -68,10 +68,10 @@ const setup = () => {
   return { onSubmit, user: userEvent.setup() };
 };
 
-test('blocks "Siguiente" while the current step has errors', async () => {
+test('blocks "Next" while the current step has errors', async () => {
   const { user } = setup();
-  await user.click(screen.getByText('Siguiente'));
-  expect(await screen.findByText('Campo requerido')).toBeTruthy();
+  await user.click(screen.getByText('Next'));
+  expect(await screen.findByText('Required field')).toBeTruthy();
   expect(screen.getByRole('heading', { name: 'Step one' })).toBeTruthy();
   expect(screen.queryByRole('heading', { name: 'Step two' })).toBeNull();
 });
@@ -86,21 +86,19 @@ test('dependent select follows the parent value', async () => {
 
 test('full flow: advance, go back, submit with all values', async () => {
   const { user, onSubmit } = setup();
-  await user.type(screen.getByLabelText('Nombre'), 'Ana');
-  await user.click(screen.getByText('Siguiente'));
+  await user.type(screen.getByLabelText('Name'), 'Ana');
+  await user.click(screen.getByText('Next'));
   expect(await screen.findByRole('heading', { name: 'Step two' })).toBeTruthy();
 
-  await user.click(screen.getByText('Anterior'));
+  await user.click(screen.getByText('Previous'));
   expect(await screen.findByRole('heading', { name: 'Step one' })).toBeTruthy();
-  expect((screen.getByLabelText('Nombre') as HTMLInputElement).value).toBe(
-    'Ana',
-  );
-  await user.click(screen.getByText('Siguiente'));
+  expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('Ana');
+  await user.click(screen.getByText('Next'));
   await screen.findByRole('heading', { name: 'Step two' });
 
   // Radio is required: submit is blocked until a plan is chosen.
-  await user.click(screen.getByText('Finalizar'));
-  expect(await screen.findByText('Campo requerido')).toBeTruthy();
+  await user.click(screen.getByText('Finish'));
+  expect(await screen.findByText('Required field')).toBeTruthy();
   expect(onSubmit).not.toHaveBeenCalled();
 
   await user.click(screen.getByText('Pro'));
@@ -110,7 +108,7 @@ test('full flow: advance, go back, submit with all values', async () => {
   expect(screen.getByText('B').getAttribute('aria-pressed')).toBe('true');
   expect(screen.getByText('A').getAttribute('aria-pressed')).toBe('false');
 
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Finish'));
   await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   expect((onSubmit.mock.calls[0] as unknown[])[0]).toEqual({
     name: 'Ana',
@@ -135,8 +133,8 @@ test('two forms on the same page keep independent steps', async () => {
   );
   const a = within(screen.getByTestId('a'));
   const b = within(screen.getByTestId('b'));
-  await user.type(a.getByLabelText('Nombre'), 'Ana');
-  await user.click(a.getByText('Siguiente'));
+  await user.type(a.getByLabelText('Name'), 'Ana');
+  await user.click(a.getByText('Next'));
   expect(await a.findByRole('heading', { name: 'Step two' })).toBeTruthy();
   expect(b.getByRole('heading', { name: 'Step one' })).toBeTruthy();
 });
@@ -154,20 +152,18 @@ test('initialValues, onChange and onStepChange', async () => {
       onStepChange={onStepChange}
     />,
   );
-  expect((screen.getByLabelText('Nombre') as HTMLInputElement).value).toBe(
-    'Zoe',
-  );
+  expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('Zoe');
   expect(onStepChange).not.toHaveBeenCalled();
-  await user.type(screen.getByLabelText('Nombre'), 'x');
+  await user.type(screen.getByLabelText('Name'), 'x');
   await waitFor(() => expect(onChange).toHaveBeenCalled());
   expect((onChange.mock.calls.at(-1) as unknown[])[0]).toMatchObject({
     name: 'Zoex',
   });
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   await waitFor(() => expect(onStepChange).toHaveBeenCalledWith(1));
 });
 
-test('"Finalizar" stays disabled while onSubmit is pending', async () => {
+test('"Finish" stays disabled while onSubmit is pending', async () => {
   const user = userEvent.setup();
   let release = () => {};
   const onSubmit = () => new Promise<void>((r) => (release = r));
@@ -178,7 +174,7 @@ test('"Finalizar" stays disabled while onSubmit is pending', async () => {
       initialValues={{ name: 'Zoe' }}
     />,
   );
-  const button = () => screen.getByText('Finalizar') as HTMLButtonElement;
+  const button = () => screen.getByText('Finish') as HTMLButtonElement;
   await user.click(button());
   await waitFor(() => expect(button().disabled).toBe(true));
   release();
@@ -197,23 +193,23 @@ test('controlled step prop moves the wizard', async () => {
 
 test('progress indicator and focus on the first invalid field', async () => {
   const { user } = setup();
-  const nav = screen.getByRole('navigation', { name: 'Progreso' });
+  const nav = screen.getByRole('navigation', { name: 'Progress' });
   expect(nav.querySelector('[aria-current="step"]')?.textContent).toContain(
     'Step one',
   );
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   await waitFor(() =>
-    expect(document.activeElement).toBe(screen.getByLabelText('Nombre')),
+    expect(document.activeElement).toBe(screen.getByLabelText('Name')),
   );
-  expect(screen.getByLabelText('Nombre').getAttribute('aria-invalid')).toBe(
+  expect(screen.getByLabelText('Name').getAttribute('aria-invalid')).toBe(
     'true',
   );
 });
 
 test('radio group is exposed with radio roles', async () => {
   const { user } = setup();
-  await user.type(screen.getByLabelText('Nombre'), 'Ana');
-  await user.click(screen.getByText('Siguiente'));
+  await user.type(screen.getByLabelText('Name'), 'Ana');
+  await user.click(screen.getByText('Next'));
   await screen.findByRole('heading', { name: 'Step two' });
   expect(screen.getByRole('radiogroup', { name: 'Plan' })).toBeTruthy();
   await user.click(screen.getByRole('radio', { name: 'Pro' }));
@@ -228,12 +224,12 @@ test('labels override buttons and validation messages', async () => {
     <ArtisanForm
       scheme={scheme}
       onSubmit={() => {}}
-      labels={{ next: 'Next', required: 'Required' }}
+      labels={{ next: 'Continue', required: 'Mandatory' }}
     />,
   );
-  await user.click(screen.getByText('Next'));
-  expect(await screen.findByText('Required')).toBeTruthy();
-  expect(screen.queryByText('Siguiente')).toBeNull();
+  await user.click(screen.getByText('Continue'));
+  expect(await screen.findByText('Mandatory')).toBeTruthy();
+  expect(screen.queryByText('Next')).toBeNull();
 });
 
 test('className props reach the rendered elements', () => {
@@ -288,7 +284,7 @@ test('conditional field: hidden unless condition holds, and not submitted', asyn
   );
   expect(screen.queryByLabelText('Company name')).toBeNull();
   await user.click(screen.getByText('Person'));
-  await user.click(screen.getByText('Finalizar')); // hidden required field must not block
+  await user.click(screen.getByText('Finish')); // hidden required field must not block
   await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   expect(onSubmit.mock.calls[0][0]).not.toHaveProperty('company');
 
@@ -302,12 +298,12 @@ test('conditional step is skipped and sameAs blocks mismatched values', async ()
   await user.type(screen.getByLabelText('Password'), 'abc');
   await user.type(screen.getByLabelText('Repeat'), 'abx');
   await user.click(screen.getByText('Person'));
-  await user.click(screen.getByText('Siguiente'));
-  expect(await screen.findByText('Los valores no coinciden')).toBeTruthy();
+  await user.click(screen.getByText('Next'));
+  expect(await screen.findByText('The values do not match')).toBeTruthy();
 
   await user.clear(screen.getByLabelText('Repeat'));
   await user.type(screen.getByLabelText('Repeat'), 'abc');
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   // "Company data" is skipped for kind=person.
   expect(await screen.findByRole('heading', { name: 'Done' })).toBeTruthy();
 });
@@ -382,8 +378,8 @@ test('persistKey restores the draft (without passwords) and clears it on submit'
       {
         title: 'One',
         fields: [
-          { type: 'text', name: 'name', label: 'Nombre' },
-          { type: 'password', name: 'pw', label: 'Clave' },
+          { type: 'text', name: 'name', label: 'Name' },
+          { type: 'password', name: 'pw', label: 'Password' },
         ],
       },
       { title: 'Two', fields: [{ type: 'text', name: 'x', label: 'X' }] },
@@ -392,9 +388,9 @@ test('persistKey restores the draft (without passwords) and clears it on submit'
   const first = render(
     <ArtisanForm scheme={draftScheme} onSubmit={() => {}} persistKey="t" />,
   );
-  await user.type(screen.getByLabelText('Nombre'), 'Ana');
-  await user.type(screen.getByLabelText('Clave'), 'secret');
-  await user.click(screen.getByText('Siguiente'));
+  await user.type(screen.getByLabelText('Name'), 'Ana');
+  await user.type(screen.getByLabelText('Password'), 'secret');
+  await user.click(screen.getByText('Next'));
   await screen.findByRole('heading', { name: 'Two' });
   expect(localStorage.getItem('artisanform:t')).not.toContain('secret');
   first.unmount();
@@ -403,14 +399,14 @@ test('persistKey restores the draft (without passwords) and clears it on submit'
     <ArtisanForm scheme={draftScheme} onSubmit={() => {}} persistKey="t" />,
   );
   expect(await screen.findByRole('heading', { name: 'Two' })).toBeTruthy();
-  await user.click(screen.getByText('Anterior'));
-  expect((screen.getByLabelText('Nombre') as HTMLInputElement).value).toBe(
-    'Ana',
+  await user.click(screen.getByText('Previous'));
+  expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('Ana');
+  expect((screen.getByLabelText('Password') as HTMLInputElement).value).toBe(
+    '',
   );
-  expect((screen.getByLabelText('Clave') as HTMLInputElement).value).toBe('');
 
-  await user.click(screen.getByText('Siguiente'));
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Next'));
+  await user.click(screen.getByText('Finish'));
   await waitFor(() => expect(localStorage.getItem('artisanform:t')).toBeNull());
 });
 
@@ -438,7 +434,7 @@ test('custom field types plug in through the `fields` registry', async () => {
     />,
   );
   expect(screen.getByText('custom Rating')).toBeTruthy();
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Finish'));
   await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   expect(onSubmit.mock.calls[0][0]).toEqual({ rating: 3 });
 });
@@ -457,23 +453,23 @@ test('checkbox and switch hold booleans; required means "must be checked"', asyn
               {
                 type: 'checkbox',
                 name: 'terms',
-                label: 'Acepto',
+                label: 'I accept',
                 required: true,
               },
-              { type: 'switch', name: 'news', label: 'Novedades' },
+              { type: 'switch', name: 'news', label: 'News' },
             ],
           },
         ],
       }}
     />,
   );
-  await user.click(screen.getByText('Finalizar'));
-  expect(await screen.findByText('Campo requerido')).toBeTruthy();
+  await user.click(screen.getByText('Finish'));
+  expect(await screen.findByText('Required field')).toBeTruthy();
   expect(onSubmit).not.toHaveBeenCalled();
 
-  await user.click(screen.getByLabelText('Acepto'));
-  await user.click(screen.getByRole('switch', { name: 'Novedades' }));
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByLabelText('I accept'));
+  await user.click(screen.getByRole('switch', { name: 'News' }));
+  await user.click(screen.getByText('Finish'));
   await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   expect(onSubmit.mock.calls[0][0]).toEqual({ terms: true, news: true });
 });
@@ -489,17 +485,17 @@ test('tel, url, date limits and native attributes', async () => {
             title: 'Native',
             fields: [
               { type: 'tel', name: 'phone', label: 'Tel' },
-              { type: 'url', name: 'site', label: 'Sitio' },
+              { type: 'url', name: 'site', label: 'Website' },
               {
                 type: 'date',
                 name: 'when',
-                label: 'Cuándo',
+                label: 'When',
                 minDate: '2030-01-01',
               },
               {
                 type: 'text',
                 name: 'code',
-                label: 'Código',
+                label: 'Code',
                 maxLength: 4,
                 autoComplete: 'one-time-code',
                 readOnly: false,
@@ -510,18 +506,18 @@ test('tel, url, date limits and native attributes', async () => {
       }}
     />,
   );
-  const code = screen.getByLabelText('Código') as HTMLInputElement;
+  const code = screen.getByLabelText('Code') as HTMLInputElement;
   expect(code.maxLength).toBe(4);
   expect(code.autocomplete).toBe('one-time-code');
   expect((screen.getByLabelText('Tel') as HTMLInputElement).type).toBe('tel');
 
   await user.type(screen.getByLabelText('Tel'), 'abc');
-  await user.type(screen.getByLabelText('Sitio'), 'nope');
-  await user.type(screen.getByLabelText('Cuándo'), '2020-01-01');
-  await user.click(screen.getByText('Finalizar'));
-  expect(await screen.findByText('Teléfono inválido')).toBeTruthy();
-  expect(screen.getByText('URL inválida')).toBeTruthy();
-  expect(screen.getByText('Desde el 2030-01-01')).toBeTruthy();
+  await user.type(screen.getByLabelText('Website'), 'nope');
+  await user.type(screen.getByLabelText('When'), '2020-01-01');
+  await user.click(screen.getByText('Finish'));
+  expect(await screen.findByText('Invalid phone number')).toBeTruthy();
+  expect(screen.getByText('Invalid URL')).toBeTruthy();
+  expect(screen.getByText('From 2030-01-01')).toBeTruthy();
 });
 
 test('beforeNext blocks with its error; throwing also blocks', async () => {
@@ -536,21 +532,21 @@ test('beforeNext blocks with its error; throwing also blocks', async () => {
             title: 'Gate',
             fields: [{ type: 'text', name: 'a', label: 'A' }],
             beforeNext: async () =>
-              allow ? undefined : { error: 'Servicio no disponible' },
+              allow ? undefined : { error: 'Service unavailable' },
           },
           { title: 'After', fields: [{ type: 'text', name: 'b', label: 'B' }] },
         ],
       }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
-  expect(await screen.findByText('Servicio no disponible')).toBeTruthy();
+  await user.click(screen.getByText('Next'));
+  expect(await screen.findByText('Service unavailable')).toBeTruthy();
   expect(screen.getByRole('heading', { name: 'Gate' })).toBeTruthy();
 
   allow = true;
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   expect(await screen.findByRole('heading', { name: 'After' })).toBeTruthy();
-  expect(screen.queryByText('Servicio no disponible')).toBeNull();
+  expect(screen.queryByText('Service unavailable')).toBeNull();
 });
 
 test('custom step reads context, drives navigation and honors controls and onEnter', async () => {
@@ -577,11 +573,11 @@ test('custom step reads context, drives navigation and honors controls and onEnt
       }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   const custom = await screen.findByText('custom step 2/2');
   expect(onEnter).toHaveBeenCalledTimes(1);
-  expect(screen.queryByText('Finalizar')).toBeNull();
-  expect(screen.queryByText('Anterior')).toBeNull();
+  expect(screen.queryByText('Finish')).toBeNull();
+  expect(screen.queryByText('Previous')).toBeNull();
   await user.click(custom);
   expect(await screen.findByRole('heading', { name: 'First' })).toBeTruthy();
 });
@@ -602,10 +598,10 @@ test('a failing onSubmit shows an error and can be retried', async () => {
       }}
     />,
   );
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Finish'));
   expect(await screen.findByText('Boom')).toBeTruthy();
   fail = false;
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Finish'));
   await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2));
   await waitFor(() => expect(screen.queryByText('Boom')).toBeNull());
 });
@@ -613,61 +609,61 @@ test('a failing onSubmit shows an error and can be retried', async () => {
 const withResult = (extra: Record<string, unknown> = {}): FormSchema => ({
   steps: [
     {
-      title: 'Datos',
+      title: 'Data',
       fields: [
-        { type: 'text', name: 'name', label: 'Nombre' },
+        { type: 'text', name: 'name', label: 'Name' },
         {
           type: 'radio',
           name: 'plan',
           label: 'Plan',
           options: [
-            { value: 'free', label: 'Gratis' },
-            { value: 'pro', label: 'Profesional' },
+            { value: 'free', label: 'Free' },
+            { value: 'pro', label: 'Professional' },
           ],
         },
-        { type: 'password', name: 'pw', label: 'Clave' },
+        { type: 'password', name: 'pw', label: 'Password' },
       ],
     },
-    { title: 'Revisá', kind: 'review' },
-    { title: 'Fin', kind: 'result', message: 'Gracias!', ...extra },
+    { title: 'Review', kind: 'review' },
+    { title: 'End', kind: 'result', message: 'Thanks!', ...extra },
   ],
 });
 
 test('review step summarizes values (secrets masked) and edit goes back', async () => {
   const user = userEvent.setup();
   render(<ArtisanForm scheme={withResult()} onSubmit={() => {}} />);
-  await user.type(screen.getByLabelText('Nombre'), 'Ana');
-  await user.type(screen.getByLabelText('Clave'), 'topsecret');
-  await user.click(screen.getByText('Profesional'));
-  await user.click(screen.getByText('Siguiente'));
-  await screen.findByRole('heading', { name: 'Revisá' });
+  await user.type(screen.getByLabelText('Name'), 'Ana');
+  await user.type(screen.getByLabelText('Password'), 'topsecret');
+  await user.click(screen.getByText('Professional'));
+  await user.click(screen.getByText('Next'));
+  await screen.findByRole('heading', { name: 'Review' });
   expect(screen.getByText('Ana')).toBeTruthy();
-  expect(screen.getByText('Profesional')).toBeTruthy();
+  expect(screen.getByText('Professional')).toBeTruthy();
   expect(screen.queryByText('topsecret')).toBeNull();
   expect(screen.getByText('••••••')).toBeTruthy();
 
-  await user.click(screen.getByRole('button', { name: /Editar/ }));
-  expect(await screen.findByRole('heading', { name: 'Datos' })).toBeTruthy();
+  await user.click(screen.getByRole('button', { name: /Edit/ }));
+  expect(await screen.findByRole('heading', { name: 'Data' })).toBeTruthy();
 });
 
 test('result step: success after onSubmit; error shows retry and recovers', async () => {
   const user = userEvent.setup();
   let fail = true;
   const onSubmit = mock(async () => {
-    if (fail) throw new Error('Servidor caído');
+    if (fail) throw new Error('Server down');
   });
   render(<ArtisanForm scheme={withResult()} onSubmit={onSubmit} />);
-  await user.click(screen.getByText('Siguiente'));
-  await screen.findByRole('heading', { name: 'Revisá' });
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Next'));
+  await screen.findByRole('heading', { name: 'Review' });
+  await user.click(screen.getByText('Finish'));
 
-  expect(await screen.findByText('Servidor caído')).toBeTruthy();
-  expect(screen.getByRole('heading', { name: 'Fin' })).toBeTruthy();
+  expect(await screen.findByText('Server down')).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'End' })).toBeTruthy();
   fail = false;
-  await user.click(screen.getByText('Reintentar'));
-  expect(await screen.findByText('Gracias!')).toBeTruthy();
+  await user.click(screen.getByText('Retry'));
+  expect(await screen.findByText('Thanks!')).toBeTruthy();
   expect(onSubmit).toHaveBeenCalledTimes(2);
-  expect(screen.queryByText('Finalizar')).toBeNull();
+  expect(screen.queryByText('Finish')).toBeNull();
 });
 
 test('terms step shows the text and requires acceptance', async () => {
@@ -679,28 +675,28 @@ test('terms step shows the text and requires acceptance', async () => {
       scheme={{
         steps: [
           {
-            title: 'Términos',
+            title: 'Terms',
             kind: 'terms',
-            content: 'Texto de los términos',
+            content: 'Terms text',
             href: 'https://example.com/terms',
           },
         ],
       }}
     />,
   );
-  expect(screen.getByText('Texto de los términos')).toBeTruthy();
+  expect(screen.getByText('Terms text')).toBeTruthy();
   expect(
     screen
-      .getByRole('link', { name: 'Leer el documento completo' })
+      .getByRole('link', { name: 'Read the full document' })
       .getAttribute('href'),
   ).toBe('https://example.com/terms');
 
-  await user.click(screen.getByText('Finalizar'));
-  expect(await screen.findByText('Campo requerido')).toBeTruthy();
+  await user.click(screen.getByText('Finish'));
+  expect(await screen.findByText('Required field')).toBeTruthy();
   expect(onSubmit).not.toHaveBeenCalled();
 
-  await user.click(screen.getByLabelText('Acepto los términos y condiciones'));
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByLabelText('I accept the terms and conditions'));
+  await user.click(screen.getByText('Finish'));
   await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   expect(onSubmit.mock.calls[0][0]).toEqual({ termsAccepted: true });
 });

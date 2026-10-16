@@ -20,7 +20,7 @@ const App = () => {
     <div className="flex min-h-screen flex-col md:flex-row">
       <nav
         className="shrink-0 border-b bg-gray-50 p-4 md:w-56 md:border-b-0 md:border-r"
-        aria-label="Escenarios"
+        aria-label="Scenarios"
       >
         <h1 className="mb-4 text-sm font-bold uppercase text-gray-500">
           Playground

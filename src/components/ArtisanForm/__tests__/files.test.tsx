@@ -31,7 +31,10 @@ const setup = (
               { type: 'text', name: 'x', label: 'X' },
             ],
           },
-          { title: 'Next', fields: [{ type: 'text', name: 'y', label: 'Y' }] },
+          {
+            title: 'Second',
+            fields: [{ type: 'text', name: 'y', label: 'Y' }],
+          },
         ],
       }}
     />,
@@ -46,7 +49,7 @@ test('uploads a file with progress and stores its descriptor', async () => {
   const { input, user } = setup();
   await user.upload(input, doc());
   expect(await screen.findByRole('progressbar')).toBeTruthy();
-  expect(await screen.findByLabelText('Quitar cv.pdf')).toBeTruthy();
+  expect(await screen.findByLabelText('Remove cv.pdf')).toBeTruthy();
   expect(screen.queryByRole('progressbar')).toBeNull();
 });
 
@@ -58,35 +61,35 @@ test('rejects wrong type and oversized files without uploading', async () => {
   );
   const user = userEvent.setup({ applyAccept: false });
   await user.upload(input, doc('pic.png', 100, 'image/png'));
-  expect(await screen.findByText('Tipo de archivo no permitido')).toBeTruthy();
+  expect(await screen.findByText('File type not allowed')).toBeTruthy();
   await user.upload(input, doc('big.pdf', 2000));
-  expect(await screen.findByText(/supera el máximo/)).toBeTruthy();
+  expect(await screen.findByText(/exceeds the maximum/)).toBeTruthy();
   expect(upload).not.toHaveBeenCalled();
 });
 
-test('blocks "Siguiente" while an upload is running, then advances', async () => {
+test('blocks "Next" while an upload is running, then advances', async () => {
   const { input, user } = setup({}, mockStorage({ delay: 300 }));
   await user.upload(input, doc());
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   expect(
-    await screen.findByText('Esperá a que terminen de subir los archivos'),
+    await screen.findByText('Wait for the files to finish uploading'),
   ).toBeTruthy();
-  await screen.findByLabelText('Quitar cv.pdf');
-  await user.click(screen.getByText('Siguiente'));
-  expect(await screen.findByRole('heading', { name: 'Next' })).toBeTruthy();
+  await screen.findByLabelText('Remove cv.pdf');
+  await user.click(screen.getByText('Next'));
+  expect(await screen.findByRole('heading', { name: 'Second' })).toBeTruthy();
 });
 
 test('required file blocks until uploaded; remove clears and calls storage.remove', async () => {
   const remove = mock(async () => {});
   const base = mockStorage({ delay: 20 });
   const { input, user } = setup({ required: true }, { ...base, remove });
-  await user.click(screen.getByText('Siguiente'));
-  expect(await screen.findByText('Campo requerido')).toBeTruthy();
+  await user.click(screen.getByText('Next'));
+  expect(await screen.findByText('Required field')).toBeTruthy();
 
   await user.upload(input, doc());
-  await user.click(await screen.findByLabelText('Quitar cv.pdf'));
+  await user.click(await screen.findByLabelText('Remove cv.pdf'));
   await waitFor(() => expect(remove).toHaveBeenCalledTimes(1));
-  expect(screen.queryByLabelText('Quitar cv.pdf')).toBeNull();
+  expect(screen.queryByLabelText('Remove cv.pdf')).toBeNull();
 });
 
 test('a failed upload can be retried', async () => {
@@ -98,16 +101,16 @@ test('a failed upload can be retried', async () => {
   await user.upload(input, doc());
   expect(await screen.findByText('Mock upload failed')).toBeTruthy();
   fail = false;
-  await user.click(screen.getByLabelText('Reintentar cv.pdf'));
-  expect(await screen.findByLabelText('Quitar cv.pdf')).toBeTruthy();
+  await user.click(screen.getByLabelText('Retry cv.pdf'));
+  expect(await screen.findByLabelText('Remove cv.pdf')).toBeTruthy();
 });
 
 test('maxFiles > 1 accepts several files and caps the total', async () => {
   const { input, user } = setup({ maxFiles: 2 });
   await user.upload(input, [doc('a.pdf'), doc('b.pdf')]);
-  await screen.findByLabelText('Quitar b.pdf');
+  await screen.findByLabelText('Remove b.pdf');
   await user.upload(input, doc('c.pdf'));
-  expect(await screen.findByText('Máximo 2 archivos')).toBeTruthy();
+  expect(await screen.findByText('Maximum 2 files')).toBeTruthy();
 });
 
 class FakeXhr {

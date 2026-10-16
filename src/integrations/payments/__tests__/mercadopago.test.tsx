@@ -30,8 +30,8 @@ mock.module('@mercadopago/sdk-react', () => ({
 const scheme: FormSchema = {
   steps: [
     { title: 'Plan', fields: [{ type: 'text', name: 'plan', label: 'Plan' }] },
-    { title: 'Pago', kind: 'payment', provider: 'mercadopago' },
-    { title: 'Fin', kind: 'result', message: 'Pagado' },
+    { title: 'Payment', kind: 'payment', provider: 'mercadopago' },
+    { title: 'End', kind: 'result', message: 'Paid' },
   ],
 };
 
@@ -60,7 +60,7 @@ const pay = async (
       initialValues={{ plan: 'pro' }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   await user.click(await screen.findByText('brick pay'));
   return onSubmit;
 };
@@ -71,7 +71,7 @@ test('embedded: the Payment Brick posts formData to your backend; approved succe
     id: 99,
   }));
   const onSubmit = await pay(createPayment as never);
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  expect(await screen.findByText('Paid')).toBeTruthy();
   expect(initMercadoPago).toHaveBeenCalledWith('TEST-1', expect.anything());
   expect(initialization).toMatchObject({ amount: 100 });
   expect(createPayment.mock.calls[0][1]).toEqual({ token: 'tok_1' });
@@ -82,7 +82,7 @@ test('embedded: the Payment Brick posts formData to your backend; approved succe
 
 test('embedded: in_process moves on as processing; rejected shows an error', async () => {
   const onSubmit = await pay(async () => ({ status: 'in_process', id: 5 }));
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  expect(await screen.findByText('Paid')).toBeTruthy();
   expect(onSubmit.mock.calls[0][0]).toMatchObject({
     payment: { status: 'processing' },
   });

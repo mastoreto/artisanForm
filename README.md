@@ -72,7 +72,7 @@ const scheme: FormSchema = {
 <ArtisanForm scheme={scheme} onSubmit={(values) => console.log(values)} />;
 ```
 
-> Built-in UI texts (buttons, validation messages) default to Spanish; override any of them with the `labels` prop.
+> Built-in UI texts (buttons, validation messages) default to English; override any of them with the `labels` prop. Field labels, names and step titles come from your schema and are free text in any language.
 
 ### `FormSchema` (0.2.0 format)
 
@@ -294,7 +294,7 @@ Each type is a `FieldDefinition` (`render`, `initialValues`, `rules`, and option
 | `step?`                       | Moves the wizard to that step when it changes (pair with `onStepChange`)                                                                         |
 | `persistKey?`                 | Saves values and step to `localStorage` and restores them on mount. Passwords are never saved; the draft is deleted on submit                    |
 | `onSnapshotConflict?`         | What to do with a saved draft that does not fit this form: `'backup'` (default), `'restore'` or `'discard'`                                       |
-| `labels?`                     | Overrides any text or validation message (see `defaultLabels`; Spanish by default)                                                               |
+| `labels?`                     | Overrides any text or validation message (see `defaultLabels`; English by default)                                                               |
 | `className?`                  | Extra classes for the `<form>` element                                                                                                           |
 | `fields?`                     | Registry of custom field types (see above)                                                                                                       |
 | `stepTypes?`                  | Registry of custom step types (`StepDefinition`)                                                                                                 |
@@ -400,7 +400,7 @@ Standalone inputs use Formik's `useField`: they take `name` (not `value`/`onChan
 - **Real providers:** the plugins are verified against mocks of their SDKs; they still need a pass against sandboxes with test credentials.
 - **Default UI for `ui` settings:** `layout`, `density`, `labelPosition` and `variant` are validated and normalized but not interpreted yet.
 - **Browser:** component tests run in happy-dom; Playwright covers the playground flows (wizard, files, waiting, mock payments, fields).
-- Default texts are Spanish only (configurable through `labels`).
+- Default texts are English only; for another language pass `labels` (and write your own field labels).
 
 ### History
 
@@ -438,4 +438,4 @@ Details in [AGENTS.md](AGENTS.md) ([Spanish](docs/es/AGENTS.md)). Summary:
 - One component per folder with its `*.stories.tsx`; `export default`.
 - Inputs with `forwardRef` when they expose an element, Formik's `useField` and basic accessibility (`label htmlFor`, `aria-invalid`, `aria-describedby`).
 - Styles only with Tailwind + `cn()`. Global state only in `useArtisanStore`.
-- Everything generated in the repository (code, comments, docs, commits) is in English; Spanish documentation lives in `docs/es/`. Default UI strings are Spanish and configurable through `labels`.
+- Everything generated in the repository (code, comments, docs, commits) is in English; Spanish documentation lives in `docs/es/`. Library texts are never hard-coded: built-in defaults are English and every one is overridable through `labels`.

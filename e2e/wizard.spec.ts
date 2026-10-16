@@ -9,17 +9,17 @@ test.beforeEach(async ({ page }) => {
 test('blocks the first step until it is valid, then completes the wizard', async ({
   page,
 }) => {
-  await page.getByRole('button', { name: 'Siguiente' }).click();
-  await expect(page.getByText('Campo requerido').first()).toBeVisible();
-  await expect(page.getByLabel('Nombre')).toBeFocused();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await expect(page.getByText('Required field').first()).toBeVisible();
+  await expect(page.getByLabel('Name')).toBeFocused();
 
-  await page.getByLabel('Nombre').fill('Ana');
+  await page.getByLabel('Name').fill('Ana');
   await page.getByLabel('Email').fill('ana@example.com');
-  await page.getByRole('button', { name: 'Siguiente' }).click();
+  await page.getByRole('button', { name: 'Next' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Ubicación' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Location' })).toBeVisible();
   await page.getByRole('radio', { name: 'Pro' }).click();
-  await page.getByRole('button', { name: 'Finalizar' }).click();
+  await page.getByRole('button', { name: 'Finish' }).click();
 
   const result = page.getByTestId('result');
   await expect(result).toContainText('"name": "Ana"');
@@ -27,23 +27,23 @@ test('blocks the first step until it is valid, then completes the wizard', async
 });
 
 test('resumes the draft after a reload', async ({ page }) => {
-  await page.getByLabel('Nombre').fill('Zoe');
+  await page.getByLabel('Name').fill('Zoe');
   await page.getByLabel('Email').fill('zoe@example.com');
-  await page.getByRole('button', { name: 'Siguiente' }).click();
-  await expect(page.getByRole('heading', { name: 'Ubicación' })).toBeVisible();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await expect(page.getByRole('heading', { name: 'Location' })).toBeVisible();
 
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Ubicación' })).toBeVisible();
-  await page.getByRole('button', { name: 'Anterior' }).click();
-  await expect(page.getByLabel('Nombre')).toHaveValue('Zoe');
+  await expect(page.getByRole('heading', { name: 'Location' })).toBeVisible();
+  await page.getByRole('button', { name: 'Previous' }).click();
+  await expect(page.getByLabel('Name')).toHaveValue('Zoe');
 });
 
 test('is operable with the keyboard', async ({ page }) => {
-  await page.getByLabel('Nombre').focus();
+  await page.getByLabel('Name').focus();
   await page.keyboard.type('Leo');
   await page.keyboard.press('Tab');
   await page.keyboard.type('leo@example.com');
-  await page.getByRole('button', { name: 'Siguiente' }).focus();
+  await page.getByRole('button', { name: 'Next' }).focus();
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('heading', { name: 'Ubicación' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Location' })).toBeVisible();
 });

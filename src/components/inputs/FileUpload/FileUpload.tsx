@@ -93,7 +93,7 @@ const FileUpload = ({
     setPendingState(pendingRef.current);
   };
 
-  // A running upload blocks "Siguiente" through a field-level validator.
+  // A running upload blocks "Next" through a field-level validator.
   const [field, meta, helpers] = useField<UploadedFile[]>({
     name,
     validate: () =>

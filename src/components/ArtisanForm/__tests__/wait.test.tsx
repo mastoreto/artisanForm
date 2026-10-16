@@ -16,16 +16,16 @@ const scheme = (wait: WaitStrategy, extra: Record<string, unknown> = {}) =>
   ({
     steps: [
       { title: 'Form', fields: [{ type: 'text', name: 'a', label: 'A' }] },
-      { title: 'Esperando', kind: 'pending', wait, ...extra },
-      { title: 'Hecho', kind: 'custom', render: () => <p>fin</p> },
+      { title: 'Waiting', kind: 'pending', wait, ...extra },
+      { title: 'Done', kind: 'custom', render: () => <p>fin</p> },
     ],
   }) as FormSchema;
 
 const toWaiting = async (wait: WaitStrategy, extra = {}) => {
   const user = userEvent.setup();
   render(<ArtisanForm scheme={scheme(wait, extra)} onSubmit={() => {}} />);
-  await user.click(screen.getByText('Siguiente'));
-  await screen.findByRole('heading', { name: 'Esperando' });
+  await user.click(screen.getByText('Next'));
+  await screen.findByRole('heading', { name: 'Waiting' });
   return user;
 };
 
@@ -36,13 +36,13 @@ test('polling advances on success and shows progress messages meanwhile', async 
       async () => {
         calls++;
         return calls < 3
-          ? { status: 'pending', message: `intento ${calls}` }
+          ? { status: 'pending', message: `attempt ${calls}` }
           : { status: 'success' };
       },
       { interval: 20 },
     ),
   );
-  expect(await screen.findByText('intento 1')).toBeTruthy();
+  expect(await screen.findByText('attempt 1')).toBeTruthy();
   expect(await screen.findByText('fin')).toBeTruthy();
   expect(calls).toBe(3);
 });
@@ -54,14 +54,14 @@ test('failure offers retry and back; retry subscribes again', async () => {
       async () => {
         attempt++;
         return attempt === 1
-          ? { status: 'failed', message: 'Pago rechazado' }
+          ? { status: 'failed', message: 'Payment rejected' }
           : { status: 'success' };
       },
       { interval: 10 },
     ),
   );
-  expect(await screen.findByText('Pago rechazado')).toBeTruthy();
-  await user.click(screen.getByText('Reintentar'));
+  expect(await screen.findByText('Payment rejected')).toBeTruthy();
+  await user.click(screen.getByText('Retry'));
   expect(await screen.findByText('fin')).toBeTruthy();
   expect(attempt).toBe(2);
 });
@@ -70,7 +70,7 @@ test('failure "back" returns to the previous step (or failTo)', async () => {
   const user = await toWaiting(
     polling(async () => ({ status: 'failed' }), { interval: 10 }),
   );
-  await user.click(await screen.findByText('Volver al formulario'));
+  await user.click(await screen.findByText('Back to the form'));
   expect(await screen.findByRole('heading', { name: 'Form' })).toBeTruthy();
 });
 
@@ -85,7 +85,7 @@ test('callback strategy: resolve(data) stores it under resultName and advances',
         steps: [
           { title: 'Form', fields: [{ type: 'text', name: 'a', label: 'A' }] },
           {
-            title: 'Esperando',
+            title: 'Waiting',
             kind: 'pending',
             wait: cb.strategy,
             resultName: 'orderId',
@@ -95,12 +95,12 @@ test('callback strategy: resolve(data) stores it under resultName and advances',
       }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
-  await screen.findByRole('heading', { name: 'Esperando' });
-  expect(screen.getByText('Esperando confirmación…')).toBeTruthy();
+  await user.click(screen.getByText('Next'));
+  await screen.findByRole('heading', { name: 'Waiting' });
+  expect(screen.getByText('Waiting for confirmation…')).toBeTruthy();
   act(() => cb.resolve('ord_1'));
   await screen.findByRole('heading', { name: 'Final' });
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Finish'));
   await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   expect(onSubmit.mock.calls[0][0]).toMatchObject({ orderId: 'ord_1' });
 });
@@ -110,10 +110,10 @@ test('polling gives up after the timeout', async () => {
     polling(async () => ({ status: 'pending' }), {
       interval: 10,
       timeout: 60,
-      timeoutMessage: 'Tardó demasiado',
+      timeoutMessage: 'Took too long',
     }),
   );
-  expect(await screen.findByText('Tardó demasiado')).toBeTruthy();
+  expect(await screen.findByText('Took too long')).toBeTruthy();
 });
 
 test('sse strategy reads JSON statuses from an EventSource', async () => {

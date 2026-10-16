@@ -17,12 +17,12 @@ afterEach(cleanup);
 const legacy: FormSchema = {
   steps: [
     {
-      title: 'Cuenta',
+      title: 'Account',
       fields: [
         {
           type: 'text',
           name: 'name',
-          label: 'Nombre',
+          label: 'Name',
           required: true,
           min: 3,
           width: 'half',
@@ -30,33 +30,33 @@ const legacy: FormSchema = {
         {
           type: 'radio',
           name: 'kind',
-          label: 'Tipo',
+          label: 'Type',
           options: [
-            { value: 'person', label: 'Persona' },
-            { value: 'company', label: 'Empresa' },
+            { value: 'person', label: 'Person' },
+            { value: 'company', label: 'Company' },
           ],
         },
         {
           type: 'text',
           name: 'company',
-          label: 'Empresa',
+          label: 'Company',
           required: true,
           showIf: { field: 'kind', equals: 'company' },
         },
         {
           type: 'switch',
           name: 'news',
-          label: 'Novedades',
-          helperText: 'Una vez por mes',
+          label: 'News',
+          helperText: 'Once a month',
         },
       ],
     },
     {
-      title: 'Datos fiscales',
+      title: 'Tax details',
       showIf: { field: 'kind', equals: 'company' },
-      fields: [{ type: 'text', name: 'tax', label: 'CUIT', required: true }],
+      fields: [{ type: 'text', name: 'tax', label: 'Tax ID', required: true }],
     },
-    { title: 'Listo', kind: 'result', message: 'Gracias' },
+    { title: 'Done', kind: 'result', message: 'Thanks' },
   ],
 };
 
@@ -67,12 +67,12 @@ const v1: ArtisanSchemaV1 = defineForm({
     {
       id: 'account',
       type: 'form',
-      title: 'Cuenta',
+      title: 'Account',
       fields: [
         {
           type: 'text',
           name: 'name',
-          label: 'Nombre',
+          label: 'Name',
           required: true,
           validation: { minLength: 3 },
           ui: { span: 1 },
@@ -80,35 +80,35 @@ const v1: ArtisanSchemaV1 = defineForm({
         {
           type: 'radio',
           name: 'kind',
-          label: 'Tipo',
+          label: 'Type',
           options: [
-            { value: 'person', label: 'Persona' },
-            { value: 'company', label: 'Empresa' },
+            { value: 'person', label: 'Person' },
+            { value: 'company', label: 'Company' },
           ],
         },
         {
           type: 'text',
           name: 'company',
-          label: 'Empresa',
+          label: 'Company',
           required: true,
           visibleWhen: { field: 'kind', operator: 'eq', value: 'company' },
         },
         {
           type: 'switch',
           name: 'news',
-          label: 'Novedades',
-          description: 'Una vez por mes',
+          label: 'News',
+          description: 'Once a month',
         },
       ],
     },
     {
       id: 'tax',
       type: 'form',
-      title: 'Datos fiscales',
+      title: 'Tax details',
       visibleWhen: { field: 'kind', operator: 'eq', value: 'company' },
-      fields: [{ type: 'text', name: 'tax', label: 'CUIT', required: true }],
+      fields: [{ type: 'text', name: 'tax', label: 'Tax ID', required: true }],
     },
-    { id: 'done', type: 'result', title: 'Listo', message: 'Gracias' },
+    { id: 'done', type: 'result', title: 'Done', message: 'Thanks' },
   ],
 });
 
@@ -122,22 +122,22 @@ const run = async (scheme: FormSchema | ArtisanSchemaV1) => {
   seen.push(heading());
   const firstScreen = view.container.innerHTML;
   // blocked by required fields (the tax step is hidden, so this one is the last)
-  await user.click(screen.getByRole('button', { name: /Finalizar|Siguiente/ }));
-  expect(
-    (await screen.findAllByText('Campo requerido')).length,
-  ).toBeGreaterThan(0);
-  await user.type(screen.getByLabelText('Nombre'), 'Ana');
-  await user.click(screen.getByText('Empresa', { selector: 'button' }));
+  await user.click(screen.getByRole('button', { name: /Finish|Next/ }));
+  expect((await screen.findAllByText('Required field')).length).toBeGreaterThan(
+    0,
+  );
+  await user.type(screen.getByLabelText('Name'), 'Ana');
+  await user.click(screen.getByText('Company', { selector: 'button' }));
   await user.type(
-    await screen.findByLabelText('Empresa', { selector: 'input' }),
+    await screen.findByLabelText('Company', { selector: 'input' }),
     'ACME',
   );
-  await user.click(screen.getByText('Siguiente'));
-  await screen.findByRole('heading', { name: 'Datos fiscales' });
+  await user.click(screen.getByText('Next'));
+  await screen.findByRole('heading', { name: 'Tax details' });
   seen.push(heading());
-  await user.type(screen.getByLabelText('CUIT'), '30-1');
-  await user.click(screen.getByText('Finalizar'));
-  await screen.findByText('Gracias');
+  await user.type(screen.getByLabelText('Tax ID'), '30-1');
+  await user.click(screen.getByText('Finish'));
+  await screen.findByText('Thanks');
   seen.push(heading());
   return {
     seen,
@@ -170,9 +170,9 @@ describe('a v1 schema behaves exactly like its 0.2.0 equivalent', () => {
     const user = userEvent.setup();
     const onSubmit = mock((_: unknown) => {});
     render(<ArtisanForm scheme={v1} onSubmit={onSubmit} />);
-    await user.type(screen.getByLabelText('Nombre'), 'Ana');
-    await user.click(screen.getByText('Persona'));
-    await user.click(screen.getByText('Finalizar')); // account is the last visible form step
+    await user.type(screen.getByLabelText('Name'), 'Ana');
+    await user.click(screen.getByText('Person'));
+    await user.click(screen.getByText('Finish')); // account is the last visible form step
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     expect(onSubmit.mock.calls[0][0]).toEqual({
       name: 'Ana',
@@ -192,12 +192,12 @@ describe('v1 conditions in the running form', () => {
         type: 'form',
         title: 'S',
         fields: [
-          { type: 'number', name: 'age', label: 'Edad' },
-          { type: 'checkbox', name: 'parent', label: 'Tutor presente' },
+          { type: 'number', name: 'age', label: 'Age' },
+          { type: 'checkbox', name: 'parent', label: 'Guardian present' },
           {
             type: 'text',
             name: 'consent',
-            label: 'Consentimiento',
+            label: 'Consent',
             required: true,
             visibleWhen: {
               all: [
@@ -215,18 +215,16 @@ describe('v1 conditions in the running form', () => {
     const user = userEvent.setup();
     const onSubmit = mock((_: unknown) => {});
     render(<ArtisanForm scheme={compound} onSubmit={onSubmit} />);
-    expect(screen.queryByLabelText('Consentimiento')).toBeNull();
-    await user.type(screen.getByLabelText('Edad'), '15');
-    expect(await screen.findByLabelText('Consentimiento')).toBeTruthy();
-    await user.click(screen.getByText('Finalizar'));
-    expect(await screen.findByText('Campo requerido')).toBeTruthy(); // visible and required
+    expect(screen.queryByLabelText('Consent')).toBeNull();
+    await user.type(screen.getByLabelText('Age'), '15');
+    expect(await screen.findByLabelText('Consent')).toBeTruthy();
+    await user.click(screen.getByText('Finish'));
+    expect(await screen.findByText('Required field')).toBeTruthy(); // visible and required
     expect(onSubmit).not.toHaveBeenCalled();
 
-    await user.click(screen.getByLabelText('Tutor presente')); // `not parent` is now false
-    await waitFor(() =>
-      expect(screen.queryByLabelText('Consentimiento')).toBeNull(),
-    );
-    await user.click(screen.getByText('Finalizar'));
+    await user.click(screen.getByLabelText('Guardian present')); // `not parent` is now false
+    await waitFor(() => expect(screen.queryByLabelText('Consent')).toBeNull());
+    await user.click(screen.getByText('Finish'));
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     expect(onSubmit.mock.calls[0][0]).toEqual({ age: 15, parent: true });
   });
@@ -235,16 +233,16 @@ describe('v1 conditions in the running form', () => {
 describe('extensions: a serializable schema refers to local code by id', () => {
   const wait = callback();
   const beforeNext = mock((values: Record<string, unknown>) =>
-    values.name === 'bloqueado' ? { error: 'Nombre no permitido' } : undefined,
+    values.name === 'blocked' ? { error: 'Name not allowed' } : undefined,
   );
   const onEnter = mock((_: unknown) => {});
   const goHome = mock(() => {});
   const extensions: ArtisanExtensions = {
-    options: { langs: async (q) => [{ value: 'es', label: `Español ${q}` }] },
+    options: { langs: async (q) => [{ value: 'es', label: `Spanish ${q}` }] },
     waits: { order: wait.strategy },
     hooks: { check: beforeNext, entered: onEnter },
     renderers: {
-      summary: (ctx) => <p>{`resumen de ${String(ctx.values.name)}`}</p>,
+      summary: (ctx) => <p>{`summary of ${String(ctx.values.name)}`}</p>,
     },
     actions: { home: goHome },
   };
@@ -258,11 +256,11 @@ describe('extensions: a serializable schema refers to local code by id', () => {
         title: 'A',
         hooks: { beforeNext: 'check' },
         fields: [
-          { type: 'text', name: 'name', label: 'Nombre' },
+          { type: 'text', name: 'name', label: 'Name' },
           {
             type: 'combobox',
             name: 'lang',
-            label: 'Idioma',
+            label: 'Language',
             optionsSource: 'langs',
           },
         ],
@@ -270,14 +268,14 @@ describe('extensions: a serializable schema refers to local code by id', () => {
       {
         id: 'sum',
         type: 'custom',
-        title: 'Resumen',
+        title: 'Summary',
         renderer: 'summary',
         hooks: { onEnter: 'entered' },
       },
       {
         id: 'wait',
         type: 'wait',
-        title: 'Esperando',
+        title: 'Waiting',
         strategy: 'order',
         resultName: 'orderId',
         failTo: 'a',
@@ -285,9 +283,9 @@ describe('extensions: a serializable schema refers to local code by id', () => {
       {
         id: 'end',
         type: 'result',
-        title: 'Fin',
-        message: 'Hecho',
-        actions: [{ label: 'Inicio', action: 'home' }],
+        title: 'End',
+        message: 'Done',
+        actions: [{ label: 'Home', action: 'home' }],
       },
     ],
   });
@@ -304,30 +302,30 @@ describe('extensions: a serializable schema refers to local code by id', () => {
     );
 
     // async options through `optionsSource`
-    await user.type(screen.getByRole('combobox', { name: 'Idioma' }), 'x');
+    await user.type(screen.getByRole('combobox', { name: 'Language' }), 'x');
     expect(
-      await screen.findByRole('option', { name: 'Español x' }),
+      await screen.findByRole('option', { name: 'Spanish x' }),
     ).toBeTruthy();
-    await user.click(screen.getByRole('option', { name: 'Español x' }));
+    await user.click(screen.getByRole('option', { name: 'Spanish x' }));
 
     // beforeNext hook can block
-    await user.type(screen.getByLabelText('Nombre'), 'bloqueado');
-    await user.click(screen.getByText('Siguiente'));
-    expect(await screen.findByText('Nombre no permitido')).toBeTruthy();
-    await user.clear(screen.getByLabelText('Nombre'));
-    await user.type(screen.getByLabelText('Nombre'), 'Ana');
-    await user.click(screen.getByText('Siguiente'));
+    await user.type(screen.getByLabelText('Name'), 'blocked');
+    await user.click(screen.getByText('Next'));
+    expect(await screen.findByText('Name not allowed')).toBeTruthy();
+    await user.clear(screen.getByLabelText('Name'));
+    await user.type(screen.getByLabelText('Name'), 'Ana');
+    await user.click(screen.getByText('Next'));
 
     // custom renderer + onEnter hook
-    expect(await screen.findByText('resumen de Ana')).toBeTruthy();
+    expect(await screen.findByText('summary of Ana')).toBeTruthy();
     expect(onEnter).toHaveBeenCalled();
     wait.update('procesando');
-    await user.click(screen.getByText('Siguiente')); // custom step has the default controls
+    await user.click(screen.getByText('Next')); // custom step has the default controls
 
     // wait step with a named strategy
-    await screen.findByRole('heading', { name: 'Esperando' });
+    await screen.findByRole('heading', { name: 'Waiting' });
     wait.resolve('ord_1');
-    expect(await screen.findByText('Hecho')).toBeTruthy();
+    expect(await screen.findByText('Done')).toBeTruthy();
     expect(onSubmit.mock.calls[0][0]).toMatchObject({
       name: 'Ana',
       lang: 'es',
@@ -335,7 +333,7 @@ describe('extensions: a serializable schema refers to local code by id', () => {
     });
 
     // action by id
-    await user.click(screen.getByText('Inicio'));
+    await user.click(screen.getByText('Home'));
     expect(goHome).toHaveBeenCalledTimes(1);
   });
 
@@ -405,14 +403,14 @@ test('a new `extensions`/`scheme` identity with the same content does not reset 
     />
   );
   const { rerender } = render(make());
-  await user.type(screen.getByLabelText('Nombre'), 'Ana');
-  await user.click(screen.getByText('Empresa', { selector: 'button' }));
+  await user.type(screen.getByLabelText('Name'), 'Ana');
+  await user.click(screen.getByText('Company', { selector: 'button' }));
   await user.type(
-    await screen.findByLabelText('Empresa', { selector: 'input' }),
+    await screen.findByLabelText('Company', { selector: 'input' }),
     'ACME',
   );
-  await user.click(screen.getByText('Siguiente'));
-  await screen.findByRole('heading', { name: 'Datos fiscales' });
+  await user.click(screen.getByText('Next'));
+  await screen.findByRole('heading', { name: 'Tax details' });
   rerender(make());
-  expect(screen.getByRole('heading', { name: 'Datos fiscales' })).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Tax details' })).toBeTruthy();
 });

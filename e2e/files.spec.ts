@@ -16,18 +16,18 @@ test('uploads a document, blocks while uploading, then submits', async ({
   await page.locator('input[type=file]').first().setInputFiles(pdf('dni.pdf'));
   await expect(page.getByRole('progressbar')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Siguiente' }).click();
+  await page.getByRole('button', { name: 'Next' }).click();
   await expect(
-    page.getByText('Esperá a que terminen de subir los archivos'),
+    page.getByText('Wait for the files to finish uploading'),
   ).toBeVisible();
 
-  await expect(page.getByLabel('Quitar dni.pdf')).toBeVisible();
-  await page.getByRole('button', { name: 'Siguiente' }).click();
-  await expect(page.getByRole('heading', { name: 'Revisá' })).toBeVisible();
+  await expect(page.getByLabel('Remove dni.pdf')).toBeVisible();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
   await expect(page.getByText('dni.pdf')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Finalizar' }).click();
-  await expect(page.getByText('Documentos recibidos')).toBeVisible();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.getByText('Documents received')).toBeVisible();
   await expect(page.getByTestId('result')).toContainText('"name": "dni.pdf"');
 });
 
@@ -36,7 +36,7 @@ test('shows an error for failed uploads and allows a retry', async ({
 }) => {
   await page.locator('input[type=file]').first().setInputFiles(pdf('fail.pdf'));
   await expect(page.getByText('Mock upload failed')).toBeVisible();
-  await expect(page.getByLabel('Reintentar fail.pdf')).toBeVisible();
+  await expect(page.getByLabel('Retry fail.pdf')).toBeVisible();
 });
 
 test('drag and drop adds a file', async ({ page }) => {
@@ -49,5 +49,5 @@ test('drag and drop adds a file', async ({ page }) => {
     return dt;
   });
   await zone.dispatchEvent('drop', { dataTransfer: data });
-  await expect(page.getByLabel('Quitar dropped.pdf')).toBeVisible();
+  await expect(page.getByLabel('Remove dropped.pdf')).toBeVisible();
 });

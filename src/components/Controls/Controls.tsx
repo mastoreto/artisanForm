@@ -6,7 +6,7 @@ import { useArtisanStore } from '../../engine/store/useArtisanStore';
 interface ControlsProps {
   /** Overrides the default advance (e.g. to validate the step first). */
   onNext?: () => void;
-  /** Disables "Finalizar" while a submit is in flight. */
+  /** Disables "Finish" while a submit is in flight. */
   isSubmitting?: boolean;
   labels?: Partial<Pick<ArtisanLabels, 'previous' | 'next' | 'submit'>>;
   /** Replaces the default "go back" behavior. */

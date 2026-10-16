@@ -4,33 +4,33 @@ import { useState } from 'react';
 const scheme: FormSchema = {
   steps: [
     {
-      title: 'Equipo',
+      title: 'Team',
       fields: [
         {
           type: 'array',
           name: 'members',
-          label: 'Integrantes',
+          label: 'Members',
           minItems: 1,
           maxItems: 3,
           helperText:
-            'Entre 1 y 3 personas (probá el nombre «fallar» para simular un error de envío)',
+            'Between 1 and 3 people (try the name "fail" to simulate a submit error)',
           itemFields: [
-            { type: 'text', name: 'name', label: 'Nombre', required: true },
+            { type: 'text', name: 'name', label: 'Name', required: true },
             { type: 'email', name: 'email', label: 'Email', required: true },
             {
               type: 'select',
               name: 'role',
-              label: 'Rol',
+              label: 'Role',
               options: [
-                { value: 'dev', label: 'Desarrollo' },
-                { value: 'design', label: 'Diseño' },
+                { value: 'dev', label: 'Development' },
+                { value: 'design', label: 'Design' },
               ],
             },
           ],
         },
       ],
     },
-    { title: 'Listo', kind: 'result', message: 'Equipo guardado' },
+    { title: 'Done', kind: 'result', message: 'Team saved' },
   ],
 };
 
@@ -43,9 +43,9 @@ const Repeatables = () => {
         onSubmit={async (v) => {
           await new Promise((r) => setTimeout(r, 700));
           const members = (v.members ?? []) as { name: string }[];
-          // Demo: a member named "fallar" simulates a server error.
-          if (members.some((m) => m.name === 'fallar'))
-            throw new Error('El servidor rechazó el envío');
+          // Demo: a member named "fail" simulates a server error.
+          if (members.some((m) => m.name === 'fail'))
+            throw new Error('The server rejected the submission');
           setResult(v);
         }}
       />

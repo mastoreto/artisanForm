@@ -43,8 +43,8 @@ mock.module('@paypal/react-paypal-js', () => ({
 const scheme: FormSchema = {
   steps: [
     { title: 'Plan', fields: [{ type: 'text', name: 'plan', label: 'Plan' }] },
-    { title: 'Pago', kind: 'payment', provider: 'paypal' },
-    { title: 'Fin', kind: 'result', message: 'Pagado' },
+    { title: 'Payment', kind: 'payment', provider: 'paypal' },
+    { title: 'End', kind: 'result', message: 'Paid' },
   ],
 };
 
@@ -68,7 +68,7 @@ const pay = async (opts: Partial<Parameters<typeof paypal>[0]>) => {
       }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   await user.click(await screen.findByText('paypal button'));
   return onSubmit;
 };
@@ -79,7 +79,7 @@ test('creates the order and captures it on your backend; COMPLETED succeeds', as
     id: 'CAP-1',
   }));
   const onSubmit = await pay({ captureOrder });
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  expect(await screen.findByText('Paid')).toBeTruthy();
   expect(captureOrder.mock.calls[0][1]).toBe('ORDER-1');
   expect(scriptOptions).toMatchObject({
     clientId: 'cid',
@@ -95,7 +95,7 @@ test('PENDING moves on as processing; other statuses and errors fail', async () 
   const onSubmit = await pay({
     captureOrder: async () => ({ status: 'PENDING' }),
   });
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  expect(await screen.findByText('Paid')).toBeTruthy();
   expect(onSubmit.mock.calls[0][0]).toMatchObject({
     payment: { status: 'processing', reference: 'ORDER-1' },
   });
@@ -104,16 +104,16 @@ test('PENDING moves on as processing; other statuses and errors fail', async () 
   await pay({
     captureOrder: async () => ({
       status: 'DECLINED',
-      message: 'Instrumento rechazado',
+      message: 'Instrument declined',
     }),
   });
-  expect(await screen.findByText('Instrumento rechazado')).toBeTruthy();
+  expect(await screen.findByText('Instrument declined')).toBeTruthy();
 
   cleanup();
   await pay({
     createOrder: async () => {
-      throw new Error('orden no creada');
+      throw new Error('order not created');
     },
   });
-  expect(await screen.findByText('orden no creada')).toBeTruthy();
+  expect(await screen.findByText('order not created')).toBeTruthy();
 });

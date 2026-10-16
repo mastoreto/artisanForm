@@ -29,8 +29,8 @@ const DynamicSelect = ({
   loadDependentOptions,
   disabled,
   className,
-  loadingText = 'Cargando…',
-  errorText = 'No se pudieron cargar las opciones',
+  loadingText = 'Loading…',
+  errorText = 'Could not load the options',
 }: DynamicSelectProps) => {
   const [parent] = useField<string>(name);
   const [child, , childHelpers] = useField<string>(dependentName);

@@ -63,7 +63,7 @@ test('validation: required, min and array min', async () => {
   const bad = await schema
     .validate({ name: 'ab', tags: [], color: 'r' }, { abortEarly: false })
     .catch((e) => e.errors);
-  expect(bad).toEqual(['Mínimo 3 caracteres', 'Campo requerido']);
+  expect(bad).toEqual(['Minimum 3 characters', 'Required field']);
   expect(await schema.isValid({ name: 'abc', tags: ['x'], color: 'r' })).toBe(
     true,
   );
@@ -102,14 +102,16 @@ test('defaultValue feeds initial values', () => {
 
 test('optional empty fields pass; email, number, pattern and length rules fail', async () => {
   expect(await errorsOf(ok)).toEqual([]);
-  expect(await errorsOf({ ...ok, mail: 'nope' })).toEqual(['Email inválido']);
-  expect(await errorsOf({ ...ok, age: 17 })).toEqual(['Mínimo 18']);
-  expect(await errorsOf({ ...ok, age: 100 })).toEqual(['Máximo 99']);
-  expect(await errorsOf({ ...ok, age: 'x' })).toEqual(['Número inválido']);
-  expect(await errorsOf({ ...ok, code: 'ab' })).toEqual(['Formato inválido']);
+  expect(await errorsOf({ ...ok, mail: 'nope' })).toEqual(['Invalid email']);
+  expect(await errorsOf({ ...ok, age: 17 })).toEqual(['Minimum 18']);
+  expect(await errorsOf({ ...ok, age: 100 })).toEqual(['Maximum 99']);
+  expect(await errorsOf({ ...ok, age: 'x' })).toEqual(['Invalid number']);
+  expect(await errorsOf({ ...ok, code: 'ab' })).toEqual(['Invalid format']);
   expect(await errorsOf({ ...ok, code: 'ABC', age: 30 })).toEqual([]);
-  expect(await errorsOf({ ...ok, bio: 'ab' })).toEqual(['Mínimo 3 caracteres']);
+  expect(await errorsOf({ ...ok, bio: 'ab' })).toEqual([
+    'Minimum 3 characters',
+  ]);
   expect(await errorsOf({ ...ok, bio: 'abcdef' })).toEqual([
-    'Máximo 5 caracteres',
+    'Maximum 5 characters',
   ]);
 });

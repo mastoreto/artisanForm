@@ -16,7 +16,7 @@ const meta: Meta<typeof DynamicSelect> = {
     dependentOptions: {
       ar: [
         { value: 'bsas', label: 'Buenos Aires' },
-        { value: 'cba', label: 'Córdoba' },
+        { value: 'cba', label: 'Cordoba' },
       ],
       cl: [{ value: 'scl', label: 'Santiago' }],
     },
@@ -37,7 +37,7 @@ export const AsyncOptions: StoryObj<typeof DynamicSelect> = {
       new Promise((resolve) =>
         setTimeout(
           () =>
-            resolve([{ value: `${country}-1`, label: `Ciudad de ${country}` }]),
+            resolve([{ value: `${country}-1`, label: `City of ${country}` }]),
           800,
         ),
       ),

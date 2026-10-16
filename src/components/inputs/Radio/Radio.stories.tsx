@@ -29,7 +29,7 @@ export const WithValidation: Story = {
   decorators: [
     withFormik(
       { field: '' },
-      { field: Yup.string().required('Elegí una opción') },
+      { field: Yup.string().required('Choose an option') },
     ),
   ],
 };

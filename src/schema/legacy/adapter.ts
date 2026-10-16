@@ -32,7 +32,7 @@ const slug = (s: string) =>
     .replace(/^-+|-+$/g, '');
 
 /**
- * Deterministic step ids from titles (`Datos personales` → `datos-personales`),
+ * Deterministic step ids from titles (`Personal data` → `personal-data`),
  * falling back to `<type>-<position>`; collisions get `-2`, `-3`…. Reordering
  * or retitling steps changes the ids, which is why v1 asks for explicit ones.
  */

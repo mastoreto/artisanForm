@@ -8,7 +8,7 @@ Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se 
 
 - **Todo lo que se genera en este repositorio va en inglés**: código, identificadores, comentarios, JSDoc, nombres de tests, mensajes de commit, texto de PR e issues, `README.md`, `AGENTS.md`, `CHANGELOG.md` y todo lo que está bajo `docs/`.
 - **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) y [`schema v1`](schema-v1.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
-- Excepción: los **textos de interfaz por defecto** (`src/commons/labels.ts`, mensajes de validación, textos de demo del playground y de las stories) están en español. Es un valor por defecto del producto, no documentación: se configura con la prop `labels` y no debe traducirse como parte de un cambio de docs.
+- Los textos de la librería nunca están hardcodeados: los valores por defecto (`src/commons/labels.ts`) están en inglés y todos se sobrescriben con la prop `labels`. Las etiquetas, nombres y títulos de paso son texto libre que aporta el esquema del usuario. Los textos de demo (playground, stories, fixtures, tests) también van en inglés.
 - A las personas se les responde en el idioma en que escriben; los artefactos del repositorio quedan en inglés.
 
 ## Stack

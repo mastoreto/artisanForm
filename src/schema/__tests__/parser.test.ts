@@ -5,21 +5,21 @@ const valid = () => ({
   schemaVersion: 1,
   id: 'registration',
   revision: 2,
-  title: 'Registro',
+  title: 'Registration',
   ui: { layout: 'vertical' },
   steps: [
     {
       id: 'personal',
       type: 'form',
-      title: 'Datos',
+      title: 'Data',
       ui: { columns: 2 },
       fields: [
         {
           name: 'kind',
           type: 'radio',
           options: [
-            { value: 'person', label: 'Persona' },
-            { value: 'company', label: 'Empresa' },
+            { value: 'person', label: 'Person' },
+            { value: 'company', label: 'Company' },
           ],
         },
         {
@@ -55,14 +55,14 @@ const valid = () => ({
     {
       id: 'confirm',
       type: 'wait',
-      title: 'Confirmando',
+      title: 'Confirming',
       strategy: 'orderStatus',
       failTo: 'personal',
     },
     {
       id: 'done',
       type: 'result',
-      title: 'Listo',
+      title: 'Done',
       visibleWhen: { all: [{ field: 'email', operator: 'filled' }] },
     },
   ],

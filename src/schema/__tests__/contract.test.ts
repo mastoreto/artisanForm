@@ -13,21 +13,21 @@ const sample = defineForm({
   schemaVersion: 1,
   id: 'registration',
   revision: 3,
-  title: 'Registro',
+  title: 'Registration',
   ui: { layout: 'vertical', density: 'comfortable' },
   steps: [
     {
       id: 'personal',
       type: 'form',
-      title: 'Datos',
+      title: 'Data',
       ui: { columns: 2 },
       fields: [
         {
           name: 'email',
           type: 'email',
-          label: 'Correo electrónico',
+          label: 'Email address',
           required: true,
-          placeholder: 'nombre@empresa.com',
+          placeholder: 'name@company.com',
           validation: { maxLength: 255 },
           ui: { span: 2 },
         },
@@ -50,11 +50,11 @@ const sample = defineForm({
     {
       id: 'confirm',
       type: 'wait',
-      title: 'Confirmando',
+      title: 'Confirming',
       strategy: 'orderStatus',
       failTo: 'personal',
     },
-    { id: 'done', type: 'result', title: 'Listo', message: 'Gracias' },
+    { id: 'done', type: 'result', title: 'Done', message: 'Thanks' },
   ],
 });
 

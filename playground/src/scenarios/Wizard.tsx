@@ -4,21 +4,21 @@ import { useState } from 'react';
 const scheme: FormSchema = {
   steps: [
     {
-      title: 'Datos personales',
+      title: 'Personal data',
       fields: [
-        { type: 'text', name: 'name', label: 'Nombre', required: true, min: 3 },
+        { type: 'text', name: 'name', label: 'Name', required: true, min: 3 },
         { type: 'email', name: 'email', label: 'Email', required: true },
-        { type: 'date', name: 'birth', label: 'Nacimiento' },
+        { type: 'date', name: 'birth', label: 'Birth date' },
       ],
     },
     {
-      title: 'Ubicación',
+      title: 'Location',
       fields: [
         {
           type: 'dynamicSelect',
           name: 'country',
           dependentName: 'city',
-          label: 'País y ciudad',
+          label: 'Country and city',
           options: [
             { value: 'ar', label: 'Argentina' },
             { value: 'cl', label: 'Chile' },

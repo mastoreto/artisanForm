@@ -18,7 +18,7 @@ export const mockPayment = ({
   const resolveOutcome = (): PaymentResult => {
     const status = typeof outcome === 'function' ? outcome() : outcome;
     return status === 'failed'
-      ? { status, message: 'Pago rechazado (mock)' }
+      ? { status, message: 'Payment rejected (mock)' }
       : { status, reference: 'mock_ref_1' };
   };
   return {
@@ -34,7 +34,7 @@ export const mockPayment = ({
           className: 'rounded border px-4 py-2',
           onClick: () => setTimeout(() => onResult(resolveOutcome()), delay),
         },
-        'Pagar (mock)',
+        'Pay (mock)',
       ),
     start: async (request) => {
       const result = resolveOutcome();

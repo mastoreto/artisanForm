@@ -10,10 +10,10 @@ export const scenarios: Record<
   string,
   { title: string; component: ComponentType }
 > = {
-  wizard: { title: 'Wizard completo', component: Wizard },
-  fields: { title: 'Tipos de campo', component: Fields },
-  repeatables: { title: 'Campos repetibles', component: Repeatables },
-  files: { title: 'Archivos', component: Files },
-  payments: { title: 'Pagos', component: Payments },
-  pending: { title: 'Espera de confirmación', component: Pending },
+  wizard: { title: 'Full wizard', component: Wizard },
+  fields: { title: 'Field types', component: Fields },
+  repeatables: { title: 'Repeatable fields', component: Repeatables },
+  files: { title: 'Files', component: Files },
+  payments: { title: 'Payments', component: Payments },
+  pending: { title: 'Waiting for confirmation', component: Pending },
 };

@@ -15,21 +15,21 @@ const countries = [
 export const wizard: LegacyFormSchema = {
   steps: [
     {
-      title: 'Datos personales',
+      title: 'Personal data',
       fields: [
-        { type: 'text', name: 'name', label: 'Nombre', required: true, min: 3 },
+        { type: 'text', name: 'name', label: 'Name', required: true, min: 3 },
         { type: 'email', name: 'email', label: 'Email', required: true },
-        { type: 'date', name: 'birth', label: 'Nacimiento' },
+        { type: 'date', name: 'birth', label: 'Birth date' },
       ],
     },
     {
-      title: 'Ubicación',
+      title: 'Location',
       fields: [
         {
           type: 'dynamicSelect',
           name: 'country',
           dependentName: 'city',
-          label: 'País y ciudad',
+          label: 'Country and city',
           options: [
             { value: 'ar', label: 'Argentina' },
             { value: 'cl', label: 'Chile' },
@@ -57,22 +57,22 @@ export const wizard: LegacyFormSchema = {
 export const fields: LegacyFormSchema = {
   steps: [
     {
-      title: 'Todos los campos',
+      title: 'All fields',
       fields: [
-        { type: 'heading', name: 'h1', label: 'Datos básicos' },
+        { type: 'heading', name: 'h1', label: 'Basic data' },
         {
           type: 'text',
           name: 'name',
-          label: 'Nombre',
+          label: 'Name',
           width: 'half',
           required: true,
         },
-        { type: 'tel', name: 'phone', label: 'Teléfono', width: 'half' },
-        { type: 'text', name: 'cuit', label: 'CUIT', mask: '##-########-#' },
+        { type: 'tel', name: 'phone', label: 'Phone', width: 'half' },
+        { type: 'text', name: 'taxId', label: 'Tax ID', mask: '##-########-#' },
         {
           type: 'number',
           name: 'price',
-          label: 'Presupuesto',
+          label: 'Budget',
           prefix: '$',
           min: 0,
           max: 1000,
@@ -82,46 +82,51 @@ export const fields: LegacyFormSchema = {
         {
           type: 'callout',
           name: 'c1',
-          label: 'Los campos con * son obligatorios',
+          label: 'Fields marked * are required',
           variant: 'info',
         },
         {
           type: 'combobox',
           name: 'country',
-          label: 'País',
+          label: 'Country',
           options: countries,
         },
         {
           type: 'multiselect',
           name: 'visited',
-          label: 'Países visitados',
+          label: 'Visited countries',
           options: countries,
         },
         {
           type: 'daterange',
           name: 'from',
           endName: 'to',
-          label: 'Viaje desde',
+          label: 'Trip from',
           minDate: '2030-01-01',
         },
-        { type: 'time', name: 'time', label: 'Hora de contacto' },
-        { type: 'range', name: 'level', label: 'Nivel', min: 0, max: 10 },
-        { type: 'rating', name: 'stars', label: 'Valoración' },
-        { type: 'otp', name: 'code', label: 'Código', length: 4 },
+        { type: 'time', name: 'time', label: 'Contact time' },
+        { type: 'range', name: 'level', label: 'Level', min: 0, max: 10 },
+        { type: 'rating', name: 'stars', label: 'Rating' },
+        { type: 'otp', name: 'code', label: 'Code', length: 4 },
         {
           type: 'switch',
           name: 'news',
-          label: 'Recibir novedades',
-          helperText: 'Una vez por mes',
+          label: 'Receive news',
+          helperText: 'Once a month',
         },
         {
           type: 'password',
           name: 'pw',
-          label: 'Clave',
+          label: 'Password',
           min: 8,
           pattern: '^\\S+$',
         },
-        { type: 'password', name: 'pw2', label: 'Repetir clave', sameAs: 'pw' },
+        {
+          type: 'password',
+          name: 'pw2',
+          label: 'Repeat password',
+          sameAs: 'pw',
+        },
       ],
     },
   ],
@@ -130,7 +135,7 @@ export const fields: LegacyFormSchema = {
 export const files: LegacyFormSchema = {
   steps: [
     {
-      title: 'Documentos',
+      title: 'Documents',
       fields: [
         {
           type: 'file',
@@ -143,14 +148,14 @@ export const files: LegacyFormSchema = {
         {
           type: 'image',
           name: 'photos',
-          label: 'Fotos',
+          label: 'Photos',
           maxFiles: 3,
-          helperText: 'Hasta 3 imágenes',
+          helperText: 'Up to 3 images',
         },
       ],
     },
-    { title: 'Revisá', kind: 'review' },
-    { title: 'Listo', kind: 'result', message: 'Documentos recibidos' },
+    { title: 'Review', kind: 'review' },
+    { title: 'Done', kind: 'result', message: 'Documents received' },
   ],
 };
 
@@ -172,65 +177,69 @@ export const payments: LegacyFormSchema = {
       ],
     },
     {
-      title: 'Pago',
+      title: 'Payment',
       kind: 'payment',
       providers: ['card', 'hosted', 'declined'],
-      summary: 'Total a pagar lo calcula tu servidor.',
+      summary: 'The total to pay is computed by your server.',
     },
-    { title: 'Listo', kind: 'result', message: 'Pago registrado' },
+    { title: 'Done', kind: 'result', message: 'Payment recorded' },
   ],
 };
 
 export const pending: LegacyFormSchema = {
   steps: [
     {
-      title: 'Solicitud',
+      title: 'Request',
       fields: [
-        { type: 'text', name: 'name', label: 'Nombre', required: true },
-        { type: 'checkbox', name: 'simulateFailure', label: 'Simular fallo' },
+        { type: 'text', name: 'name', label: 'Name', required: true },
+        {
+          type: 'checkbox',
+          name: 'simulateFailure',
+          label: 'Simulate failure',
+        },
       ],
       onEnter: () => {},
     },
     {
-      title: 'Confirmando',
+      title: 'Confirming',
       kind: 'pending',
       wait: polling(async () => ({ status: 'success' }), { interval: 500 }),
       resultName: 'orderId',
       failTo: 0,
     },
-    { title: 'Listo', kind: 'result', message: 'Operación confirmada' },
+    { title: 'Done', kind: 'result', message: 'Operation confirmed' },
   ],
 };
 
 export const repeatables: LegacyFormSchema = {
   steps: [
     {
-      title: 'Equipo',
+      title: 'Team',
       fields: [
         {
           type: 'array',
           name: 'members',
-          label: 'Integrantes',
+          label: 'Members',
           minItems: 1,
           maxItems: 3,
-          helperText: 'Entre 1 y 3 personas',
+          helperText: 'Between 1 and 3 people',
           itemFields: [
-            { type: 'text', name: 'name', label: 'Nombre', required: true },
+            { type: 'text', name: 'name', label: 'Name', required: true },
             { type: 'email', name: 'email', label: 'Email', required: true },
             {
               type: 'select',
               name: 'role',
-              label: 'Rol',
+              label: 'Role',
               options: [
-                { value: 'dev', label: 'Desarrollo' },
-                { value: 'design', label: 'Diseño' },
+                { value: 'dev', label: 'Development' },
+                { value: 'design', label: 'Design' },
               ],
             },
           ],
         },
       ],
     },
-    { title: 'Listo', kind: 'result', message: 'Equipo guardado' },
+    { title: 'Done', kind: 'result', message: 'Team saved' },
   ],
 };
 
@@ -238,72 +247,72 @@ export const repeatables: LegacyFormSchema = {
 export const advanced: LegacyFormSchema = {
   steps: [
     {
-      title: 'Cuenta',
+      title: 'Account',
       fields: [
         {
           type: 'radio',
           name: 'kind',
-          label: 'Tipo',
+          label: 'Type',
           options: [
-            { value: 'person', label: 'Persona' },
-            { value: 'company', label: 'Empresa' },
+            { value: 'person', label: 'Person' },
+            { value: 'company', label: 'Company' },
           ],
         },
         {
           type: 'text',
           name: 'company',
-          label: 'Empresa',
+          label: 'Company',
           required: true,
           showIf: { field: 'kind', equals: 'company' },
         },
         {
           type: 'text',
           name: 'nick',
-          label: 'Apodo',
+          label: 'Nickname',
           showIf: { field: 'kind', equals: ['person', 'company'], not: true },
         },
         {
           type: 'text',
           name: 'any',
-          label: 'Si hay tipo',
+          label: 'If there is a type',
           showIf: { field: 'kind' },
         },
         {
           type: 'combobox',
           name: 'lang',
-          label: 'Idioma',
-          loadOptions: async () => [{ value: 'es', label: 'Español' }],
+          label: 'Language',
+          loadOptions: async () => [{ value: 'es', label: 'Spanish' }],
         },
         {
           type: 'stars',
           name: 'score',
-          label: 'Puntaje',
+          label: 'Score',
           extra: 5,
           nested: { a: [1, 2] },
         },
       ],
     },
     {
-      title: 'Datos de empresa',
+      title: 'Company details',
       showIf: { field: 'kind', equals: 'company' },
-      fields: [{ type: 'text', name: 'tax', label: 'CUIT', required: true }],
+      fields: [{ type: 'text', name: 'tax', label: 'Tax ID', required: true }],
     },
     {
-      title: 'Términos',
+      title: 'Terms',
       kind: 'terms',
-      content: 'Texto de los términos',
+      content: 'Terms text',
       href: 'https://example.com/terms',
       acceptName: 'ok',
-      acceptLabel: 'Acepto',
+      acceptLabel: 'I accept',
     },
     { title: 'Custom', kind: 'custom', render: () => null, note: 'hola' },
     {
-      title: 'Fin',
+      title: 'End',
       kind: 'result',
-      message: 'Hecho',
+      message: 'Done',
       actions: [
         { label: 'Ir', href: '/' },
-        { label: 'Otra', onClick: () => {} },
+        { label: 'Other', onClick: () => {} },
       ],
     },
   ],

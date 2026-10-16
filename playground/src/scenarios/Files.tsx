@@ -4,7 +4,7 @@ import { useState } from 'react';
 const scheme: FormSchema = {
   steps: [
     {
-      title: 'Documentos',
+      title: 'Documents',
       fields: [
         {
           type: 'file',
@@ -17,14 +17,14 @@ const scheme: FormSchema = {
         {
           type: 'image',
           name: 'photos',
-          label: 'Fotos',
+          label: 'Photos',
           maxFiles: 3,
-          helperText: 'Hasta 3 imágenes',
+          helperText: 'Up to 3 images',
         },
       ],
     },
-    { title: 'Revisá', kind: 'review' },
-    { title: 'Listo', kind: 'result', message: 'Documentos recibidos' },
+    { title: 'Review', kind: 'review' },
+    { title: 'Done', kind: 'result', message: 'Documents received' },
   ],
 };
 
