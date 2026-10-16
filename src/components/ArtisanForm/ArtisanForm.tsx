@@ -1,6 +1,7 @@
 import { Form, Formik, type FormikValues, useFormikContext } from 'formik';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
+import type { PluginsConfig } from '../../payments/types';
 import {
   normalizeStorage,
   type StorageAdapter,
@@ -16,7 +17,7 @@ import {
   buildValidationSchema,
   fieldNames,
 } from './buildSchema';
-import { visibleFields, visibleSteps } from './conditions';
+import { storedName, visibleFields, visibleSteps } from './conditions';
 import { clearDraft, loadDraft, saveDraft, withoutSecrets } from './draft';
 import { defaultFieldRegistry, type FieldRegistry } from './fields';
 import Stepper from './Stepper';
@@ -52,6 +53,8 @@ interface ArtisanFormProps {
   stepTypes?: StepRegistry;
   /** Where file fields upload: one adapter, or a map keyed by the field's `storage`. */
   storage?: StorageAdapter | StorageMap;
+  /** Payment plugins (Stripe, Mercado Pago…, or your own) and the redirect function. */
+  plugins?: PluginsConfig;
 }
 
 const ValuesWatcher = ({
@@ -73,6 +76,7 @@ const ValuesWatcher = ({
 
 interface WizardProps {
   scheme: FormSchema;
+  pluginsMap: StepContext['plugins'];
   storageMap: StorageMap;
   registry: FieldRegistry;
   stepRegistry: StepRegistry;
@@ -87,6 +91,7 @@ interface WizardProps {
 /** Renders the current step; lives inside <Formik> to read live values. */
 const Wizard = ({
   scheme,
+  pluginsMap,
   storageMap,
   registry,
   stepRegistry,
@@ -231,6 +236,7 @@ const Wizard = ({
     labels,
     fieldRegistry: registry,
     storage: storageMap,
+    plugins: pluginsMap,
     fields,
     next,
     back: () => goTo(Math.max(0, step - 1)),
@@ -290,8 +296,19 @@ const ArtisanFormInner = ({
   fields,
   stepTypes,
   storage,
+  plugins,
   ...wizard
 }: ArtisanFormProps) => {
+  const pluginsMap = useMemo(
+    () => ({
+      payments: Object.fromEntries(
+        (plugins?.payments ?? []).map((p) => [p.id, p]),
+      ),
+      navigate:
+        plugins?.navigate ?? ((url: string) => window.location.assign(url)),
+    }),
+    [plugins],
+  );
   const storageMap = useMemo(() => normalizeStorage(storage), [storage]);
   const { persistKey } = wizard;
   const setSubmitState = useArtisanStore((s) => s.setSubmitState);
@@ -331,7 +348,7 @@ const ArtisanFormInner = ({
       visibleSteps(scheme, values).flatMap((step) => [
         ...visibleFields(step, values).flatMap((f) => fieldNames(f, registry)),
         // Values a step stores for itself (e.g. a pending step's `resultName`).
-        ...(typeof step.resultName === 'string' ? [step.resultName] : []),
+        ...(storedName(step) ? [storedName(step) as string] : []),
       ]),
     );
     setSubmitState('submitting');
@@ -360,6 +377,7 @@ const ArtisanFormInner = ({
     >
       <Wizard
         scheme={scheme}
+        pluginsMap={pluginsMap}
         storageMap={storageMap}
         registry={registry}
         stepRegistry={stepRegistry}

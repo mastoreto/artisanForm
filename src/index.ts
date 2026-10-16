@@ -30,6 +30,14 @@ export { default as Radio } from './components/ArtisanInputs/Radio/Radio';
 export { default as Select } from './components/ArtisanInputs/Select/Select';
 export { default as TextInput } from './components/ArtisanInputs/Text/Text';
 export { default as Textarea } from './components/ArtisanInputs/Textarea/Textarea';
+export { mockPayment } from './payments/mock';
+export type {
+  EmbeddedRenderProps,
+  PaymentPlugin,
+  PaymentRequest,
+  PaymentResult,
+  PluginsConfig,
+} from './payments/types';
 export { type CloudinaryOptions, cloudinary } from './storage/cloudinary';
 export { mockStorage } from './storage/mock';
 export {
