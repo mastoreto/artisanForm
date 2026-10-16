@@ -21,18 +21,11 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src/index.ts',
-      name: 'ArtisanForm',
-      fileName: (format) => `artisanForm.${format}.js`,
+      formats: ['es', 'cjs'],
+      fileName: (format) => `artisanForm.${format === 'es' ? 'es.js' : 'cjs'}`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime'],
-      output: {
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          'react/jsx-runtime': 'jsxRuntime',
-        },
-      },
+      external: (id) => /^(react|react-dom|formik|yup|zustand)(\/|$)/.test(id),
     },
   },
 });
