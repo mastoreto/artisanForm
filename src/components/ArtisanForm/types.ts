@@ -3,7 +3,13 @@ export interface FieldOption {
   label: string;
 }
 
-/** Shows an element only when `field` holds one of `equals` (any value if omitted). */
+import type { ConditionV1 } from '../../schema/types';
+
+/**
+ * Shows an element only when `field` holds one of `equals` (any value if omitted).
+ *
+ * @deprecated 0.2.0 format, still supported: use `visibleWhen` (ConditionV1).
+ */
 export interface Condition {
   field: string;
   equals?: string | string[];
@@ -44,6 +50,11 @@ export type BuiltInFieldType =
   | 'check'
   | 'radio';
 
+/**
+ * A field of the 0.2.0 schema shape.
+ *
+ * @deprecated Still fully supported (it is adapted to ArtisanSchemaV1 internally); prefer `ArtisanFieldV1` for new forms.
+ */
 export interface FieldSchema {
   /** A built-in type, or any key of a custom registry passed via `fields`. */
   type: string;
@@ -121,6 +132,8 @@ export interface FieldSchema {
   sameAs?: string;
   /** Hidden (not rendered, validated or submitted) unless the condition holds. */
   showIf?: Condition;
+  /** v1 condition; wins over `showIf`. Set by the schema adapter. */
+  visibleWhen?: ConditionV1;
   /** Extra properties read by custom field types. */
   [extra: string]: unknown;
 }
@@ -140,13 +153,22 @@ export interface StepControls {
 /** Outcome of `beforeNext`: return `{ error }` to block with a message. */
 export type BeforeNextResult = undefined | { error: string };
 
+/**
+ * A step of the 0.2.0 schema shape.
+ *
+ * @deprecated Still fully supported; prefer `ArtisanStepV1` for new forms.
+ */
 export interface StepSchema {
+  /** Stable step id (derived for 0.2.0 schemas; explicit in v1). */
+  id?: string;
   title: string;
   /** Step type; `form` (default) renders `fields`. See `defaultStepRegistry`. */
   kind?: string;
   fields?: FieldSchema[];
   /** The whole step is skipped unless the condition holds. */
   showIf?: Condition;
+  /** v1 condition; wins over `showIf`. Set by the schema adapter. */
+  visibleWhen?: ConditionV1;
   /** Runs after the step validates and before moving on; throw or return `{ error }` to stay. */
   beforeNext?: (
     values: Record<string, unknown>,
@@ -158,6 +180,11 @@ export interface StepSchema {
   [extra: string]: unknown;
 }
 
+/**
+ * The 0.2.0 `scheme` shape.
+ *
+ * @deprecated Still fully supported; prefer `ArtisanSchemaV1` (see `defineForm`).
+ */
 export interface FormSchema {
   steps: StepSchema[];
 }

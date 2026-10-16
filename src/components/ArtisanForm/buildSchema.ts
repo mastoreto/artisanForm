@@ -1,12 +1,14 @@
 import * as Yup from 'yup';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
-import { fieldsOf, matchesCondition } from './conditions';
+import { conditionFields, evaluateCondition } from '../../schema/conditions';
+import type { ConditionV1 } from '../../schema/types';
+import { conditionOf, fieldsOf } from './conditions';
 import {
   defaultFieldRegistry,
   definitionOf,
   type FieldRegistry,
 } from './fields';
-import type { Condition, FieldSchema, FormSchema } from './types';
+import type { FieldSchema, FormSchema } from './types';
 
 const allFields = (scheme: FormSchema): FieldSchema[] =>
   scheme.steps.flatMap((step) => fieldsOf(step));
@@ -27,16 +29,20 @@ export const buildInitialValues = (
   ) as Record<string, unknown>;
 
 /** Disables a field's rules whenever any of its conditions is not met. */
-const withConditions = (schema: Yup.AnySchema, conds: Condition[]) =>
-  conds.reduce(
-    (acc, cond) =>
-      acc.when(cond.field, {
-        is: (value: unknown) => matchesCondition(cond, { [cond.field]: value }),
-        then: (s: Yup.AnySchema) => s,
-        otherwise: () => Yup.mixed().notRequired(),
-      }),
-    schema,
-  );
+const withConditions = (schema: Yup.AnySchema, conds: ConditionV1[]) =>
+  conds.reduce((acc, cond) => {
+    // Compound conditions can read several fields: depend on all of them.
+    const deps = [...new Set(conditionFields(cond))];
+    return acc.when(deps, {
+      is: (...vals: unknown[]) =>
+        evaluateCondition(
+          cond,
+          Object.fromEntries(deps.map((d, i) => [d, vals[i]])),
+        ),
+      then: (s: Yup.AnySchema) => s,
+      otherwise: () => Yup.mixed().notRequired(),
+    });
+  }, schema);
 
 export const buildValidationSchema = (
   scheme: FormSchema,
@@ -47,8 +53,8 @@ export const buildValidationSchema = (
     Object.fromEntries(
       scheme.steps.flatMap((step) =>
         fieldsOf(step).flatMap((f) => {
-          const conds = [step.showIf, f.showIf].filter(
-            (c): c is Condition => !!c,
+          const conds = [conditionOf(step), conditionOf(f)].filter(
+            (c): c is ConditionV1 => !!c,
           );
           return Object.entries(
             definitionOf(registry, f).rules(f, labels, registry),

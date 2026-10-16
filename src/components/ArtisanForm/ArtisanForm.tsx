@@ -8,6 +8,8 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import type { PluginsConfig } from '../../payments/types';
+import type { ArtisanSchemaV1 } from '../../schema/define';
+import { normalizeArtisanSchema } from '../../schema/normalize';
 import {
   normalizeStorage,
   type StorageAdapter,
@@ -25,7 +27,9 @@ import {
 } from './buildSchema';
 import { storedName, visibleFields, visibleSteps } from './conditions';
 import { clearDraft, loadDraft, saveDraft, withoutSecrets } from './draft';
+import type { ArtisanExtensions } from './extensions';
 import { defaultFieldRegistry, type FieldRegistry } from './fields';
+import { projectToRuntime } from './project';
 import Stepper from './Stepper';
 import {
   defaultStepRegistry,
@@ -36,7 +40,13 @@ import {
 import type { BeforeNextResult, FormSchema } from './types';
 
 interface ArtisanFormProps {
-  scheme: FormSchema;
+  /**
+   * The form definition: an `ArtisanSchemaV1` (JSON-serializable, see
+   * `defineForm`) or a 0.2.0 `FormSchema` (adapted internally).
+   */
+  scheme: FormSchema | ArtisanSchemaV1;
+  /** Local functions and components a v1 schema refers to by id. */
+  extensions?: ArtisanExtensions;
   /** Return a promise to keep "Finalizar" disabled until it settles. */
   onSubmit: (values: FormikValues) => unknown;
   /** Overrides the scheme defaults for the given field names. */
@@ -82,6 +92,8 @@ const ValuesWatcher = ({
 
 interface WizardProps {
   scheme: FormSchema;
+  /** Changes only when the schema's content changes. */
+  schemeKey: string;
   pluginsMap: StepContext['plugins'];
   storageMap: StorageMap;
   registry: FieldRegistry;
@@ -97,6 +109,7 @@ interface WizardProps {
 /** Renders the current step; lives inside <Formik> to read live values. */
 const Wizard = ({
   scheme,
+  schemeKey,
   pluginsMap,
   storageMap,
   registry,
@@ -146,7 +159,7 @@ const Wizard = ({
   useEffect(() => {
     setStep(stepProp ?? 0);
     setProcessStep(stepProp ?? 0);
-  }, [scheme, stepProp]);
+  }, [schemeKey, stepProp]);
 
   const firstStep = useRef(true);
   useEffect(() => {
@@ -303,7 +316,8 @@ const Wizard = ({
 };
 
 const ArtisanFormInner = ({
-  scheme,
+  scheme: input,
+  extensions,
   onSubmit,
   initialValues: initialOverrides,
   labels: labelOverrides,
@@ -334,6 +348,23 @@ const ArtisanFormInner = ({
     () => ({ ...defaultStepRegistry, ...stepTypes }),
     [stepTypes],
   );
+  // One internal representation: normalize (v1 or 0.2.0) → project to the
+  // shape the engine runs. Memoized; `key` only changes with the content.
+  const projection = useMemo(
+    () =>
+      projectToRuntime(
+        normalizeArtisanSchema(input, {
+          id: persistKey ? `legacy:${persistKey}` : undefined,
+        }),
+        extensions,
+        {
+          fieldTypes: Object.keys(registry),
+          stepKinds: Object.keys(stepRegistry),
+        },
+      ),
+    [input, extensions, registry, stepRegistry, persistKey],
+  );
+  const scheme = projection.scheme;
   // Read once on mount; the draft wins over defaults and `initialValues`.
   const draft = useMemo(
     () => (persistKey ? loadDraft(persistKey) : null),
@@ -391,6 +422,7 @@ const ArtisanFormInner = ({
     >
       <Wizard
         scheme={scheme}
+        schemeKey={projection.key}
         pluginsMap={pluginsMap}
         storageMap={storageMap}
         registry={registry}

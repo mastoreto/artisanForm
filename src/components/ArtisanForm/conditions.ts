@@ -1,9 +1,18 @@
 import { defaultLabels } from '../../commons/labels';
+import {
+  evaluateCondition,
+  fromLegacyCondition,
+} from '../../schema/conditions';
+import type { ConditionV1 } from '../../schema/types';
 import type { Condition, FieldSchema, FormSchema, StepSchema } from './types';
 
 type Values = Record<string, unknown>;
 
-/** True when the condition's field currently holds one of the `equals` values (or any value when omitted). */
+/**
+ * True when the condition's field currently holds one of the `equals` values (or any value when omitted).
+ *
+ * @deprecated 0.2.0 semantics, kept for compatibility; conditions are evaluated with `evaluateCondition`.
+ */
 export const matchesCondition = (cond: Condition, values: Values): boolean => {
   const value = values[cond.field];
   const current = Array.isArray(value)
@@ -21,11 +30,23 @@ export const matchesCondition = (cond: Condition, values: Values): boolean => {
   return cond.not ? !hit : hit;
 };
 
+/** The v1 condition of a step or field (0.2.0 `showIf` is translated). */
+export const conditionOf = (el: {
+  visibleWhen?: ConditionV1;
+  showIf?: Condition;
+}): ConditionV1 | undefined =>
+  el.visibleWhen ?? (el.showIf ? fromLegacyCondition(el.showIf) : undefined);
+
+const isVisible = (el: Parameters<typeof conditionOf>[0], values: Values) => {
+  const cond = conditionOf(el);
+  return !cond || evaluateCondition(cond, values);
+};
+
 export const isStepVisible = (step: StepSchema, values: Values) =>
-  !step.showIf || matchesCondition(step.showIf, values);
+  isVisible(step, values);
 
 export const isFieldVisible = (field: FieldSchema, values: Values) =>
-  !field.showIf || matchesCondition(field.showIf, values);
+  isVisible(field, values);
 
 export const visibleSteps = (scheme: FormSchema, values: Values) =>
   scheme.steps.filter((s) => isStepVisible(s, values));
