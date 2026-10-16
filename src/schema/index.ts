@@ -5,7 +5,15 @@ export {
   isFilled,
 } from './conditions';
 export { type ArtisanSchemaV1, defineForm } from './define';
+export { ArtisanSchemaError } from './errors';
 export type * from './fields';
+export { isJSONValue } from './json';
+export type { LegacyFormSchema } from './legacy';
+export {
+  type NormalizedArtisanSchema,
+  type NormalizeOptions,
+  normalizeArtisanSchema,
+} from './normalize';
 export {
   type ParseOptions,
   type ParseResult,
