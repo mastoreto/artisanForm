@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Form, Formik, useFormikContext, type FormikValues } from 'formik';
 import Controls from '../ArtisanControls/Controls';
 import Check from '../ArtisanInputs/Check/Check';
@@ -6,6 +6,7 @@ import DateInput from '../ArtisanInputs/Date/Date';
 import Password from '../ArtisanInputs/Password/Password';
 import Radio from '../ArtisanInputs/Radio/Radio';
 import Select from '../ArtisanInputs/Select/Select';
+import Stepper from './Stepper';
 import Text from '../ArtisanInputs/Text/Text';
 import Textarea from '../ArtisanInputs/Textarea/Textarea';
 import {
@@ -90,9 +91,9 @@ const renderField = (f: FieldSchema) => {
         />
       );
     case 'check':
-      return <Check {...choice} />;
+      return <Check {...choice} label={f.label} />;
     case 'radio':
-      return <Radio {...choice} />;
+      return <Radio {...choice} label={f.label} />;
   }
 };
 
@@ -118,6 +119,8 @@ const ArtisanFormInner = ({
     [scheme],
   );
   const current = scheme.steps[step];
+  const formRef = useRef<HTMLFormElement>(null);
+  const [focusTick, setFocusTick] = useState(0);
 
   useEffect(() => {
     setStep(stepProp ?? 0);
@@ -137,6 +140,14 @@ const ArtisanFormInner = ({
     setIsFinalStep(step === scheme.steps.length - 1);
   }, [step, scheme]);
 
+  // After a blocked "Siguiente", move focus to the first invalid field.
+  useEffect(() => {
+    if (focusTick === 0) return;
+    formRef.current
+      ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+      ?.focus();
+  }, [focusTick]);
+
   if (!current) return null;
 
   return (
@@ -154,14 +165,18 @@ const ArtisanFormInner = ({
             ...touched,
             ...Object.fromEntries(names.map((n) => [n, true])),
           });
-          if (names.some((n) => errors[n])) return;
+          if (names.some((n) => errors[n])) {
+            setFocusTick((t) => t + 1);
+            return;
+          }
           setStep(step + 1);
           setProcessStep(step + 1);
         };
 
         return (
-          <Form noValidate>
+          <Form noValidate ref={formRef}>
             {onChange && <ValuesWatcher onChange={onChange} />}
+            <Stepper steps={scheme.steps} current={step} />
             <h2 className="mb-4 text-lg font-semibold">{current.title}</h2>
             {current.fields.map((f) => (
               <div key={f.name} className="mb-4">

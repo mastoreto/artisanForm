@@ -52,7 +52,11 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           </p>
         )}
         {error && (
-          <p className="mt-2 text-sm text-red-600" id={`${id}-error`}>
+          <p
+            className="mt-2 text-sm text-red-600"
+            id={`${id}-error`}
+            aria-live="polite"
+          >
             {error}
           </p>
         )}

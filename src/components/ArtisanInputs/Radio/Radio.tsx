@@ -10,9 +10,11 @@ interface RadioProps {
   name: string;
   options: Option[];
   disabled?: boolean;
+  /** Accessible name of the group. */
+  label?: string;
 }
 
-const Radio = ({ name, options, disabled }: RadioProps) => {
+const Radio = ({ name, options, disabled, label }: RadioProps) => {
   const [field, meta, helpers] = useField<string>(name);
   const error = meta.touched && meta.error ? meta.error : null;
 
@@ -23,14 +25,22 @@ const Radio = ({ name, options, disabled }: RadioProps) => {
 
   return (
     <div>
-      <div className="flex flex-wrap">
+      <div
+        className="flex flex-wrap"
+        role="radiogroup"
+        aria-label={label}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${name}-error` : undefined}
+        tabIndex={-1}
+      >
         {options.map((option) => (
           <button
             type="button"
             disabled={disabled}
             key={option.value}
             onClick={() => handleChange(option.value)}
-            aria-pressed={field.value === option.value}
+            role="radio"
+            aria-checked={field.value === option.value}
             className={cn(
               'cursor-pointer select-none m-1 px-4 py-2 border-2 rounded-md transition-colors disabled:cursor-not-allowed disabled:opacity-50',
               field.value === option.value
@@ -42,7 +52,15 @@ const Radio = ({ name, options, disabled }: RadioProps) => {
           </button>
         ))}
       </div>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && (
+        <p
+          className="mt-2 text-sm text-red-600"
+          id={`${name}-error`}
+          aria-live="polite"
+        >
+          {error}
+        </p>
+      )}
     </div>
   );
 };
