@@ -14,7 +14,9 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 | Formularios y validación | Formik 2 + Yup                              |
 | Documentación            | Storybook 8 (`@storybook/react-vite`)       |
 | Build                    | Vite 5 en modo librería + `vite-plugin-dts` |
-| Tests                    | `bun test`                                  |
+| Tests                    | `pnpm playground` | App React de prueba (http://localhost:5173) que usa `src/` con HMR; escenarios en `?demo=<id>` |
+| `pnpm e2e` | Tests de Playwright (`e2e/`) contra el playground. Primera vez: `npx playwright install chromium` |
+| `bun test`                                  |
 | Formato y lint           | Biome 2                                     |
 | Gestor de paquetes       | pnpm                                        |
 

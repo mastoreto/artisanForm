@@ -16,7 +16,7 @@ pnpm lint              # biome check
 pnpm format            # biome check --write
 ```
 
-Además: `pnpm build` (librería), `pnpm typecheck` y `bun test` (tests `*.test.ts` junto al código).
+Además: `pnpm playground` (app de prueba en vivo, escenarios en `playground/src/scenarios/`), `pnpm e2e` (Playwright, `e2e/`), `pnpm build` (librería), `pnpm typecheck` y `bun test` (tests `*.test.ts` junto al código).
 Verificación mínima de una feature: `pnpm lint` + `pnpm typecheck` + `pnpm build` + `bun test` + la story renderiza sin errores.
 
 ## Estructura
