@@ -76,14 +76,16 @@ const scheme: FormSchema = {
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `FormSchema`  | `steps: StepSchema[]`                                                                                                                                                                                                           |
 | `StepSchema`  | `title`, `fields: FieldSchema[]`                                                                                                                                                                                                |
-| `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `max?`, `pattern?`, `defaultValue?`, `disabled?`, `helperText?`, `sameAs?`, `showIf?`, `dependentName?`, `dependentOptions?`, `loadDependentOptions?` |
+| `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `max?`, `pattern?`, `defaultValue?`, `autoComplete?`, `inputMode?`, `readOnly?`, `maxLength?`, `step?`, `minDate?`, `maxDate?`, `disabled?`, `helperText?`, `sameAs?`, `showIf?`, `dependentName?`, `dependentOptions?`, `loadDependentOptions?` |
 
-Tipos de campo (`type`): `text`, `email`, `number`, `textarea`, `password`, `date`, `select`, `dynamicSelect`, `check`, `radio`.
+Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `password`, `date`, `checkbox`, `switch`, `select`, `dynamicSelect`, `check`, `radio`.
 
 - `required` → obligatorio (en `check`, al menos una opción).
 - `min` / `max` → largo del texto, o valor numérico en `number`. En campos opcionales vacíos no se validan.
 - `pattern` → fuente de una expresión regular (ej. `'^[A-Z]{3}$'`). `email` valida formato de correo.
-- `defaultValue` → valor inicial (array en `check`). `disabled` y `helperText` aplican a todos los tipos.
+- `checkbox`/`switch` guardan un booleano; con `required` deben estar activados.
+- `autoComplete`, `inputMode`, `readOnly`, `maxLength`, `step` se pasan al elemento nativo; `date` acepta `minDate`/`maxDate` (`YYYY-MM-DD`).
+- `defaultValue` → valor inicial (array en `check`, booleano en `checkbox`/`switch`). `disabled` y `helperText` aplican a todos los tipos.
 - `dynamicSelect` guarda dos valores: `name` (primer select) y `dependentName` (segundo), cuyas opciones salen de `dependentOptions[valorDelPrimero]` o, si es asíncrono, de `loadDependentOptions(valorDelPrimero)` (devuelve una promesa de opciones; muestra estados de carga y error).
 
 ### Condicionales y validación cruzada

@@ -17,8 +17,12 @@ export type BuiltInFieldType =
   | 'email'
   | 'number'
   | 'textarea'
+  | 'tel'
+  | 'url'
   | 'password'
   | 'date'
+  | 'checkbox'
+  | 'switch'
   | 'select'
   | 'dynamicSelect'
   | 'check'
@@ -44,9 +48,27 @@ export interface FieldSchema {
   /** Regular expression source the text must match. */
   pattern?: string;
   /** Initial value (array for `check`). */
-  defaultValue?: string | string[];
+  defaultValue?: string | string[] | boolean;
   disabled?: boolean;
   helperText?: string;
+  /** Native attributes (text-like fields). */
+  autoComplete?: string;
+  inputMode?:
+    | 'none'
+    | 'text'
+    | 'tel'
+    | 'url'
+    | 'email'
+    | 'numeric'
+    | 'decimal'
+    | 'search';
+  readOnly?: boolean;
+  maxLength?: number;
+  /** Number step. */
+  step?: number | string;
+  /** date: earliest / latest allowed value (YYYY-MM-DD). */
+  minDate?: string;
+  maxDate?: string;
   /** Cross-field rule: value must equal the value of this field (e.g. password confirmation). */
   sameAs?: string;
   /** Hidden (not rendered, validated or submitted) unless the condition holds. */

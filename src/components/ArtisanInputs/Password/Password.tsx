@@ -1,5 +1,5 @@
 import { useField } from 'formik';
-import { forwardRef } from 'react';
+import { forwardRef, type InputHTMLAttributes } from 'react';
 import { cn } from '../../../commons/cn';
 import { theme } from '../../../commons/theme';
 
@@ -11,10 +11,24 @@ interface PasswordInputProps {
   className?: string;
   disabled?: boolean;
   helperText?: string;
+  /** Native attributes forwarded to the element (autoComplete, inputMode, maxLength…). */
+  inputProps?: InputHTMLAttributes<HTMLInputElement>;
 }
 
 const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({ id, name, label, placeholder, className, disabled, helperText }, ref) => {
+  (
+    {
+      id,
+      name,
+      label,
+      placeholder,
+      className,
+      disabled,
+      helperText,
+      inputProps,
+    },
+    ref,
+  ) => {
     const [field, meta] = useField<string>(name);
     const error = meta.touched && meta.error ? meta.error : null;
     const describedBy =
@@ -38,6 +52,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           {label}
         </label>
         <input
+          {...inputProps}
           {...field}
           value={field.value ?? ''}
           type="password"
