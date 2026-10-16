@@ -30,6 +30,29 @@
   },
   "overrides": [
     {
+      // The public contract must not depend on the form engine (Formik, Yup,
+      // Zustand) nor on React, so an engine migration never touches it.
+      "includes": ["src/schema/**", "src/persistence/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "src/schema and src/persistence must stay engine-agnostic.",
+                  "react-dom": "src/schema and src/persistence must stay engine-agnostic.",
+                  "formik": "src/schema and src/persistence must stay engine-agnostic.",
+                  "yup": "src/schema and src/persistence must stay engine-agnostic.",
+                  "zustand": "src/schema and src/persistence must stay engine-agnostic."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       // Positional rows/boxes (no stable identity) and the combobox popup
       // (custom listbox of the ARIA combobox pattern).
       "includes": [
