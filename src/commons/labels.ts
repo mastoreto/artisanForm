@@ -6,6 +6,8 @@ export interface ArtisanLabels {
   progress: string;
   step: (n: number, total: number, title: string) => string;
   stepItem: (n: number) => string;
+  loadingOptions: string;
+  loadOptionsError: string;
   required: string;
   invalidEmail: string;
   invalidNumber: string;
@@ -24,6 +26,8 @@ export const defaultLabels: ArtisanLabels = {
   progress: 'Progreso',
   step: (n, total, title) => `Paso ${n} de ${total}: ${title}`,
   stepItem: (n) => `Paso ${n}: `,
+  loadingOptions: 'Cargando…',
+  loadOptionsError: 'No se pudieron cargar las opciones',
   required: 'Campo requerido',
   invalidEmail: 'Email inválido',
   invalidNumber: 'Número inválido',
