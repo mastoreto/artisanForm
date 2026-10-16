@@ -10,7 +10,12 @@ export default defineConfig({
     tsconfigPaths(),
     dts({
       include: ['src/**/*'],
-      exclude: ['src/**/*.stories.tsx', '.storybook/**/*'],
+      exclude: [
+        'src/**/*.stories.tsx',
+        'src/**/*.test.ts',
+        'src/**/*.test.tsx',
+        '.storybook/**/*',
+      ],
     }),
   ],
   build: {
