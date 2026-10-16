@@ -8,5 +8,7 @@ export const theme = {
   bgHover: 'hover:bg-[var(--artisan-primary-dark,#1d4ed8)]',
   border: 'border-[var(--artisan-primary,#3b82f6)]',
   focusBorder: 'focus:border-[var(--artisan-primary,#3b82f6)]',
+  /** Native controls (progress, range, checkbox). */
+  accent: 'accent-[var(--artisan-primary,#3b82f6)]',
   focusRing: 'focus:ring-[var(--artisan-primary,#3b82f6)]',
 } as const;

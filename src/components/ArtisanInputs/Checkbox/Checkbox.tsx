@@ -71,7 +71,7 @@ const Checkbox = ({
             disabled={disabled}
             aria-invalid={!!error}
             aria-describedby={describedBy}
-            className="h-4 w-4 rounded border-gray-300"
+            className={cn('h-4 w-4 rounded border-gray-300', theme.accent)}
           />
         )}
         <label htmlFor={id} className="text-sm font-medium text-gray-700">

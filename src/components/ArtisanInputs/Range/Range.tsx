@@ -1,5 +1,6 @@
 import { useField } from 'formik';
 import { cn } from '../../../commons/cn';
+import { theme } from '../../../commons/theme';
 
 interface RangeProps {
   id: string;
@@ -50,7 +51,7 @@ const Range = ({
         aria-describedby={helperText ? `${id}-help` : undefined}
         onChange={(e) => helpers.setValue(Number(e.target.value))}
         onBlur={field.onBlur}
-        className="mt-1 w-full"
+        className={cn('mt-1 w-full', theme.accent)}
       />
       {helperText && (
         <p className="mt-1 text-sm text-gray-500" id={`${id}-help`}>

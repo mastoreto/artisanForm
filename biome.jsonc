@@ -45,6 +45,20 @@
       }
     },
     {
+      // ARIA combobox pattern: the listbox/options live in a popup while DOM
+      // focus stays on the input (aria-activedescendant), so options are not
+      // tabbable by design.
+      "includes": ["src/components/ArtisanInputs/Combobox/Combobox.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveElementToInteractiveRole": "off",
+            "useFocusableInteractive": "off"
+          }
+        }
+      }
+    },
+    {
       // The scrollable terms text must be reachable with the keyboard.
       "includes": ["src/components/ArtisanForm/steps.tsx"],
       "linter": { "rules": { "a11y": { "noNoninteractiveTabindex": "off" } } }
@@ -60,6 +74,8 @@
       "includes": [
         "src/components/ArtisanInputs/Check/Check.tsx",
         "src/components/ArtisanInputs/Radio/Radio.tsx",
+        "src/components/ArtisanInputs/Rating/Rating.tsx",
+        "src/components/ArtisanForm/PaymentStep.tsx",
         "src/components/ArtisanForm/Stepper.tsx"
       ],
       "linter": {

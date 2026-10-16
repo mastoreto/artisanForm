@@ -133,6 +133,8 @@ test('range stores a number; rating toggles; otp handles typing, backspace and p
     { type: 'otp', name: 'code', label: 'Código', length: 4 },
   ]);
   fireEvent.change(screen.getByLabelText('Nivel'), { target: { value: '7' } });
+  // the rating has a visible label, not only an aria-label
+  expect(screen.getByText('Estrellas').tagName).toBe('SPAN');
   await user.click(screen.getByLabelText('4 / 5'));
   expect(screen.getByLabelText('4 / 5').getAttribute('aria-checked')).toBe(
     'true',
