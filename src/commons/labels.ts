@@ -11,6 +11,7 @@ export interface ArtisanLabels {
   required: string;
   submitError: string;
   edit: string;
+  changeMethod: string;
   addItem: string;
   removeItem: (n: number) => string;
   itemTitle: (n: number) => string;
@@ -76,6 +77,7 @@ export const defaultLabels: ArtisanLabels = {
   required: 'Campo requerido',
   submitError: 'No se pudo enviar el formulario',
   edit: 'Editar',
+  changeMethod: 'Elegir otro medio de pago',
   addItem: 'Agregar otro',
   removeItem: (n) => `Quitar elemento ${n}`,
   itemTitle: (n) => `Elemento ${n}`,

@@ -21,7 +21,7 @@ const scheme: FormSchema = {
     {
       title: 'Pago',
       kind: 'payment',
-      providers: ['card', 'hosted'],
+      providers: ['card', 'hosted', 'declined'],
       summary: 'Total a pagar lo calcula tu servidor.',
     },
     { title: 'Listo', kind: 'result', message: 'Pago registrado' },
@@ -31,6 +31,12 @@ const scheme: FormSchema = {
 const payments = [
   mockPayment({ id: 'card', name: 'Tarjeta (embebido)', delay: 300 }),
   mockPayment({ id: 'hosted', name: 'Checkout (redirect)', mode: 'redirect' }),
+  mockPayment({
+    id: 'declined',
+    name: 'Tarjeta rechazada',
+    outcome: 'failed',
+    delay: 300,
+  }),
 ];
 
 const Payments = () => {
