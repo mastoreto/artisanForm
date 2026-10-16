@@ -7,6 +7,12 @@ export {
 export { type ArtisanSchemaV1, defineForm } from './define';
 export type * from './fields';
 export {
+  type ParseOptions,
+  type ParseResult,
+  parseArtisanSchema,
+  type SchemaPolicy,
+} from './parser';
+export {
   FIELD_KEYS,
   isExtensionType,
   isNativeFieldType,
