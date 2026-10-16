@@ -4,6 +4,7 @@ export { cn } from './commons/cn';
 export { type ArtisanLabels, defaultLabels } from './commons/labels';
 export { default as Controls } from './components/ArtisanControls/Controls';
 export { default as ArtisanForm } from './components/ArtisanForm/ArtisanForm';
+export type { ArtisanExtensions } from './components/ArtisanForm/extensions';
 export {
   defaultFieldRegistry,
   type FieldContext,
