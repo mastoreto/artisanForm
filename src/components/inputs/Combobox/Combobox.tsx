@@ -1,8 +1,14 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { cn } from '../../../commons/cn';
 import { type ArtisanLabels, defaultLabels } from '../../../commons/labels';
-import { theme } from '../../../commons/theme';
 import { useArtisanField } from '../../../engine/form/useArtisanField';
+import {
+  describedBy as ariaDescribedBy,
+  FieldBox,
+  FieldError,
+  FieldHelp,
+  FieldLabel,
+} from '../../ui/FieldParts';
+import { useCx } from '../../ui/UiContext';
 
 interface Option {
   value: string;
@@ -40,6 +46,7 @@ const Combobox = ({
   className,
   labels = defaultLabels,
 }: ComboboxProps) => {
+  const cx = useCx();
   const [field, meta, helpers] = useArtisanField<string | string[]>(name);
   const listId = useId();
   const [query, setQuery] = useState('');
@@ -126,18 +133,20 @@ const Combobox = ({
   const text = open ? query : multiple ? query : labelOf(selected[0] ?? '');
 
   return (
-    <div className={cn('mb-4', className)}>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-        {label}
-      </label>
-      <div className="relative mt-1">
+    <FieldBox
+      id={id}
+      label={label}
+      helperText={helperText}
+      error={error}
+      errorCode={meta.code}
+      className={className}
+    >
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <div className={cx('comboWrap')}>
         {multiple && selected.length > 0 && (
-          <ul className="mb-1 flex flex-wrap gap-1">
+          <ul className={cx('chipList')}>
             {selected.map((v) => (
-              <li
-                key={v}
-                className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-sm"
-              >
+              <li key={v} className={cx('chip')}>
                 {labelOf(v)}
                 <button
                   type="button"
@@ -161,11 +170,7 @@ const Combobox = ({
             open && found[active] ? optionId(active) : undefined
           }
           aria-invalid={!!error}
-          aria-describedby={
-            [error && `${id}-error`, helperText && `${id}-help`]
-              .filter(Boolean)
-              .join(' ') || undefined
-          }
+          aria-describedby={ariaDescribedBy(id, { helperText, error })}
           autoComplete="off"
           disabled={disabled}
           placeholder={placeholder}
@@ -182,29 +187,20 @@ const Combobox = ({
             helpers.setTouched();
           }}
           onKeyDown={(e) => onKeyDown(e.key, () => e.preventDefault())}
-          className={cn(
-            'block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm disabled:bg-gray-100',
-            theme.focusRing,
-            theme.focusBorder,
-            error && 'border-red-500',
-          )}
+          className={cx('input')}
         />
         {open && (
           <ul
             id={listId}
             role="listbox"
             aria-multiselectable={multiple || undefined}
-            className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md border bg-white shadow"
+            className={cx('listbox')}
           >
             {searching && (
-              <li className="px-3 py-2 text-sm text-gray-500">
-                {labels.searching}
-              </li>
+              <li className={cx('optionHint')}>{labels.searching}</li>
             )}
             {!searching && found.length === 0 && (
-              <li className="px-3 py-2 text-sm text-gray-500">
-                {labels.noResults}
-              </li>
+              <li className={cx('optionHint')}>{labels.noResults}</li>
             )}
             {found.map((o, i) => (
               <li
@@ -216,11 +212,9 @@ const Combobox = ({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => choose(o)}
                 onKeyDown={() => {}}
-                className={cn(
-                  'cursor-pointer px-3 py-2 text-sm',
-                  i === active && 'bg-gray-100',
-                  selected.includes(o.value) && 'font-semibold',
-                )}
+                className={cx('option')}
+                data-active={i === active || undefined}
+                data-selected={selected.includes(o.value) || undefined}
               >
                 {o.label}
               </li>
@@ -228,21 +222,9 @@ const Combobox = ({
           </ul>
         )}
       </div>
-      {helperText && (
-        <p className="mt-1 text-sm text-gray-500" id={`${id}-help`}>
-          {helperText}
-        </p>
-      )}
-      {error && (
-        <p
-          className="mt-2 text-sm text-red-600"
-          id={`${id}-error`}
-          aria-live="polite"
-        >
-          {error}
-        </p>
-      )}
-    </div>
+      <FieldHelp id={id} text={helperText} />
+      <FieldError id={id} error={error} />
+    </FieldBox>
   );
 };
 

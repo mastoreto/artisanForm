@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useArtisanField } from '../../../engine/form/useArtisanField';
+import { useCx } from '../../ui/UiContext';
 import Select from '../Select/Select';
 
 interface Option {
@@ -32,6 +33,7 @@ const DynamicSelect = ({
   loadingText = 'Loading…',
   errorText = 'Could not load the options',
 }: DynamicSelectProps) => {
+  const cx = useCx();
   const [parent] = useArtisanField<string>(name);
   const [child, , childHelpers] = useArtisanField<string>(dependentName);
   const [loaded, setLoaded] = useState<Option[]>([]);
@@ -70,17 +72,17 @@ const DynamicSelect = ({
     <div className={className}>
       <Select name={name} options={options} disabled={disabled} />
       {status === 'loading' && (
-        <p className="mt-2 text-sm text-gray-500" role="status">
+        <p className={cx('description')} role="status">
           {loadingText}
         </p>
       )}
       {status === 'error' && (
-        <p className="mt-2 text-sm text-red-600" role="alert">
+        <p className={cx('error')} role="alert">
           {errorText}
         </p>
       )}
       {childOptions.length > 0 && (
-        <div className="mt-4">
+        <div className={cx('stack')}>
           <Select
             name={dependentName}
             options={childOptions}

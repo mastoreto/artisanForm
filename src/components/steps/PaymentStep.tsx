@@ -3,8 +3,9 @@ import type {
   PaymentPlugin,
   PaymentResult,
 } from '../../integrations/payments/types';
+import { useCx } from '../ui/UiContext';
 import type { StepContext } from './registry';
-import StatusPanel, { actionClass } from './StatusPanel';
+import StatusPanel, { ActionButton } from './StatusPanel';
 
 const newKey = () =>
   globalThis.crypto?.randomUUID?.() ??
@@ -24,6 +25,7 @@ const baseUrl = () => {
  * (use `persistKey` so the wizard comes back to this step).
  */
 const PaymentStep = (ctx: StepContext) => {
+  const cx = useCx();
   const { step, labels, values, plugins, index, goTo } = ctx;
   const resultName = (step.resultName as string | undefined) ?? 'payment';
   const ids = (step.providers as string[] | undefined) ?? [
@@ -122,21 +124,19 @@ const PaymentStep = (ctx: StepContext) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className={cx('stack')}>
       {step.summary ? (
-        <div className="text-sm">{step.summary as ReactNode}</div>
+        <div className={cx('text')}>{step.summary as ReactNode}</div>
       ) : null}
       {!chosen && (
         <div
           role="group"
           aria-label={labels.choosePayment}
-          className="flex flex-wrap gap-2"
+          className={cx('choiceGroup')}
         >
           {available.map((p) => (
-            <button
+            <ActionButton
               key={p.id}
-              type="button"
-              className={actionClass}
               onClick={() => {
                 setChosen(p);
                 // A hosted checkout needs no further input: go straight there.
@@ -144,7 +144,7 @@ const PaymentStep = (ctx: StepContext) => {
               }}
             >
               {labels.payWith(p.name)}
-            </button>
+            </ActionButton>
           ))}
         </div>
       )}
@@ -158,39 +158,26 @@ const PaymentStep = (ctx: StepContext) => {
         </div>
       )}
       {chosen?.mode === 'redirect' && !failure && (
-        <button
-          type="button"
-          className={actionClass}
-          disabled={busy}
-          onClick={() => void redirect(chosen)}
-        >
+        <ActionButton disabled={busy} onClick={() => void redirect(chosen)}>
           {busy ? labels.paying : labels.payWith(chosen.name)}
-        </button>
+        </ActionButton>
       )}
       {failure && (
         <StatusPanel tone="error" message={failure}>
-          <button type="button" className={actionClass} onClick={retry}>
-            {labels.retry}
-          </button>
+          <ActionButton onClick={retry}>{labels.retry}</ActionButton>
           {available.length > 1 && (
-            <button
-              type="button"
-              className={actionClass}
+            <ActionButton
               onClick={() => {
                 retry();
                 setChosen(null);
               }}
             >
               {labels.changeMethod}
-            </button>
+            </ActionButton>
           )}
-          <button
-            type="button"
-            className={actionClass}
-            onClick={() => goTo(Math.max(0, index - 1))}
-          >
+          <ActionButton onClick={() => goTo(Math.max(0, index - 1))}>
             {labels.backToForm}
-          </button>
+          </ActionButton>
         </StatusPanel>
       )}
     </div>

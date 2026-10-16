@@ -1,0 +1,85 @@
+/* The made-up "Acme" design system: nothing here comes from ArtisanForm. */
+.acme-field {
+  margin-bottom: 1.25rem;
+}
+.acme-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #4338ca;
+}
+.acme-input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 2px solid #c7d2fe;
+  border-radius: 999px;
+  background: #eef2ff;
+  font: inherit;
+}
+.acme-input:focus {
+  outline: none;
+  border-color: #4338ca;
+  background: #fff;
+}
+.acme-input[aria-invalid="true"] {
+  border-color: #be123c;
+}
+.acme-help,
+.acme-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+}
+.acme-help {
+  color: #6b7280;
+}
+.acme-error {
+  color: #be123c;
+}
+.acme-stepper {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+.acme-stepper li {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: #4338ca;
+  font-size: 0.8rem;
+  text-align: center;
+}
+.acme-stepper li[data-state="current"] {
+  background: #4338ca;
+  color: #fff;
+}
+.acme-stepper li[data-state="done"] {
+  background: #a5b4fc;
+}
+.acme-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+.acme-btn {
+  padding: 0.6rem 1.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: #4338ca;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+.acme-btn--ghost {
+  background: transparent;
+  color: #4338ca;
+}
+.acme-btn:disabled {
+  opacity: 0.5;
+}

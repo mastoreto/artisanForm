@@ -1,5 +1,5 @@
 import { ArtisanSchemaError } from '../schema/contract/errors';
-import type { SchemaIssue } from '../schema/contract/types';
+import type { FormUIConfig, SchemaIssue } from '../schema/contract/types';
 import type { FormSchema } from '../schema/legacy/types';
 import type { NormalizedArtisanSchema } from '../schema/normalize';
 import type { ArtisanExtensions } from './extensions';
@@ -11,6 +11,8 @@ export interface RuntimeProjection {
   scheme: FormSchema;
   formId: string;
   revision?: number;
+  /** Semantic UI settings of the form (`layout`, `density`, `labelPosition`). */
+  ui: FormUIConfig;
   /** Step ids in schema order. */
   stepIds: string[];
   /** Changes only when the schema's content changes (not when its identity does). */
@@ -95,6 +97,9 @@ export const projectToRuntime = (
     out.label = (text ?? label ?? '') as string;
     if (description !== undefined) out.helperText = description;
     Object.assign(out, rest);
+    // Custom renderers may read `ui.variant`; the default UI ignores it.
+    if ((ui as Obj | undefined)?.variant !== undefined)
+      out.uiVariant = (ui as Obj).variant;
     if (config && typeof config === 'object') Object.assign(out, config);
 
     const v = (validation ?? {}) as Obj;
@@ -264,6 +269,7 @@ export const projectToRuntime = (
     scheme: { steps } as unknown as FormSchema,
     formId: schema.id,
     revision: schema.revision,
+    ui: schema.ui ?? {},
     stepIds,
     key: JSON.stringify(schema),
   };

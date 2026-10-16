@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { ActionButton } from '../../../components/steps/StatusPanel';
+import { useCx } from '../../../components/ui/UiContext';
 import Loading from '../Loading';
 import type {
   EmbeddedRenderProps,
@@ -47,6 +49,7 @@ const PayForm = ({
   onResult,
   labels,
 }: EmbeddedRenderProps & { ui: StripeUi }) => {
+  const cx = useCx();
   const stripe = ui.useStripe();
   const elements = ui.useElements();
   const [busy, setBusy] = useState(false);
@@ -72,16 +75,11 @@ const PayForm = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className={cx('stack')}>
       <ui.PaymentElement />
-      <button
-        type="button"
-        disabled={!stripe || busy}
-        onClick={() => void pay()}
-        className="rounded border px-4 py-2 text-sm hover:bg-gray-100 disabled:opacity-50"
-      >
+      <ActionButton disabled={!stripe || busy} onClick={() => void pay()}>
         {busy ? labels.paymentProcessing : labels.pay}
-      </button>
+      </ActionButton>
     </div>
   );
 };

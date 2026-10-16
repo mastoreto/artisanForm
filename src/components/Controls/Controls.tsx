@@ -1,9 +1,8 @@
-import { cn } from '../../commons/cn';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
-import { theme } from '../../commons/theme';
 import { useArtisanStore } from '../../engine/store/useArtisanStore';
+import { useCx } from '../ui/UiContext';
 
-interface ControlsProps {
+export interface ControlsProps {
   /** Overrides the default advance (e.g. to validate the step first). */
   onNext?: () => void;
   /** Disables "Finish" while a submit is in flight. */
@@ -14,6 +13,10 @@ interface ControlsProps {
   hidePrevious?: boolean;
   hideNext?: boolean;
   nextDisabled?: boolean;
+  /** On the first step (no "Previous"). Defaults to the step state of the store. */
+  isFirst?: boolean;
+  /** On the step that submits (shows "Finish"). Defaults to the store. */
+  isLast?: boolean;
   /** Extra classes for the container / for every button. */
   className?: string;
   buttonClassName?: string;
@@ -26,43 +29,22 @@ const Controls = ({
   hideNext,
   nextDisabled,
   isSubmitting,
+  isFirst,
+  isLast,
   labels,
   className,
   buttonClassName,
 }: ControlsProps): JSX.Element => {
-  const isFinalStep = useArtisanStore((state) => state.isFinalStep);
+  const cx = useCx();
+  const storeIsFinal = useArtisanStore((state) => state.isFinalStep);
   const step = useArtisanStore((state) => state.step);
   const processStep = useArtisanStore((state) => state.processStep);
   const setStep = useArtisanStore((state) => state.setStep);
   const setProcessStep = useArtisanStore((state) => state.setProcessStep);
 
   const text = { ...defaultLabels, ...labels };
-
-  const classes = {
-    container: cn(
-      'flex',
-      'flex-row',
-      'justify-between',
-      'items-center',
-      'w-full',
-      'h-full',
-      'p-4',
-      'bg-gray-100',
-    ),
-    button: cn(
-      'px-4',
-      'py-2',
-      theme.bg,
-      'text-white',
-      'rounded',
-      'shadow',
-      theme.bgHover,
-      'focus:outline-none',
-      'focus:ring-2',
-      theme.focusRing,
-      'focus:ring-opacity-75',
-    ),
-  };
+  const first = isFirst ?? (processStep <= 0 || step <= 0);
+  const last = isLast ?? storeIsFinal;
 
   const handleNext = () => {
     setStep(step + 1);
@@ -75,30 +57,30 @@ const Controls = ({
   };
 
   return (
-    <div className={cn(classes.container, className)}>
-      {processStep > 0 && step > 0 && !hidePrevious && (
+    <div className={cx('controls', className)}>
+      {!first && !hidePrevious && (
         <button
           type="button"
-          className={cn(classes.button, buttonClassName)}
+          className={cx('button', buttonClassName)}
           onClick={() => (onPrevious ?? handlePrevious)()}
         >
           {text.previous}
         </button>
       )}
-      {!isFinalStep && !hideNext && (
+      {!last && !hideNext && (
         <button
           type="button"
-          className={cn(classes.button, buttonClassName)}
+          className={cx('button', buttonClassName)}
           onClick={() => (onNext ?? handleNext)()}
           disabled={nextDisabled}
         >
           {text.next}
         </button>
       )}
-      {isFinalStep && !hideNext && (
+      {last && !hideNext && (
         <button
           type="submit"
-          className={cn(classes.button, buttonClassName)}
+          className={cx('button', buttonClassName)}
           disabled={isSubmitting || nextDisabled}
         >
           {text.submit}

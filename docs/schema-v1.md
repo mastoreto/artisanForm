@@ -107,7 +107,7 @@ StepUIConfig  { columns?: 1 | 2 }
 FieldUIConfig { span?: 1 | 2; variant?: string }
 ```
 
-Semantic values: no CSS and no Tailwind classes in the contract. The default renderer currently interprets **`columns` and `span`** (they match the usual grid: 2 columns, full width by default). `layout`, `density`, `labelPosition` and `variant` are **validated and normalized, but the default UI does not use them yet** (future phase); a custom renderer can read them.
+Semantic values: no CSS and no Tailwind classes in the contract. The default renderer interprets **`columns`, `span`, `density` and `labelPosition`** (and exposes `layout` as a `data-layout` styling hook); `variant` is only handed to custom components (`field.uiVariant`). See [ui.md](ui.md).
 
 `width: 'half' | 'full'` (0.2.0) ⇒ `ui.span: 1 | 2`. `helperText` ⇒ `description`.
 
@@ -253,7 +253,7 @@ There are no two engines and no compatibility branches in the components. `FormS
 
 ## 13. Current limitations
 
-- The default UI does not interpret `layout`, `density`, `labelPosition` or `variant` (⏳).
+- The default UI gives `layout: 'horizontal'` no styling of its own (only the `data-layout` hook) and does not use `variant` (⏳).
 - No arbitrary nesting: `array` rows are flat (no nested `array`, content, `x-…` types or `visibleWhen`).
 - `optionsSource` only on `combobox`/`multiselect`.
 - `hooks` and `onSnapshotConflict` of a 0.2.0 schema are still TypeScript code, not data.

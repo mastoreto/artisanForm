@@ -1,12 +1,12 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { cn } from '../../../commons/cn';
 import { type ArtisanLabels, defaultLabels } from '../../../commons/labels';
-import { theme } from '../../../commons/theme';
 import { useArtisanField } from '../../../engine/form/useArtisanField';
 import type {
   StorageAdapter,
   UploadedFile,
 } from '../../../integrations/storage/types';
+import { FieldBox, FieldError, FieldHelp } from '../../ui/FieldParts';
+import { useCx } from '../../ui/UiContext';
 
 interface FileUploadProps {
   id: string;
@@ -87,6 +87,7 @@ const FileUpload = ({
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const hintId = useId();
+  const cx = useCx();
 
   const setPending = (updater: (prev: Pending[]) => Pending[]) => {
     pendingRef.current = updater(pendingRef.current);
@@ -226,11 +227,15 @@ const FileUpload = ({
       .join(' ') || undefined;
 
   return (
-    <div className={cn('mb-4', className)}>
-      <span
-        id={`${id}-label`}
-        className="block text-sm font-medium text-gray-700"
-      >
+    <FieldBox
+      id={id}
+      label={label}
+      helperText={helperText}
+      error={error}
+      errorCode={meta.code}
+      className={className}
+    >
+      <span id={`${id}-label`} className={cx('label')}>
         {label}
       </span>
       <section
@@ -246,18 +251,16 @@ const FileUpload = ({
           setDragging(false);
           if (!disabled) addFiles(Array.from(e.dataTransfer.files));
         }}
-        className={cn(
-          'mt-1 rounded-md border-2 border-dashed p-4 text-center text-sm text-gray-600',
-          dragging ? theme.border : 'border-gray-300',
-          error && 'border-red-500',
-        )}
+        className={cx('dropzone')}
+        data-dragging={dragging || undefined}
       >
         <span>{labels.dropFiles} </span>
         <button
           type="button"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
-          className="font-medium underline disabled:opacity-50"
+          className={cx('link')}
+          data-strong
         >
           {labels.chooseFiles}
         </button>
@@ -276,31 +279,23 @@ const FileUpload = ({
           }}
         />
       </section>
-      <p id={hintId} className="sr-only">
+      <p id={hintId} className={cx('srOnly')}>
         {[accept, maxSize && formatSize(maxSize), maxFiles > 1 && `${maxFiles}`]
           .filter(Boolean)
           .join(' · ')}
       </p>
-      {helperText && (
-        <p className="mt-1 text-sm text-gray-500" id={`${id}-help`}>
-          {helperText}
-        </p>
-      )}
-      <ul className="mt-2 space-y-2" aria-live="polite">
+      <FieldHelp id={id} text={helperText} />
+      <ul className={cx('fileList')} aria-live="polite">
         {files.map((f) => (
-          <li key={f.id} className="flex items-center gap-3 text-sm">
+          <li key={f.id} className={cx('fileItem')}>
             {preview && f.url && f.type?.startsWith('image/') && (
-              <img
-                src={f.url}
-                alt=""
-                className="h-10 w-10 rounded object-cover"
-              />
+              <img src={f.url} alt="" className={cx('fileThumb')} />
             )}
-            <span className="flex-1 truncate">{f.name}</span>
-            <span className="text-gray-500">{formatSize(f.size)}</span>
+            <span className={cx('fileName')}>{f.name}</span>
+            <span className={cx('muted')}>{formatSize(f.size)}</span>
             <button
               type="button"
-              className="underline"
+              className={cx('link')}
               disabled={disabled}
               onClick={() => void remove(f)}
               aria-label={labels.removeFile(f.name)}
@@ -310,15 +305,11 @@ const FileUpload = ({
           </li>
         ))}
         {pending.map((p) => (
-          <li key={p.key} className="flex items-center gap-3 text-sm">
+          <li key={p.key} className={cx('fileItem')}>
             {p.preview && p.status === 'uploading' && (
-              <img
-                src={p.preview}
-                alt=""
-                className="h-10 w-10 rounded object-cover"
-              />
+              <img src={p.preview} alt="" className={cx('fileThumb')} />
             )}
-            <span className="flex-1 truncate">{p.file.name}</span>
+            <span className={cx('fileName')}>{p.file.name}</span>
             {p.status === 'uploading' ? (
               <>
                 <div
@@ -327,16 +318,16 @@ const FileUpload = ({
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-valuenow={p.progress}
-                  className="h-2 w-24 overflow-hidden rounded-full bg-gray-200"
+                  className={cx('progress')}
                 >
                   <div
-                    className={cn('h-full transition-[width]', theme.bg)}
+                    className={cx('progressBar')}
                     style={{ width: `${p.progress}%` }}
                   />
                 </div>
                 <button
                   type="button"
-                  className="underline"
+                  className={cx('link')}
                   onClick={() => cancel(p)}
                   aria-label={labels.cancelUpload(p.file.name)}
                 >
@@ -345,12 +336,12 @@ const FileUpload = ({
               </>
             ) : (
               <>
-                <span role="alert" className="text-red-600">
+                <span role="alert" className={cx('error')} data-inline>
                   {p.error ?? labels.uploadFailed}
                 </span>
                 <button
                   type="button"
-                  className="underline"
+                  className={cx('link')}
                   onClick={() => retry(p)}
                   aria-label={labels.retryUpload(p.file.name)}
                 >
@@ -358,7 +349,7 @@ const FileUpload = ({
                 </button>
                 <button
                   type="button"
-                  className="underline"
+                  className={cx('link')}
                   onClick={() => cancel(p)}
                   aria-label={labels.cancelUpload(p.file.name)}
                 >
@@ -370,20 +361,12 @@ const FileUpload = ({
         ))}
       </ul>
       {notice && (
-        <p role="alert" className="mt-2 text-sm text-red-600">
+        <p role="alert" className={cx('error')}>
           {notice}
         </p>
       )}
-      {error && (
-        <p
-          className="mt-2 text-sm text-red-600"
-          id={`${id}-error`}
-          aria-live="polite"
-        >
-          {error}
-        </p>
-      )}
-    </div>
+      <FieldError id={id} error={error} />
+    </FieldBox>
   );
 };
 

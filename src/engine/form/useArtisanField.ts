@@ -41,6 +41,7 @@ export const useArtisanField = <T = unknown>(
 
   const { field, fieldState, formState } = useController({ name });
   const found = messageOf(fieldState.error);
+  const code = fieldState.error?.type;
   // Like Formik: an error is shown once the field was touched (or Next was tried).
   const error =
     fieldState.isTouched || formState.isSubmitted || ui?.attempted
@@ -62,7 +63,11 @@ export const useArtisanField = <T = unknown>(
         field.onChange(e);
       },
     },
-    { touched: !!error, error },
+    {
+      touched: !!error,
+      error,
+      code: error ? String(code ?? 'invalid') : undefined,
+    },
     {
       setValue: (value: T) => field.onChange(value),
       setTouched: () => field.onBlur(),

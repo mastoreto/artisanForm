@@ -2,7 +2,7 @@
 
 > 🌐 Versión en español de [README.md](../../README.md) (el original, en inglés, es la referencia). Si cambia el original, actualizá esta copia.
 
-Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con Tailwind, validación con React Hook Form + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
+Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con estilos en CSS plano (tematizables y reemplazables), validación con React Hook Form + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
 
 > **Estado:** versión 0.2.0: wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable y plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal). Aún no publicada en ningún registro. Ver [Estado del proyecto](#estado-del-proyecto).
 
@@ -11,7 +11,7 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 | Área                     | Tecnología                                  |
 | ------------------------ | ------------------------------------------- |
 | UI                       | React 18, TypeScript (strict)               |
-| Estilos                  | Tailwind CSS 3, `clsx` + `tailwind-merge`   |
+| Estilos                  | CSS plano con variables `--artisan-*` (Tailwind solo en playground y Storybook) |
 | Estado de pasos          | Zustand 5                                   |
 | Formularios y validación | React Hook Form 7 + Yup                     |
 | Documentación            | Storybook 8 (`@storybook/react-vite`)       |
@@ -308,34 +308,29 @@ Cada tipo es una `FieldDefinition` (`render`, `initialValues`, `rules`, y opcion
 - **Finalizar** (último paso) valida todo y llama a `onSubmit` con los valores.
 - `isFinalStep` se calcula a partir de la cantidad de pasos; al cambiar el `scheme` el wizard vuelve al paso 0.
 
-## Estilos
+## Estilos y UI
 
-Los componentes usan clases de Tailwind. Hay dos formas de cargarlas:
+La UI por defecto es CSS plano (sin Tailwind en tu proyecto, sin reset global): `import 'artisanform/style.css'`. Reestilizala con variables CSS, sumá tus propias clases por parte con `classNames` (o quitá las nuestras con `unstyled`), o reemplazá partes completas con `components` (inputs por tipo de campo, Stepper, Controls, FieldWrapper…) para usar cualquier otra librería de UI:
 
-1. **Con Tailwind en tu proyecto (recomendado):** agregá el build de la librería a `content` de `tailwind.config.js` para que Tailwind genere sus clases.
+```tsx
+import 'artisanform/style.css';
 
-   ```js
-   content: ['./src/**/*.{js,ts,jsx,tsx}', './node_modules/artisanform/dist/**/*.{js,cjs}'],
-   ```
+<ArtisanForm
+  scheme={scheme}
+  onSubmit={save}
+  classNames={{ input: 'rounded-full', button: 'bg-emerald-600' }}
+  components={{ inputs: { text: MyText }, Stepper: MyStepper }}
+/>;
+```
 
-2. **Sin Tailwind:** importá el CSS precompilado (incluye el reset `preflight` de Tailwind).
+```css
+:root {
+  --artisan-primary: #7c3aed;
+  --artisan-radius: 0.75rem;
+}
+```
 
-   ```ts
-   import 'artisanform/style.css';
-   ```
-
-### Personalización
-
-- **Color de marca:** definí estas variables CSS (fallbacks: azul de Tailwind):
-
-  ```css
-  :root {
-    --artisan-primary: #7c3aed;
-    --artisan-primary-dark: #5b21b6;
-  }
-  ```
-
-- **Clases extra:** todos los componentes aceptan `className` (`Controls` también `buttonClassName`; `ArtisanForm` lo aplica al `<form>`).
+Los ajustes semánticos `ui` del esquema (`columns`, `span`, `density`, `labelPosition`) los interpreta la UI por defecto. Guía completa, contratos y notas de accesibilidad: [docs/es/ui.md](ui.md) ([inglés](../ui.md)).
 
 ## Instalación
 
@@ -374,7 +369,7 @@ Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y
 │   │   ├── payments/        PaymentPlugin, mock y proveedores (stripe, lemonsqueezy, mercadopago, paypal)
 │   │   ├── storage/         StorageAdapter, presignedPut, cloudinary, mock
 │   │   └── wait/            WaitStrategy: polling, sse, websocket, callback
-│   ├── commons/             cn, labels, theme
+│   ├── commons/             cn, labels
 │   └── index.ts             Entry de la librería
 ├── AGENTS.md                Forma de trabajo (humanos y agentes)
 └── vite.config.ts · tailwind.config.js · tsconfig.json · biome.jsonc · playwright.config.ts
@@ -395,11 +390,10 @@ Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y
 
 ### Pendiente
 
-- **CI en GitHub (AF8):** el workflow está en la rama local `chore/AF8-ci`; subirlo requiere el scope `workflow` del token (`gh auth refresh -s workflow`).
 - **Release:** `develop` → `master`, publicar el paquete (registro a definir) y desplegar Storybook.
 - **Proveedores reales:** los plugins se verifican con mocks de sus SDK; falta probarlos contra sandbox con credenciales de prueba.
 - **Navegador:** los tests de componentes corren en happy-dom; Playwright cubre los flujos del playground (wizard, archivos, espera, pagos mock, campos).
-- **UI por defecto para `ui`:** `layout`, `density`, `labelPosition` y `variant` se validan y normalizan pero todavía no se interpretan.
+- **UI:** la API headless pública (`useArtisanForm`) todavía no se publica (el comportamiento ya vive en un `useWizard` interno), `layout: 'horizontal'` no tiene estilo propio y los steppers no pueden saltar entre pasos. Detalle en [docs/es/ui.md](ui.md#pendiente).
 - Los textos por defecto están solo en inglés; para otro idioma pasá `labels` (y escribí tus propias etiquetas de campo).
 
 ### Historial
@@ -437,5 +431,5 @@ Detalle en [AGENTS.md](AGENTS.md) (original en inglés: [AGENTS.md](../../AGENTS
 - Biome: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 columnas, LF.
 - Un componente por carpeta con su `*.stories.tsx`; `export default`.
 - Inputs con `forwardRef` cuando exponen un elemento, el binding `useArtisanField` y accesibilidad básica (`label htmlFor`, `aria-invalid`, `aria-describedby`).
-- Estilos solo con Tailwind + `cn()`. Estado global solo en `useArtisanStore`.
+- Estilos solo en `src/styles/artisanform.css` mediante clases `af-*` y variables `--artisan-*`. Estado global solo en `useArtisanStore`.
 - Todo lo generado en el repositorio (código, comentarios, docs, commits) va en inglés; la documentación en español vive en `docs/es/`. Los textos de la librería nunca están hardcodeados: los valores por defecto son inglés y todos se pueden sobrescribir con `labels`.

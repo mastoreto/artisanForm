@@ -65,6 +65,7 @@ describe('Spanish documentation mirrors the English originals', () => {
     ['AGENTS.md', 'docs/es/AGENTS.md'],
     ['CHANGELOG.md', 'docs/es/CHANGELOG.md'],
     ['docs/schema-v1.md', 'docs/es/schema-v1.md'],
+    ['docs/ui.md', 'docs/es/ui.md'],
   ];
 
   test.each(pairs)('%s has a Spanish copy with the same sections', (en, es) => {
@@ -82,6 +83,7 @@ describe('Spanish documentation mirrors the English originals', () => {
       'docs/es/AGENTS.md',
       'docs/es/CHANGELOG.md',
       'docs/es/schema-v1.md',
+      'docs/es/ui.md',
     ])
       expect(agents).toContain(link);
   });

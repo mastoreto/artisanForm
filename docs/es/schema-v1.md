@@ -107,7 +107,7 @@ StepUIConfig  { columns?: 1 | 2 }
 FieldUIConfig { span?: 1 | 2; variant?: string }
 ```
 
-Valores semánticos: sin CSS ni clases Tailwind en el contrato. El renderer por defecto interpreta hoy **`columns` y `span`** (equivalen a la grilla de siempre: 2 columnas, ancho completo por defecto). `layout`, `density`, `labelPosition` y `variant` **se validan y se normalizan pero la UI por defecto todavía no los usa** (fase futura); un renderer propio puede leerlos.
+Valores semánticos: sin CSS ni clases Tailwind en el contrato. El renderer por defecto interpreta **`columns`, `span`, `density` y `labelPosition`** (y expone `layout` como gancho de estilo `data-layout`); `variant` solo se entrega a componentes propios (`field.uiVariant`). Ver [ui.md](ui.md).
 
 `width: 'half' | 'full'` (0.2.0) ⇒ `ui.span: 1 | 2`. `helperText` ⇒ `description`.
 
@@ -253,7 +253,7 @@ No hay dos motores ni ramas de compatibilidad en los componentes. `FormSchema`, 
 
 ## 13. Limitaciones actuales
 
-- La UI por defecto no interpreta `layout`, `density`, `labelPosition` ni `variant` (⏳).
+- La UI por defecto no aplica estilo propio a `layout: 'horizontal'` (solo el gancho `data-layout`) ni usa `variant` (⏳).
 - Sin anidamiento arbitrario: las filas de `array` son planas (sin `array` anidado, contenido, tipos `x-…` ni `visibleWhen`).
 - `optionsSource` solo en `combobox`/`multiselect`.
 - Los `hooks` y `onSnapshotConflict` de un esquema 0.2.0 siguen siendo código TypeScript, no datos.

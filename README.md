@@ -1,6 +1,6 @@
 # ArtisanForm
 
-React library for building multi-step forms (wizards) from a declarative definition (`scheme`). It ships ready-made inputs styled with Tailwind, validation with React Hook Form + Yup and step state in Zustand. It is developed and documented with Storybook.
+React library for building multi-step forms (wizards) from a declarative definition (`scheme`). It ships ready-made inputs with plain-CSS styles (themeable, replaceable), validation with React Hook Form + Yup and step state in Zustand. It is developed and documented with Storybook.
 
 > 🌐 Spanish version: [docs/es/README.md](docs/es/README.md)
 
@@ -11,7 +11,7 @@ React library for building multi-step forms (wizards) from a declarative definit
 | Area                   | Technology                                                  |
 | ---------------------- | ----------------------------------------------------------- |
 | UI                     | React 18, TypeScript (strict)                               |
-| Styles                 | Tailwind CSS 3, `clsx` + `tailwind-merge`                   |
+| Styles                 | Plain CSS with `--artisan-*` variables (Tailwind only for the playground and Storybook) |
 | Step state             | Zustand 5                                                   |
 | Forms and validation   | React Hook Form 7 + Yup                                     |
 | Documentation          | Storybook 8 (`@storybook/react-vite`)                       |
@@ -308,34 +308,29 @@ Each type is a `FieldDefinition` (`render`, `initialValues`, `rules`, and option
 - **Finish** (last step) validates everything and calls `onSubmit` with the values.
 - `isFinalStep` is computed from the number of steps; when the scheme's content changes the wizard returns to step 0.
 
-## Styles
+## Styles and UI
 
-The components use Tailwind classes. There are two ways to load them:
+The default UI is plain CSS (no Tailwind in your project, no global reset): `import 'artisanform/style.css'`. Restyle it with CSS variables, add your own classes per part with `classNames` (or drop ours with `unstyled`), or replace whole parts with `components` (inputs by field type, Stepper, Controls, FieldWrapper…) to use any other UI library:
 
-1. **With Tailwind in your project (recommended):** add the library build to `content` in `tailwind.config.js` so Tailwind generates its classes.
+```tsx
+import 'artisanform/style.css';
 
-   ```js
-   content: ['./src/**/*.{js,ts,jsx,tsx}', './node_modules/artisanform/dist/**/*.{js,cjs}'],
-   ```
+<ArtisanForm
+  scheme={scheme}
+  onSubmit={save}
+  classNames={{ input: 'rounded-full', button: 'bg-emerald-600' }}
+  components={{ inputs: { text: MyText }, Stepper: MyStepper }}
+/>;
+```
 
-2. **Without Tailwind:** import the precompiled CSS (it includes Tailwind's `preflight` reset).
+```css
+:root {
+  --artisan-primary: #7c3aed;
+  --artisan-radius: 0.75rem;
+}
+```
 
-   ```ts
-   import 'artisanform/style.css';
-   ```
-
-### Customization
-
-- **Brand color:** define these CSS variables (fallbacks: Tailwind blue):
-
-  ```css
-  :root {
-    --artisan-primary: #7c3aed;
-    --artisan-primary-dark: #5b21b6;
-  }
-  ```
-
-- **Extra classes:** every component accepts `className` (`Controls` also `buttonClassName`; `ArtisanForm` applies it to the `<form>`).
+The schema's semantic `ui` settings (`columns`, `span`, `density`, `labelPosition`) are interpreted by the default UI. Full guide, contracts and accessibility notes: [docs/ui.md](docs/ui.md) ([Spanish](docs/es/ui.md)).
 
 ## Installation
 
@@ -374,7 +369,7 @@ Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must
 │   │   ├── payments/        PaymentPlugin, mock and providers (stripe, lemonsqueezy, mercadopago, paypal)
 │   │   ├── storage/         StorageAdapter, presignedPut, cloudinary, mock
 │   │   └── wait/            WaitStrategy: polling, sse, websocket, callback
-│   ├── commons/             cn, labels, theme
+│   ├── commons/             cn, labels
 │   └── index.ts             Library entry
 ├── AGENTS.md                Working agreements (humans and agents)
 └── vite.config.ts · tailwind.config.js · tsconfig.json · biome.jsonc · playwright.config.ts
@@ -395,10 +390,9 @@ Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must
 
 ### Pending
 
-- **GitHub CI (AF8):** the workflow is on the local branch `chore/AF8-ci`; pushing it needs the token's `workflow` scope (`gh auth refresh -s workflow`).
 - **Release:** `develop` → `master`, publish the package (registry to be decided) and deploy Storybook.
 - **Real providers:** the plugins are verified against mocks of their SDKs; they still need a pass against sandboxes with test credentials.
-- **Default UI for `ui` settings:** `layout`, `density`, `labelPosition` and `variant` are validated and normalized but not interpreted yet.
+- **UI:** the public headless API (`useArtisanForm`) is not published yet (the behavior already lives in an internal `useWizard`), `layout: 'horizontal'` has no styling of its own and steppers cannot jump between steps. Details in [docs/ui.md](docs/ui.md#pending).
 - **Browser:** component tests run in happy-dom; Playwright covers the playground flows (wizard, files, waiting, mock payments, fields).
 - Default texts are English only; for another language pass `labels` (and write your own field labels).
 
@@ -437,5 +431,5 @@ Details in [AGENTS.md](AGENTS.md) ([Spanish](docs/es/AGENTS.md)). Summary:
 - Biome: 2 spaces, single quotes, `;`, trailing comma `all`, 80 columns, LF.
 - One component per folder with its `*.stories.tsx`; `export default`.
 - Inputs with `forwardRef` when they expose an element, the `useArtisanField` binding and basic accessibility (`label htmlFor`, `aria-invalid`, `aria-describedby`).
-- Styles only with Tailwind + `cn()`. Global state only in `useArtisanStore`.
+- Styles only in `src/styles/artisanform.css` through `af-*` classes and `--artisan-*` variables. Global state only in `useArtisanStore`.
 - Everything generated in the repository (code, comments, docs, commits) is in English; Spanish documentation lives in `docs/es/`. Library texts are never hard-coded: built-in defaults are English and every one is overridable through `labels`.

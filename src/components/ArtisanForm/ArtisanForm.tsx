@@ -31,8 +31,18 @@ import type { ConflictDecision, SnapshotConflict } from '../../persistence';
 import type { ArtisanSchemaV1 } from '../../schema/contract/define';
 import type { FormSchema } from '../../schema/legacy/types';
 import { normalizeArtisanSchema } from '../../schema/normalize';
-import { defaultFieldRegistry, type FieldRegistry } from '../fields/registry';
-import { defaultStepRegistry, type StepRegistry } from '../steps/registry';
+import {
+  assertFieldRegistry,
+  defaultFieldRegistry,
+  type FieldRegistry,
+} from '../fields/registry';
+import {
+  assertStepRegistry,
+  defaultStepRegistry,
+  type StepRegistry,
+} from '../steps/registry';
+import type { ArtisanComponents } from '../ui/types';
+import { type ArtisanClassNames, UiContext } from '../ui/UiContext';
 import { Wizard } from './Wizard';
 
 interface ArtisanFormProps {
@@ -69,6 +79,12 @@ interface ArtisanFormProps {
   storage?: StorageAdapter | StorageMap;
   /** Payment plugins (Stripe, Mercado Pago…, or your own) and the redirect function. */
   plugins?: PluginsConfig;
+  /** Replace parts of the default UI (inputs by type, Stepper, Controls…). See `ArtisanComponents`. */
+  components?: ArtisanComponents;
+  /** Extra classes per part of the default UI, added to the `af-*` ones. */
+  classNames?: ArtisanClassNames;
+  /** Do not emit the `af-*` classes: bring your own styles. */
+  unstyled?: boolean;
 }
 
 const ArtisanFormInner = ({
@@ -82,8 +98,15 @@ const ArtisanFormInner = ({
   storage,
   plugins,
   onSnapshotConflict,
+  components,
+  classNames,
+  unstyled,
   ...wizard
 }: ArtisanFormProps) => {
+  const uiConfig = useMemo(
+    () => ({ components, classNames, unstyled }),
+    [components, classNames, unstyled],
+  );
   const pluginsMap = useMemo(
     () => ({
       payments: Object.fromEntries(
@@ -98,11 +121,11 @@ const ArtisanFormInner = ({
   const { persistKey } = wizard;
   const setSubmitState = useArtisanStore((s) => s.setSubmitState);
   const registry = useMemo(
-    () => ({ ...defaultFieldRegistry, ...fields }),
+    () => assertFieldRegistry({ ...defaultFieldRegistry, ...fields }),
     [fields],
   );
   const stepRegistry = useMemo(
-    () => ({ ...defaultStepRegistry, ...stepTypes }),
+    () => assertStepRegistry({ ...defaultStepRegistry, ...stepTypes }),
     [stepTypes],
   );
   // One internal representation: normalize (v1 or 0.2.0) → project to the
@@ -200,29 +223,32 @@ const ArtisanFormInner = ({
 
   return (
     <FormProvider {...methods}>
-      <FormUiContext.Provider value={ui}>
-        <Wizard
-          onSubmitValues={submitValues}
-          scheme={scheme}
-          schemeKey={projection.key}
-          snapshotMeta={{
-            formId: projection.formId,
-            revision: projection.revision,
-          }}
-          pluginsMap={pluginsMap}
-          storageMap={storageMap}
-          registry={registry}
-          stepRegistry={stepRegistry}
-          labels={labels}
-          {...wizard}
-          step={
-            wizard.step ??
-            (draft
-              ? Math.min(draft.stepIndex, scheme.steps.length - 1)
-              : undefined)
-          }
-        />
-      </FormUiContext.Provider>
+      <UiContext.Provider value={uiConfig}>
+        <FormUiContext.Provider value={ui}>
+          <Wizard
+            onSubmitValues={submitValues}
+            scheme={scheme}
+            schemeKey={projection.key}
+            ui={projection.ui}
+            snapshotMeta={{
+              formId: projection.formId,
+              revision: projection.revision,
+            }}
+            pluginsMap={pluginsMap}
+            storageMap={storageMap}
+            registry={registry}
+            stepRegistry={stepRegistry}
+            labels={labels}
+            {...wizard}
+            step={
+              wizard.step ??
+              (draft
+                ? Math.min(draft.stepIndex, scheme.steps.length - 1)
+                : undefined)
+            }
+          />
+        </FormUiContext.Provider>
+      </UiContext.Provider>
     </FormProvider>
   );
 };

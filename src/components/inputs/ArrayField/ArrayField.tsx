@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { useFieldArray, useFormState } from 'react-hook-form';
-import { cn } from '../../../commons/cn';
 import { type ArtisanLabels, defaultLabels } from '../../../commons/labels';
 import { errorAt } from '../../../engine/form/errors';
+import { useCx } from '../../ui/UiContext';
 
 interface ArrayFieldProps {
   name: string;
@@ -34,6 +34,7 @@ const ArrayField = ({
   className,
   labels = defaultLabels,
 }: ArrayFieldProps) => {
+  const cx = useCx();
   const { fields: rows, append, remove } = useFieldArray({ name });
   const { errors } = useFormState({ name });
   const error = errorAt(errors, name) ?? null;
@@ -42,19 +43,22 @@ const ArrayField = ({
   const canRemove = !disabled && rows.length > minItems;
 
   return (
-    <fieldset className={cn('mb-4', className)}>
-      <legend className="text-sm font-medium text-gray-700">{label}</legend>
-      {helperText && <p className="text-sm text-gray-500">{helperText}</p>}
-      <ul className="mt-2 space-y-3">
+    <fieldset
+      className={cx('field', className)}
+      data-invalid={!!error || undefined}
+    >
+      <legend className={cx('groupLabel')}>{label}</legend>
+      {helperText && <p className={cx('description')}>{helperText}</p>}
+      <ul className={cx('arrayList')}>
         {rows.map((row, i) => (
-          <li key={row.id} className="rounded-md border border-gray-200 p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium">
+          <li key={row.id} className={cx('arrayItem')}>
+            <div className={cx('arrayItemHeader')}>
+              <span className={cx('arrayItemTitle')}>
                 {labels.itemTitle(i + 1)}
               </span>
               <button
                 type="button"
-                className="text-sm underline disabled:opacity-50"
+                className={cx('link')}
                 disabled={!canRemove}
                 onClick={() => remove(i)}
                 aria-label={labels.removeItem(i + 1)}
@@ -70,12 +74,12 @@ const ArrayField = ({
         type="button"
         disabled={!canAdd}
         onClick={() => append(emptyRow())}
-        className="mt-3 rounded border px-3 py-1 text-sm hover:bg-gray-100 disabled:opacity-50"
+        className={cx('smallButton')}
       >
         {addLabel ?? labels.addItem}
       </button>
       {error && (
-        <p className="mt-2 text-sm text-red-600" aria-live="polite">
+        <p className={cx('error')} aria-live="polite">
           {error}
         </p>
       )}

@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
-import { cn } from '../../../commons/cn';
 import { useArtisanField } from '../../../engine/form/useArtisanField';
+import { useCx } from '../../ui/UiContext';
 
 interface SelectProps {
   name: string;
@@ -12,18 +12,16 @@ interface SelectProps {
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ name, options, disabled, className }, ref) => {
     const [field] = useArtisanField<string>(name);
+    const cx = useCx();
 
     return (
-      <div className="relative inline-block w-full">
+      <div className={cx('selectWrap')}>
         <select
           {...field}
           value={field.value ?? ''}
           ref={ref}
           disabled={disabled}
-          className={cn(
-            'block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline disabled:bg-gray-100 disabled:text-gray-500 transition ease-in-out duration-150',
-            className,
-          )}
+          className={cx('select', className)}
         >
           {options.map((option) => (
             <option key={option.value} value={option.value}>
@@ -31,10 +29,9 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             </option>
           ))}
         </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+        <div className={cx('selectIcon')}>
           <svg
             aria-hidden="true"
-            className="fill-current h-4 w-4"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
           >

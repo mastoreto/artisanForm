@@ -18,8 +18,15 @@ import Rating from '../inputs/Rating/Rating';
 import Select from '../inputs/Select/Select';
 import Text from '../inputs/Text/Text';
 import Textarea from '../inputs/Textarea/Textarea';
+import InputBridge from '../ui/InputBridge';
+import type { ArtisanComponents, OverridableInputType } from '../ui/types';
+import type { Cx } from '../ui/UiContext';
 
 export interface FieldContext {
+  /** Class names for the default UI (`af-*` + the consumer's `classNames`). */
+  cx: Cx;
+  /** Replacement components from the `components` prop. */
+  components?: ArtisanComponents;
   labels: ArtisanLabels;
   /** The registry in use (lets container fields render their children). */
   registry: FieldRegistry;
@@ -45,6 +52,36 @@ export interface FieldDefinition {
 }
 
 export type FieldRegistry = Record<string, FieldDefinition>;
+
+/** Fails early, with the type name, when a custom field lacks a required part. */
+export const assertFieldRegistry = (registry: FieldRegistry): FieldRegistry => {
+  for (const [type, def] of Object.entries(registry)) {
+    for (const part of ['render', 'initialValues', 'rules'] as const) {
+      if (typeof def?.[part] !== 'function')
+        throw new Error(
+          `Field type "${type}" is incomplete: it needs a \`${part}\` function`,
+        );
+    }
+  }
+  return registry;
+};
+
+/**
+ * Renders a field: the consumer's replacement input for its `type` (through
+ * the neutral `ArtisanInputProps` contract) or the registry's own render.
+ */
+export const renderField = (
+  def: FieldDefinition,
+  f: FieldSchema,
+  ctx: FieldContext,
+): ReactNode => {
+  const Override = ctx.components?.inputs?.[f.type as OverridableInputType];
+  return Override ? (
+    <InputBridge Component={Override} field={f} />
+  ) : (
+    def.render(f, ctx)
+  );
+};
 
 const textProps = (f: FieldSchema) => ({
   id: f.name,
@@ -188,13 +225,6 @@ const content = (render: FieldDefinition['render']): FieldDefinition => ({
   render,
 });
 
-const calloutStyle = {
-  info: 'border-blue-300 bg-blue-50 text-blue-900',
-  success: 'border-green-300 bg-green-50 text-green-900',
-  warning: 'border-yellow-300 bg-yellow-50 text-yellow-900',
-  error: 'border-red-300 bg-red-50 text-red-900',
-} as const;
-
 const optionsOf = (f: FieldSchema) => f.options ?? [];
 
 const arrayDefinition: FieldDefinition = {
@@ -247,13 +277,11 @@ const arrayDefinition: FieldDefinition = {
             if (s.endName) row.endName = `${f.name}.${i}.${s.endName}`;
             const def = definitionOf(ctx.registry, s);
             return (
-              <div key={path} className="mb-3">
+              <div key={path} className={ctx.cx('arrayRow')}>
                 {def.groupLabel && (
-                  <span className="block text-sm font-medium text-gray-700">
-                    {s.label}
-                  </span>
+                  <span className={ctx.cx('groupLabel')}>{s.label}</span>
                 )}
-                {def.render(row, ctx)}
+                {renderField(def, row, ctx)}
               </div>
             );
           })
@@ -265,19 +293,22 @@ const arrayDefinition: FieldDefinition = {
 
 export const defaultFieldRegistry: FieldRegistry = {
   array: arrayDefinition,
-  heading: content((f) => (
-    <h3 className="text-base font-semibold">{f.label}</h3>
+  heading: content((f, ctx) => (
+    <h3 className={ctx.cx('heading')}>{f.label}</h3>
   )),
-  paragraph: content((f) => <p className="text-sm text-gray-600">{f.label}</p>),
-  callout: content((f) => (
+  paragraph: content((f, ctx) => (
+    <p className={ctx.cx('paragraph')}>{f.label}</p>
+  )),
+  callout: content((f, ctx) => (
     <p
       role={f.variant === 'error' || f.variant === 'warning' ? 'alert' : 'note'}
-      className={`rounded-md border p-3 text-sm ${calloutStyle[f.variant ?? 'info']}`}
+      className={ctx.cx('callout')}
+      data-variant={f.variant ?? 'info'}
     >
       {f.label}
     </p>
   )),
-  divider: content(() => <hr className="border-gray-200" />),
+  divider: content((_, ctx) => <hr className={ctx.cx('divider')} />),
   time: dateLike('time'),
   datetime: dateLike('datetime-local'),
   month: dateLike('month'),
@@ -302,10 +333,10 @@ export const defaultFieldRegistry: FieldRegistry = {
         ),
       };
     },
-    render: (f, { labels }) => {
+    render: (f, { labels, cx }) => {
       const end = f.endName ?? `${f.name}End`;
       return (
-        <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+        <div className={cx('dateRange')}>
           <DateInput
             {...textProps(f)}
             inputProps={{ min: f.minDate, max: f.maxDate }}
@@ -561,7 +592,7 @@ const unknownField: FieldDefinition = {
   initialValues: (f) => single(f),
   rules: () => ({}),
   render: (f) => (
-    <p role="alert" className="text-sm text-red-600">
+    <p role="alert" className="af-error">
       {`Unknown field type "${f.type}"`}
     </p>
   ),
