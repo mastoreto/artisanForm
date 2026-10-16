@@ -367,7 +367,10 @@ describe('incompatible drafts are never destroyed silently', () => {
         <ArtisanForm
           scheme={form([step('a')])}
           persistKey={KEY}
-          onSnapshotConflict={(c) => (reasons.push(c.reason), 'backup')}
+          onSnapshotConflict={(c) => {
+            reasons.push(c.reason);
+            return 'backup';
+          }}
           onSubmit={() => {}}
         />,
       );
