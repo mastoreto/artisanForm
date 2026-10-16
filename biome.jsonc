@@ -30,6 +30,21 @@
   },
   "overrides": [
     {
+      // Positional rows/boxes (no stable identity) and the combobox popup
+      // (custom listbox of the ARIA combobox pattern).
+      "includes": [
+        "src/components/ArtisanInputs/ArrayField/ArrayField.tsx",
+        "src/components/ArtisanInputs/Otp/Otp.tsx",
+        "src/components/ArtisanInputs/Combobox/Combobox.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": { "useSemanticElements": "off" },
+          "suspicious": { "noArrayIndexKey": "off" }
+        }
+      }
+    },
+    {
       // The scrollable terms text must be reachable with the keyboard.
       "includes": ["src/components/ArtisanForm/steps.tsx"],
       "linter": { "rules": { "a11y": { "noNoninteractiveTabindex": "off" } } }

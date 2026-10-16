@@ -76,9 +76,9 @@ const scheme: FormSchema = {
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `FormSchema`  | `steps: StepSchema[]`                                                                                                                                                                                                           |
 | `StepSchema`  | `title`, `fields: FieldSchema[]`                                                                                                                                                                                                |
-| `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `max?`, `pattern?`, `defaultValue?`, `autoComplete?`, `inputMode?`, `readOnly?`, `maxLength?`, `step?`, `minDate?`, `maxDate?`, `disabled?`, `helperText?`, `sameAs?`, `showIf?`, `dependentName?`, `dependentOptions?`, `loadDependentOptions?` |
+| `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `max?`, `pattern?`, `itemFields?`, `minItems?`, `maxItems?`, `defaultValue?`, `autoComplete?`, `inputMode?`, `readOnly?`, `maxLength?`, `step?`, `minDate?`, `maxDate?`, `disabled?`, `helperText?`, `sameAs?`, `showIf?`, `dependentName?`, `dependentOptions?`, `loadDependentOptions?` |
 
-Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `password`, `date`, `time`, `datetime`, `month`, `daterange`, `checkbox`, `switch`, `range`, `rating`, `otp`, `file`, `image`, `select`, `dynamicSelect`, `combobox`, `multiselect`, `check`, `radio`, y de contenido (sin valor): `heading`, `paragraph`, `callout`, `divider`.
+Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `password`, `date`, `time`, `datetime`, `month`, `daterange`, `checkbox`, `switch`, `range`, `rating`, `otp`, `file`, `image`, `select`, `dynamicSelect`, `combobox`, `multiselect`, `check`, `radio`, `array`, y de contenido (sin valor): `heading`, `paragraph`, `callout`, `divider`.
 
 - `required` → obligatorio (en `check`, al menos una opción).
 - `min` / `max` → largo del texto, o valor numérico en `number`. En campos opcionales vacíos no se validan.
@@ -88,6 +88,7 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 - **Fechas:** `date`, `time`, `datetime`, `month` aceptan `minDate`/`maxDate`; `daterange` guarda `name` (desde) y `endName` (hasta, validando que no sea anterior).
 - **`range`** (número, `min`/`max`/`step`), **`rating`** (estrellas, `length`), **`otp`** (`length`, `charset`).
 - **`combobox`** (un valor) y **`multiselect`** (varios, con chips): filtran `options` al escribir o llaman a `loadOptions(texto)` para buscar en tu API.
+- **`array`** (repetibles, "agregar otro"): `itemFields` define los campos de cada fila, `minItems`/`maxItems` acotan la cantidad y `addLabel` cambia el botón. El valor es una lista de objetos (`[{ name, mail }]`); cada fila se valida con las reglas de sus campos. No admite `showIf` ni arrays anidados dentro de una fila; si una fila tiene contraseñas, el campo no se guarda en borradores.
 - `checkbox`/`switch` guardan un booleano; con `required` deben estar activados.
 - `autoComplete`, `inputMode`, `readOnly`, `maxLength`, `step` se pasan al elemento nativo; `date` acepta `minDate`/`maxDate` (`YYYY-MM-DD`).
 - `defaultValue` → valor inicial (array en `check`, booleano en `checkbox`/`switch`). `disabled` y `helperText` aplican a todos los tipos.

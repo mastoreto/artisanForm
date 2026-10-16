@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import * as Yup from 'yup';
 import type { ArtisanLabels } from '../../commons/labels';
 import type { StorageMap } from '../../storage/types';
+import ArrayField from '../ArtisanInputs/ArrayField/ArrayField';
 import Check from '../ArtisanInputs/Check/Check';
 import Checkbox from '../ArtisanInputs/Checkbox/Checkbox';
 import Combobox from '../ArtisanInputs/Combobox/Combobox';
@@ -20,6 +21,8 @@ import type { FieldSchema } from './types';
 
 export interface FieldContext {
   labels: ArtisanLabels;
+  /** The registry in use (lets container fields render their children). */
+  registry: FieldRegistry;
   /** Storage adapters by key (see the `storage` prop of ArtisanForm). */
   storage: StorageMap;
 }
@@ -33,11 +36,12 @@ export interface FieldDefinition {
   rules: (
     field: FieldSchema,
     labels: ArtisanLabels,
+    registry?: FieldRegistry,
   ) => Record<string, Yup.AnySchema>;
   /** The wrapper renders the label (group-like fields without a native one). */
   groupLabel?: boolean;
-  /** Never written to drafts (e.g. passwords). */
-  secret?: boolean;
+  /** Never written to drafts (e.g. passwords). May depend on the field (arrays). */
+  secret?: boolean | ((field: FieldSchema, registry: FieldRegistry) => boolean);
 }
 
 export type FieldRegistry = Record<string, FieldDefinition>;
@@ -193,7 +197,74 @@ const calloutStyle = {
 
 const optionsOf = (f: FieldSchema) => f.options ?? [];
 
+const arrayDefinition: FieldDefinition = {
+  secret: (f, registry) =>
+    (f.itemFields ?? []).some((sub) => {
+      const secret = definitionOf(registry, sub).secret;
+      return typeof secret === 'function' ? secret(sub, registry) : !!secret;
+    }),
+  initialValues: (f) => ({
+    [f.name]: f.defaultValue ?? [],
+  }),
+  rules: (f, labels, registry = defaultFieldRegistry) => {
+    const shape: Record<string, Yup.AnySchema> = {};
+    for (const sub of f.itemFields ?? []) {
+      Object.assign(
+        shape,
+        definitionOf(registry, sub).rules(sub, labels, registry),
+      );
+    }
+    let a = Yup.array().of(Yup.object(shape));
+    if (f.minItems) a = a.min(f.minItems, labels.minItems(f.minItems));
+    if (f.maxItems) a = a.max(f.maxItems, labels.maxItems(f.maxItems));
+    return { [f.name]: a };
+  },
+  render: (f, ctx) => {
+    const sub = f.itemFields ?? [];
+    const rowOf = () =>
+      Object.assign(
+        {},
+        ...sub.map((s) => definitionOf(ctx.registry, s).initialValues(s)),
+      );
+    return (
+      <ArrayField
+        name={f.name}
+        label={f.label}
+        emptyRow={rowOf}
+        minItems={f.minItems}
+        maxItems={f.maxItems}
+        addLabel={f.addLabel}
+        disabled={f.disabled}
+        helperText={f.helperText}
+        labels={ctx.labels}
+        renderRow={(i) =>
+          sub.map((s) => {
+            const path = `${f.name}.${i}.${s.name}`;
+            const row = { ...s, name: path };
+            // Renamed copies keep every other prop; dependent names follow the row.
+            if (s.dependentName)
+              row.dependentName = `${f.name}.${i}.${s.dependentName}`;
+            if (s.endName) row.endName = `${f.name}.${i}.${s.endName}`;
+            const def = definitionOf(ctx.registry, s);
+            return (
+              <div key={path} className="mb-3">
+                {def.groupLabel && (
+                  <span className="block text-sm font-medium text-gray-700">
+                    {s.label}
+                  </span>
+                )}
+                {def.render(row, ctx)}
+              </div>
+            );
+          })
+        }
+      />
+    );
+  },
+};
+
 export const defaultFieldRegistry: FieldRegistry = {
+  array: arrayDefinition,
   heading: content((f) => (
     <h3 className="text-base font-semibold">{f.label}</h3>
   )),
@@ -494,6 +565,15 @@ const unknownField: FieldDefinition = {
       {`Unknown field type "${f.type}"`}
     </p>
   ),
+};
+
+/** Whether a field's value must never be persisted or echoed (passwords…). */
+export const isSecretField = (
+  registry: FieldRegistry,
+  field: FieldSchema,
+): boolean => {
+  const secret = definitionOf(registry, field).secret;
+  return typeof secret === 'function' ? secret(field, registry) : !!secret;
 };
 
 export const definitionOf = (

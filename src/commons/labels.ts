@@ -11,6 +11,11 @@ export interface ArtisanLabels {
   required: string;
   submitError: string;
   edit: string;
+  addItem: string;
+  removeItem: (n: number) => string;
+  itemTitle: (n: number) => string;
+  minItems: (n: number) => string;
+  maxItems: (n: number) => string;
   noResults: string;
   searching: string;
   dateTo: string;
@@ -71,6 +76,11 @@ export const defaultLabels: ArtisanLabels = {
   required: 'Campo requerido',
   submitError: 'No se pudo enviar el formulario',
   edit: 'Editar',
+  addItem: 'Agregar otro',
+  removeItem: (n) => `Quitar elemento ${n}`,
+  itemTitle: (n) => `Elemento ${n}`,
+  minItems: (n) => `Agregá al menos ${n}`,
+  maxItems: (n) => `Máximo ${n} elementos`,
   noResults: 'Sin resultados',
   searching: 'Buscando…',
   dateTo: 'Hasta',

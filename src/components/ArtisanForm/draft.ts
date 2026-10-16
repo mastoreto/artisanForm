@@ -3,6 +3,7 @@ import {
   defaultFieldRegistry,
   definitionOf,
   type FieldRegistry,
+  isSecretField,
 } from './fields';
 import type { FormSchema } from './types';
 
@@ -49,7 +50,7 @@ export const withoutSecrets = (
   const secret = new Set(
     scheme.steps.flatMap((s) =>
       fieldsOf(s)
-        .filter((f) => definitionOf(registry, f).secret)
+        .filter((f) => isSecretField(registry, f))
         .flatMap((f) =>
           Object.keys(definitionOf(registry, f).initialValues(f)),
         ),
