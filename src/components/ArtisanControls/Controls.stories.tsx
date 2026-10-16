@@ -9,7 +9,7 @@ interface Args {
   processStep: number;
 }
 
-const meta: Meta<Args> = {
+const meta: Meta<Args & { onNext?: () => void }> = {
   title: 'Controls/Artisan Controls',
   component: Controls,
   tags: ['autodocs'],

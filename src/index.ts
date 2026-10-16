@@ -1,3 +1,9 @@
+export { default as ArtisanForm } from './components/ArtisanForm/ArtisanForm';
+export type {
+  FieldSchema,
+  FormSchema,
+  StepSchema,
+} from './components/ArtisanForm/types';
 export { default as Controls } from './components/ArtisanControls/Controls';
 export { default as Check } from './components/ArtisanInputs/Check/Check';
 export { default as DateInput } from './components/ArtisanInputs/Date/Date';

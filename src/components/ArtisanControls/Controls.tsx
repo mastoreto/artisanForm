@@ -2,7 +2,12 @@ import React from 'react';
 import { cn } from '../../commons/cn';
 import { useArtisanStore } from '../../stores/useArtisanStore';
 
-const Controls: React.FC = (): JSX.Element => {
+interface ControlsProps {
+  /** Overrides the default advance (e.g. to validate the step first). */
+  onNext?: () => void;
+}
+
+const Controls = ({ onNext }: ControlsProps): JSX.Element => {
   const isFinalStep = useArtisanStore((state) => state.isFinalStep);
   const step = useArtisanStore((state) => state.step);
   const processStep = useArtisanStore((state) => state.processStep);
@@ -31,7 +36,7 @@ const Controls: React.FC = (): JSX.Element => {
       'focus:outline-none',
       'focus:ring-2',
       'focus:ring-blue-500',
-      'focus:ring-opacity-75'
+      'focus:ring-opacity-75',
     ),
   };
 
@@ -60,17 +65,13 @@ const Controls: React.FC = (): JSX.Element => {
         <button
           type="button"
           className={classes.button}
-          onClick={() => handleNext()}
+          onClick={() => (onNext ?? handleNext)()}
         >
           Siguiente
         </button>
       )}
       {isFinalStep && (
-        <button
-          type="submit"
-          className={classes.button}
-          onClick={() => console.log('Finalizar')}
-        >
+        <button type="submit" className={classes.button}>
           Finalizar
         </button>
       )}
