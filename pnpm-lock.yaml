@@ -24,6 +24,9 @@ importers:
       '@happy-dom/global-registrator':
         specifier: ^21.0.3
         version: 21.0.3
+      '@mercadopago/sdk-react':
+        specifier: ^1.0.7
+        version: 1.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@playwright/test':
         specifier: ^1.64.1
         version: 1.64.1
@@ -636,6 +639,15 @@ packages:
     peerDependencies:
       '@types/react': '>=16'
       react: '>=16'
+
+  '@mercadopago/sdk-js@0.0.3':
+    resolution: {integrity: sha512-kO48DNLHdfFAp3on12nuKdqNlEmw1x3+nM6wLd04BdWOXoFcAhkNMQV3AyUIanXdO/bB/dENakdacLT29297EQ==}
+
+  '@mercadopago/sdk-react@1.0.7':
+    resolution: {integrity: sha512-babuAgsi1pQU+jfIQX1Sl0efp2no64OU/9yYK+RDz0NvSyARe+/D9ih9GyDNwVJJZuAA2lS4GF06oSxDFS5HYg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@microsoft/api-extractor-model@7.29.6':
     resolution: {integrity: sha512-gC0KGtrZvxzf/Rt9oMYD2dHvtN/1KPEYsrQPyMKhLHnlVuO/f4AFN3E4toqZzD2pt4LhkKoYmL2H9tX3yCOyRw==}
@@ -3763,6 +3775,14 @@ snapshots:
       '@types/mdx': 2.0.13
       '@types/react': 18.3.11
       react: 18.3.1
+
+  '@mercadopago/sdk-js@0.0.3': {}
+
+  '@mercadopago/sdk-react@1.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@mercadopago/sdk-js': 0.0.3
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   '@microsoft/api-extractor-model@7.29.6(@types/node@22.7.5)':
     dependencies:

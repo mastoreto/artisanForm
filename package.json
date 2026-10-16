@@ -11,6 +11,7 @@
     "@biomejs/biome": "2.5.15",
     "@chromatic-com/storybook": "^1.9.0",
     "@happy-dom/global-registrator": "^21.0.3",
+    "@mercadopago/sdk-react": "^1.0.7",
     "@playwright/test": "^1.64.1",
     "@storybook/addon-essentials": "^8.3.4",
     "@storybook/addon-interactions": "^8.3.4",
@@ -49,13 +50,14 @@
     "zustand": "^5.0.1"
   },
   "peerDependencies": {
+    "@stripe/react-stripe-js": ">=2",
+    "@stripe/stripe-js": ">=4",
     "formik": "^2.4.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "yup": "^1.4.0",
     "zustand": "^5.0.1",
-    "@stripe/stripe-js": ">=4",
-    "@stripe/react-stripe-js": ">=2"
+    "@mercadopago/sdk-react": ">=0.0.19"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -91,6 +93,11 @@
       "types": "./dist/payments/lemonsqueezy.d.ts",
       "import": "./dist/payments/lemonsqueezy.es.js",
       "require": "./dist/payments/lemonsqueezy.cjs"
+    },
+    "./payments/mercadopago": {
+      "types": "./dist/payments/mercadopago.d.ts",
+      "import": "./dist/payments/mercadopago.es.js",
+      "require": "./dist/payments/mercadopago.cjs"
     }
   },
   "peerDependenciesMeta": {
@@ -98,6 +105,9 @@
       "optional": true
     },
     "@stripe/react-stripe-js": {
+      "optional": true
+    },
+    "@mercadopago/sdk-react": {
       "optional": true
     }
   }
