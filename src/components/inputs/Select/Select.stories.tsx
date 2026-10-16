@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { withFormik } from '../../../../.storybook/withFormik';
+import { withForm } from '../../../../.storybook/withForm';
 import Select from './Select';
 
 const options = [
@@ -20,5 +20,5 @@ export default meta;
 type Story = StoryObj<typeof Select>;
 
 export const Default: Story = {
-  decorators: [withFormik({ field: '1' })],
+  decorators: [withForm({ field: '1' })],
 };

@@ -1,6 +1,6 @@
 # ArtisanForm
 
-React library for building multi-step forms (wizards) from a declarative definition (`scheme`). It ships ready-made inputs styled with Tailwind, validation with Formik + Yup and step state in Zustand. It is developed and documented with Storybook.
+React library for building multi-step forms (wizards) from a declarative definition (`scheme`). It ships ready-made inputs styled with Tailwind, validation with React Hook Form + Yup and step state in Zustand. It is developed and documented with Storybook.
 
 > 🌐 Spanish version: [docs/es/README.md](docs/es/README.md)
 
@@ -13,7 +13,7 @@ React library for building multi-step forms (wizards) from a declarative definit
 | UI                     | React 18, TypeScript (strict)                               |
 | Styles                 | Tailwind CSS 3, `clsx` + `tailwind-merge`                   |
 | Step state             | Zustand 5                                                   |
-| Forms and validation   | Formik 2 + Yup                                              |
+| Forms and validation   | React Hook Form 7 + Yup                                     |
 | Documentation          | Storybook 8 (`@storybook/react-vite`)                       |
 | Build                  | Vite 5 in library mode + `vite-plugin-dts`                  |
 | Tests                  | `bun test` + Testing Library (happy-dom), Playwright (e2e)  |
@@ -339,24 +339,24 @@ The components use Tailwind classes. There are two ways to load them:
 
 ## Installation
 
-`react`, `react-dom`, `formik`, `yup` and `zustand` are `peerDependencies`:
+`react`, `react-dom`, `react-hook-form`, `yup` and `zustand` are `peerDependencies`:
 
 ```bash
-pnpm add artisanform react react-dom formik yup zustand
+pnpm add artisanform react react-dom react-hook-form yup zustand
 ```
 
 ## Public API (`src/index.ts`)
 
 `ArtisanForm`, the standalone inputs (`TextInput`, `Textarea`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`), `defaultFieldRegistry`, `defaultStepRegistry`, `defineForm`, `parseArtisanSchema`, `normalizeArtisanSchema`, `evaluateCondition`, `presignedPut`, `cloudinary`, `mockStorage`, `polling`, `sse`, `websocket`, `callback`, `mockPayment`, `useArtisanStore`, `cn`, `defaultLabels` and the types (`ArtisanSchemaV1`, `FormSchema`, `StepSchema`, `FieldSchema`, `FieldDefinition`, `StepDefinition`, `ArtisanExtensions`, `ArtisanSnapshotV1`, `StorageAdapter`, `PaymentPlugin`, `WaitStrategy`, `ArtisanLabels`…). Payment plugins are imported from `artisanform/payments/<provider>`.
 
-Standalone inputs use Formik's `useField`: they take `name` (not `value`/`onChange`) and **must be rendered inside a `<Formik>`**. They show the Yup error once the field has been touched.
+Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must be rendered inside a React Hook Form `<FormProvider>`** (`ArtisanForm` provides one). They show the Yup error once the field has been touched.
 
 ## Structure
 
 ```
 .
 ├── .github/                 Issue and PR templates
-├── .storybook/              Storybook config + withFormik (stories decorator)
+├── .storybook/              Storybook config + withForm (stories decorator)
 ├── docs/                    Guides (English); docs/es/ has the Spanish versions
 ├── e2e/                     Playwright tests (against the playground)
 ├── playground/              React test app; scenarios in src/scenarios/
@@ -384,7 +384,7 @@ Standalone inputs use Formik's `useField`: they take `name` (not `value`/`onChan
 
 ### Done
 
-- A `scheme`-driven wizard with per-step validation (Formik + Yup), conditionals, drafts (`persistKey`), `labels`, theming and accessibility.
+- A `scheme`-driven wizard with per-step validation (React Hook Form + Yup), conditionals, drafts (`persistKey`), `labels`, theming and accessibility.
 - 30+ field types (text, dates, selection, combobox, files, repeatable rows, content) and a registry for custom types.
 - Step engine with `terms`, `payment`, `pending`, `review`, `result` and `custom`.
 - Files: `StorageAdapter` + adapters for S3/R2/Backblaze (presigned URL) and Cloudinary.
@@ -436,6 +436,6 @@ Details in [AGENTS.md](AGENTS.md) ([Spanish](docs/es/AGENTS.md)). Summary:
 
 - Biome: 2 spaces, single quotes, `;`, trailing comma `all`, 80 columns, LF.
 - One component per folder with its `*.stories.tsx`; `export default`.
-- Inputs with `forwardRef` when they expose an element, Formik's `useField` and basic accessibility (`label htmlFor`, `aria-invalid`, `aria-describedby`).
+- Inputs with `forwardRef` when they expose an element, the `useArtisanField` binding and basic accessibility (`label htmlFor`, `aria-invalid`, `aria-describedby`).
 - Styles only with Tailwind + `cn()`. Global state only in `useArtisanStore`.
 - Everything generated in the repository (code, comments, docs, commits) is in English; Spanish documentation lives in `docs/es/`. Library texts are never hard-coded: built-in defaults are English and every one is overridable through `labels`.

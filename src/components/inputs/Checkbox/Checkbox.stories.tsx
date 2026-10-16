@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import * as Yup from 'yup';
-import { withFormik } from '../../../../.storybook/withFormik';
+import { withForm } from '../../../../.storybook/withForm';
 import Checkbox from './Checkbox';
 
 const meta: Meta<typeof Checkbox> = {
@@ -15,18 +15,18 @@ export default meta;
 type Story = StoryObj<typeof Checkbox>;
 
 export const Default: Story = {
-  decorators: [withFormik({ accept: false })],
+  decorators: [withForm({ accept: false })],
 };
 
 export const Switch: Story = {
   args: { variant: 'switch', label: 'Receive news' },
-  decorators: [withFormik({ accept: false })],
+  decorators: [withForm({ accept: false })],
 };
 
 /** Submit unchecked to see the required error. */
 export const Required: Story = {
   decorators: [
-    withFormik(
+    withForm(
       { accept: false },
       { accept: Yup.boolean().oneOf([true], 'Required field') },
     ),

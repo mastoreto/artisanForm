@@ -1,6 +1,6 @@
-import { useField } from 'formik';
 import { useId } from 'react';
 import { cn } from '../../../commons/cn';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 
 interface RatingProps {
   name: string;
@@ -21,14 +21,14 @@ const Rating = ({
   helperText,
   className,
 }: RatingProps) => {
-  const [field, meta, helpers] = useField<number | string>(name);
+  const [field, meta, helpers] = useArtisanField<number | string>(name);
   const value = Number(field.value) || 0;
   const error = meta.touched && meta.error ? meta.error : null;
   const labelId = useId();
 
   const choose = (n: number) => {
     helpers.setValue(n === value ? '' : n);
-    helpers.setTouched(true, false);
+    helpers.setTouched();
   };
 
   return (

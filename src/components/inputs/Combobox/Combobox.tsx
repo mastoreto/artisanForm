@@ -1,8 +1,8 @@
-import { useField } from 'formik';
 import { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '../../../commons/cn';
 import { type ArtisanLabels, defaultLabels } from '../../../commons/labels';
 import { theme } from '../../../commons/theme';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 
 interface Option {
   value: string;
@@ -40,7 +40,7 @@ const Combobox = ({
   className,
   labels = defaultLabels,
 }: ComboboxProps) => {
-  const [field, meta, helpers] = useField<string | string[]>(name);
+  const [field, meta, helpers] = useArtisanField<string | string[]>(name);
   const listId = useId();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -96,12 +96,12 @@ const Combobox = ({
       setQuery('');
       setOpen(false);
     }
-    helpers.setTouched(true, false);
+    helpers.setTouched();
   };
 
   const remove = (v: string) => {
     helpers.setValue(selected.filter((x) => x !== v));
-    helpers.setTouched(true, false);
+    helpers.setTouched();
   };
 
   const onKeyDown = (key: string, prevent: () => void) => {
@@ -179,7 +179,7 @@ const Combobox = ({
           onBlur={() => {
             // Let a click on an option land before closing.
             setTimeout(() => setOpen(false), 120);
-            helpers.setTouched(true, false);
+            helpers.setTouched();
           }}
           onKeyDown={(e) => onKeyDown(e.key, () => e.preventDefault())}
           className={cn(

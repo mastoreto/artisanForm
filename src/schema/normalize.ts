@@ -62,7 +62,7 @@ const DROPPED = new Set([
  *
  * Deterministic and idempotent (`normalize(normalize(x).schema)` equals
  * `normalize(x).schema`), it never mutates its input, runs no callbacks, makes
- * no requests and knows nothing about Formik, Yup or React.
+ * no requests and knows nothing about React Hook Form, Yup or React.
  *
  * - A v1 schema is validated (throws `ArtisanSchemaError` if invalid) and given defaults.
  * - A 0.2.0 `FormSchema` is adapted: `kind`→`type`, `showIf`→`visibleWhen`,

@@ -13,7 +13,7 @@ Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se 
 
 ## Stack
 
-React 18 · TypeScript (strict) · Tailwind 3 · Zustand (estado de pasos) · Formik + Yup (validación) · Storybook 8 · Vite · pnpm (hay `pnpm-lock.yaml`).
+React 18 · TypeScript (strict) · Tailwind 3 · Zustand (estado de pasos) · React Hook Form + Yup (validación) · Storybook 8 · Vite · pnpm (hay `pnpm-lock.yaml`).
 
 ## Comandos
 
@@ -33,15 +33,16 @@ Verificación mínima de un cambio: `pnpm lint` + `pnpm typecheck` + `pnpm build
 ```
 src/
   index.ts               entry de la lib (solo exports públicos)
-  schema/                contrato público v1 (JSON). NO importa react/formik/yup/zustand (test + regla de Biome)
+  schema/                contrato público v1 (JSON). NO importa react/react-hook-form/yup/zustand (test + regla de Biome)
     contract/            tipos, fields, steps, define, specs, conditions, json, errors
     legacy/              la forma 0.2.0 (types.ts) + el adaptador a v1 (adapter.ts)
     parser.ts · normalize.ts
     __tests__/           + fixtures/ (esquemas 0.2.0 que reflejan el playground)
   persistence/           ArtisanSnapshotV1 y storage de borradores (tampoco importa el motor)
-  engine/                ejecuta un esquema; acá viven Formik/Yup/Zustand
+  engine/                ejecuta un esquema; acá viven React Hook Form/Yup/Zustand
     project.ts           esquema normalizado → la forma que consume el wizard (la única costura que conoce ambas)
-    buildSchema.ts · conditions.ts · draft.ts · extensions.ts · store/useArtisanStore.ts
+    form/                useArtisanForm (un solo useForm), useArtisanField (binding de inputs), errors, validators
+    buildSchema.ts · conditions.ts · draft.ts · extensions.ts · navigation.ts · store/useArtisanStore.ts
   components/
     ArtisanForm/         ArtisanForm.tsx (público) · Wizard.tsx · Stepper.tsx · __tests__/ (integración)
     Controls/            botones Anterior / Siguiente / Finalizar

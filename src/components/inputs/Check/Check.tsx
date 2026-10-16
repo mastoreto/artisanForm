@@ -1,6 +1,6 @@
-import { useField } from 'formik';
 import { cn } from '../../../commons/cn';
 import { theme } from '../../../commons/theme';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 
 interface Option {
   label: string;
@@ -17,7 +17,7 @@ interface CheckProps {
 }
 
 const Check = ({ name, options, disabled, label, className }: CheckProps) => {
-  const [field, meta, helpers] = useField<string[]>(name);
+  const [field, meta, helpers] = useArtisanField<string[]>(name);
   const error = meta.touched && meta.error ? meta.error : null;
   const selected = field.value ?? [];
 
@@ -27,7 +27,7 @@ const Check = ({ name, options, disabled, label, className }: CheckProps) => {
         ? selected.filter((item) => item !== value)
         : [...selected, value],
     );
-    helpers.setTouched(true, false);
+    helpers.setTouched();
   };
 
   return (

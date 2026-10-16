@@ -1,6 +1,6 @@
-import { useField } from 'formik';
 import { useRef } from 'react';
 import { cn } from '../../../commons/cn';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 
 interface OtpProps {
   id: string;
@@ -26,7 +26,7 @@ const Otp = ({
   helperText,
   className,
 }: OtpProps) => {
-  const [field, meta, helpers] = useField<string>(name);
+  const [field, meta, helpers] = useArtisanField<string>(name);
   const error = meta.touched && meta.error ? meta.error : null;
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const chars = Array.from({ length }, (_, i) => (field.value ?? '')[i] ?? '');
@@ -93,7 +93,7 @@ const Otp = ({
             onChange={(e) => onChange(i, e.target.value)}
             onKeyDown={(e) => onKeyDown(i, e.key)}
             onFocus={(e) => e.target.select()}
-            onBlur={() => helpers.setTouched(true, false)}
+            onBlur={() => helpers.setTouched()}
             className={cn(
               'h-10 w-10 rounded-md border text-center text-lg',
               error ? 'border-red-500' : 'border-gray-300',

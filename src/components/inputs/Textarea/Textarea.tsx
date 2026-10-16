@@ -1,7 +1,7 @@
-import { useField } from 'formik';
 import { forwardRef, type TextareaHTMLAttributes } from 'react';
 import { cn } from '../../../commons/cn';
 import { theme } from '../../../commons/theme';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 
 interface TextareaProps {
   id: string;
@@ -29,7 +29,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     },
     ref,
   ) => {
-    const [field, meta] = useField<string>(name);
+    const [field, meta] = useArtisanField<string>(name);
     const error = meta.touched && meta.error ? meta.error : null;
     const describedBy =
       [error && `${id}-error`, helperText && `${id}-help`]

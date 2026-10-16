@@ -2,7 +2,7 @@
 
 > 🌐 Versión en español de [README.md](../../README.md) (el original, en inglés, es la referencia). Si cambia el original, actualizá esta copia.
 
-Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con Tailwind, validación con Formik + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
+Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con Tailwind, validación con React Hook Form + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
 
 > **Estado:** versión 0.2.0: wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable y plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal). Aún no publicada en ningún registro. Ver [Estado del proyecto](#estado-del-proyecto).
 
@@ -13,7 +13,7 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 | UI                       | React 18, TypeScript (strict)               |
 | Estilos                  | Tailwind CSS 3, `clsx` + `tailwind-merge`   |
 | Estado de pasos          | Zustand 5                                   |
-| Formularios y validación | Formik 2 + Yup                              |
+| Formularios y validación | React Hook Form 7 + Yup                     |
 | Documentación            | Storybook 8 (`@storybook/react-vite`)       |
 | Build                    | Vite 5 en modo librería + `vite-plugin-dts` |
 | Tests                    | `bun test` + Testing Library (happy-dom), Playwright (e2e) |
@@ -339,24 +339,24 @@ Los componentes usan clases de Tailwind. Hay dos formas de cargarlas:
 
 ## Instalación
 
-`react`, `react-dom`, `formik`, `yup` y `zustand` son `peerDependencies`:
+`react`, `react-dom`, `react-hook-form`, `yup` y `zustand` son `peerDependencies`:
 
 ```bash
-pnpm add artisanform react react-dom formik yup zustand
+pnpm add artisanform react react-dom react-hook-form yup zustand
 ```
 
 ## API pública (`src/index.ts`)
 
 `ArtisanForm`, los inputs sueltos (`TextInput`, `Textarea`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`), `defaultFieldRegistry`, `defaultStepRegistry`, `defineForm`, `parseArtisanSchema`, `normalizeArtisanSchema`, `evaluateCondition`, `presignedPut`, `cloudinary`, `mockStorage`, `polling`, `sse`, `websocket`, `callback`, `mockPayment`, `useArtisanStore`, `cn`, `defaultLabels` y los tipos (`ArtisanSchemaV1`, `FormSchema`, `StepSchema`, `FieldSchema`, `FieldDefinition`, `StepDefinition`, `ArtisanExtensions`, `ArtisanSnapshotV1`, `StorageAdapter`, `PaymentPlugin`, `WaitStrategy`, `ArtisanLabels`…). Los plugins de pago se importan de `artisanform/payments/<proveedor>`.
 
-Los inputs sueltos usan `useField` de Formik: reciben `name` (no `value`/`onChange`) y **deben renderizarse dentro de un `<Formik>`**. Muestran el error de Yup cuando el campo fue tocado.
+Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y **deben renderizarse dentro de un `<FormProvider>` de React Hook Form** (`ArtisanForm` ya provee uno). Muestran el error de Yup cuando el campo fue tocado.
 
 ## Estructura
 
 ```
 .
 ├── .github/                 Templates de issues y PR
-├── .storybook/              Config de Storybook + withFormik (decorator para stories)
+├── .storybook/              Config de Storybook + withForm (decorator para stories)
 ├── docs/                    Guías (inglés); docs/es/ tiene las versiones en español
 ├── e2e/                     Tests de Playwright (contra el playground)
 ├── playground/              App React de prueba; escenarios en src/scenarios/
@@ -384,7 +384,7 @@ Los inputs sueltos usan `useField` de Formik: reciben `name` (no `value`/`onChan
 
 ### Hecho
 
-- Wizard por `scheme` con validación por paso (Formik + Yup), condicionales (`showIf`), borrador (`persistKey`), `labels`, theming y accesibilidad.
+- Wizard por `scheme` con validación por paso (React Hook Form + Yup), condicionales (`showIf`), borrador (`persistKey`), `labels`, theming y accesibilidad.
 - Más de 30 tipos de campo (texto, fechas, selección, combobox, archivos, repetibles, contenido) y registro para tipos propios.
 - Motor de pasos con `terms`, `payment`, `pending`, `review`, `result` y `custom`.
 - Archivos: `StorageAdapter` + adapters para S3/R2/Backblaze (URL prefirmada) y Cloudinary.
@@ -436,6 +436,6 @@ Detalle en [AGENTS.md](AGENTS.md) (original en inglés: [AGENTS.md](../../AGENTS
 
 - Biome: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 columnas, LF.
 - Un componente por carpeta con su `*.stories.tsx`; `export default`.
-- Inputs con `forwardRef` cuando exponen un elemento, `useField` de Formik y accesibilidad básica (`label htmlFor`, `aria-invalid`, `aria-describedby`).
+- Inputs con `forwardRef` cuando exponen un elemento, el binding `useArtisanField` y accesibilidad básica (`label htmlFor`, `aria-invalid`, `aria-describedby`).
 - Estilos solo con Tailwind + `cn()`. Estado global solo en `useArtisanStore`.
 - Todo lo generado en el repositorio (código, comentarios, docs, commits) va en inglés; la documentación en español vive en `docs/es/`. Los textos de la librería nunca están hardcodeados: los valores por defecto son inglés y todos se pueden sobrescribir con `labels`.

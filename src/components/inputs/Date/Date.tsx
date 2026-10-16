@@ -1,7 +1,7 @@
-import { useField } from 'formik';
 import { forwardRef, type InputHTMLAttributes } from 'react';
 import { cn } from '../../../commons/cn';
 import { theme } from '../../../commons/theme';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 
 interface DateInputProps {
   id: string;
@@ -32,7 +32,7 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
     },
     ref,
   ) => {
-    const [field, meta] = useField<string>(name);
+    const [field, meta] = useArtisanField<string>(name);
     const error = meta.touched && meta.error ? meta.error : null;
     const describedBy =
       [error && `${id}-error`, helperText && `${id}-help`]

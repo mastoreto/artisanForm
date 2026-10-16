@@ -1,14 +1,12 @@
-import {
-  Form,
-  type FormikValues,
-  setNestedObjectValues,
-  useFormikContext,
-} from 'formik';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 import type { ArtisanLabels } from '../../commons/labels';
 import { fieldNames } from '../../engine/buildSchema';
 import { visibleFields, visibleSteps } from '../../engine/conditions';
 import { saveDraft, withoutSecrets } from '../../engine/draft';
+import type { FormValues } from '../../engine/form/types';
+import { FormUiContext } from '../../engine/form/validators';
+import { resolveStep } from '../../engine/navigation';
 import { useArtisanStore } from '../../engine/store/useArtisanStore';
 import type { StorageMap } from '../../integrations/storage/types';
 import type { BeforeNextResult, FormSchema } from '../../schema/legacy/types';
@@ -21,23 +19,6 @@ import {
 } from '../steps/registry';
 import Stepper from './Stepper';
 
-const ValuesWatcher = ({
-  onChange,
-}: {
-  onChange: (values: FormikValues) => void;
-}) => {
-  const { values } = useFormikContext<FormikValues>();
-  const first = useRef(true);
-  useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    onChange(values);
-  }, [values]);
-  return null;
-};
-
 export interface WizardProps {
   scheme: FormSchema;
   snapshotMeta: { formId: string; revision?: number };
@@ -49,13 +30,15 @@ export interface WizardProps {
   stepRegistry: StepRegistry;
   labels: ArtisanLabels;
   className?: string;
-  onChange?: (values: FormikValues) => void;
+  onChange?: (values: FormValues) => void;
+  /** Runs once the last step is valid (receives every value; the caller filters). */
+  onSubmitValues: (values: FormValues) => Promise<void>;
   onStepChange?: (step: number) => void;
   step?: number;
   persistKey?: string;
 }
 
-/** Renders the current step; lives inside <Formik> to read live values. */
+/** Renders the current step; lives inside the form provider to read live values. */
 export const Wizard = ({
   scheme,
   snapshotMeta,
@@ -67,19 +50,22 @@ export const Wizard = ({
   labels,
   className,
   onChange,
+  onSubmitValues,
   onStepChange,
   step: stepProp,
   persistKey,
 }: WizardProps) => {
-  const {
-    values,
-    validateForm,
-    setTouched,
-    touched,
-    isSubmitting,
-    submitForm,
-    setFieldValue,
-  } = useFormikContext<FormikValues>();
+  const { control, trigger, setValue, handleSubmit, watch } =
+    useFormContext<FormValues>();
+  const values = useWatch({ control }) as FormValues;
+  const ui = useContext(FormUiContext);
+  const submitForm = () => handleSubmit(onSubmitValues)();
+
+  useEffect(() => {
+    if (!onChange) return;
+    const subscription = watch((all) => onChange(all as FormValues));
+    return () => subscription.unsubscribe();
+  }, [watch, onChange]);
   const step = useArtisanStore((s) => s.step);
   const setStep = useArtisanStore((s) => s.setStep);
   const setProcessStep = useArtisanStore((s) => s.setProcessStep);
@@ -100,7 +86,13 @@ export const Wizard = ({
   const [focusTick, setFocusTick] = useState(0);
   const [stepError, setStepError] = useState<string | null>(null);
 
+  // Bumped on every navigation: an async `beforeNext` that resolves after
+  // the user already moved must not move them again.
+  const navigation = useRef(0);
+  const busy = useRef(false);
   const goTo = (index: number) => {
+    navigation.current += 1;
+    ui?.setAttempted(false);
     setStepError(null);
     setStep(index);
     setProcessStep(index);
@@ -120,6 +112,19 @@ export const Wizard = ({
     onStepChange?.(step);
   }, [step]);
 
+  // A step that stops being visible while active must not leave the wizard
+  // pointing at nothing (or at a different step).
+  const activeId = useRef(current?.id);
+  useEffect(() => {
+    activeId.current = steps[step]?.id;
+  }, [step]);
+  useEffect(() => {
+    const target = resolveStep(steps, step, activeId.current);
+    if (target === step) return;
+    activeId.current = steps[target]?.id;
+    goTo(target);
+  }, [steps.map((s) => s.id).join('|')]);
+
   useEffect(() => {
     setIsFinalStep(step === finalIndex);
   }, [step, finalIndex]);
@@ -137,13 +142,14 @@ export const Wizard = ({
       goTo(resultIndex);
   }, [submitState]);
 
+  const lastSaved = useRef('');
   useEffect(() => {
-    if (persistKey)
-      saveDraft(
-        { persistKey, ...snapshotMeta },
-        steps[step]?.id,
-        withoutSecrets(scheme, values, registry),
-      );
+    if (!persistKey) return;
+    const safe = withoutSecrets(scheme, values, registry);
+    const fingerprint = JSON.stringify([steps[step]?.id, safe]);
+    if (fingerprint === lastSaved.current) return;
+    lastSaved.current = fingerprint;
+    saveDraft({ persistKey, ...snapshotMeta }, steps[step]?.id, safe);
   }, [values, step]);
 
   // After a blocked "Next", move focus to the first invalid field.
@@ -161,25 +167,22 @@ export const Wizard = ({
   // Validate the step's visible fields, run `beforeNext`, then advance (or
   // submit when this is the last step).
   const next = async () => {
+    if (busy.current) return;
+    busy.current = true;
+    try {
+      await advance();
+    } finally {
+      busy.current = false;
+    }
+  };
+
+  const advance = async () => {
+    const token = navigation.current;
     const names = fields.flatMap((f) => fieldNames(f, registry));
-    if (names.length > 0) {
-      const errors = await validateForm();
-      await setTouched({
-        ...touched,
-        // Nested values (array rows) need a nested `touched` to show their errors.
-        ...Object.fromEntries(
-          names.map((n) => [
-            n,
-            typeof values[n] === 'object' && values[n] !== null
-              ? setNestedObjectValues(values[n], true)
-              : true,
-          ]),
-        ),
-      });
-      if (names.some((n) => errors[n])) {
-        setFocusTick((t) => t + 1);
-        return;
-      }
+    if (names.length > 0 && !(await trigger(names))) {
+      ui?.setAttempted(true);
+      setFocusTick((t) => t + 1);
+      return;
     }
     if (current.beforeNext) {
       let outcome: BeforeNextResult;
@@ -188,6 +191,7 @@ export const Wizard = ({
       } catch (e) {
         outcome = { error: e instanceof Error ? e.message : String(e) };
       }
+      if (token !== navigation.current) return;
       if (outcome?.error) {
         setStepError(outcome.error);
         return;
@@ -209,7 +213,7 @@ export const Wizard = ({
     steps,
     values,
     setFieldValue: (name, value) => {
-      setFieldValue(name, value);
+      setValue(name, value, { shouldDirty: true });
     },
     labels,
     fieldRegistry: registry,
@@ -226,7 +230,7 @@ export const Wizard = ({
   };
 
   return (
-    <Form
+    <form
       noValidate
       ref={formRef}
       className={className}
@@ -235,7 +239,6 @@ export const Wizard = ({
         void next();
       }}
     >
-      {onChange && <ValuesWatcher onChange={onChange} />}
       <Stepper steps={steps} current={step} labels={labels} />
       <h2 className="mb-4 text-lg font-semibold">{current.title}</h2>
       {definition.render(context)}
@@ -251,7 +254,7 @@ export const Wizard = ({
           hidePrevious={controls.hidePrevious}
           hideNext={controls.hideNext}
           nextDisabled={controls.nextDisabled}
-          isSubmitting={isSubmitting}
+          isSubmitting={submitState === 'submitting'}
           labels={{
             ...labels,
             ...(controls.nextLabel && {
@@ -262,6 +265,6 @@ export const Wizard = ({
           }}
         />
       )}
-    </Form>
+    </form>
   );
 };

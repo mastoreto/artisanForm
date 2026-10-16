@@ -33,7 +33,7 @@ const resolveType = (type: string, keys: readonly string[]) =>
 
 /**
  * Turns the normalized v1 schema into what the engine runs today. This is the
- * only place that knows both shapes; swapping Formik/Yup later changes the
+ * only place that knows both shapes; swapping the form/validation libraries later changes the
  * engine side, not the contract.
  */
 export const projectToRuntime = (

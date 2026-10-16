@@ -1,5 +1,5 @@
-import { Formik, type FormikValues } from 'formik';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { FormProvider } from 'react-hook-form';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import {
   buildInitialValues,
@@ -13,6 +13,9 @@ import {
 } from '../../engine/conditions';
 import { clearDraft, restoreDraft } from '../../engine/draft';
 import type { ArtisanExtensions } from '../../engine/extensions';
+import type { FormValues } from '../../engine/form/types';
+import { useArtisanForm } from '../../engine/form/useArtisanForm';
+import { FormUiContext } from '../../engine/form/validators';
 import { projectToRuntime } from '../../engine/project';
 import {
   ArtisanStoreProvider,
@@ -41,18 +44,18 @@ interface ArtisanFormProps {
   /** Local functions and components a v1 schema refers to by id. */
   extensions?: ArtisanExtensions;
   /** Return a promise to keep "Finish" disabled until it settles. */
-  onSubmit: (values: FormikValues) => unknown;
+  onSubmit: (values: FormValues) => unknown;
   /** What to do with a saved draft that does not fit this form (default: `backup`). */
   onSnapshotConflict?: (conflict: SnapshotConflict) => ConflictDecision;
   /** Overrides the scheme defaults for the given field names. */
-  initialValues?: FormikValues;
+  initialValues?: FormValues;
   /** Called with the new step index whenever the wizard moves. */
   onStepChange?: (step: number) => void;
   /** Called with all values on every change. */
-  onChange?: (values: FormikValues) => void;
+  onChange?: (values: FormValues) => void;
   /** Drives the wizard to this step when it changes (pair with onStepChange). */
   step?: number;
-  /** Overrides any UI text or validation message (default: Spanish). */
+  /** Overrides any UI text or validation message (default: English). */
   labels?: Partial<ArtisanLabels>;
   /** Extra classes for the <form> element. */
   className?: string;
@@ -151,7 +154,7 @@ const ArtisanFormInner = ({
   );
 
   // Hidden steps/fields are not part of the submitted values.
-  const handleSubmit = async (values: FormikValues) => {
+  const submitValues = async (values: FormValues) => {
     const shown = new Set(
       visibleSteps(scheme, values).flatMap((step) => [
         ...visibleFields(step, values).flatMap((f) => fieldNames(f, registry)),
@@ -177,33 +180,50 @@ const ArtisanFormInner = ({
     setSubmitState('success');
   };
 
+  const { methods, validators } = useArtisanForm(
+    initialValues,
+    validationSchema,
+  );
+  // A different schema content (or revision) starts from its own defaults;
+  // an ordinary rerender never resets what the user typed.
+  const [attempted, setAttempted] = useState(false);
+  const ui = useMemo(
+    () => ({ validators, attempted, setAttempted }),
+    [validators, attempted],
+  );
+  const lastKey = useRef(projection.key);
+  useEffect(() => {
+    if (lastKey.current === projection.key) return;
+    lastKey.current = projection.key;
+    methods.reset(initialValues);
+  }, [projection.key]);
+
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
-      <Wizard
-        scheme={scheme}
-        schemeKey={projection.key}
-        snapshotMeta={{
-          formId: projection.formId,
-          revision: projection.revision,
-        }}
-        pluginsMap={pluginsMap}
-        storageMap={storageMap}
-        registry={registry}
-        stepRegistry={stepRegistry}
-        labels={labels}
-        {...wizard}
-        step={
-          wizard.step ??
-          (draft
-            ? Math.min(draft.stepIndex, scheme.steps.length - 1)
-            : undefined)
-        }
-      />
-    </Formik>
+    <FormProvider {...methods}>
+      <FormUiContext.Provider value={ui}>
+        <Wizard
+          onSubmitValues={submitValues}
+          scheme={scheme}
+          schemeKey={projection.key}
+          snapshotMeta={{
+            formId: projection.formId,
+            revision: projection.revision,
+          }}
+          pluginsMap={pluginsMap}
+          storageMap={storageMap}
+          registry={registry}
+          stepRegistry={stepRegistry}
+          labels={labels}
+          {...wizard}
+          step={
+            wizard.step ??
+            (draft
+              ? Math.min(draft.stepIndex, scheme.steps.length - 1)
+              : undefined)
+          }
+        />
+      </FormUiContext.Provider>
+    </FormProvider>
   );
 };
 

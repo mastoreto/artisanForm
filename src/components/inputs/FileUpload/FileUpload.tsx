@@ -1,8 +1,8 @@
-import { useField } from 'formik';
 import { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '../../../commons/cn';
 import { type ArtisanLabels, defaultLabels } from '../../../commons/labels';
 import { theme } from '../../../commons/theme';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 import type {
   StorageAdapter,
   UploadedFile,
@@ -94,8 +94,7 @@ const FileUpload = ({
   };
 
   // A running upload blocks "Next" through a field-level validator.
-  const [field, meta, helpers] = useField<UploadedFile[]>({
-    name,
+  const [field, meta, helpers] = useArtisanField<UploadedFile[]>(name, {
     validate: () =>
       pendingRef.current.some((p) => p.status === 'uploading')
         ? labels.fileUploading
@@ -110,7 +109,7 @@ const FileUpload = ({
   const commit = (next: UploadedFile[]) => {
     filesRef.current = next;
     helpers.setValue(next);
-    helpers.setTouched(true, false);
+    helpers.setTouched();
   };
   // While uploading, "required" would mislead: say what is actually pending.
   const uploading = pending.some((p) => p.status === 'uploading');

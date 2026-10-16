@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import * as Yup from 'yup';
-import { withFormik } from '../../../../.storybook/withFormik';
+import { withForm } from '../../../../.storybook/withForm';
 import Check from './Check';
 
 const options = [
@@ -21,13 +21,13 @@ export default meta;
 type Story = StoryObj<typeof Check>;
 
 export const Default: Story = {
-  decorators: [withFormik({ field: [] })],
+  decorators: [withForm({ field: [] })],
 };
 
 /** Submit without choosing to see the Yup error. */
 export const WithValidation: Story = {
   decorators: [
-    withFormik(
+    withForm(
       { field: [] },
       { field: Yup.array().min(1, 'Choose at least one option') },
     ),

@@ -34,11 +34,11 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
-    "formik": "^2.4.6",
     "happy-dom": "^21.0.3",
     "postcss": "^8.4.47",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.90.0",
     "sass-embedded": "^1.79.4",
     "storybook": "^8.3.4",
     "tailwindcss": "^3.4.13",
@@ -52,16 +52,17 @@
   },
   "peerDependencies": {
     "@mercadopago/sdk-react": ">=0.0.19",
+    "@paypal/react-paypal-js": ">=8",
     "@stripe/react-stripe-js": ">=2",
     "@stripe/stripe-js": ">=4",
-    "formik": "^2.4.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.90.0",
     "yup": "^1.4.0",
-    "zustand": "^5.0.1",
-    "@paypal/react-paypal-js": ">=8"
+    "zustand": "^5.0.1"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.9.1",
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.2"
   },
