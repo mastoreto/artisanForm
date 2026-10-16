@@ -1,7 +1,6 @@
-import React from 'react';
 import { cn } from '../../commons/cn';
+import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import { theme } from '../../commons/theme';
-import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
 import { useArtisanStore } from '../../stores/useArtisanStore';
 
 interface ControlsProps {

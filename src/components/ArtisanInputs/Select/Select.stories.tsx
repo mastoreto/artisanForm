@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import * as Yup from 'yup';
 import { withFormik } from '../../../../.storybook/withFormik';
 import Select from './Select';
 

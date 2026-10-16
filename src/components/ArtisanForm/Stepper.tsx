@@ -1,6 +1,6 @@
 import { cn } from '../../commons/cn';
+import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import { theme } from '../../commons/theme';
-import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
 import type { StepSchema } from './types';
 
 interface StepperProps {

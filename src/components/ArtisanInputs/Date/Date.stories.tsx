@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import * as Yup from 'yup';
 import { withFormik } from '../../../../.storybook/withFormik';
-import Date from './Date';
+import DateInput from './Date';
 
-const meta: Meta<typeof Date> = {
+const meta: Meta<typeof DateInput> = {
   title: 'Controls/Artisan Inputs/Date',
-  component: Date,
+  component: DateInput,
   tags: ['autodocs'],
   args: { id: 'date-input', name: 'field', label: 'Date Input' },
 };
 
 export default meta;
 
-type Story = StoryObj<typeof Date>;
+type Story = StoryObj<typeof DateInput>;
 
 export const Default: Story = {
   decorators: [withFormik({ field: '' })],

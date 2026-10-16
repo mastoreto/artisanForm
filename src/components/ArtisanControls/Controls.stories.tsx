@@ -1,7 +1,7 @@
-import Controls from './Controls';
-import { useEffect } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+import { useEffect } from 'react';
 import { useArtisanStore } from '../../stores/useArtisanStore';
+import Controls from './Controls';
 
 interface Args {
   isFinalStep: boolean;
@@ -35,10 +35,7 @@ type Story = StoryObj<Args>;
 
 export const Default: Story = {
   render: (args: Args) => {
-    const isFinalStep = useArtisanStore((state) => state.isFinalStep);
     const setIsFinalStep = useArtisanStore((state) => state.setIsFinalStep);
-    const step = useArtisanStore((state) => state.step);
-    const processStep = useArtisanStore((state) => state.processStep);
 
     useEffect(() => {
       setIsFinalStep(args.isFinalStep);

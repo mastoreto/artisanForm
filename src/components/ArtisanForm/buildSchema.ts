@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
-import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
-import type { Condition, FieldSchema, FormSchema } from './types';
+import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import { matchesCondition } from './conditions';
+import type { Condition, FieldSchema, FormSchema } from './types';
 
 const allFields = (scheme: FormSchema): FieldSchema[] =>
   scheme.steps.flatMap((step) => step.fields);
