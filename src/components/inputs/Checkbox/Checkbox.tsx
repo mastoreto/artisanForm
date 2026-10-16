@@ -1,6 +1,6 @@
-import { useField } from 'formik';
 import { cn } from '../../../commons/cn';
 import { theme } from '../../../commons/theme';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 
 interface CheckboxProps {
   id: string;
@@ -22,7 +22,7 @@ const Checkbox = ({
   helperText,
   className,
 }: CheckboxProps) => {
-  const [field, meta, helpers] = useField<boolean>(name);
+  const [field, meta, helpers] = useArtisanField<boolean>(name);
   const checked = !!field.value;
   const error = meta.touched && meta.error ? meta.error : null;
   const describedBy =
@@ -32,7 +32,7 @@ const Checkbox = ({
 
   const toggle = (next: boolean) => {
     helpers.setValue(next);
-    helpers.setTouched(true, false);
+    helpers.setTouched();
   };
 
   return (

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import * as Yup from 'yup';
-import { withFormik } from '../../../../.storybook/withFormik';
+import { withForm } from '../../../../.storybook/withForm';
 import Textarea from './Textarea';
 
 const meta: Meta<typeof Textarea> = {
@@ -20,20 +20,17 @@ export default meta;
 type Story = StoryObj<typeof Textarea>;
 
 export const Default: Story = {
-  decorators: [withFormik({ field: '' })],
+  decorators: [withForm({ field: '' })],
 };
 
 export const Disabled: Story = {
   args: { disabled: true },
-  decorators: [withFormik({ field: 'Not editable' })],
+  decorators: [withForm({ field: 'Not editable' })],
 };
 
 /** Submit (or blur) the empty field to see the Yup error. */
 export const WithValidation: Story = {
   decorators: [
-    withFormik(
-      { field: '' },
-      { field: Yup.string().required('Required field') },
-    ),
+    withForm({ field: '' }, { field: Yup.string().required('Required field') }),
   ],
 };

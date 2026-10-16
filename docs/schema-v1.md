@@ -2,7 +2,7 @@
 
 > 🌐 Spanish version: [es/schema-v1.md](es/schema-v1.md)
 
-A public, serializable and versioned contract for defining ArtisanForm forms. This is **Phase 1**: it stabilizes the contract and resolves compatibility with 0.2.0 through an adapter. The engine (Formik + Yup + Zustand) and the UI do not change.
+A public, serializable and versioned contract for defining ArtisanForm forms. This is **Phase 1**: it stabilizes the contract and resolves compatibility with 0.2.0 through an adapter. The engine (React Hook Form + Yup + Zustand) and the UI do not change.
 
 > **How to read this document.** Each capability is marked: ✅ **Implemented**, 🔁 **Compatible through an adapter** (0.2.0 keeps working and is translated) or ⏳ **Pending** (designed/reserved, **not** implemented).
 
@@ -262,4 +262,4 @@ There are no two engines and no compatibility branches in the components. `FormS
 
 ## 14. Reserved for future phases ⏳
 
-Migrating Formik → React Hook Form and Yup → another validator (the seam is `project.ts` + `FieldDefinition.rules`: the contract and `src/schema` do not change), custom design systems that interpret `ui`, a visual builder, a *headless* engine, versioned forms served from a backend with migrations, nesting of repeatable fields and conditions inside rows.
+Migrating Yup → another validator (the seam is `project.ts` + `FieldDefinition.rules`: the contract and `src/schema` do not change), custom design systems that interpret `ui`, a visual builder, a *headless* engine, versioned forms served from a backend with migrations, nesting of repeatable fields and conditions inside rows.

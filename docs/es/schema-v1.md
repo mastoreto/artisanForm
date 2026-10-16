@@ -2,7 +2,7 @@
 
 > 🌐 Versión en español de [schema-v1.md](../schema-v1.md) (el original, en inglés, es la referencia).
 
-Contrato público, serializable y versionado para definir formularios de ArtisanForm. Esta es la **Fase 1**: estabiliza el contrato y deja la compatibilidad con 0.2.0 resuelta por un adaptador. El motor (Formik + Yup + Zustand) y la UI no cambian.
+Contrato público, serializable y versionado para definir formularios de ArtisanForm. Esta es la **Fase 1**: estabiliza el contrato y deja la compatibilidad con 0.2.0 resuelta por un adaptador. El motor (React Hook Form + Yup + Zustand) y la UI no cambian.
 
 > **Cómo leer este documento.** Cada capacidad está marcada: ✅ **Implementado**, 🔁 **Compatible por adaptador** (0.2.0 sigue funcionando y se traduce) o ⏳ **Pendiente** (diseñado/reservado, **no** implementado).
 
@@ -262,4 +262,4 @@ No hay dos motores ni ramas de compatibilidad en los componentes. `FormSchema`, 
 
 ## 14. Reservado para fases futuras ⏳
 
-Migrar Formik → React Hook Form y Yup → otro validador (la costura es `project.ts` + `FieldDefinition.rules`: el contrato y `src/schema` no cambian), sistemas de diseño propios que interpreten `ui`, constructor visual, motor *headless*, formularios versionados desde un backend con migraciones, anidamiento de campos repetibles y condiciones dentro de filas.
+Migrar Yup → otro validador (la costura es `project.ts` + `FieldDefinition.rules`: el contrato y `src/schema` no cambian), sistemas de diseño propios que interpreten `ui`, constructor visual, motor *headless*, formularios versionados desde un backend con migraciones, anidamiento de campos repetibles y condiciones dentro de filas.

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { withFormik } from '../../../../.storybook/withFormik';
+import { withForm } from '../../../../.storybook/withForm';
 import { mockStorage } from '../../../integrations/storage/mock';
 import FileUpload from './FileUpload';
 
@@ -20,15 +20,15 @@ export default meta;
 type Story = StoryObj<typeof FileUpload>;
 
 export const Default: Story = {
-  decorators: [withFormik({ files: [] })],
+  decorators: [withForm({ files: [] })],
 };
 
 export const MultipleImages: Story = {
   args: { maxFiles: 4, accept: 'image/*', preview: true },
-  decorators: [withFormik({ files: [] })],
+  decorators: [withForm({ files: [] })],
 };
 
 export const Disabled: Story = {
   args: { disabled: true },
-  decorators: [withFormik({ files: [] })],
+  decorators: [withForm({ files: [] })],
 };

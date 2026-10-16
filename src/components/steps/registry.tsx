@@ -1,8 +1,8 @@
-import type { FormikValues } from 'formik';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type { ArtisanLabels } from '../../commons/labels';
 import { visibleFields } from '../../engine/conditions';
+import type { FormValues } from '../../engine/form/types';
 import type { SubmitState } from '../../engine/store/useArtisanStore';
 import type { PaymentPlugin } from '../../integrations/payments/types';
 import type { StorageMap } from '../../integrations/storage/types';
@@ -26,7 +26,7 @@ export interface StepContext {
   step: StepSchema;
   index: number;
   total: number;
-  values: FormikValues;
+  values: FormValues;
   setFieldValue: (name: string, value: unknown) => void;
   labels: ArtisanLabels;
   fieldRegistry: FieldRegistry;
@@ -85,7 +85,7 @@ const FormStep = ({ fields, fieldRegistry, labels, storage }: StepContext) => (
 
 const displayValue = (
   f: FieldSchema,
-  values: FormikValues,
+  values: FormValues,
   labels: ArtisanLabels,
   secret: boolean,
 ): string => {

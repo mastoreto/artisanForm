@@ -38,7 +38,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: (id) =>
-        /^(react|react-dom|formik|yup|zustand|@stripe|@mercadopago|@paypal)(\/|$)/.test(
+        /^(react|react-dom|react-hook-form|@hookform|yup|zustand|@stripe|@mercadopago|@paypal)(\/|$)/.test(
           id,
         ),
     },

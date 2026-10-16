@@ -1,7 +1,8 @@
-import { useField } from 'formik';
 import type { ReactNode } from 'react';
+import { useFieldArray, useFormState } from 'react-hook-form';
 import { cn } from '../../../commons/cn';
 import { type ArtisanLabels, defaultLabels } from '../../../commons/labels';
+import { errorAt } from '../../../engine/form/errors';
 
 interface ArrayFieldProps {
   name: string;
@@ -33,10 +34,9 @@ const ArrayField = ({
   className,
   labels = defaultLabels,
 }: ArrayFieldProps) => {
-  const [field, meta, helpers] = useField<Record<string, unknown>[]>(name);
-  const rows = field.value ?? [];
-  const error =
-    meta.touched && typeof meta.error === 'string' ? meta.error : null;
+  const { fields: rows, append, remove } = useFieldArray({ name });
+  const { errors } = useFormState({ name });
+  const error = errorAt(errors, name) ?? null;
   const canAdd =
     !disabled && (maxItems === undefined || rows.length < maxItems);
   const canRemove = !disabled && rows.length > minItems;
@@ -46,8 +46,8 @@ const ArrayField = ({
       <legend className="text-sm font-medium text-gray-700">{label}</legend>
       {helperText && <p className="text-sm text-gray-500">{helperText}</p>}
       <ul className="mt-2 space-y-3">
-        {rows.map((_, i) => (
-          <li key={i} className="rounded-md border border-gray-200 p-3">
+        {rows.map((row, i) => (
+          <li key={row.id} className="rounded-md border border-gray-200 p-3">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-medium">
                 {labels.itemTitle(i + 1)}
@@ -56,10 +56,7 @@ const ArrayField = ({
                 type="button"
                 className="text-sm underline disabled:opacity-50"
                 disabled={!canRemove}
-                onClick={() => {
-                  helpers.setValue(rows.filter((_, k) => k !== i));
-                  helpers.setTouched(true, false);
-                }}
+                onClick={() => remove(i)}
                 aria-label={labels.removeItem(i + 1)}
               >
                 ×
@@ -72,7 +69,7 @@ const ArrayField = ({
       <button
         type="button"
         disabled={!canAdd}
-        onClick={() => helpers.setValue([...rows, emptyRow()])}
+        onClick={() => append(emptyRow())}
         className="mt-3 rounded border px-3 py-1 text-sm hover:bg-gray-100 disabled:opacity-50"
       >
         {addLabel ?? labels.addItem}

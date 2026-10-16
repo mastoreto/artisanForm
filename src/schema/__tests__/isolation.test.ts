@@ -3,7 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const FORBIDDEN =
-  /from\s+['"](react|react-dom|react\/[^'"]*|formik|yup|zustand[^'"]*)['"]/;
+  /from\s+['"](react|react-dom|react\/[^'"]*|react-hook-form|@hookform\/[^'"]*|yup|zustand[^'"]*)['"]/;
 
 const files = (dir: string): string[] =>
   readdirSync(dir).flatMap((name) => {

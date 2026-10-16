@@ -1,6 +1,6 @@
-import { useField } from 'formik';
 import { cn } from '../../../commons/cn';
 import { theme } from '../../../commons/theme';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 
 interface RangeProps {
   id: string;
@@ -26,7 +26,7 @@ const Range = ({
   helperText,
   className,
 }: RangeProps) => {
-  const [field, , helpers] = useField<number | string>(name);
+  const [field, , helpers] = useArtisanField<number | string>(name);
   const value =
     field.value === '' || field.value == null ? min : Number(field.value);
   return (

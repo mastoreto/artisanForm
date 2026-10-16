@@ -1,6 +1,6 @@
-import { useField } from 'formik';
 import { cn } from '../../../commons/cn';
 import { theme } from '../../../commons/theme';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 
 interface Option {
   label: string;
@@ -17,12 +17,12 @@ interface RadioProps {
 }
 
 const Radio = ({ name, options, disabled, label, className }: RadioProps) => {
-  const [field, meta, helpers] = useField<string>(name);
+  const [field, meta, helpers] = useArtisanField<string>(name);
   const error = meta.touched && meta.error ? meta.error : null;
 
   const handleChange = (value: string) => {
     helpers.setValue(value);
-    helpers.setTouched(true, false);
+    helpers.setTouched();
   };
 
   return (

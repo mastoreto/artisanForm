@@ -1,5 +1,5 @@
-import { useField } from 'formik';
 import { useEffect, useState } from 'react';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 import Select from '../Select/Select';
 
 interface Option {
@@ -32,8 +32,8 @@ const DynamicSelect = ({
   loadingText = 'Loading…',
   errorText = 'Could not load the options',
 }: DynamicSelectProps) => {
-  const [parent] = useField<string>(name);
-  const [child, , childHelpers] = useField<string>(dependentName);
+  const [parent] = useArtisanField<string>(name);
+  const [child, , childHelpers] = useArtisanField<string>(dependentName);
   const [loaded, setLoaded] = useState<Option[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const childOptions = loadDependentOptions

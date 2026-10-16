@@ -1,6 +1,6 @@
-import { useField } from 'formik';
 import { forwardRef } from 'react';
 import { cn } from '../../../commons/cn';
+import { useArtisanField } from '../../../engine/form/useArtisanField';
 
 interface SelectProps {
   name: string;
@@ -11,7 +11,7 @@ interface SelectProps {
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ name, options, disabled, className }, ref) => {
-    const [field] = useField<string>(name);
+    const [field] = useArtisanField<string>(name);
 
     return (
       <div className="relative inline-block w-full">

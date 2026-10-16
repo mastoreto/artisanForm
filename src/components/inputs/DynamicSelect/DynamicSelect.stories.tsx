@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { withFormik } from '../../../../.storybook/withFormik';
+import { withForm } from '../../../../.storybook/withForm';
 import DynamicSelect from './DynamicSelect';
 
 const meta: Meta<typeof DynamicSelect> = {
@@ -26,7 +26,7 @@ const meta: Meta<typeof DynamicSelect> = {
 export default meta;
 
 export const Default: StoryObj<typeof DynamicSelect> = {
-  decorators: [withFormik({ country: 'ar', city: '' })],
+  decorators: [withForm({ country: 'ar', city: '' })],
 };
 
 /** The dependent options come from a (fake) async request. */
@@ -42,5 +42,5 @@ export const AsyncOptions: StoryObj<typeof DynamicSelect> = {
         ),
       ),
   },
-  decorators: [withFormik({ country: 'ar', city: '' })],
+  decorators: [withForm({ country: 'ar', city: '' })],
 };

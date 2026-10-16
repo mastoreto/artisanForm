@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import * as Yup from 'yup';
-import { withFormik } from '../../../../.storybook/withFormik';
+import { withForm } from '../../../../.storybook/withForm';
 import Password from './Password';
 
 const meta: Meta<typeof Password> = {
@@ -15,13 +15,13 @@ export default meta;
 type Story = StoryObj<typeof Password>;
 
 export const Default: Story = {
-  decorators: [withFormik({ field: '' })],
+  decorators: [withForm({ field: '' })],
 };
 
 /** Submit (or blur) the empty field to see the Yup error. */
 export const WithValidation: Story = {
   decorators: [
-    withFormik(
+    withForm(
       { field: '' },
       {
         field: Yup.string()

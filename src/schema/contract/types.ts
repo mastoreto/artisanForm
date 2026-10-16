@@ -1,7 +1,7 @@
 /**
  * Public, serializable building blocks of ArtisanSchema v1.
  *
- * Nothing in `src/schema` may import React, Formik, Yup or Zustand: the
+ * Nothing in `src/schema` may import React, React Hook Form, Yup or Zustand: the
  * contract must survive an engine migration untouched (enforced by a test and
  * a Biome rule).
  */

@@ -30,8 +30,8 @@
   },
   "overrides": [
     {
-      // The public contract must not depend on the form engine (Formik, Yup,
-      // Zustand) nor on React, so an engine migration never touches it.
+      // The public contract must not depend on the form engine (React Hook Form,
+      // Yup, Zustand) nor on React, so an engine migration never touches it.
       "includes": ["src/schema/**", "src/persistence/**"],
       "linter": {
         "rules": {
@@ -42,7 +42,8 @@
                 "paths": {
                   "react": "src/schema and src/persistence must stay engine-agnostic.",
                   "react-dom": "src/schema and src/persistence must stay engine-agnostic.",
-                  "formik": "src/schema and src/persistence must stay engine-agnostic.",
+                  "react-hook-form": "src/schema and src/persistence must stay engine-agnostic.",
+                  "@hookform/resolvers": "src/schema and src/persistence must stay engine-agnostic.",
                   "yup": "src/schema and src/persistence must stay engine-agnostic.",
                   "zustand": "src/schema and src/persistence must stay engine-agnostic."
                 }
@@ -56,7 +57,6 @@
       // Positional rows/boxes (no stable identity) and the combobox popup
       // (custom listbox of the ARIA combobox pattern).
       "includes": [
-        "src/components/inputs/ArrayField/ArrayField.tsx",
         "src/components/inputs/Otp/Otp.tsx",
         "src/components/inputs/Combobox/Combobox.tsx"
       ],
