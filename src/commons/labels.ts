@@ -10,6 +10,7 @@ export interface ArtisanLabels {
   invalidEmail: string;
   invalidNumber: string;
   invalidPattern: string;
+  mustMatch: string;
   minLength: (n: number) => string;
   maxLength: (n: number) => string;
   minValue: (n: number) => string;
@@ -27,6 +28,7 @@ export const defaultLabels: ArtisanLabels = {
   invalidEmail: 'Email inválido',
   invalidNumber: 'Número inválido',
   invalidPattern: 'Formato inválido',
+  mustMatch: 'Los valores no coinciden',
   minLength: (n) => `Mínimo ${n} caracteres`,
   maxLength: (n) => `Máximo ${n} caracteres`,
   minValue: (n) => `Mínimo ${n}`,

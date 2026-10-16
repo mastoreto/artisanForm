@@ -241,3 +241,72 @@ test('className props reach the rendered elements', () => {
   );
   expect(container.querySelector('form.my-form')).toBeTruthy();
 });
+
+const conditional: FormSchema = {
+  steps: [
+    {
+      title: 'Account',
+      fields: [
+        {
+          type: 'radio',
+          name: 'kind',
+          label: 'Kind',
+          options: [
+            { value: 'person', label: 'Person' },
+            { value: 'company', label: 'Company' },
+          ],
+        },
+        {
+          type: 'text',
+          name: 'company',
+          label: 'Company name',
+          required: true,
+          showIf: { field: 'kind', equals: 'company' },
+        },
+        { type: 'password', name: 'pw', label: 'Password' },
+        { type: 'password', name: 'pw2', label: 'Repeat', sameAs: 'pw' },
+      ],
+    },
+    {
+      title: 'Company data',
+      showIf: { field: 'kind', equals: 'company' },
+      fields: [{ type: 'text', name: 'tax', label: 'Tax id', required: true }],
+    },
+    { title: 'Done', fields: [{ type: 'text', name: 'note', label: 'Note' }] },
+  ],
+};
+
+test('conditional field: hidden unless condition holds, and not submitted', async () => {
+  const user = userEvent.setup();
+  const onSubmit = mock((_: unknown) => {});
+  render(
+    <ArtisanForm
+      scheme={{ steps: [conditional.steps[0]] }}
+      onSubmit={onSubmit}
+    />,
+  );
+  expect(screen.queryByLabelText('Company name')).toBeNull();
+  await user.click(screen.getByText('Person'));
+  await user.click(screen.getByText('Finalizar')); // hidden required field must not block
+  await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+  expect(onSubmit.mock.calls[0][0]).not.toHaveProperty('company');
+
+  await user.click(screen.getByText('Company'));
+  expect(await screen.findByLabelText('Company name')).toBeTruthy();
+});
+
+test('conditional step is skipped and sameAs blocks mismatched values', async () => {
+  const user = userEvent.setup();
+  render(<ArtisanForm scheme={conditional} onSubmit={() => {}} />);
+  await user.type(screen.getByLabelText('Password'), 'abc');
+  await user.type(screen.getByLabelText('Repeat'), 'abx');
+  await user.click(screen.getByText('Person'));
+  await user.click(screen.getByText('Siguiente'));
+  expect(await screen.findByText('Los valores no coinciden')).toBeTruthy();
+
+  await user.clear(screen.getByLabelText('Repeat'));
+  await user.type(screen.getByLabelText('Repeat'), 'abc');
+  await user.click(screen.getByText('Siguiente'));
+  // "Company data" is skipped for kind=person.
+  expect(await screen.findByRole('heading', { name: 'Done' })).toBeTruthy();
+});

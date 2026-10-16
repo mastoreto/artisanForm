@@ -70,11 +70,11 @@ const scheme: FormSchema = {
 
 ### `FormSchema`
 
-| Tipo          | Campos                                                                                                                                                                           |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `FormSchema`  | `steps: StepSchema[]`                                                                                                                                                            |
-| `StepSchema`  | `title`, `fields: FieldSchema[]`                                                                                                                                                 |
-| `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `max?`, `pattern?`, `defaultValue?`, `disabled?`, `helperText?`, `dependentName?`, `dependentOptions?` |
+| Tipo          | Campos                                                                                                                                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `FormSchema`  | `steps: StepSchema[]`                                                                                                                                                                                  |
+| `StepSchema`  | `title`, `fields: FieldSchema[]`                                                                                                                                                                       |
+| `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `max?`, `pattern?`, `defaultValue?`, `disabled?`, `helperText?`, `sameAs?`, `showIf?`, `dependentName?`, `dependentOptions?` |
 
 Tipos de campo (`type`): `text`, `email`, `number`, `textarea`, `password`, `date`, `select`, `dynamicSelect`, `check`, `radio`.
 
@@ -83,6 +83,11 @@ Tipos de campo (`type`): `text`, `email`, `number`, `textarea`, `password`, `dat
 - `pattern` → fuente de una expresión regular (ej. `'^[A-Z]{3}$'`). `email` valida formato de correo.
 - `defaultValue` → valor inicial (array en `check`). `disabled` y `helperText` aplican a todos los tipos.
 - `dynamicSelect` guarda dos valores: `name` (primer select) y `dependentName` (segundo), cuyas opciones salen de `dependentOptions[valorDelPrimero]`.
+
+### Condicionales y validación cruzada
+
+- `showIf: { field, equals?, not? }` en un campo o en un paso: se muestra solo si `field` vale alguno de los `equals` (o tiene algún valor si se omite); `not: true` invierte la condición. Lo oculto no se renderiza, no se valida ni se envía en `onSubmit`, y los pasos ocultos se saltean.
+- `sameAs: 'otroCampo'` exige que el valor coincida con el de otro campo (ej. confirmación de contraseña).
 
 ### Props de `ArtisanForm`
 
@@ -188,7 +193,7 @@ Cada tarea es un issue de GitHub (`AF<n>` en el título) y una rama desde `devel
 ### Brechas conocidas
 
 - El flujo en navegador no está verificado automáticamente (solo hay tests de `buildSchema`).
-- Scheme limitado a pasos lineales sin lógica condicional.
+- Scheme sin validaciones cruzadas más allá de `sameAs`.
 
 ### Historial
 

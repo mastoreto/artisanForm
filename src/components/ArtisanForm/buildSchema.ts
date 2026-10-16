@@ -1,6 +1,7 @@
 import * as Yup from 'yup';
 import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
-import type { FieldSchema, FormSchema } from './types';
+import type { Condition, FieldSchema, FormSchema } from './types';
+import { matchesCondition } from './conditions';
 
 const allFields = (scheme: FormSchema): FieldSchema[] =>
   scheme.steps.flatMap((step) => step.fields);
@@ -51,6 +52,7 @@ const buildField = (f: FieldSchema, labels: ArtisanLabels) => {
     s = s.test('max', labels.maxLength(max), (v) => !v || v.length <= max);
   }
   if (f.type === 'email') s = s.email(labels.invalidEmail);
+  if (f.sameAs) s = s.oneOf([Yup.ref(f.sameAs)], labels.mustMatch);
   if (f.pattern) {
     s = s.matches(new RegExp(f.pattern), {
       message: labels.invalidPattern,
@@ -60,14 +62,34 @@ const buildField = (f: FieldSchema, labels: ArtisanLabels) => {
   return f.required ? s.required(msg) : s;
 };
 
+/** Disables a field's rules whenever any of its conditions is not met. */
+const withConditions = (schema: Yup.AnySchema, conds: Condition[]) =>
+  conds.reduce(
+    (acc, cond) =>
+      acc.when(cond.field, {
+        is: (value: unknown) => matchesCondition(cond, { [cond.field]: value }),
+        then: (s: Yup.AnySchema) => s,
+        otherwise: () => Yup.mixed().notRequired(),
+      }),
+    schema,
+  );
+
 export const buildValidationSchema = (
   scheme: FormSchema,
   labels: ArtisanLabels = defaultLabels,
 ) =>
   Yup.object(
     Object.fromEntries(
-      allFields(scheme).flatMap((f) =>
-        fieldNames(f).map((n) => [n, buildField(f, labels)]),
+      scheme.steps.flatMap((step) =>
+        step.fields.flatMap((f) => {
+          const conds = [step.showIf, f.showIf].filter(
+            (c): c is Condition => !!c,
+          );
+          return fieldNames(f).map((n) => [
+            n,
+            withConditions(buildField(f, labels), conds),
+          ]);
+        }),
       ),
     ),
   );

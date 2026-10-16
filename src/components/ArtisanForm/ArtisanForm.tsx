@@ -20,6 +20,7 @@ import {
   buildValidationSchema,
   fieldNames,
 } from './buildSchema';
+import { visibleFields, visibleSteps } from './conditions';
 import type { FieldSchema, FormSchema } from './types';
 
 interface ArtisanFormProps {
@@ -102,34 +103,34 @@ const renderField = (f: FieldSchema) => {
   }
 };
 
-const ArtisanFormInner = ({
+interface WizardProps {
+  scheme: FormSchema;
+  labels: ArtisanLabels;
+  className?: string;
+  onChange?: (values: FormikValues) => void;
+  onStepChange?: (step: number) => void;
+  step?: number;
+}
+
+/** Renders the current step; lives inside <Formik> to read live values. */
+const Wizard = ({
   scheme,
-  onSubmit,
-  initialValues: initialOverrides,
-  onStepChange,
-  onChange,
-  step: stepProp,
-  labels: labelOverrides,
+  labels,
   className,
-}: ArtisanFormProps) => {
+  onChange,
+  onStepChange,
+  step: stepProp,
+}: WizardProps) => {
+  const { values, validateForm, setTouched, touched, isSubmitting } =
+    useFormikContext<FormikValues>();
   const step = useArtisanStore((s) => s.step);
   const setStep = useArtisanStore((s) => s.setStep);
   const setProcessStep = useArtisanStore((s) => s.setProcessStep);
   const setIsFinalStep = useArtisanStore((s) => s.setIsFinalStep);
 
-  const initialValues = useMemo(
-    () => ({ ...buildInitialValues(scheme), ...initialOverrides }),
-    [scheme],
-  );
-  const labels = useMemo(
-    () => ({ ...defaultLabels, ...labelOverrides }),
-    [labelOverrides],
-  );
-  const validationSchema = useMemo(
-    () => buildValidationSchema(scheme, labels),
-    [scheme, labels],
-  );
-  const current = scheme.steps[step];
+  const steps = visibleSteps(scheme, values);
+  const current = steps[step];
+  const fields = current ? visibleFields(current, values) : [];
   const formRef = useRef<HTMLFormElement>(null);
   const [focusTick, setFocusTick] = useState(0);
 
@@ -148,8 +149,8 @@ const ArtisanFormInner = ({
   }, [step]);
 
   useEffect(() => {
-    setIsFinalStep(step === scheme.steps.length - 1);
-  }, [step, scheme]);
+    setIsFinalStep(step === steps.length - 1);
+  }, [step, steps.length]);
 
   // After a blocked "Siguiente", move focus to the first invalid field.
   useEffect(() => {
@@ -161,55 +162,88 @@ const ArtisanFormInner = ({
 
   if (!current) return null;
 
+  // Validate only the current step's visible fields before moving forward.
+  const handleNext = async () => {
+    const names = fields.flatMap(fieldNames);
+    const errors = await validateForm();
+    await setTouched({
+      ...touched,
+      ...Object.fromEntries(names.map((n) => [n, true])),
+    });
+    if (names.some((n) => errors[n])) {
+      setFocusTick((t) => t + 1);
+      return;
+    }
+    setStep(step + 1);
+    setProcessStep(step + 1);
+  };
+
+  return (
+    <Form noValidate ref={formRef} className={className}>
+      {onChange && <ValuesWatcher onChange={onChange} />}
+      <Stepper steps={steps} current={step} labels={labels} />
+      <h2 className="mb-4 text-lg font-semibold">{current.title}</h2>
+      {fields.map((f) => (
+        <div key={f.name} className="mb-4">
+          {isChoice(f) && (
+            <span className="block text-sm font-medium text-gray-700">
+              {f.label}
+            </span>
+          )}
+          {renderField(f)}
+          {isChoice(f) && f.helperText && (
+            <p className="mt-1 text-sm text-gray-500">{f.helperText}</p>
+          )}
+        </div>
+      ))}
+      <Controls
+        onNext={handleNext}
+        isSubmitting={isSubmitting}
+        labels={labels}
+      />
+    </Form>
+  );
+};
+
+const ArtisanFormInner = ({
+  scheme,
+  onSubmit,
+  initialValues: initialOverrides,
+  labels: labelOverrides,
+  ...wizard
+}: ArtisanFormProps) => {
+  const initialValues = useMemo(
+    () => ({ ...buildInitialValues(scheme), ...initialOverrides }),
+    [scheme],
+  );
+  const labels = useMemo(
+    () => ({ ...defaultLabels, ...labelOverrides }),
+    [labelOverrides],
+  );
+  const validationSchema = useMemo(
+    () => buildValidationSchema(scheme, labels),
+    [scheme, labels],
+  );
+
+  // Hidden steps/fields are not part of the submitted values.
+  const handleSubmit = (values: FormikValues) => {
+    const shown = new Set(
+      visibleSteps(scheme, values).flatMap((step) =>
+        visibleFields(step, values).flatMap(fieldNames),
+      ),
+    );
+    return onSubmit(
+      Object.fromEntries(Object.entries(values).filter(([k]) => shown.has(k))),
+    );
+  };
+
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
     >
-      {({ validateForm, setTouched, touched, isSubmitting }) => {
-        // Validate only the current step's fields before moving forward.
-        const handleNext = async () => {
-          const names = current.fields.flatMap(fieldNames);
-          const errors = await validateForm();
-          await setTouched({
-            ...touched,
-            ...Object.fromEntries(names.map((n) => [n, true])),
-          });
-          if (names.some((n) => errors[n])) {
-            setFocusTick((t) => t + 1);
-            return;
-          }
-          setStep(step + 1);
-          setProcessStep(step + 1);
-        };
-
-        return (
-          <Form noValidate ref={formRef} className={className}>
-            {onChange && <ValuesWatcher onChange={onChange} />}
-            <Stepper steps={scheme.steps} current={step} labels={labels} />
-            <h2 className="mb-4 text-lg font-semibold">{current.title}</h2>
-            {current.fields.map((f) => (
-              <div key={f.name} className="mb-4">
-                {isChoice(f) && (
-                  <span className="block text-sm font-medium text-gray-700">
-                    {f.label}
-                  </span>
-                )}
-                {renderField(f)}
-                {isChoice(f) && f.helperText && (
-                  <p className="mt-1 text-sm text-gray-500">{f.helperText}</p>
-                )}
-              </div>
-            ))}
-            <Controls
-              onNext={handleNext}
-              isSubmitting={isSubmitting}
-              labels={labels}
-            />
-          </Form>
-        );
-      }}
+      <Wizard scheme={scheme} labels={labels} {...wizard} />
     </Formik>
   );
 };
