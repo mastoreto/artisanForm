@@ -8,33 +8,12 @@ importers:
 
   .:
     dependencies:
-      '@types/react':
-        specifier: ^18.3.11
-        version: 18.3.11
-      '@types/react-dom':
-        specifier: ^18.3.1
-        version: 18.3.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      formik:
-        specifier: ^2.4.6
-        version: 2.4.6(react@18.3.1)
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
       tailwind-merge:
         specifier: ^2.5.2
         version: 2.5.4
-      yup:
-        specifier: ^1.4.0
-        version: 1.4.0
-      zustand:
-        specifier: ^5.0.1
-        version: 5.0.1(@types/react@18.3.11)(react@18.3.1)
     devDependencies:
       '@chromatic-com/storybook':
         specifier: ^1.9.0
@@ -84,12 +63,21 @@ importers:
       '@types/bun':
         specifier: latest
         version: 1.1.11
+      '@types/react':
+        specifier: ^18.3.11
+        version: 18.3.11
+      '@types/react-dom':
+        specifier: ^18.3.1
+        version: 18.3.1
       '@vitejs/plugin-react':
         specifier: ^4.3.2
         version: 4.3.2(vite@5.4.9(@types/node@22.7.5)(sass-embedded@1.79.5)(terser@5.34.1))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.47)
+      formik:
+        specifier: ^2.4.6
+        version: 2.4.6(react@18.3.1)
       happy-dom:
         specifier: ^21.0.3
         version: 21.0.3
@@ -99,6 +87,12 @@ importers:
       prettier:
         specifier: ^3.3.3
         version: 3.3.3
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
       sass-embedded:
         specifier: ^1.79.4
         version: 1.79.5
@@ -123,6 +117,12 @@ importers:
       vite-tsconfig-paths:
         specifier: ^5.0.1
         version: 5.0.1(typescript@5.6.3)(vite@5.4.9(@types/node@22.7.5)(sass-embedded@1.79.5)(terser@5.34.1))
+      yup:
+        specifier: ^1.4.0
+        version: 1.4.0
+      zustand:
+        specifier: ^5.0.1
+        version: 5.0.1(@types/react@18.3.11)(react@18.3.1)
 
 packages:
 
