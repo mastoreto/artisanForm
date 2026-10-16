@@ -65,12 +65,15 @@
     "lint": "prettier --check ."
   },
   "version": "0.1.0",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/artisanForm.es.js",
       "require": "./dist/artisanForm.cjs"
-    }
+    },
+    "./style.css": "./dist/style.css"
   }
 }

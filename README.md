@@ -2,7 +2,7 @@
 
 Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con Tailwind, validación con Formik + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
 
-> **Estado:** funcional en Storybook. Falta empaquetarla para uso externo (CSS de Tailwind, externals). Ver [Estado del proyecto](#estado-del-proyecto).
+> **Estado:** funcional y empaquetable (ES + CJS, estilos incluidos). Aún no publicada en ningún registro. Ver [Estado del proyecto](#estado-del-proyecto).
 
 ## Stack
 
@@ -87,6 +87,30 @@ Tipos de campo (`type`): `text`, `password`, `date`, `select`, `dynamicSelect`, 
 - **Finalizar** (último paso) valida todo y llama a `onSubmit` con los valores.
 - `isFinalStep` se calcula a partir de la cantidad de pasos; al cambiar el `scheme` el wizard vuelve al paso 0.
 
+## Estilos
+
+Los componentes usan clases de Tailwind. Hay dos formas de cargarlas:
+
+1. **Con Tailwind en tu proyecto (recomendado):** agregá el build de la librería a `content` de `tailwind.config.js` para que Tailwind genere sus clases.
+
+   ```js
+   content: ['./src/**/*.{js,ts,jsx,tsx}', './node_modules/artisanform/dist/**/*.{js,cjs}'],
+   ```
+
+2. **Sin Tailwind:** importá el CSS precompilado (incluye el reset `preflight` de Tailwind).
+
+   ```ts
+   import 'artisanform/style.css';
+   ```
+
+## Instalación
+
+`react`, `react-dom`, `formik`, `yup` y `zustand` son `peerDependencies`:
+
+```bash
+pnpm add artisanform react react-dom formik yup zustand
+```
+
 ## API pública (`src/index.ts`)
 
 `ArtisanForm`, `Controls`, `TextInput`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`, `useArtisanStore`, `cn` y los tipos `FormSchema`, `StepSchema`, `FieldSchema`.
@@ -136,8 +160,6 @@ Cada tarea es un issue de GitHub (`AF<n>` en el título) y una rama desde `devel
 
 ### Brechas conocidas
 
-- El CSS de Tailwind no se publica con la librería.
-- `zustand`, `formik` y `yup` van empaquetadas en el bundle; falta declararlas como peer.
 - El store de pasos es global: dos `ArtisanForm` en una página comparten paso.
 - El flujo en navegador no está verificado automáticamente (solo hay tests de `buildSchema`).
 - Scheme limitado a pasos lineales y validaciones `required`/`min`; textos fijos en español.

@@ -60,6 +60,6 @@ src/
 
 ## Estado actual / deuda conocida
 
-Funcionan: inputs con Formik/Yup, `DynamicSelect`, contenedor `ArtisanForm` por `scheme`, API exportada y build de la librería. Falta para ser consumible como paquete: CSS de Tailwind, peer deps, CI y tests del flujo.
+Funcionan: inputs con Formik/Yup, `DynamicSelect`, contenedor `ArtisanForm` por `scheme`, API exportada y build de la librería. Para ser consumible falta: CI (AF8, bloqueado por scope `workflow` del token) y publicar el paquete.
 
 La hoja de ruta (AF8–AF21) está en el README y cada tarea es un issue de GitHub. Ojo: el número de issue no coincide con `AF<n>` (AF8 = issue #2, AF<n> = issue #n-6); el código `AF<n>` va en el título del issue y en el nombre de la rama.

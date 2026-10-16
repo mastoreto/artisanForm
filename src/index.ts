@@ -1,3 +1,4 @@
+import './styles/global.css';
 export { default as ArtisanForm } from './components/ArtisanForm/ArtisanForm';
 export type {
   FieldSchema,
