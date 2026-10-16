@@ -117,6 +117,19 @@ Los componentes usan clases de Tailwind. Hay dos formas de cargarlas:
    import 'artisanform/style.css';
    ```
 
+### Personalización
+
+- **Color de marca:** definí estas variables CSS (fallbacks: azul de Tailwind):
+
+  ```css
+  :root {
+    --artisan-primary: #7c3aed;
+    --artisan-primary-dark: #5b21b6;
+  }
+  ```
+
+- **Clases extra:** todos los componentes aceptan `className` (`Controls` también `buttonClassName`; `ArtisanForm` lo aplica al `<form>`).
+
 ## Instalación
 
 `react`, `react-dom`, `formik`, `yup` y `zustand` son `peerDependencies`:

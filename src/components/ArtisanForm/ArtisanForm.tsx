@@ -36,6 +36,8 @@ interface ArtisanFormProps {
   step?: number;
   /** Overrides any UI text or validation message (default: Spanish). */
   labels?: Partial<ArtisanLabels>;
+  /** Extra classes for the <form> element. */
+  className?: string;
 }
 
 const ValuesWatcher = ({
@@ -108,6 +110,7 @@ const ArtisanFormInner = ({
   onChange,
   step: stepProp,
   labels: labelOverrides,
+  className,
 }: ArtisanFormProps) => {
   const step = useArtisanStore((s) => s.step);
   const setStep = useArtisanStore((s) => s.setStep);
@@ -182,7 +185,7 @@ const ArtisanFormInner = ({
         };
 
         return (
-          <Form noValidate ref={formRef}>
+          <Form noValidate ref={formRef} className={className}>
             {onChange && <ValuesWatcher onChange={onChange} />}
             <Stepper steps={scheme.steps} current={step} labels={labels} />
             <h2 className="mb-4 text-lg font-semibold">{current.title}</h2>

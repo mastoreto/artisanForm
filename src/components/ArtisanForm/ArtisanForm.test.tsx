@@ -234,3 +234,10 @@ test('labels override buttons and validation messages', async () => {
   expect(await screen.findByText('Required')).toBeTruthy();
   expect(screen.queryByText('Siguiente')).toBeNull();
 });
+
+test('className props reach the rendered elements', () => {
+  const { container } = render(
+    <ArtisanForm scheme={scheme} onSubmit={() => {}} className="my-form" />,
+  );
+  expect(container.querySelector('form.my-form')).toBeTruthy();
+});

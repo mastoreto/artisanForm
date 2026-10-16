@@ -1,4 +1,5 @@
 import { cn } from '../../commons/cn';
+import { theme } from '../../commons/theme';
 import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
 import type { StepSchema } from './types';
 
@@ -22,7 +23,7 @@ const Stepper = ({ steps, current, labels = defaultLabels }: StepperProps) => (
           className={cn(
             'flex-1 border-t-4 pt-1 text-xs',
             i <= current
-              ? 'border-blue-500 text-gray-800'
+              ? cn('text-gray-800', theme.border)
               : 'border-gray-300 text-gray-500',
           )}
         >
