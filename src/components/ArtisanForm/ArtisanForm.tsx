@@ -1,20 +1,19 @@
+import { Form, Formik, type FormikValues, useFormikContext } from 'formik';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Form, Formik, useFormikContext, type FormikValues } from 'formik';
-import Controls from '../ArtisanControls/Controls';
-import Check from '../ArtisanInputs/Check/Check';
-import DateInput from '../ArtisanInputs/Date/Date';
-import Password from '../ArtisanInputs/Password/Password';
-import Radio from '../ArtisanInputs/Radio/Radio';
-import Select from '../ArtisanInputs/Select/Select';
-import { defaultLabels, type ArtisanLabels } from '../../commons/labels';
-import Stepper from './Stepper';
-import Text from '../ArtisanInputs/Text/Text';
-import Textarea from '../ArtisanInputs/Textarea/Textarea';
+import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import {
   ArtisanStoreProvider,
   useArtisanStore,
 } from '../../stores/useArtisanStore';
+import Controls from '../ArtisanControls/Controls';
+import Check from '../ArtisanInputs/Check/Check';
+import DateInput from '../ArtisanInputs/Date/Date';
 import DynamicSelect from '../ArtisanInputs/DynamicSelect/DynamicSelect';
+import Password from '../ArtisanInputs/Password/Password';
+import Radio from '../ArtisanInputs/Radio/Radio';
+import Select from '../ArtisanInputs/Select/Select';
+import Text from '../ArtisanInputs/Text/Text';
+import Textarea from '../ArtisanInputs/Textarea/Textarea';
 import {
   buildInitialValues,
   buildValidationSchema,
@@ -22,12 +21,13 @@ import {
 } from './buildSchema';
 import { visibleFields, visibleSteps } from './conditions';
 import { clearDraft, loadDraft, saveDraft, withoutSecrets } from './draft';
+import Stepper from './Stepper';
 import type { FieldSchema, FormSchema } from './types';
 
 interface ArtisanFormProps {
   scheme: FormSchema;
   /** Return a promise to keep "Finalizar" disabled until it settles. */
-  onSubmit: (values: FormikValues) => void | Promise<unknown>;
+  onSubmit: (values: FormikValues) => unknown;
   /** Overrides the scheme defaults for the given field names. */
   initialValues?: FormikValues;
   /** Called with the new step index whenever the wizard moves. */

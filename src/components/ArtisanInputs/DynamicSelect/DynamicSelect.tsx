@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { useField } from 'formik';
+import { useEffect, useState } from 'react';
 import Select from '../Select/Select';
 
 interface Option {

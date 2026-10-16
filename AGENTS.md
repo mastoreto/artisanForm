@@ -12,8 +12,8 @@ React 18 · TypeScript (strict) · Tailwind 3 · Zustand (estado de pasos) · Fo
 pnpm install
 pnpm storybook         # dev en :6006
 pnpm build-storybook
-pnpm lint              # prettier --check
-pnpm format            # prettier --write
+pnpm lint              # biome check
+pnpm format            # biome check --write
 ```
 
 Además: `pnpm build` (librería), `pnpm typecheck` y `bun test` (tests `*.test.ts` junto al código).
@@ -45,7 +45,7 @@ src/
 
 ## Convenciones de código
 
-- Prettier manda (`.prettierrc`: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 cols). Correr `pnpm format` antes de commitear; no mezclar reformateo con cambios funcionales.
+- Biome manda (`biome.jsonc`: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 cols). Correr `pnpm format` antes de commitear; no mezclar reformateo con cambios funcionales.
 - Un componente por carpeta, `export default`, con su `*.stories.tsx` al lado.
 - Inputs: `forwardRef`, props tipadas con `interface`, `id` + `label` obligatorios, `className` opcional mezclado vía `cn()`. Accesibilidad básica obligatoria (`label htmlFor`, `aria-invalid`/`aria-describedby` en errores).
 - Estilos solo con Tailwind + `cn()`. Nada de CSS nuevo salvo `src/styles/global.css`.

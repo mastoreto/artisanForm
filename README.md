@@ -15,7 +15,7 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 | Documentación            | Storybook 8 (`@storybook/react-vite`)       |
 | Build                    | Vite 5 en modo librería + `vite-plugin-dts` |
 | Tests                    | `bun test`                                  |
-| Formato                  | Prettier 3                                  |
+| Formato y lint           | Biome 2                                     |
 | Gestor de paquetes       | pnpm                                        |
 
 ## Primeros pasos
@@ -31,7 +31,7 @@ pnpm storybook   # http://localhost:6006
 | `pnpm build-storybook`      | Storybook estático                                   |
 | `pnpm build`                | Build de la librería en `dist/` (ES + UMD + `.d.ts`) |
 | `pnpm typecheck`            | `tsc --noEmit`                                       |
-| `pnpm lint` / `pnpm format` | Prettier check / write                               |
+| `pnpm lint` / `pnpm format` | Biome check / check --write                         |
 | `bun test`                  | Tests (`*.test.ts`)                                  |
 
 ## Uso
@@ -165,7 +165,7 @@ Los inputs sueltos usan `useField` de Formik: reciben `name` (no `value`/`onChan
 │   ├── styles/global.css    Directivas de Tailwind
 │   └── index.ts             Entry de la librería
 ├── AGENTS.md                Forma de trabajo (humanos y agentes)
-└── vite.config.ts · tailwind.config.js · tsconfig.json · .prettierrc
+└── vite.config.ts · tailwind.config.js · tsconfig.json · biome.jsonc
 ```
 
 ## Estado del proyecto
@@ -223,7 +223,7 @@ Detalle en [AGENTS.md](AGENTS.md). Resumen:
 
 ## Convenciones
 
-- Prettier: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 columnas, LF.
+- Biome: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 columnas, LF.
 - Un componente por carpeta con su `*.stories.tsx`; `export default`.
 - Inputs con `forwardRef` cuando exponen un elemento, `useField` de Formik y accesibilidad básica (`label htmlFor`, `aria-invalid`, `aria-describedby`).
 - Estilos solo con Tailwind + `cn()`. Estado global solo en `useArtisanStore`.
