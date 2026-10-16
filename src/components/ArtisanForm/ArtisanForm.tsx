@@ -7,6 +7,7 @@ import Password from '../ArtisanInputs/Password/Password';
 import Radio from '../ArtisanInputs/Radio/Radio';
 import Select from '../ArtisanInputs/Select/Select';
 import Text from '../ArtisanInputs/Text/Text';
+import Textarea from '../ArtisanInputs/Textarea/Textarea';
 import {
   ArtisanStoreProvider,
   useArtisanStore,
@@ -24,43 +25,48 @@ interface ArtisanFormProps {
   onSubmit: (values: FormikValues) => void;
 }
 
+const isChoice = (f: FieldSchema) =>
+  ['select', 'dynamicSelect', 'check', 'radio'].includes(f.type);
+
 const renderField = (f: FieldSchema) => {
+  const text = {
+    id: f.name,
+    name: f.name,
+    label: f.label,
+    placeholder: f.placeholder,
+    disabled: f.disabled,
+    helperText: f.helperText,
+  };
+  const choice = {
+    name: f.name,
+    options: f.options ?? [],
+    disabled: f.disabled,
+  };
   switch (f.type) {
     case 'text':
-      return (
-        <Text
-          id={f.name}
-          name={f.name}
-          label={f.label}
-          placeholder={f.placeholder}
-        />
-      );
+    case 'email':
+    case 'number':
+      return <Text {...text} type={f.type} />;
+    case 'textarea':
+      return <Textarea {...text} />;
     case 'password':
-      return (
-        <Password
-          id={f.name}
-          name={f.name}
-          label={f.label}
-          placeholder={f.placeholder}
-        />
-      );
+      return <Password {...text} />;
     case 'date':
-      return <DateInput id={f.name} name={f.name} label={f.label} />;
+      return <DateInput {...text} />;
     case 'select':
-      return <Select name={f.name} options={f.options ?? []} />;
+      return <Select {...choice} />;
     case 'dynamicSelect':
       return (
         <DynamicSelect
-          name={f.name}
+          {...choice}
           dependentName={f.dependentName ?? `${f.name}Dependent`}
-          options={f.options ?? []}
           dependentOptions={f.dependentOptions ?? {}}
         />
       );
     case 'check':
-      return <Check name={f.name} options={f.options ?? []} />;
+      return <Check {...choice} />;
     case 'radio':
-      return <Radio name={f.name} options={f.options ?? []} />;
+      return <Radio {...choice} />;
   }
 };
 
@@ -113,15 +119,15 @@ const ArtisanFormInner = ({ scheme, onSubmit }: ArtisanFormProps) => {
             <h2 className="mb-4 text-lg font-semibold">{current.title}</h2>
             {current.fields.map((f) => (
               <div key={f.name} className="mb-4">
-                {(f.type === 'select' ||
-                  f.type === 'dynamicSelect' ||
-                  f.type === 'check' ||
-                  f.type === 'radio') && (
+                {isChoice(f) && (
                   <span className="block text-sm font-medium text-gray-700">
                     {f.label}
                   </span>
                 )}
                 {renderField(f)}
+                {isChoice(f) && f.helperText && (
+                  <p className="mt-1 text-sm text-gray-500">{f.helperText}</p>
+                )}
               </div>
             ))}
             <Controls onNext={handleNext} />

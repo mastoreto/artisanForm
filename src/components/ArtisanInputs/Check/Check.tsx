@@ -9,9 +9,10 @@ interface Option {
 interface CheckProps {
   name: string;
   options: Option[];
+  disabled?: boolean;
 }
 
-const Check = ({ name, options }: CheckProps) => {
+const Check = ({ name, options, disabled }: CheckProps) => {
   const [field, meta, helpers] = useField<string[]>(name);
   const error = meta.touched && meta.error ? meta.error : null;
   const selected = field.value ?? [];
@@ -31,11 +32,12 @@ const Check = ({ name, options }: CheckProps) => {
         {options.map((option) => (
           <button
             type="button"
+            disabled={disabled}
             key={option.value}
             onClick={() => handleChange(option.value)}
             aria-pressed={selected.includes(option.value)}
             className={cn(
-              'cursor-pointer select-none m-1 px-4 py-2 border-2 rounded-md transition-colors',
+              'cursor-pointer select-none m-1 px-4 py-2 border-2 rounded-md transition-colors disabled:cursor-not-allowed disabled:opacity-50',
               selected.includes(option.value)
                 ? 'bg-blue-500 text-white border-blue-500'
                 : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100',

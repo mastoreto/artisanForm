@@ -68,3 +68,48 @@ test('validation: required, min and array min', async () => {
     true,
   );
 });
+
+const rich: FormSchema = {
+  steps: [
+    {
+      title: 'R',
+      fields: [
+        { type: 'email', name: 'mail', label: 'Mail', required: true },
+        { type: 'number', name: 'age', label: 'Age', min: 18, max: 99 },
+        { type: 'text', name: 'code', label: 'Code', pattern: '^[A-Z]{3}$' },
+        { type: 'text', name: 'bio', label: 'Bio', min: 3, max: 5 },
+        { type: 'textarea', name: 'note', label: 'Note', defaultValue: 'hi' },
+        { type: 'check', name: 'tags', label: 'T', defaultValue: ['a'] },
+      ],
+    },
+  ],
+};
+
+const errorsOf = (values: object) =>
+  buildValidationSchema(rich)
+    .validate(values, { abortEarly: false })
+    .then(() => [] as string[])
+    .catch((e) => e.errors as string[]);
+
+const ok = { mail: 'a@b.co', age: '', code: '', bio: '', note: '', tags: [] };
+
+test('defaultValue feeds initial values', () => {
+  const v = buildInitialValues(rich);
+  expect(v.note).toBe('hi');
+  expect(v.tags).toEqual(['a']);
+  expect(v.age).toBe('');
+});
+
+test('optional empty fields pass; email, number, pattern and length rules fail', async () => {
+  expect(await errorsOf(ok)).toEqual([]);
+  expect(await errorsOf({ ...ok, mail: 'nope' })).toEqual(['Email inválido']);
+  expect(await errorsOf({ ...ok, age: 17 })).toEqual(['Mínimo 18']);
+  expect(await errorsOf({ ...ok, age: 100 })).toEqual(['Máximo 99']);
+  expect(await errorsOf({ ...ok, age: 'x' })).toEqual(['Número inválido']);
+  expect(await errorsOf({ ...ok, code: 'ab' })).toEqual(['Formato inválido']);
+  expect(await errorsOf({ ...ok, code: 'ABC', age: 30 })).toEqual([]);
+  expect(await errorsOf({ ...ok, bio: 'ab' })).toEqual(['Mínimo 3 caracteres']);
+  expect(await errorsOf({ ...ok, bio: 'abcdef' })).toEqual([
+    'Máximo 5 caracteres',
+  ]);
+});

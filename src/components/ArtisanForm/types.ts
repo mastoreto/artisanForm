@@ -6,6 +6,9 @@ export interface FieldOption {
 export interface FieldSchema {
   type:
     | 'text'
+    | 'email'
+    | 'number'
+    | 'textarea'
     | 'password'
     | 'date'
     | 'select'
@@ -20,7 +23,16 @@ export interface FieldSchema {
   dependentName?: string;
   dependentOptions?: Record<string, FieldOption[]>;
   required?: boolean;
+  /** Text: min length. Number: min value. */
   min?: number;
+  /** Text: max length. Number: max value. */
+  max?: number;
+  /** Regular expression source the text must match. */
+  pattern?: string;
+  /** Initial value (array for `check`). */
+  defaultValue?: string | string[];
+  disabled?: boolean;
+  helperText?: string;
 }
 
 export interface StepSchema {
