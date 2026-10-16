@@ -24,9 +24,7 @@ export const WithValidation: Story = {
     withFormik(
       { field: '' },
       {
-        field: Yup.date()
-          .typeError('Fecha inválida')
-          .required('Campo requerido'),
+        field: Yup.date().typeError('Invalid date').required('Required field'),
       },
     ),
   ],

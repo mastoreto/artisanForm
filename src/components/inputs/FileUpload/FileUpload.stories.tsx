@@ -10,7 +10,7 @@ const meta: Meta<typeof FileUpload> = {
   args: {
     id: 'upload',
     name: 'files',
-    label: 'Documentos',
+    label: 'Documents',
     storage: mockStorage({ delay: 1200 }),
   },
 };

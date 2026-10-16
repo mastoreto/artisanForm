@@ -144,7 +144,7 @@ export interface StepControls {
   hidden?: boolean;
   hidePrevious?: boolean;
   hideNext?: boolean;
-  /** Keep "Siguiente"/"Finalizar" visible but disabled. */
+  /** Keep "Next"/"Finish" visible but disabled. */
   nextDisabled?: boolean;
   nextLabel?: string;
   previousLabel?: string;

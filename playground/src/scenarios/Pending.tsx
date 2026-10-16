@@ -7,12 +7,15 @@ const confirmation = polling(
   async ({ values }) => {
     calls += 1;
     if (values.simulateFailure) {
-      return { status: 'failed', message: 'El servicio rechazó la operación' };
+      return {
+        status: 'failed',
+        message: 'The service rejected the operation',
+      };
     }
     return calls < 3
       ? {
           status: 'pending',
-          message: `Consultando al servicio (intento ${calls})…`,
+          message: `Querying the service (attempt ${calls})…`,
         }
       : { status: 'success', data: 'ORD-1234' };
   },
@@ -22,22 +25,26 @@ const confirmation = polling(
 const scheme: FormSchema = {
   steps: [
     {
-      title: 'Solicitud',
+      title: 'Request',
       fields: [
-        { type: 'text', name: 'name', label: 'Nombre', required: true },
-        { type: 'checkbox', name: 'simulateFailure', label: 'Simular fallo' },
+        { type: 'text', name: 'name', label: 'Name', required: true },
+        {
+          type: 'checkbox',
+          name: 'simulateFailure',
+          label: 'Simulate failure',
+        },
       ],
       onEnter: () => {
         calls = 0;
       },
     },
     {
-      title: 'Confirmando',
+      title: 'Confirming',
       kind: 'pending',
       wait: confirmation,
       resultName: 'orderId',
     },
-    { title: 'Listo', kind: 'result', message: 'Operación confirmada' },
+    { title: 'Done', kind: 'result', message: 'Operation confirmed' },
   ],
 };
 

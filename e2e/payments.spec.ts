@@ -5,16 +5,14 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.getByRole('radio', { name: 'Pro' }).click();
-  await page.getByRole('button', { name: 'Siguiente' }).click();
-  await expect(page.getByRole('heading', { name: 'Pago' })).toBeVisible();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await expect(page.getByRole('heading', { name: 'Payment' })).toBeVisible();
 });
 
 test('embedded payment completes and is submitted', async ({ page }) => {
-  await page
-    .getByRole('button', { name: 'Pagar con Tarjeta (embebido)' })
-    .click();
-  await page.getByRole('button', { name: 'Pagar (mock)' }).click();
-  await expect(page.getByText('Pago registrado')).toBeVisible();
+  await page.getByRole('button', { name: 'Pay with Card (embedded)' }).click();
+  await page.getByRole('button', { name: 'Pay (mock)' }).click();
+  await expect(page.getByText('Payment recorded')).toBeVisible();
   await expect(page.getByTestId('result')).toContainText('"provider": "card"');
 });
 
@@ -22,10 +20,10 @@ test('hosted checkout: leaves the page and resumes at the payment step on return
   page,
 }) => {
   await page
-    .getByRole('button', { name: 'Pagar con Checkout (redirect)' })
+    .getByRole('button', { name: 'Pay with Checkout (redirect)' })
     .click();
   // The mock "provider" sends the user straight back with a result param.
-  await expect(page.getByText('Pago registrado')).toBeVisible();
+  await expect(page.getByText('Payment recorded')).toBeVisible();
   await expect(page.getByTestId('result')).toContainText('"plan": "pro"');
   await expect(page.getByTestId('result')).toContainText(
     '"provider": "hosted"',

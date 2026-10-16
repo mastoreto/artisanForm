@@ -7,15 +7,11 @@ test.beforeEach(async ({ page }) => {
 test('waits for the service, advances on success and keeps the result', async ({
   page,
 }) => {
-  await page.getByLabel('Nombre').fill('Ana');
-  await page.getByRole('button', { name: 'Siguiente' }).click();
-  await expect(
-    page.getByRole('heading', { name: 'Confirmando' }),
-  ).toBeVisible();
-  await expect(page.getByRole('status')).toContainText(
-    'Consultando al servicio',
-  );
-  await expect(page.getByText('Operación confirmada')).toBeVisible({
+  await page.getByLabel('Name').fill('Ana');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await expect(page.getByRole('heading', { name: 'Confirming' })).toBeVisible();
+  await expect(page.getByRole('status')).toContainText('Querying the service');
+  await expect(page.getByText('Operation confirmed')).toBeVisible({
     timeout: 10_000,
   });
   await expect(page.getByTestId('result')).toContainText(
@@ -24,12 +20,12 @@ test('waits for the service, advances on success and keeps the result', async ({
 });
 
 test('a failure offers retry and going back', async ({ page }) => {
-  await page.getByLabel('Nombre').fill('Ana');
-  await page.getByLabel('Simular fallo').check();
-  await page.getByRole('button', { name: 'Siguiente' }).click();
+  await page.getByLabel('Name').fill('Ana');
+  await page.getByLabel('Simulate failure').check();
+  await page.getByRole('button', { name: 'Next' }).click();
   await expect(
-    page.getByText('El servicio rechazó la operación'),
+    page.getByText('The service rejected the operation'),
   ).toBeVisible();
-  await page.getByRole('button', { name: 'Volver al formulario' }).click();
-  await expect(page.getByRole('heading', { name: 'Solicitud' })).toBeVisible();
+  await page.getByRole('button', { name: 'Back to the form' }).click();
+  await expect(page.getByRole('heading', { name: 'Request' })).toBeVisible();
 });

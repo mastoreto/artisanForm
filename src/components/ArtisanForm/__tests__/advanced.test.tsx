@@ -39,43 +39,45 @@ test('content fields render text, own no values and are skipped in the review', 
       scheme={{
         steps: [
           {
-            title: 'Datos',
+            title: 'Data',
             fields: [
-              { type: 'heading', name: 'h', label: 'Sección A' },
-              { type: 'paragraph', name: 'p', label: 'Explicación' },
-              { type: 'callout', name: 'c', label: 'Ojo', variant: 'warning' },
+              { type: 'heading', name: 'h', label: 'Section A' },
+              { type: 'paragraph', name: 'p', label: 'Explanation' },
+              { type: 'callout', name: 'c', label: 'Eye', variant: 'warning' },
               { type: 'divider', name: 'd', label: '' },
               { type: 'text', name: 'a', label: 'A' },
             ],
           },
-          { title: 'Revisá', kind: 'review' },
+          { title: 'Review', kind: 'review' },
         ],
       }}
     />,
   );
-  expect(screen.getByRole('heading', { name: 'Sección A' })).toBeTruthy();
-  expect(screen.getByRole('alert').textContent).toBe('Ojo');
+  expect(screen.getByRole('heading', { name: 'Section A' })).toBeTruthy();
+  expect(screen.getByRole('alert').textContent).toBe('Eye');
   await user.type(screen.getByLabelText('A'), 'x');
-  await user.click(screen.getByText('Siguiente'));
-  await screen.findByRole('heading', { name: 'Revisá' });
-  expect(screen.queryByText('Explicación', { selector: 'dt' })).toBeNull();
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Next'));
+  await screen.findByRole('heading', { name: 'Review' });
+  expect(screen.queryByText('Explanation', { selector: 'dt' })).toBeNull();
+  await user.click(screen.getByText('Finish'));
   await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   expect(onSubmit.mock.calls[0][0]).toEqual({ a: 'x' });
 });
 
 test('time, datetime and month use their native input types and limits', () => {
   setup([
-    { type: 'time', name: 't', label: 'Hora', minDate: '08:00' },
-    { type: 'datetime', name: 'dt', label: 'Fecha y hora' },
-    { type: 'month', name: 'm', label: 'Mes' },
+    { type: 'time', name: 't', label: 'Time', minDate: '08:00' },
+    { type: 'datetime', name: 'dt', label: 'Date and time' },
+    { type: 'month', name: 'm', label: 'Month' },
   ]);
-  expect((screen.getByLabelText('Hora') as HTMLInputElement).type).toBe('time');
-  expect((screen.getByLabelText('Hora') as HTMLInputElement).min).toBe('08:00');
-  expect((screen.getByLabelText('Fecha y hora') as HTMLInputElement).type).toBe(
-    'datetime-local',
+  expect((screen.getByLabelText('Time') as HTMLInputElement).type).toBe('time');
+  expect((screen.getByLabelText('Time') as HTMLInputElement).min).toBe('08:00');
+  expect(
+    (screen.getByLabelText('Date and time') as HTMLInputElement).type,
+  ).toBe('datetime-local');
+  expect((screen.getByLabelText('Month') as HTMLInputElement).type).toBe(
+    'month',
   );
-  expect((screen.getByLabelText('Mes') as HTMLInputElement).type).toBe('month');
 });
 
 test('daterange: the end cannot precede the start', async () => {
@@ -84,19 +86,19 @@ test('daterange: the end cannot precede the start', async () => {
       type: 'daterange',
       name: 'from',
       endName: 'to',
-      label: 'Desde',
+      label: 'From',
       required: true,
     },
   ]);
-  await user.type(screen.getByLabelText('Desde'), '2030-05-10');
-  await user.type(screen.getByLabelText('Hasta'), '2030-05-01');
-  await user.click(screen.getByText('Finalizar'));
+  await user.type(screen.getByLabelText('From'), '2030-05-10');
+  await user.type(screen.getByLabelText('To'), '2030-05-01');
+  await user.click(screen.getByText('Finish'));
   expect(
-    await screen.findByText('La fecha final es anterior a la inicial'),
+    await screen.findByText('The end date is before the start date'),
   ).toBeTruthy();
-  await user.clear(screen.getByLabelText('Hasta'));
-  await user.type(screen.getByLabelText('Hasta'), '2030-05-20');
-  await user.click(screen.getByText('Finalizar'));
+  await user.clear(screen.getByLabelText('To'));
+  await user.type(screen.getByLabelText('To'), '2030-05-20');
+  await user.click(screen.getByText('Finish'));
   expect(await submitted(onSubmit)).toEqual({
     from: '2030-05-10',
     to: '2030-05-20',
@@ -105,17 +107,17 @@ test('daterange: the end cannot precede the start', async () => {
 
 test('mask formats as you type; prefix is shown', async () => {
   const { user, onSubmit } = setup([
-    { type: 'text', name: 'cuit', label: 'CUIT', mask: '##-########-#' },
-    { type: 'number', name: 'price', label: 'Precio', prefix: '$' },
+    { type: 'text', name: 'taxId', label: 'Tax ID', mask: '##-########-#' },
+    { type: 'number', name: 'price', label: 'Price', prefix: '$' },
   ]);
-  await user.type(screen.getByLabelText('CUIT'), '20123456789');
-  expect((screen.getByLabelText('CUIT') as HTMLInputElement).value).toBe(
+  await user.type(screen.getByLabelText('Tax ID'), '20123456789');
+  expect((screen.getByLabelText('Tax ID') as HTMLInputElement).value).toBe(
     '20-12345678-9',
   );
   expect(screen.getByText('$')).toBeTruthy();
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Finish'));
   expect((await submitted(onSubmit)) as object).toMatchObject({
-    cuit: '20-12345678-9',
+    taxId: '20-12345678-9',
   });
 });
 
@@ -124,23 +126,23 @@ test('range stores a number; rating toggles; otp handles typing, backspace and p
     {
       type: 'range',
       name: 'level',
-      label: 'Nivel',
+      label: 'Level',
       min: 0,
       max: 10,
       defaultValue: '3' as never,
     },
-    { type: 'rating', name: 'stars', label: 'Estrellas', length: 5 },
-    { type: 'otp', name: 'code', label: 'Código', length: 4 },
+    { type: 'rating', name: 'stars', label: 'Stars', length: 5 },
+    { type: 'otp', name: 'code', label: 'Code', length: 4 },
   ]);
-  fireEvent.change(screen.getByLabelText('Nivel'), { target: { value: '7' } });
+  fireEvent.change(screen.getByLabelText('Level'), { target: { value: '7' } });
   // the rating has a visible label, not only an aria-label
-  expect(screen.getByText('Estrellas').tagName).toBe('SPAN');
+  expect(screen.getByText('Stars').tagName).toBe('SPAN');
   await user.click(screen.getByLabelText('4 / 5'));
   expect(screen.getByLabelText('4 / 5').getAttribute('aria-checked')).toBe(
     'true',
   );
 
-  const boxes = screen.getAllByLabelText(/Código \d\/4/);
+  const boxes = screen.getAllByLabelText(/Code \d\/4/);
   await user.click(boxes[0]);
   await user.keyboard('12');
   await user.keyboard('{Backspace}');
@@ -152,7 +154,7 @@ test('range stores a number; rating toggles; otp handles typing, backspace and p
     '',
   ]);
   await user.paste('9');
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Finish'));
   expect(await submitted(onSubmit)).toMatchObject({ level: 7, stars: 4 });
 });
 
@@ -161,7 +163,7 @@ test('combobox filters options and picks with the keyboard', async () => {
     {
       type: 'combobox',
       name: 'country',
-      label: 'País',
+      label: 'Country',
       options: [
         { value: 'ar', label: 'Argentina' },
         { value: 'au', label: 'Australia' },
@@ -169,14 +171,14 @@ test('combobox filters options and picks with the keyboard', async () => {
       ],
     },
   ]);
-  const input = screen.getByRole('combobox', { name: 'País' });
+  const input = screen.getByRole('combobox', { name: 'Country' });
   await user.type(input, 'au');
   expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual([
     'Australia',
   ]);
   await user.keyboard('{Enter}');
   expect((input as HTMLInputElement).value).toBe('Australia');
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByText('Finish'));
   expect(await submitted(onSubmit)).toEqual({ country: 'au' });
 });
 
@@ -188,16 +190,16 @@ test('multiselect shows chips, removes them and supports async search', async ()
     ].filter((o) => o.label.toLowerCase().includes(q.toLowerCase())),
   );
   const { user, onSubmit } = setup([
-    { type: 'multiselect', name: 'langs', label: 'Lenguajes', loadOptions },
+    { type: 'multiselect', name: 'langs', label: 'Languages', loadOptions },
   ]);
-  const input = screen.getByRole('combobox', { name: 'Lenguajes' });
+  const input = screen.getByRole('combobox', { name: 'Languages' });
   await user.type(input, 'script');
   await user.click(await screen.findByRole('option', { name: 'TypeScript' }));
   await user.click(await screen.findByRole('option', { name: 'JavaScript' }));
   expect(loadOptions).toHaveBeenCalled();
-  expect(screen.getByLabelText('Quitar JavaScript')).toBeTruthy();
-  await user.click(screen.getByLabelText('Quitar JavaScript'));
-  await user.click(screen.getByText('Finalizar'));
+  expect(screen.getByLabelText('Remove JavaScript')).toBeTruthy();
+  await user.click(screen.getByLabelText('Remove JavaScript'));
+  await user.click(screen.getByText('Finish'));
   expect(await submitted(onSubmit)).toEqual({ langs: ['ts'] });
 });
 
@@ -206,33 +208,33 @@ test('array field: add and remove rows, validate each row, submit the list', asy
     {
       type: 'array',
       name: 'people',
-      label: 'Personas',
+      label: 'People',
       minItems: 1,
       maxItems: 3,
       itemFields: [
-        { type: 'text', name: 'name', label: 'Nombre', required: true },
+        { type: 'text', name: 'name', label: 'Name', required: true },
         { type: 'email', name: 'mail', label: 'Mail' },
       ],
     },
   ]);
   // starts empty: minItems must be satisfied
-  await user.click(screen.getByText('Finalizar'));
-  expect(await screen.findByText('Agregá al menos 1')).toBeTruthy();
+  await user.click(screen.getByText('Finish'));
+  expect(await screen.findByText('Add at least 1')).toBeTruthy();
 
-  await user.click(screen.getByText('Agregar otro'));
-  await user.click(screen.getByText('Agregar otro'));
-  expect(screen.getAllByLabelText('Nombre')).toHaveLength(2);
+  await user.click(screen.getByText('Add another'));
+  await user.click(screen.getByText('Add another'));
+  expect(screen.getAllByLabelText('Name')).toHaveLength(2);
 
   // a row with a missing required field blocks the submit
-  await user.type(screen.getAllByLabelText('Nombre')[0], 'Ana');
+  await user.type(screen.getAllByLabelText('Name')[0], 'Ana');
   await user.type(screen.getAllByLabelText('Mail')[0], 'ana@x.co');
-  await user.click(screen.getByText('Finalizar'));
-  expect(await screen.findByText('Campo requerido')).toBeTruthy();
+  await user.click(screen.getByText('Finish'));
+  expect(await screen.findByText('Required field')).toBeTruthy();
   expect(onSubmit).not.toHaveBeenCalled();
 
-  await user.click(screen.getByLabelText('Quitar elemento 2'));
-  expect(screen.getAllByLabelText('Nombre')).toHaveLength(1);
-  await user.click(screen.getByText('Finalizar'));
+  await user.click(screen.getByLabelText('Remove item 2'));
+  expect(screen.getAllByLabelText('Name')).toHaveLength(1);
+  await user.click(screen.getByText('Finish'));
   expect(await submitted(onSubmit)).toEqual({
     people: [{ name: 'Ana', mail: 'ana@x.co' }],
   });
@@ -253,7 +255,7 @@ test('array field: maxItems disables "add" and secrets inside rows are not draft
               {
                 type: 'array',
                 name: 'cards',
-                label: 'Claves',
+                label: 'Passwords',
                 maxItems: 1,
                 itemFields: [{ type: 'password', name: 'pin', label: 'PIN' }],
               },
@@ -263,9 +265,9 @@ test('array field: maxItems disables "add" and secrets inside rows are not draft
       }}
     />,
   );
-  await user.click(screen.getByText('Agregar otro'));
+  await user.click(screen.getByText('Add another'));
   await user.type(screen.getByLabelText('PIN'), 'abcd');
-  expect((screen.getByText('Agregar otro') as HTMLButtonElement).disabled).toBe(
+  expect((screen.getByText('Add another') as HTMLButtonElement).disabled).toBe(
     true,
   );
   await waitFor(() =>

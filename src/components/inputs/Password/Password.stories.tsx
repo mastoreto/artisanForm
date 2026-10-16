@@ -25,8 +25,8 @@ export const WithValidation: Story = {
       { field: '' },
       {
         field: Yup.string()
-          .required('Campo requerido')
-          .min(8, 'Mínimo 8 caracteres'),
+          .required('Required field')
+          .min(8, 'Minimum 8 characters'),
       },
     ),
   ],

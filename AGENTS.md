@@ -6,7 +6,7 @@ React library for multi-step forms (wizards) with ready-made inputs. It ships as
 
 - **Everything generated in this repository is written in English**: code, identifiers, comments, JSDoc, test names, commit messages, PR and issue text, `README.md`, `AGENTS.md`, `CHANGELOG.md` and everything under `docs/`.
 - **Spanish versions live in [`docs/es/`](docs/es/)** and mirror the English documents: [`README`](docs/es/README.md), [`AGENTS`](docs/es/AGENTS.md), [`CHANGELOG`](docs/es/CHANGELOG.md) and [`schema v1`](docs/es/schema-v1.md). Read them when you need the Spanish text; **when you change an English document, update its Spanish copy in the same change**.
-- Exception: the **default user-facing strings** (`src/commons/labels.ts`, validation messages, demo copy in the playground and in stories) are Spanish. That is a product default, not documentation: it is configurable with the `labels` prop and must not be translated as part of a docs change.
+- Library texts are never hard-coded: built-in defaults (`src/commons/labels.ts`) are English and every one is overridable through the `labels` prop. Field labels, names and step titles are free text supplied by the user's schema. Demo copy (playground, stories, fixtures, tests) is English too.
 - Reply to people in the language they write to you in; the repository artifacts stay in English.
 
 ## Stack

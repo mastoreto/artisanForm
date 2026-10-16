@@ -85,7 +85,7 @@ describe('0.2.0 → v1 translation', () => {
       labelPosition: 'top',
     });
     const step = fields.schema.steps[0];
-    expect(step.id).toBe('todos-los-campos');
+    expect(step.id).toBe('all-fields');
     expect(step.ui).toEqual({ columns: 2 });
     expect(
       normalizeArtisanSchema(legacyFixtures.wizard, {
@@ -143,16 +143,16 @@ describe('0.2.0 → v1 translation', () => {
       coerce: 'string',
     });
     expect(field(fields, 0, 'name').ui).toEqual({ span: 1 });
-    expect(field(fields, 0, 'cuit').ui).toEqual({ span: 2 }); // default keeps today's full width
-    expect(field(fields, 0, 'news').description).toBe('Una vez por mes');
+    expect(field(fields, 0, 'taxId').ui).toEqual({ span: 2 }); // default keeps today's full width
+    expect(field(fields, 0, 'news').description).toBe('Once a month');
     expect(field(fields, 0, 'news').helperText).toBeUndefined();
   });
 
   test('content fields use `text`; validation moves under `validation` by family', () => {
-    expect(field(fields, 0, 'h1').text).toBe('Datos básicos');
+    expect(field(fields, 0, 'h1').text).toBe('Basic data');
     expect(field(fields, 0, 'h1').label).toBeUndefined();
     expect(field(fields, 0, 'c1')).toMatchObject({
-      text: 'Los campos con * son obligatorios',
+      text: 'Fields marked * are required',
       variant: 'info',
     });
     expect(field(fields, 0, 'd1').text).toBeUndefined();
@@ -174,7 +174,7 @@ describe('0.2.0 → v1 translation', () => {
     const rep = normalizeArtisanSchema(legacyFixtures.repeatables);
     expect(field(rep, 0, 'members')).toMatchObject({
       validation: { minItems: 1, maxItems: 3 },
-      description: 'Entre 1 y 3 personas',
+      description: 'Between 1 and 3 people',
     });
     const files = normalizeArtisanSchema(legacyFixtures.files);
     expect(field(files, 0, 'dni')).toMatchObject({
@@ -227,24 +227,23 @@ describe('0.2.0 → v1 translation', () => {
     const wait = pend.schema.steps[1];
     expect(wait).toMatchObject({
       type: 'wait',
-      strategy: 'legacy:confirmando:wait',
+      strategy: 'legacy:confirming:wait',
       resultName: 'orderId',
-      failTo: 'solicitud',
+      failTo: 'request',
     });
     expect(
-      typeof (
-        pend.bindings['legacy:confirmando:wait'] as { subscribe: unknown }
-      ).subscribe,
+      typeof (pend.bindings['legacy:confirming:wait'] as { subscribe: unknown })
+        .subscribe,
     ).toBe('function');
     expect(pend.schema.steps[0].hooks).toEqual({
-      onEnter: 'legacy:solicitud:onEnter',
+      onEnter: 'legacy:request:onEnter',
     });
-    expect(typeof pend.bindings['legacy:solicitud:onEnter']).toBe('function');
+    expect(typeof pend.bindings['legacy:request:onEnter']).toBe('function');
 
     expect(field(adv, 0, 'lang').optionsSource).toBe(
-      'legacy:cuenta:lang:loadOptions',
+      'legacy:account:lang:loadOptions',
     );
-    expect(typeof adv.bindings['legacy:cuenta:lang:loadOptions']).toBe(
+    expect(typeof adv.bindings['legacy:account:lang:loadOptions']).toBe(
       'function',
     );
     expect(adv.schema.steps[3]).toMatchObject({
@@ -255,7 +254,7 @@ describe('0.2.0 → v1 translation', () => {
     expect(adv.schema.steps[4]).toMatchObject({
       actions: [
         { label: 'Ir', href: '/' },
-        { label: 'Otra', action: 'legacy:fin:action:1' },
+        { label: 'Other', action: 'legacy:end:action:1' },
       ],
     });
     expect(adv.portable).toBe(false);
@@ -273,7 +272,7 @@ describe('0.2.0 → v1 translation', () => {
     expect(pay.schema.steps[1]).toMatchObject({
       type: 'payment',
       providers: ['card', 'hosted', 'declined'],
-      summary: 'Total a pagar lo calcula tu servidor.',
+      summary: 'The total to pay is computed by your server.',
     });
     const single = normalizeArtisanSchema({
       steps: [
@@ -286,9 +285,9 @@ describe('0.2.0 → v1 translation', () => {
     });
     expect(adv.schema.steps[2]).toMatchObject({
       type: 'terms',
-      content: 'Texto de los términos',
+      content: 'Terms text',
       href: 'https://example.com/terms',
-      accept: { name: 'ok', label: 'Acepto' },
+      accept: { name: 'ok', label: 'I accept' },
     });
   });
 
@@ -316,12 +315,12 @@ describe('step ids', () => {
   test('derived from titles, with accents folded and collisions suffixed', () => {
     expect(
       deriveStepIds([
-        { title: 'Datos personales', type: 'form' },
-        { title: 'Ubicación', type: 'form' },
-        { title: 'Ubicacion', type: 'form' },
-        { title: 'Ubicación!', type: 'form' },
+        { title: 'Personal data', type: 'form' },
+        { title: 'Caf\u00e9', type: 'form' },
+        { title: 'Cafe', type: 'form' },
+        { title: 'Cafe!', type: 'form' },
       ]),
-    ).toEqual(['datos-personales', 'ubicacion', 'ubicacion-2', 'ubicacion-3']);
+    ).toEqual(['personal-data', 'cafe', 'cafe-2', 'cafe-3']);
   });
   test('untitled steps fall back to <type>-<position>; same input, same ids', () => {
     const steps = [

@@ -11,7 +11,7 @@ const meta: Meta<typeof Textarea> = {
     id: 'textarea-input',
     name: 'field',
     label: 'Textarea Input',
-    helperText: 'Máximo 200 caracteres',
+    helperText: 'Maximum 200 characters',
   },
 };
 
@@ -25,7 +25,7 @@ export const Default: Story = {
 
 export const Disabled: Story = {
   args: { disabled: true },
-  decorators: [withFormik({ field: 'No editable' })],
+  decorators: [withFormik({ field: 'Not editable' })],
 };
 
 /** Submit (or blur) the empty field to see the Yup error. */
@@ -33,7 +33,7 @@ export const WithValidation: Story = {
   decorators: [
     withFormik(
       { field: '' },
-      { field: Yup.string().required('Campo requerido') },
+      { field: Yup.string().required('Required field') },
     ),
   ],
 };

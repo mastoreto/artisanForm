@@ -27,8 +27,8 @@ const scheme = (payment: Record<string, unknown> = { provider: 'mock' }) =>
         title: 'Plan',
         fields: [{ type: 'text', name: 'plan', label: 'Plan' }],
       },
-      { title: 'Pago', kind: 'payment', ...payment },
-      { title: 'Fin', kind: 'result', message: 'Pagado' },
+      { title: 'Payment', kind: 'payment', ...payment },
+      { title: 'End', kind: 'result', message: 'Paid' },
     ],
   }) as FormSchema;
 
@@ -42,9 +42,9 @@ test('embedded plugin: succeeds, stores the payment record and submits it', asyn
       plugins={{ payments: [mockPayment({ delay: 10 })] }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
-  await user.click(await screen.findByText('Pagar (mock)'));
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  await user.click(screen.getByText('Next'));
+  await user.click(await screen.findByText('Pay (mock)'));
+  expect(await screen.findByText('Paid')).toBeTruthy();
   expect(onSubmit.mock.calls[0][0]).toMatchObject({
     payment: { provider: 'mock', status: 'succeeded', reference: 'mock_ref_1' },
   });
@@ -66,7 +66,7 @@ test('a rejected payment can be retried with a fresh idempotency key', async () 
           attempt++;
           onResult(
             attempt === 1
-              ? { status: 'failed', message: 'Tarjeta rechazada' }
+              ? { status: 'failed', message: 'Card declined' }
               : { status: 'succeeded', reference: 'ok' },
           );
         }}
@@ -82,12 +82,12 @@ test('a rejected payment can be retried with a fresh idempotency key', async () 
       plugins={{ payments: [plugin] }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   await user.click(await screen.findByText('pay custom'));
-  expect(await screen.findByText('Tarjeta rechazada')).toBeTruthy();
-  await user.click(screen.getByText('Reintentar'));
+  expect(await screen.findByText('Card declined')).toBeTruthy();
+  await user.click(screen.getByText('Retry'));
   await user.click(await screen.findByText('pay custom'));
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  expect(await screen.findByText('Paid')).toBeTruthy();
   expect(keys).toHaveLength(2);
   expect(keys[0]).not.toBe(keys[1]);
 });
@@ -106,18 +106,16 @@ test('several providers: the user picks one; unknown provider shows a notice', a
       }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
-  expect(await screen.findAllByText('Pagar con Mock')).toHaveLength(2);
+  await user.click(screen.getByText('Next'));
+  expect(await screen.findAllByText('Pay with Mock')).toHaveLength(2);
 
   cleanup();
   render(
     <ArtisanForm scheme={scheme({ provider: 'nope' })} onSubmit={() => {}} />,
   );
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   expect(
-    await screen.findByText(
-      'No hay un medio de pago configurado para este paso',
-    ),
+    await screen.findByText('No payment method is configured for this step'),
   ).toBeTruthy();
 });
 
@@ -140,8 +138,8 @@ test('redirect plugin: sends the user to the checkout URL', async () => {
       plugins={{ payments: [plugin], navigate }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
-  await user.click(await screen.findByText('Pagar con Hosted'));
+  await user.click(screen.getByText('Next'));
+  await user.click(await screen.findByText('Pay with Hosted'));
   await waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
   expect(navigate.mock.calls[0][0]).toContain('https://pay.example/checkout');
   expect(start.mock.calls[0][0].idempotencyKey).toBeTruthy();
@@ -164,7 +162,7 @@ test('redirect plugin: resumes on return, cleans the URL and advances', async ()
       plugins={{ payments: [mockPayment({ mode: 'redirect' })] }}
     />,
   );
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  expect(await screen.findByText('Paid')).toBeTruthy();
   expect(window.location.search).toBe('?keep=1');
   expect(onSubmit.mock.calls[0][0]).toMatchObject({
     plan: 'pro',
@@ -181,9 +179,9 @@ test('a "processing" result moves on so a pending step can confirm it', async ()
       plugins={{ payments: [mockPayment({ outcome: 'processing', delay: 5 })] }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
-  await user.click(await screen.findByText('Pagar (mock)'));
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  await user.click(screen.getByText('Next'));
+  await user.click(await screen.findByText('Pay (mock)'));
+  expect(await screen.findByText('Paid')).toBeTruthy();
 });
 
 test('after a failure the user can switch to another payment method', async () => {
@@ -194,17 +192,17 @@ test('after a failure the user can switch to another payment method', async () =
       onSubmit={() => {}}
       plugins={{
         payments: [
-          mockPayment({ id: 'bad', name: 'Mala', outcome: 'failed', delay: 1 }),
-          mockPayment({ id: 'good', name: 'Buena', delay: 1 }),
+          mockPayment({ id: 'bad', name: 'Bad', outcome: 'failed', delay: 1 }),
+          mockPayment({ id: 'good', name: 'Good', delay: 1 }),
         ],
       }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
-  await user.click(await screen.findByText('Pagar con Mala'));
-  await user.click(await screen.findByText('Pagar (mock)'));
-  await user.click(await screen.findByText('Elegir otro medio de pago'));
-  await user.click(await screen.findByText('Pagar con Buena'));
-  await user.click(await screen.findByText('Pagar (mock)'));
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  await user.click(screen.getByText('Next'));
+  await user.click(await screen.findByText('Pay with Bad'));
+  await user.click(await screen.findByText('Pay (mock)'));
+  await user.click(await screen.findByText('Choose another payment method'));
+  await user.click(await screen.findByText('Pay with Good'));
+  await user.click(await screen.findByText('Pay (mock)'));
+  expect(await screen.findByText('Paid')).toBeTruthy();
 });

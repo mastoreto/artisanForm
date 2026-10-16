@@ -20,12 +20,12 @@ const scheme: FormSchema = {
       ],
     },
     {
-      title: 'Pago',
+      title: 'Payment',
       kind: 'payment',
       providers: ['card', 'hosted', 'declined', 'stripe'],
-      summary: 'Total a pagar lo calcula tu servidor.',
+      summary: 'The total to pay is computed by your server.',
     },
-    { title: 'Listo', kind: 'result', message: 'Pago registrado' },
+    { title: 'Done', kind: 'result', message: 'Payment recorded' },
   ],
 };
 
@@ -33,14 +33,14 @@ const scheme: FormSchema = {
 const payments = [
   stripe({
     publishableKey: 'pk_test_playground',
-    name: 'Stripe (cargando)',
+    name: 'Stripe (loading)',
     createPaymentIntent: () => new Promise(() => {}),
   }),
-  mockPayment({ id: 'card', name: 'Tarjeta (embebido)', delay: 300 }),
+  mockPayment({ id: 'card', name: 'Card (embedded)', delay: 300 }),
   mockPayment({ id: 'hosted', name: 'Checkout (redirect)', mode: 'redirect' }),
   mockPayment({
     id: 'declined',
-    name: 'Tarjeta rechazada',
+    name: 'Card declined',
     outcome: 'failed',
     delay: 300,
   }),

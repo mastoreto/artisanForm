@@ -19,7 +19,7 @@ const step = (id: string, title = id.toUpperCase()) => ({
   id,
   type: 'form' as const,
   title,
-  fields: [{ name: `f_${id}`, type: 'text' as const, label: `Campo ${id}` }],
+  fields: [{ name: `f_${id}`, type: 'text' as const, label: `Field ${id}` }],
 });
 
 const form = (
@@ -45,10 +45,10 @@ const saveAtB = async () => {
       onSubmit={() => {}}
     />,
   );
-  await user.type(screen.getByLabelText('Campo a'), 'uno');
-  await user.click(screen.getByText('Siguiente'));
+  await user.type(screen.getByLabelText('Field a'), 'one');
+  await user.click(screen.getByText('Next'));
   await screen.findByRole('heading', { name: 'B' });
-  await user.type(screen.getByLabelText('Campo b'), 'dos');
+  await user.type(screen.getByLabelText('Field b'), 'two');
   await waitFor(() => expect(stored()?.currentStepId).toBe('b'));
   cleanup();
   return user;
@@ -62,7 +62,7 @@ describe('what is saved', () => {
       formId: 'reg',
       formRevision: 1,
       currentStepId: 'b',
-      values: { f_a: 'uno', f_b: 'dos', f_c: '' },
+      values: { f_a: 'one', f_b: 'two', f_c: '' },
     });
   });
 
@@ -81,8 +81,8 @@ describe('what is saved', () => {
               type: 'form',
               title: 'A',
               fields: [
-                { name: 'pw', type: 'password', label: 'Clave' },
-                { name: 'user', type: 'text', label: 'Usuario' },
+                { name: 'pw', type: 'password', label: 'Password' },
+                { name: 'user', type: 'text', label: 'User' },
                 {
                   name: 'cards',
                   type: 'array',
@@ -94,9 +94,9 @@ describe('what is saved', () => {
         })}
       />,
     );
-    await user.type(screen.getByLabelText('Clave'), 'topsecret');
-    await user.type(screen.getByLabelText('Usuario'), 'ana');
-    await user.click(screen.getByText('Agregar otro'));
+    await user.type(screen.getByLabelText('Password'), 'topsecret');
+    await user.type(screen.getByLabelText('User'), 'ana');
+    await user.click(screen.getByText('Add another'));
     await user.type(screen.getByLabelText('PIN'), '1234');
     await waitFor(() => expect(stored()?.values.user).toBe('ana'));
     const raw = localStorage.getItem(`artisanform:${KEY}`) as string;
@@ -151,8 +151,8 @@ describe('restoring', () => {
       />,
     );
     expect(await screen.findByRole('heading', { name: 'B' })).toBeTruthy();
-    expect((screen.getByLabelText('Campo b') as HTMLInputElement).value).toBe(
-      'dos',
+    expect((screen.getByLabelText('Field b') as HTMLInputElement).value).toBe(
+      'two',
     );
   });
 
@@ -175,16 +175,16 @@ describe('restoring', () => {
       <ArtisanForm scheme={hidden} persistKey={KEY} onSubmit={() => {}} />,
     );
     expect(heading()).toBe('A');
-    expect((screen.getByLabelText('Campo a') as HTMLInputElement).value).toBe(
-      'uno',
+    expect((screen.getByLabelText('Field a') as HTMLInputElement).value).toBe(
+      'one',
     );
   });
 
   test('a 0.2.0 draft ({values, step}) is restored and rewritten as a snapshot', async () => {
     const legacy: FormSchema = {
       steps: [
-        { title: 'Uno', fields: [{ type: 'text', name: 'a', label: 'A' }] },
-        { title: 'Dos', fields: [{ type: 'text', name: 'b', label: 'B' }] },
+        { title: 'One', fields: [{ type: 'text', name: 'a', label: 'A' }] },
+        { title: 'Two', fields: [{ type: 'text', name: 'b', label: 'B' }] },
       ],
     };
     localStorage.setItem(
@@ -195,12 +195,12 @@ describe('restoring', () => {
     render(
       <ArtisanForm scheme={legacy} persistKey={KEY} onSubmit={() => {}} />,
     );
-    expect(await screen.findByRole('heading', { name: 'Dos' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Two' })).toBeTruthy();
     await user.type(screen.getByLabelText('B'), 'y');
     await waitFor(() => expect(stored()?.snapshotVersion).toBe(1));
     expect(stored()).toMatchObject({
       formId: `legacy:${KEY}`,
-      currentStepId: 'dos',
+      currentStepId: 'two',
       values: { a: 'x', b: 'y' },
     });
   });
@@ -209,7 +209,7 @@ describe('restoring', () => {
     const legacy: FormSchema = {
       steps: [
         {
-          title: 'Oculto',
+          title: 'Hidden',
           showIf: { field: 'a', equals: 'nunca' },
           fields: [{ type: 'text', name: 'h', label: 'H' }],
         },
@@ -249,7 +249,7 @@ describe('restoring', () => {
     );
     expect(await screen.findByRole('heading', { name: 'B' })).toBeTruthy();
     expect(
-      (await screen.findByLabelText('Campo b')) as HTMLInputElement,
+      (await screen.findByLabelText('Field b')) as HTMLInputElement,
     ).toBeTruthy();
   });
 });
@@ -284,7 +284,7 @@ describe('incompatible drafts are never destroyed silently', () => {
         />,
       );
       expect(heading()).toBe('A');
-      expect((screen.getByLabelText('Campo a') as HTMLInputElement).value).toBe(
+      expect((screen.getByLabelText('Field a') as HTMLInputElement).value).toBe(
         '',
       );
       expect(onConflict.mock.calls[0][0].reason).toBe(reason);
@@ -317,8 +317,8 @@ describe('incompatible drafts are never destroyed silently', () => {
       />,
     );
     expect(await screen.findByRole('heading', { name: 'B' })).toBeTruthy();
-    expect((screen.getByLabelText('Campo b') as HTMLInputElement).value).toBe(
-      'dos',
+    expect((screen.getByLabelText('Field b') as HTMLInputElement).value).toBe(
+      'two',
     );
     expect(backup()).toBeNull();
   });
@@ -334,8 +334,8 @@ describe('incompatible drafts are never destroyed silently', () => {
       />,
     );
     expect(heading()).toBe('A');
-    expect((screen.getByLabelText('Campo a') as HTMLInputElement).value).toBe(
-      'uno',
+    expect((screen.getByLabelText('Field a') as HTMLInputElement).value).toBe(
+      'one',
     );
   });
 
@@ -350,7 +350,7 @@ describe('incompatible drafts are never destroyed silently', () => {
       />,
     );
     expect(backup()).toBeNull();
-    expect((screen.getByLabelText('Campo a') as HTMLInputElement).value).toBe(
+    expect((screen.getByLabelText('Field a') as HTMLInputElement).value).toBe(
       '',
     );
   });
@@ -390,7 +390,7 @@ describe('incompatible drafts are never destroyed silently', () => {
       />,
     );
     await waitFor(() => expect(stored()).not.toBeNull());
-    await user.click(screen.getByText('Finalizar'));
+    await user.click(screen.getByText('Finish'));
     await waitFor(() => expect(stored()).toBeNull());
   });
 });

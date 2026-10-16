@@ -146,7 +146,7 @@ export const Wizard = ({
       );
   }, [values, step]);
 
-  // After a blocked "Siguiente", move focus to the first invalid field.
+  // After a blocked "Next", move focus to the first invalid field.
   useEffect(() => {
     if (focusTick === 0) return;
     formRef.current

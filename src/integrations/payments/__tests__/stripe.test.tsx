@@ -25,8 +25,8 @@ mock.module('@stripe/react-stripe-js', () => ({
 const scheme: FormSchema = {
   steps: [
     { title: 'Plan', fields: [{ type: 'text', name: 'plan', label: 'Plan' }] },
-    { title: 'Pago', kind: 'payment', provider: 'stripe' },
-    { title: 'Fin', kind: 'result', message: 'Pagado' },
+    { title: 'Payment', kind: 'payment', provider: 'stripe' },
+    { title: 'End', kind: 'result', message: 'Paid' },
   ],
 };
 
@@ -45,7 +45,7 @@ const run = async (
       plugins={{ payments: [plugin] }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Next'));
   return { user, onSubmit };
 };
 
@@ -64,8 +64,8 @@ test('embedded: creates the intent on your backend, mounts the Payment Element a
     )[0].idempotencyKey,
   ).toBeTruthy();
 
-  await user.click(screen.getByText('Pagar'));
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  await user.click(screen.getByText('Pay'));
+  expect(await screen.findByText('Paid')).toBeTruthy();
   expect(onSubmit.mock.calls[0][0]).toMatchObject({
     payment: { provider: 'stripe', status: 'succeeded', reference: 'pi_1' },
   });
@@ -73,13 +73,13 @@ test('embedded: creates the intent on your backend, mounts the Payment Element a
 
 test('embedded: a declined card shows the error and offers a retry', async () => {
   confirm = mock(
-    async () => ({ error: { message: 'Tu tarjeta fue rechazada' } }) as never,
+    async () => ({ error: { message: 'Your card was declined' } }) as never,
   );
   const { user } = await run();
   await screen.findByText('card element');
-  await user.click(screen.getByText('Pagar'));
-  expect(await screen.findByText('Tu tarjeta fue rechazada')).toBeTruthy();
-  expect(screen.getByText('Reintentar')).toBeTruthy();
+  await user.click(screen.getByText('Pay'));
+  expect(await screen.findByText('Your card was declined')).toBeTruthy();
+  expect(screen.getByText('Retry')).toBeTruthy();
 });
 
 test('embedded: a failing backend call is reported as a failed payment', async () => {

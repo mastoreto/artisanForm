@@ -5,14 +5,14 @@ import ArtisanForm from './ArtisanForm';
 const scheme: FormSchema = {
   steps: [
     {
-      title: 'Datos personales',
+      title: 'Personal data',
       fields: [
-        { type: 'text', name: 'name', label: 'Nombre', required: true, min: 3 },
-        { type: 'date', name: 'birth', label: 'Nacimiento', required: true },
+        { type: 'text', name: 'name', label: 'Name', required: true, min: 3 },
+        { type: 'date', name: 'birth', label: 'Birth date', required: true },
       ],
     },
     {
-      title: 'Preferencias',
+      title: 'Preferences',
       fields: [
         {
           type: 'radio',
@@ -28,7 +28,7 @@ const scheme: FormSchema = {
           type: 'dynamicSelect',
           name: 'country',
           dependentName: 'city',
-          label: 'País y ciudad',
+          label: 'Country and city',
           required: true,
           options: [
             { value: 'ar', label: 'Argentina' },
@@ -37,7 +37,7 @@ const scheme: FormSchema = {
           dependentOptions: {
             ar: [
               { value: 'bsas', label: 'Buenos Aires' },
-              { value: 'cba', label: 'Córdoba' },
+              { value: 'cba', label: 'Cordoba' },
             ],
             cl: [{ value: 'scl', label: 'Santiago' }],
           },
@@ -45,7 +45,7 @@ const scheme: FormSchema = {
         {
           type: 'check',
           name: 'topics',
-          label: 'Temas',
+          label: 'Topics',
           options: [
             { value: 'a', label: 'A' },
             { value: 'b', label: 'B' },
@@ -54,12 +54,12 @@ const scheme: FormSchema = {
       ],
     },
     {
-      title: 'Cuenta',
+      title: 'Account',
       fields: [
         {
           type: 'password',
           name: 'password',
-          label: 'Contraseña',
+          label: 'Password',
           required: true,
           min: 8,
         },

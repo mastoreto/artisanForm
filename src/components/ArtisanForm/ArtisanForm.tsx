@@ -40,7 +40,7 @@ interface ArtisanFormProps {
   scheme: FormSchema | ArtisanSchemaV1;
   /** Local functions and components a v1 schema refers to by id. */
   extensions?: ArtisanExtensions;
-  /** Return a promise to keep "Finalizar" disabled until it settles. */
+  /** Return a promise to keep "Finish" disabled until it settles. */
   onSubmit: (values: FormikValues) => unknown;
   /** What to do with a saved draft that does not fit this form (default: `backup`). */
   onSnapshotConflict?: (conflict: SnapshotConflict) => ConflictDecision;

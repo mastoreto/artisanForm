@@ -7,7 +7,7 @@ const meta: Meta<typeof Checkbox> = {
   title: 'Controls/Artisan Inputs/Checkbox',
   component: Checkbox,
   tags: ['autodocs'],
-  args: { id: 'accept', name: 'accept', label: 'Acepto las condiciones' },
+  args: { id: 'accept', name: 'accept', label: 'I accept the conditions' },
 };
 
 export default meta;
@@ -19,7 +19,7 @@ export const Default: Story = {
 };
 
 export const Switch: Story = {
-  args: { variant: 'switch', label: 'Recibir novedades' },
+  args: { variant: 'switch', label: 'Receive news' },
   decorators: [withFormik({ accept: false })],
 };
 
@@ -28,7 +28,7 @@ export const Required: Story = {
   decorators: [
     withFormik(
       { accept: false },
-      { accept: Yup.boolean().oneOf([true], 'Campo requerido') },
+      { accept: Yup.boolean().oneOf([true], 'Required field') },
     ),
   ],
 };

@@ -15,8 +15,8 @@ afterEach(() => {
 const scheme: FormSchema = {
   steps: [
     { title: 'Plan', fields: [{ type: 'text', name: 'plan', label: 'Plan' }] },
-    { title: 'Pago', kind: 'payment', provider: 'lemonsqueezy' },
-    { title: 'Fin', kind: 'result', message: 'Pagado' },
+    { title: 'Payment', kind: 'payment', provider: 'lemonsqueezy' },
+    { title: 'End', kind: 'result', message: 'Paid' },
   ],
 };
 
@@ -35,8 +35,8 @@ test('redirect: your backend returns the checkout URL; the redirect URL is passe
       plugins={{ payments: [lemonSqueezy({ createCheckout })], navigate }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
-  await user.click(await screen.findByText('Pagar con Lemon Squeezy'));
+  await user.click(screen.getByText('Next'));
+  await user.click(await screen.findByText('Pay with Lemon Squeezy'));
   await waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
   expect(navigate.mock.calls[0][0]).toBe(
     'https://store.lemonsqueezy.com/checkout/buy/abc',
@@ -83,15 +83,15 @@ test('overlay: loads lemon.js, opens the checkout and reports Checkout.Success',
       }}
     />,
   );
-  await user.click(screen.getByText('Siguiente'));
-  await user.click(await screen.findByText('Pagar'));
+  await user.click(screen.getByText('Next'));
+  await user.click(await screen.findByText('Pay'));
   expect(open).toHaveBeenCalledWith('https://store/checkout/1');
 
   handler({
     event: 'Checkout.Success',
     data: { order: { data: { id: 'ord_7' } } },
   });
-  expect(await screen.findByText('Pagado')).toBeTruthy();
+  expect(await screen.findByText('Paid')).toBeTruthy();
   expect(onSubmit.mock.calls[0][0]).toMatchObject({
     payment: {
       provider: 'lemonsqueezy',
