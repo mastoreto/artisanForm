@@ -7,7 +7,10 @@ import Password from '../ArtisanInputs/Password/Password';
 import Radio from '../ArtisanInputs/Radio/Radio';
 import Select from '../ArtisanInputs/Select/Select';
 import Text from '../ArtisanInputs/Text/Text';
-import { useArtisanStore } from '../../stores/useArtisanStore';
+import {
+  ArtisanStoreProvider,
+  useArtisanStore,
+} from '../../stores/useArtisanStore';
 import DynamicSelect from '../ArtisanInputs/DynamicSelect/DynamicSelect';
 import {
   buildInitialValues,
@@ -61,7 +64,7 @@ const renderField = (f: FieldSchema) => {
   }
 };
 
-const ArtisanForm = ({ scheme, onSubmit }: ArtisanFormProps) => {
+const ArtisanFormInner = ({ scheme, onSubmit }: ArtisanFormProps) => {
   const step = useArtisanStore((s) => s.step);
   const setStep = useArtisanStore((s) => s.setStep);
   const setProcessStep = useArtisanStore((s) => s.setProcessStep);
@@ -128,5 +131,11 @@ const ArtisanForm = ({ scheme, onSubmit }: ArtisanFormProps) => {
     </Formik>
   );
 };
+
+const ArtisanForm = (props: ArtisanFormProps) => (
+  <ArtisanStoreProvider>
+    <ArtisanFormInner {...props} />
+  </ArtisanStoreProvider>
+);
 
 export default ArtisanForm;

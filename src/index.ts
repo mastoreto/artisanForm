@@ -13,5 +13,8 @@ export { default as Password } from './components/ArtisanInputs/Password/Passwor
 export { default as Radio } from './components/ArtisanInputs/Radio/Radio';
 export { default as Select } from './components/ArtisanInputs/Select/Select';
 export { default as TextInput } from './components/ArtisanInputs/Text/Text';
-export { useArtisanStore } from './stores/useArtisanStore';
+export {
+  ArtisanStoreProvider,
+  useArtisanStore,
+} from './stores/useArtisanStore';
 export { cn } from './commons/cn';

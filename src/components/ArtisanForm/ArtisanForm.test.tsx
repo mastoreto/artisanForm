@@ -1,5 +1,11 @@
 import { afterEach, expect, mock, test } from 'bun:test';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ArtisanForm from './ArtisanForm';
 import type { FormSchema } from './types';
@@ -112,4 +118,24 @@ test('full flow: advance, go back, submit with all values', async () => {
     plan: 'pro',
     topics: ['b'],
   });
+});
+
+test('two forms on the same page keep independent steps', async () => {
+  const user = userEvent.setup();
+  render(
+    <>
+      <div data-testid="a">
+        <ArtisanForm scheme={scheme} onSubmit={() => {}} />
+      </div>
+      <div data-testid="b">
+        <ArtisanForm scheme={scheme} onSubmit={() => {}} />
+      </div>
+    </>,
+  );
+  const a = within(screen.getByTestId('a'));
+  const b = within(screen.getByTestId('b'));
+  await user.type(a.getByLabelText('Nombre'), 'Ana');
+  await user.click(a.getByText('Siguiente'));
+  expect(await a.findByText('Step two')).toBeTruthy();
+  expect(b.getByText('Step one')).toBeTruthy();
 });
