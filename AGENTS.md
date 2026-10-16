@@ -29,6 +29,9 @@ src/
     ArtisanForm/         wizard: types, fields.tsx (registro de campos), steps.tsx (registro de pasos),
                          buildSchema, conditions, draft, PaymentStep (+ tests)
     ArtisanInputs/<Name>/<Name>.tsx + <Name>.stories.tsx
+  schema/                contrato público v1 (JSON): tipos, specs, condiciones, parser, normalize, legacy.
+                         NO importa react/formik/yup/zustand (test + regla de Biome)
+  persistence/           ArtisanSnapshotV1 y storage de borradores (tampoco importa el motor)
   payments/              PaymentPlugin + mock y plugins por proveedor (subpaths del paquete)
   storage/               StorageAdapter + presignedPut, cloudinary, mock
   wait/                  WaitStrategy (polling, sse, websocket, callback)
@@ -37,6 +40,8 @@ src/
 playground/              app React de prueba (escenarios en src/scenarios)
 e2e/                     tests de Playwright
 ```
+
+El esquema se normaliza (`schema/normalize.ts`) y se proyecta al motor (`ArtisanForm/project.ts`): ahí está la única costura que conoce ambas formas. Un campo o paso nuevo en el contrato v1 necesita: su tipo en `schema/fields.ts|steps.ts`, su entrada en `schema/specs.ts` (el compilador lo exige), el parser y la proyección. Guía: `docs/schema-v1.md`.
 
 Un tipo de campo nuevo = una `FieldDefinition` en `fields.tsx` (render, valores iniciales, reglas) + su componente en `ArtisanInputs`. Un tipo de paso nuevo = una `StepDefinition` en `steps.tsx`. Las pantallas de estado (resultado, espera, pago) usan `StatusPanel` (icono/spinner + mensaje + acciones) para verse igual.
 

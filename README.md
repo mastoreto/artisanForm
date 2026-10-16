@@ -94,6 +94,24 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 - `defaultValue` → valor inicial (array en `check`, booleano en `checkbox`/`switch`). `disabled` y `helperText` aplican a todos los tipos.
 - `dynamicSelect` guarda dos valores: `name` (primer select) y `dependentName` (segundo), cuyas opciones salen de `dependentOptions[valorDelPrimero]` o, si es asíncrono, de `loadDependentOptions(valorDelPrimero)` (devuelve una promesa de opciones; muestra estados de carga y error).
 
+### Esquema v1 (serializable y versionado)
+
+Además del formato de arriba (0.2.0, que sigue funcionando), `scheme` acepta un **`ArtisanSchemaV1`**: JSON puro, con `schemaVersion`, `id`, pasos con `id` estable y `type`, condiciones declarativas (`visibleWhen`) y referencias por id a lo ejecutable (`extensions`). Se puede escribir en TypeScript con `defineForm` o recibir de una API y validar con `parseArtisanSchema` (con una `SchemaPolicy` para esquemas remotos). Los borradores (`persistKey`) se guardan como `ArtisanSnapshotV1`, con el paso por id.
+
+```ts
+import { ArtisanForm, defineForm } from 'artisanform';
+
+const form = defineForm({
+  schemaVersion: 1,
+  id: 'contact',
+  steps: [{ id: 'main', type: 'form', title: 'Contacto', fields: [{ name: 'email', type: 'email', required: true }] }],
+});
+
+<ArtisanForm scheme={form} onSubmit={save} />;
+```
+
+Guía completa (campos, pasos, condiciones, JSON remoto, extensibilidad, versionado, persistencia, compatibilidad y limitaciones): [docs/schema-v1.md](docs/schema-v1.md).
+
 ### Condicionales y validación cruzada
 
 - `showIf: { field, equals?, not? }` en un campo o en un paso: se muestra solo si `field` vale alguno de los `equals` (o tiene algún valor si se omite); `not: true` invierte la condición. Lo oculto no se renderiza, no se valida ni se envía en `onSubmit`, y los pasos ocultos se saltean.
