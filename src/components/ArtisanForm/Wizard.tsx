@@ -1,8 +1,19 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import {
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import type { ArtisanLabels } from '../../commons/labels';
 import { fieldNames } from '../../engine/buildSchema';
-import { visibleFields, visibleSteps } from '../../engine/conditions';
+import {
+  conditionNames,
+  visibleFields,
+  visibleSteps,
+} from '../../engine/conditions';
 import { saveDraft, withoutSecrets } from '../../engine/draft';
 import type { FormValues } from '../../engine/form/types';
 import { FormUiContext } from '../../engine/form/validators';
@@ -55,9 +66,15 @@ export const Wizard = ({
   step: stepProp,
   persistKey,
 }: WizardProps) => {
-  const { control, trigger, setValue, handleSubmit, watch } =
+  const { control, trigger, setValue, handleSubmit, watch, getValues } =
     useFormContext<FormValues>();
-  const values = useWatch({ control }) as FormValues;
+  // Re-render only when a value a condition reads changes; typing in any
+  // other field re-renders just that field.
+  const watchedNames = useMemo(() => conditionNames(scheme), [scheme]);
+  const watched = useWatch({ control, name: watchedNames }) as unknown[];
+  const visibility = Object.fromEntries(
+    watchedNames.map((n, i) => [n, watched[i]]),
+  );
   const ui = useContext(FormUiContext);
   const submitForm = () => handleSubmit(onSubmitValues)();
 
@@ -73,9 +90,21 @@ export const Wizard = ({
   const submitState = useArtisanStore((s) => s.submitState);
   const submitError = useArtisanStore((s) => s.submitError);
 
-  const steps = visibleSteps(scheme, values);
+  const steps = visibleSteps(scheme, visibility);
   const current = steps[step];
-  const fields = current ? visibleFields(current, values) : [];
+  const fields = current ? visibleFields(current, visibility) : [];
+  // Steps that show values (review, custom, payment…) follow every change;
+  // plain form steps only need a snapshot.
+  const live = !!current && (current.kind ?? 'form') !== 'form';
+  const [, refresh] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => {
+    if (!live) return;
+    // Children's effects run first: catch up with anything they already set.
+    refresh();
+    const subscription = watch(() => refresh());
+    return () => subscription.unsubscribe();
+  }, [live, watch]);
+  const values = getValues();
   // `result` steps come after the submit; the last other step submits.
   const finalIndex = steps.reduce(
     (last, s, i) => (s.kind === 'result' ? last : i),
@@ -130,7 +159,7 @@ export const Wizard = ({
   }, [step, finalIndex]);
 
   useEffect(() => {
-    current?.onEnter?.(values);
+    current?.onEnter?.(getValues());
   }, [step, current?.title]);
 
   // After a successful submit, show the result step if there is one.
@@ -145,12 +174,17 @@ export const Wizard = ({
   const lastSaved = useRef('');
   useEffect(() => {
     if (!persistKey) return;
-    const safe = withoutSecrets(scheme, values, registry);
-    const fingerprint = JSON.stringify([steps[step]?.id, safe]);
-    if (fingerprint === lastSaved.current) return;
-    lastSaved.current = fingerprint;
-    saveDraft({ persistKey, ...snapshotMeta }, steps[step]?.id, safe);
-  }, [values, step]);
+    const save = () => {
+      const safe = withoutSecrets(scheme, getValues(), registry);
+      const fingerprint = JSON.stringify([steps[step]?.id, safe]);
+      if (fingerprint === lastSaved.current) return;
+      lastSaved.current = fingerprint;
+      saveDraft({ persistKey, ...snapshotMeta }, steps[step]?.id, safe);
+    };
+    save();
+    const subscription = watch(save);
+    return () => subscription.unsubscribe();
+  }, [step, persistKey, steps.map((s) => s.id).join('|')]);
 
   // After a blocked "Next", move focus to the first invalid field.
   useEffect(() => {
@@ -187,7 +221,7 @@ export const Wizard = ({
     if (current.beforeNext) {
       let outcome: BeforeNextResult;
       try {
-        outcome = await current.beforeNext(values);
+        outcome = await current.beforeNext(getValues());
       } catch (e) {
         outcome = { error: e instanceof Error ? e.message : String(e) };
       }

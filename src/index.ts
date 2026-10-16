@@ -18,6 +18,7 @@ export { default as Radio } from './components/inputs/Radio/Radio';
 export { default as Select } from './components/inputs/Select/Select';
 export { default as TextInput } from './components/inputs/Text/Text';
 export { default as Textarea } from './components/inputs/Textarea/Textarea';
+export { default as StandaloneForm } from './components/StandaloneForm/StandaloneForm';
 export {
   defaultStepRegistry,
   type StepContext,

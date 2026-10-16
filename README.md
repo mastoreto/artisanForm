@@ -347,9 +347,9 @@ pnpm add artisanform react react-dom react-hook-form yup zustand
 
 ## Public API (`src/index.ts`)
 
-`ArtisanForm`, the standalone inputs (`TextInput`, `Textarea`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`), `defaultFieldRegistry`, `defaultStepRegistry`, `defineForm`, `parseArtisanSchema`, `normalizeArtisanSchema`, `evaluateCondition`, `presignedPut`, `cloudinary`, `mockStorage`, `polling`, `sse`, `websocket`, `callback`, `mockPayment`, `useArtisanStore`, `cn`, `defaultLabels` and the types (`ArtisanSchemaV1`, `FormSchema`, `StepSchema`, `FieldSchema`, `FieldDefinition`, `StepDefinition`, `ArtisanExtensions`, `ArtisanSnapshotV1`, `StorageAdapter`, `PaymentPlugin`, `WaitStrategy`, `ArtisanLabels`…). Payment plugins are imported from `artisanform/payments/<provider>`.
+`ArtisanForm`, `StandaloneForm`, the standalone inputs (`TextInput`, `Textarea`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`), `defaultFieldRegistry`, `defaultStepRegistry`, `defineForm`, `parseArtisanSchema`, `normalizeArtisanSchema`, `evaluateCondition`, `presignedPut`, `cloudinary`, `mockStorage`, `polling`, `sse`, `websocket`, `callback`, `mockPayment`, `useArtisanStore`, `cn`, `defaultLabels` and the types (`ArtisanSchemaV1`, `FormSchema`, `StepSchema`, `FieldSchema`, `FieldDefinition`, `StepDefinition`, `ArtisanExtensions`, `ArtisanSnapshotV1`, `StorageAdapter`, `PaymentPlugin`, `WaitStrategy`, `ArtisanLabels`…). Payment plugins are imported from `artisanform/payments/<provider>`.
 
-Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must be rendered inside a React Hook Form `<FormProvider>`** (`ArtisanForm` provides one). They show the Yup error once the field has been touched.
+Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must be rendered inside a `<StandaloneForm initialValues schema onSubmit>`** (exported by the library; `ArtisanForm` does not need it). You never touch React Hook Form directly. They show the Yup error once the field has been touched.
 
 ## Structure
 

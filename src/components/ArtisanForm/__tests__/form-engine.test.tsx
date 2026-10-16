@@ -1,7 +1,10 @@
 import { afterEach, expect, mock, test } from 'bun:test';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import * as Yup from 'yup';
 import type { FormSchema } from '../../../schema/legacy/types';
+import TextInput from '../../inputs/Text/Text';
+import StandaloneForm from '../../StandaloneForm/StandaloneForm';
 import ArtisanForm from '../ArtisanForm';
 
 afterEach(cleanup);
@@ -167,4 +170,25 @@ test('a second click on "Next" while beforeNext runs does not run it twice', asy
   expect(beforeNext).toHaveBeenCalledTimes(1);
   release();
   expect(await screen.findByRole('heading', { name: 'Two' })).toBeTruthy();
+});
+
+test('standalone inputs work inside StandaloneForm with Yup rules', async () => {
+  const user = userEvent.setup();
+  const onSubmit = mock(() => {});
+  render(
+    <StandaloneForm
+      initialValues={{ name: '' }}
+      schema={{ name: Yup.string().required('Name is required') }}
+      onSubmit={onSubmit}
+    >
+      <TextInput id="name" name="name" label="Name" />
+      <button type="submit">Send</button>
+    </StandaloneForm>,
+  );
+  await user.click(screen.getByText('Send'));
+  expect(await screen.findByText('Name is required')).toBeTruthy();
+  expect(onSubmit).not.toHaveBeenCalled();
+  await user.type(screen.getByLabelText('Name'), 'Ana');
+  await user.click(screen.getByText('Send'));
+  await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ name: 'Ana' }));
 });
