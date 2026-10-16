@@ -70,15 +70,18 @@ const scheme: FormSchema = {
 
 ### `FormSchema`
 
-| Tipo          | Campos                                                                                                          |
-| ------------- | --------------------------------------------------------------------------------------------------------------- |
-| `FormSchema`  | `steps: StepSchema[]`                                                                                           |
-| `StepSchema`  | `title`, `fields: FieldSchema[]`                                                                                |
-| `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `dependentName?`, `dependentOptions?` |
+| Tipo          | Campos                                                                                                                                                                           |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FormSchema`  | `steps: StepSchema[]`                                                                                                                                                            |
+| `StepSchema`  | `title`, `fields: FieldSchema[]`                                                                                                                                                 |
+| `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `max?`, `pattern?`, `defaultValue?`, `disabled?`, `helperText?`, `dependentName?`, `dependentOptions?` |
 
-Tipos de campo (`type`): `text`, `password`, `date`, `select`, `dynamicSelect`, `check`, `radio`.
+Tipos de campo (`type`): `text`, `email`, `number`, `textarea`, `password`, `date`, `select`, `dynamicSelect`, `check`, `radio`.
 
-- `required` → obligatorio (en `check`, al menos una opción). `min` → largo mínimo de texto.
+- `required` → obligatorio (en `check`, al menos una opción).
+- `min` / `max` → largo del texto, o valor numérico en `number`. En campos opcionales vacíos no se validan.
+- `pattern` → fuente de una expresión regular (ej. `'^[A-Z]{3}$'`). `email` valida formato de correo.
+- `defaultValue` → valor inicial (array en `check`). `disabled` y `helperText` aplican a todos los tipos.
 - `dynamicSelect` guarda dos valores: `name` (primer select) y `dependentName` (segundo), cuyas opciones salen de `dependentOptions[valorDelPrimero]`.
 
 ### Comportamiento del wizard
@@ -113,7 +116,7 @@ pnpm add artisanform react react-dom formik yup zustand
 
 ## API pública (`src/index.ts`)
 
-`ArtisanForm`, `Controls`, `TextInput`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`, `useArtisanStore`, `cn` y los tipos `FormSchema`, `StepSchema`, `FieldSchema`.
+`ArtisanForm`, `Controls`, `TextInput`, `Textarea`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`, `useArtisanStore`, `cn` y los tipos `FormSchema`, `StepSchema`, `FieldSchema`.
 
 Los inputs sueltos usan `useField` de Formik: reciben `name` (no `value`/`onChange`) y **deben renderizarse dentro de un `<Formik>`**. Muestran el error de Yup cuando el campo fue tocado.
 
@@ -161,7 +164,7 @@ Cada tarea es un issue de GitHub (`AF<n>` en el título) y una rama desde `devel
 ### Brechas conocidas
 
 - El flujo en navegador no está verificado automáticamente (solo hay tests de `buildSchema`).
-- Scheme limitado a pasos lineales y validaciones `required`/`min`; textos fijos en español.
+- Scheme limitado a pasos lineales sin lógica condicional; textos fijos en español.
 
 ### Historial
 

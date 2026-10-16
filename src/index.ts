@@ -12,6 +12,7 @@ export { default as DynamicSelect } from './components/ArtisanInputs/DynamicSele
 export { default as Password } from './components/ArtisanInputs/Password/Password';
 export { default as Radio } from './components/ArtisanInputs/Radio/Radio';
 export { default as Select } from './components/ArtisanInputs/Select/Select';
+export { default as Textarea } from './components/ArtisanInputs/Textarea/Textarea';
 export { default as TextInput } from './components/ArtisanInputs/Text/Text';
 export {
   ArtisanStoreProvider,
