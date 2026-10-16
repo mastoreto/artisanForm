@@ -12,6 +12,7 @@
     "@chromatic-com/storybook": "^1.9.0",
     "@happy-dom/global-registrator": "^21.0.3",
     "@mercadopago/sdk-react": "^1.0.7",
+    "@paypal/react-paypal-js": "^10.6.0",
     "@playwright/test": "^1.64.1",
     "@storybook/addon-essentials": "^8.3.4",
     "@storybook/addon-interactions": "^8.3.4",
@@ -50,6 +51,7 @@
     "zustand": "^5.0.1"
   },
   "peerDependencies": {
+    "@mercadopago/sdk-react": ">=0.0.19",
     "@stripe/react-stripe-js": ">=2",
     "@stripe/stripe-js": ">=4",
     "formik": "^2.4.6",
@@ -57,7 +59,7 @@
     "react-dom": "^18.3.1",
     "yup": "^1.4.0",
     "zustand": "^5.0.1",
-    "@mercadopago/sdk-react": ">=0.0.19"
+    "@paypal/react-paypal-js": ">=8"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -98,6 +100,11 @@
       "types": "./dist/payments/mercadopago.d.ts",
       "import": "./dist/payments/mercadopago.es.js",
       "require": "./dist/payments/mercadopago.cjs"
+    },
+    "./payments/paypal": {
+      "types": "./dist/payments/paypal.d.ts",
+      "import": "./dist/payments/paypal.es.js",
+      "require": "./dist/payments/paypal.cjs"
     }
   },
   "peerDependenciesMeta": {
@@ -108,6 +115,9 @@
       "optional": true
     },
     "@mercadopago/sdk-react": {
+      "optional": true
+    },
+    "@paypal/react-paypal-js": {
       "optional": true
     }
   }
