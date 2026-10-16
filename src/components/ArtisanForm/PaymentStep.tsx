@@ -180,6 +180,20 @@ const PaymentStep = (ctx: StepContext) => {
           <button type="button" className={actionClass} onClick={retry}>
             {labels.retry}
           </button>{' '}
+          {available.length > 1 && (
+            <>
+              <button
+                type="button"
+                className={actionClass}
+                onClick={() => {
+                  retry();
+                  setChosen(null);
+                }}
+              >
+                {labels.changeMethod}
+              </button>{' '}
+            </>
+          )}
           <button
             type="button"
             className={actionClass}

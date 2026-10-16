@@ -182,3 +182,26 @@ test('a "processing" result moves on so a pending step can confirm it', async ()
   await user.click(await screen.findByText('Pagar (mock)'));
   expect(await screen.findByText('Pagado')).toBeTruthy();
 });
+
+test('after a failure the user can switch to another payment method', async () => {
+  const user = userEvent.setup();
+  render(
+    <ArtisanForm
+      scheme={scheme({ providers: ['bad', 'good'] })}
+      onSubmit={() => {}}
+      plugins={{
+        payments: [
+          mockPayment({ id: 'bad', name: 'Mala', outcome: 'failed', delay: 1 }),
+          mockPayment({ id: 'good', name: 'Buena', delay: 1 }),
+        ],
+      }}
+    />,
+  );
+  await user.click(screen.getByText('Siguiente'));
+  await user.click(await screen.findByText('Pagar con Mala'));
+  await user.click(await screen.findByText('Pagar (mock)'));
+  await user.click(await screen.findByText('Elegir otro medio de pago'));
+  await user.click(await screen.findByText('Pagar con Buena'));
+  await user.click(await screen.findByText('Pagar (mock)'));
+  expect(await screen.findByText('Pagado')).toBeTruthy();
+});

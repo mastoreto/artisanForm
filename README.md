@@ -137,7 +137,7 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 
 - **Embebido** (`mode: 'embedded'`): el plugin monta la UI hospedada del proveedor (`render({ request, onResult })`).
 - **Redirect** (`mode: 'redirect'`): `start(request)` crea el checkout (vía tu backend) y devuelve su URL; el usuario vuelve a tu página y `resume(params)` lee el resultado. Con `persistKey` el wizard vuelve al paso de pago. `plugins.navigate` reemplaza `location.assign`.
-- Resultados: `succeeded` avanza; `processing` avanza para que un paso `pending` lo confirme (webhook); `failed` muestra el error con "Reintentar" (nueva `idempotencyKey`) y "Volver".
+- Resultados: `succeeded` avanza; `processing` avanza para que un paso `pending` lo confirme (webhook); `failed` muestra el error con "Reintentar" (nueva `idempotencyKey`), "Elegir otro medio de pago" (si hay varios) y "Volver".
 
 **Seguridad:** la librería **nunca toca datos de tarjeta** (UI hospedada o redirect) y el **monto/moneda/items los define y verifica tu servidor** (`PaymentRequest` no incluye importes). Usá `idempotencyKey` en tu backend para evitar cobros dobles y confirmá el pago real por webhook, no por lo que reporta el navegador. `mockPayment()` simula un proveedor para demos y tests.
 
