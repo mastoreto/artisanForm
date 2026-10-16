@@ -11,6 +11,8 @@ export interface ArtisanLabels {
   required: string;
   submitError: string;
   edit: string;
+  pay: string;
+  loadingPayment: string;
   payWith: (name: string) => string;
   choosePayment: string;
   paying: string;
@@ -65,6 +67,8 @@ export const defaultLabels: ArtisanLabels = {
   required: 'Campo requerido',
   submitError: 'No se pudo enviar el formulario',
   edit: 'Editar',
+  pay: 'Pagar',
+  loadingPayment: 'Cargando el medio de pago…',
   payWith: (name) => `Pagar con ${name}`,
   choosePayment: 'Elegí cómo pagar',
   paying: 'Redirigiendo al pago…',
