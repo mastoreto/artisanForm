@@ -60,6 +60,8 @@ src/
 
 ## Estado actual / deuda conocida
 
-Funcionan: inputs con Formik/Yup, `DynamicSelect`, contenedor `ArtisanForm` por `scheme`, API exportada y build de la librería. Para ser consumible falta: CI (AF8, bloqueado por scope `workflow` del token) y publicar el paquete.
+Versión 0.1.0 candidata: `ArtisanForm` por `scheme` (condicionales, async, borrador, labels, theming), inputs con Formik/Yup, build ES+CJS con peer deps, estilos distribuibles y tests (`bun test`, happy-dom). Pendiente: CI en GitHub (AF8, rama local `chore/AF8-ci`; el token de `gh` necesita scope `workflow`), publicar el paquete y desplegar Storybook. Detalle y hoja de ruta en el README.
 
-La hoja de ruta (AF8–AF21) está en el README y cada tarea es un issue de GitHub. Ojo: el número de issue no coincide con `AF<n>` (AF8 = issue #2, AF<n> = issue #n-6); el código `AF<n>` va en el título del issue y en el nombre de la rama.
+Las tareas son issues de GitHub con el código `AF<n>` en el título (AF8 = issue #2, AF<n> = issue #n-6).
+
+Convención de tests: `*.test.ts(x)` junto al código, `bun test` (preload en `bunfig.toml` con happy-dom), Testing Library para componentes.
