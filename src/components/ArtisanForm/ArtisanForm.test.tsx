@@ -372,3 +372,43 @@ test('dynamicSelect shows an error when loading fails', async () => {
   );
   expect(await screen.findByRole('alert')).toBeTruthy();
 });
+
+test('persistKey restores the draft (without passwords) and clears it on submit', async () => {
+  localStorage.clear();
+  const user = userEvent.setup();
+  const draftScheme: FormSchema = {
+    steps: [
+      {
+        title: 'One',
+        fields: [
+          { type: 'text', name: 'name', label: 'Nombre' },
+          { type: 'password', name: 'pw', label: 'Clave' },
+        ],
+      },
+      { title: 'Two', fields: [{ type: 'text', name: 'x', label: 'X' }] },
+    ],
+  };
+  const first = render(
+    <ArtisanForm scheme={draftScheme} onSubmit={() => {}} persistKey="t" />,
+  );
+  await user.type(screen.getByLabelText('Nombre'), 'Ana');
+  await user.type(screen.getByLabelText('Clave'), 'secret');
+  await user.click(screen.getByText('Siguiente'));
+  await screen.findByRole('heading', { name: 'Two' });
+  expect(localStorage.getItem('artisanform:t')).not.toContain('secret');
+  first.unmount();
+
+  render(
+    <ArtisanForm scheme={draftScheme} onSubmit={() => {}} persistKey="t" />,
+  );
+  expect(await screen.findByRole('heading', { name: 'Two' })).toBeTruthy();
+  await user.click(screen.getByText('Anterior'));
+  expect((screen.getByLabelText('Nombre') as HTMLInputElement).value).toBe(
+    'Ana',
+  );
+  expect((screen.getByLabelText('Clave') as HTMLInputElement).value).toBe('');
+
+  await user.click(screen.getByText('Siguiente'));
+  await user.click(screen.getByText('Finalizar'));
+  await waitFor(() => expect(localStorage.getItem('artisanform:t')).toBeNull());
+});

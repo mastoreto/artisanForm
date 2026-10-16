@@ -21,6 +21,7 @@ import {
   fieldNames,
 } from './buildSchema';
 import { visibleFields, visibleSteps } from './conditions';
+import { clearDraft, loadDraft, saveDraft, withoutSecrets } from './draft';
 import type { FieldSchema, FormSchema } from './types';
 
 interface ArtisanFormProps {
@@ -39,6 +40,8 @@ interface ArtisanFormProps {
   labels?: Partial<ArtisanLabels>;
   /** Extra classes for the <form> element. */
   className?: string;
+  /** Saves values and step to localStorage under this key and restores them on mount. Passwords are never saved; the draft is cleared on submit. */
+  persistKey?: string;
 }
 
 const ValuesWatcher = ({
@@ -113,6 +116,7 @@ interface WizardProps {
   onChange?: (values: FormikValues) => void;
   onStepChange?: (step: number) => void;
   step?: number;
+  persistKey?: string;
 }
 
 /** Renders the current step; lives inside <Formik> to read live values. */
@@ -123,6 +127,7 @@ const Wizard = ({
   onChange,
   onStepChange,
   step: stepProp,
+  persistKey,
 }: WizardProps) => {
   const { values, validateForm, setTouched, touched, isSubmitting } =
     useFormikContext<FormikValues>();
@@ -154,6 +159,11 @@ const Wizard = ({
   useEffect(() => {
     setIsFinalStep(step === steps.length - 1);
   }, [step, steps.length]);
+
+  useEffect(() => {
+    if (persistKey)
+      saveDraft(persistKey, { values: withoutSecrets(scheme, values), step });
+  }, [values, step]);
 
   // After a blocked "Siguiente", move focus to the first invalid field.
   useEffect(() => {
@@ -215,9 +225,19 @@ const ArtisanFormInner = ({
   labels: labelOverrides,
   ...wizard
 }: ArtisanFormProps) => {
+  const { persistKey } = wizard;
+  // Read once on mount; the draft wins over defaults and `initialValues`.
+  const draft = useMemo(
+    () => (persistKey ? loadDraft(persistKey) : null),
+    [persistKey],
+  );
   const initialValues = useMemo(
-    () => ({ ...buildInitialValues(scheme), ...initialOverrides }),
-    [scheme],
+    () => ({
+      ...buildInitialValues(scheme),
+      ...initialOverrides,
+      ...draft?.values,
+    }),
+    [scheme, draft],
   );
   const labels = useMemo(
     () => ({ ...defaultLabels, ...labelOverrides }),
@@ -229,15 +249,16 @@ const ArtisanFormInner = ({
   );
 
   // Hidden steps/fields are not part of the submitted values.
-  const handleSubmit = (values: FormikValues) => {
+  const handleSubmit = async (values: FormikValues) => {
     const shown = new Set(
       visibleSteps(scheme, values).flatMap((step) =>
         visibleFields(step, values).flatMap(fieldNames),
       ),
     );
-    return onSubmit(
+    await onSubmit(
       Object.fromEntries(Object.entries(values).filter(([k]) => shown.has(k))),
     );
+    if (persistKey) clearDraft(persistKey);
   };
 
   return (
@@ -246,7 +267,15 @@ const ArtisanFormInner = ({
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      <Wizard scheme={scheme} labels={labels} {...wizard} />
+      <Wizard
+        scheme={scheme}
+        labels={labels}
+        {...wizard}
+        step={
+          wizard.step ??
+          (draft ? Math.min(draft.step, scheme.steps.length - 1) : undefined)
+        }
+      />
     </Formik>
   );
 };
