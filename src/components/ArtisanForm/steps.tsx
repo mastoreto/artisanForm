@@ -176,6 +176,32 @@ interface ResultAction {
 const actionClass =
   'inline-block rounded border px-4 py-2 text-sm hover:bg-gray-100';
 
+const StatusIcon = ({ tone }: { tone: 'success' | 'error' }) => (
+  <span
+    aria-hidden="true"
+    className={`flex h-14 w-14 items-center justify-center rounded-full ${
+      tone === 'success'
+        ? 'bg-green-100 text-green-600'
+        : 'bg-red-100 text-red-600'
+    }`}
+  >
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-8 w-8"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path
+        d={tone === 'success' ? 'M5 13l4 4L19 7' : 'M6 6l12 12M18 6L6 18'}
+      />
+    </svg>
+  </span>
+);
+
 /** Final screen: shows the outcome of `onSubmit` (success, error with retry). */
 const ResultStep = ({
   step,
@@ -189,54 +215,77 @@ const ResultStep = ({
   const actions = (step.actions as ResultAction[] | undefined) ?? [];
   if (submitState === 'error') {
     return (
-      <div role="alert" className="space-y-3">
-        <p className="text-red-600">
+      <div
+        role="alert"
+        className="flex flex-col items-center gap-3 py-6 text-center"
+      >
+        <StatusIcon tone="error" />
+        <p className="text-base font-medium text-red-700">
           {submitError ??
             (step.errorMessage as string | undefined) ??
             labels.submitError}
         </p>
-        <button
-          type="button"
-          className={actionClass}
-          onClick={() => void submit()}
-        >
-          {labels.retry}
-        </button>{' '}
-        <button
-          type="button"
-          className={actionClass}
-          onClick={() => goTo(Math.max(0, steps.indexOf(step) - 1))}
-        >
-          {labels.backToForm}
-        </button>
+        <div className="flex flex-wrap justify-center gap-2">
+          <button
+            type="button"
+            className={actionClass}
+            onClick={() => void submit()}
+          >
+            {labels.retry}
+          </button>
+          <button
+            type="button"
+            className={actionClass}
+            onClick={() => goTo(Math.max(0, steps.indexOf(step) - 1))}
+          >
+            {labels.backToForm}
+          </button>
+        </div>
       </div>
     );
   }
   if (submitState === 'success') {
     return (
-      <div role="status" className="space-y-3">
-        <p>{(step.message as string | undefined) ?? labels.successMessage}</p>
-        {actions.map((a) =>
-          a.href ? (
-            <a key={a.label} href={a.href} className={actionClass}>
-              {a.label}
-            </a>
-          ) : (
-            <button
-              key={a.label}
-              type="button"
-              className={actionClass}
-              onClick={a.onClick}
-            >
-              {a.label}
-            </button>
-          ),
+      <div
+        role="status"
+        className="flex flex-col items-center gap-3 py-6 text-center"
+      >
+        <StatusIcon tone="success" />
+        <p className="text-base font-medium">
+          {(step.message as string | undefined) ?? labels.successMessage}
+        </p>
+        {actions.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-2">
+            {actions.map((a) =>
+              a.href ? (
+                <a key={a.label} href={a.href} className={actionClass}>
+                  {a.label}
+                </a>
+              ) : (
+                <button
+                  key={a.label}
+                  type="button"
+                  className={actionClass}
+                  onClick={a.onClick}
+                >
+                  {a.label}
+                </button>
+              ),
+            )}
+          </div>
         )}
       </div>
     );
   }
   return (
-    <p role="status" className="text-gray-500">
+    <p
+      role="status"
+      className="flex items-center justify-center gap-3 py-6 text-gray-500"
+    >
+      <span
+        aria-hidden="true"
+        className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"
+      />
       {labels.submitting}
     </p>
   );
