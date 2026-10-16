@@ -1,45 +1,33 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import * as Yup from 'yup';
+import { withFormik } from '../../../../.storybook/withFormik';
 import Date from './Date';
 
-interface DateInputProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  className?: string;
-}
-
-const meta: Meta<DateInputProps> = {
+const meta: Meta<typeof Date> = {
   title: 'Controls/Artisan Inputs/Date',
   component: Date,
   tags: ['autodocs'],
-  argTypes: {
-    label: {
-      control: 'text',
-      defaultValue: 'Label',
-    },
-    placeholder: {
-      control: 'text',
-      defaultValue: 'Enter text here',
-    },
-    value: {
-      control: 'text',
-      defaultValue: 'Input Text',
-    },
-  },
+  args: { id: 'date-input', name: 'field', label: 'Date Input' },
 };
 
 export default meta;
 
-type Story = StoryObj<DateInputProps>;
+type Story = StoryObj<typeof Date>;
 
 export const Default: Story = {
-  args: {
-    id: 'text-input',
-    label: 'Text Input',
-    value: 'Input Text',
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      console.log(e.target.value),
-  },
+  decorators: [withFormik({ field: '' })],
+};
+
+/** Submit (or blur) the empty field to see the Yup error. */
+export const WithValidation: Story = {
+  decorators: [
+    withFormik(
+      { field: '' },
+      {
+        field: Yup.date()
+          .typeError('Fecha inválida')
+          .required('Campo requerido'),
+      },
+    ),
+  ],
 };

@@ -1,44 +1,25 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import * as Yup from 'yup';
+import { withFormik } from '../../../../.storybook/withFormik';
 import Select from './Select';
 
-interface SelectProps {
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-  value: string;
-}
+const options = [
+  { value: '1', label: 'Option 1' },
+  { value: '2', label: 'Option 2' },
+  { value: '3', label: 'Option 3' },
+];
 
-const meta: Meta<SelectProps> = {
+const meta: Meta<typeof Select> = {
   title: 'Controls/Artisan Inputs/Select',
   component: Select,
   tags: ['autodocs'],
-  argTypes: {
-    options: {
-      control: 'object',
-      defaultValue: [
-        { value: '1', label: 'Option 1' },
-        { value: '2', label: 'Option 2' },
-        { value: '3', label: 'Option 3' },
-      ],
-    },
-    value: {
-      control: 'text',
-      defaultValue: '1',
-    },
-  },
+  args: { name: 'field', options },
 };
 
 export default meta;
 
-type Story = StoryObj<SelectProps>;
+type Story = StoryObj<typeof Select>;
 
 export const Default: Story = {
-  args: {
-    options: [
-      { value: '1', label: 'Option 1' },
-      { value: '2', label: 'Option 2' },
-      { value: '3', label: 'Option 3' },
-    ],
-    value: '1',
-    onChange: (value: string) => console.log(value),
-  },
+  decorators: [withFormik({ field: '1' })],
 };
