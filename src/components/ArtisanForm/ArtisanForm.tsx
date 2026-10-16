@@ -19,7 +19,13 @@ import {
   type FieldRegistry,
 } from './fields';
 import Stepper from './Stepper';
-import type { FormSchema } from './types';
+import {
+  defaultStepRegistry,
+  type StepContext,
+  type StepRegistry,
+  stepDefinitionOf,
+} from './steps';
+import type { BeforeNextResult, FormSchema } from './types';
 
 interface ArtisanFormProps {
   scheme: FormSchema;
@@ -41,6 +47,8 @@ interface ArtisanFormProps {
   persistKey?: string;
   /** Custom field types, merged over the built-in ones (see `defaultFieldRegistry`). */
   fields?: FieldRegistry;
+  /** Custom step kinds, merged over the built-in ones (see `defaultStepRegistry`). */
+  stepTypes?: StepRegistry;
 }
 
 const ValuesWatcher = ({
@@ -63,6 +71,7 @@ const ValuesWatcher = ({
 interface WizardProps {
   scheme: FormSchema;
   registry: FieldRegistry;
+  stepRegistry: StepRegistry;
   labels: ArtisanLabels;
   className?: string;
   onChange?: (values: FormikValues) => void;
@@ -75,6 +84,7 @@ interface WizardProps {
 const Wizard = ({
   scheme,
   registry,
+  stepRegistry,
   labels,
   className,
   onChange,
@@ -82,18 +92,40 @@ const Wizard = ({
   step: stepProp,
   persistKey,
 }: WizardProps) => {
-  const { values, validateForm, setTouched, touched, isSubmitting } =
-    useFormikContext<FormikValues>();
+  const {
+    values,
+    validateForm,
+    setTouched,
+    touched,
+    isSubmitting,
+    submitForm,
+    setFieldValue,
+  } = useFormikContext<FormikValues>();
   const step = useArtisanStore((s) => s.step);
   const setStep = useArtisanStore((s) => s.setStep);
   const setProcessStep = useArtisanStore((s) => s.setProcessStep);
   const setIsFinalStep = useArtisanStore((s) => s.setIsFinalStep);
+  const submitState = useArtisanStore((s) => s.submitState);
+  const submitError = useArtisanStore((s) => s.submitError);
 
   const steps = visibleSteps(scheme, values);
   const current = steps[step];
   const fields = current ? visibleFields(current, values) : [];
+  // `result` steps come after the submit; the last other step submits.
+  const finalIndex = steps.reduce(
+    (last, s, i) => (s.kind === 'result' ? last : i),
+    steps.length - 1,
+  );
+  const resultIndex = steps.findIndex((s) => s.kind === 'result');
   const formRef = useRef<HTMLFormElement>(null);
   const [focusTick, setFocusTick] = useState(0);
+  const [stepError, setStepError] = useState<string | null>(null);
+
+  const goTo = (index: number) => {
+    setStepError(null);
+    setStep(index);
+    setProcessStep(index);
+  };
 
   useEffect(() => {
     setStep(stepProp ?? 0);
@@ -110,8 +142,17 @@ const Wizard = ({
   }, [step]);
 
   useEffect(() => {
-    setIsFinalStep(step === steps.length - 1);
-  }, [step, steps.length]);
+    setIsFinalStep(step === finalIndex);
+  }, [step, finalIndex]);
+
+  useEffect(() => {
+    current?.onEnter?.(values);
+  }, [step, current?.title]);
+
+  // After a successful submit, show the result step if there is one.
+  useEffect(() => {
+    if (submitState === 'success' && resultIndex >= 0) goTo(resultIndex);
+  }, [submitState]);
 
   useEffect(() => {
     if (persistKey)
@@ -131,45 +172,101 @@ const Wizard = ({
 
   if (!current) return null;
 
-  // Validate only the current step's visible fields before moving forward.
-  const handleNext = async () => {
+  const definition = stepDefinitionOf(stepRegistry, current);
+
+  // Validate the step's visible fields, run `beforeNext`, then advance (or
+  // submit when this is the last step).
+  const next = async () => {
     const names = fields.flatMap((f) => fieldNames(f, registry));
-    const errors = await validateForm();
-    await setTouched({
-      ...touched,
-      ...Object.fromEntries(names.map((n) => [n, true])),
-    });
-    if (names.some((n) => errors[n])) {
-      setFocusTick((t) => t + 1);
+    if (names.length > 0) {
+      const errors = await validateForm();
+      await setTouched({
+        ...touched,
+        ...Object.fromEntries(names.map((n) => [n, true])),
+      });
+      if (names.some((n) => errors[n])) {
+        setFocusTick((t) => t + 1);
+        return;
+      }
+    }
+    if (current.beforeNext) {
+      let outcome: BeforeNextResult;
+      try {
+        outcome = await current.beforeNext(values);
+      } catch (e) {
+        outcome = { error: e instanceof Error ? e.message : String(e) };
+      }
+      if (outcome?.error) {
+        setStepError(outcome.error);
+        return;
+      }
+    }
+    setStepError(null);
+    if (step >= finalIndex) {
+      await submitForm();
       return;
     }
-    setStep(step + 1);
-    setProcessStep(step + 1);
+    goTo(step + 1);
+  };
+
+  const controls = { ...definition.controls, ...current.controls };
+  const context: StepContext = {
+    step: current,
+    index: step,
+    total: steps.length,
+    values,
+    setFieldValue: (name, value) => {
+      setFieldValue(name, value);
+    },
+    labels,
+    fieldRegistry: registry,
+    fields,
+    next,
+    back: () => goTo(Math.max(0, step - 1)),
+    goTo,
+    submit: submitForm,
+    submitState,
+    submitError,
+    error: stepError,
   };
 
   return (
-    <Form noValidate ref={formRef} className={className}>
+    <Form
+      noValidate
+      ref={formRef}
+      className={className}
+      onSubmit={(e) => {
+        e.preventDefault();
+        void next();
+      }}
+    >
       {onChange && <ValuesWatcher onChange={onChange} />}
       <Stepper steps={steps} current={step} labels={labels} />
       <h2 className="mb-4 text-lg font-semibold">{current.title}</h2>
-      {fields.map((f) => (
-        <div key={f.name} className="mb-4">
-          {definitionOf(registry, f).groupLabel && (
-            <span className="block text-sm font-medium text-gray-700">
-              {f.label}
-            </span>
-          )}
-          {definitionOf(registry, f).render(f, { labels })}
-          {definitionOf(registry, f).groupLabel && f.helperText && (
-            <p className="mt-1 text-sm text-gray-500">{f.helperText}</p>
-          )}
-        </div>
-      ))}
-      <Controls
-        onNext={handleNext}
-        isSubmitting={isSubmitting}
-        labels={labels}
-      />
+      {definition.render(context)}
+      {(stepError || submitError) && (
+        <p role="alert" className="mb-4 text-sm text-red-600">
+          {stepError ?? submitError}
+        </p>
+      )}
+      {!controls.hidden && (
+        <Controls
+          onNext={next}
+          onPrevious={() => goTo(Math.max(0, step - 1))}
+          hidePrevious={controls.hidePrevious}
+          hideNext={controls.hideNext}
+          nextDisabled={controls.nextDisabled}
+          isSubmitting={isSubmitting}
+          labels={{
+            ...labels,
+            ...(controls.nextLabel && {
+              next: controls.nextLabel,
+              submit: controls.nextLabel,
+            }),
+            ...(controls.previousLabel && { previous: controls.previousLabel }),
+          }}
+        />
+      )}
     </Form>
   );
 };
@@ -180,12 +277,18 @@ const ArtisanFormInner = ({
   initialValues: initialOverrides,
   labels: labelOverrides,
   fields,
+  stepTypes,
   ...wizard
 }: ArtisanFormProps) => {
   const { persistKey } = wizard;
+  const setSubmitState = useArtisanStore((s) => s.setSubmitState);
   const registry = useMemo(
     () => ({ ...defaultFieldRegistry, ...fields }),
     [fields],
+  );
+  const stepRegistry = useMemo(
+    () => ({ ...defaultStepRegistry, ...stepTypes }),
+    [stepTypes],
   );
   // Read once on mount; the draft wins over defaults and `initialValues`.
   const draft = useMemo(
@@ -216,10 +319,22 @@ const ArtisanFormInner = ({
         visibleFields(step, values).flatMap((f) => fieldNames(f, registry)),
       ),
     );
-    await onSubmit(
-      Object.fromEntries(Object.entries(values).filter(([k]) => shown.has(k))),
-    );
+    setSubmitState('submitting');
+    try {
+      await onSubmit(
+        Object.fromEntries(
+          Object.entries(values).filter(([k]) => shown.has(k)),
+        ),
+      );
+    } catch (e) {
+      setSubmitState(
+        'error',
+        e instanceof Error ? e.message : labels.submitError,
+      );
+      return;
+    }
     if (persistKey) clearDraft(persistKey);
+    setSubmitState('success');
   };
 
   return (
@@ -231,6 +346,7 @@ const ArtisanFormInner = ({
       <Wizard
         scheme={scheme}
         registry={registry}
+        stepRegistry={stepRegistry}
         labels={labels}
         {...wizard}
         step={

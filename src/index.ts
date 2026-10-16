@@ -10,6 +10,12 @@ export {
   type FieldDefinition,
   type FieldRegistry,
 } from './components/ArtisanForm/fields';
+export {
+  defaultStepRegistry,
+  type StepContext,
+  type StepDefinition,
+  type StepRegistry,
+} from './components/ArtisanForm/steps';
 export type {
   BuiltInFieldType,
   FieldSchema,

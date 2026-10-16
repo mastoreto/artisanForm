@@ -93,6 +93,20 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 - `showIf: { field, equals?, not? }` en un campo o en un paso: se muestra solo si `field` vale alguno de los `equals` (o tiene algún valor si se omite); `not: true` invierte la condición. Lo oculto no se renderiza, no se valida ni se envía en `onSubmit`, y los pasos ocultos se saltean.
 - `sameAs: 'otroCampo'` exige que el valor coincida con el de otro campo (ej. confirmación de contraseña).
 
+### Pasos
+
+`StepSchema` acepta, además de `title` y `fields`:
+
+| Propiedad | Descripción |
+| --- | --- |
+| `kind` | Tipo de paso: `form` (por defecto) o `custom` (más los que registres con `stepTypes`). |
+| `beforeNext(values)` | Corre tras validar el paso y antes de avanzar. Devolvé `{ error }` o lanzá un error para bloquear mostrando el mensaje (ej. crear una orden en tu backend). |
+| `onEnter(values)` | Corre cada vez que el paso pasa a ser el actual. |
+| `controls` | `hidden`, `hidePrevious`, `hideNext`, `nextDisabled`, `nextLabel`, `previousLabel`. |
+| `render(ctx)` | Solo en `kind: 'custom'`: devuelve el contenido del paso. |
+
+`ctx` (`StepContext`) expone `values`, `setFieldValue`, `next()`, `back()`, `goTo(i)`, `submit()`, `submitState` (`idle` \| `submitting` \| `success` \| `error`), `error` y más. Si `onSubmit` lanza, el error se muestra y "Finalizar" permite reintentar.
+
 ### Tipos de campo propios
 
 Cada tipo es una `FieldDefinition` (`render`, `initialValues`, `rules`, y opcionalmente `groupLabel`/`secret`). Los incluidos están en `defaultFieldRegistry`; agregá los tuyos con la prop `fields`:
