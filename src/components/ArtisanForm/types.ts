@@ -22,6 +22,8 @@ export type BuiltInFieldType =
   | 'password'
   | 'date'
   | 'checkbox'
+  | 'file'
+  | 'image'
   | 'switch'
   | 'select'
   | 'dynamicSelect'
@@ -64,6 +66,14 @@ export interface FieldSchema {
     | 'search';
   readOnly?: boolean;
   maxLength?: number;
+  /** file/image: accepted types (native `accept`), max bytes per file, file count limits. */
+  accept?: string;
+  maxSize?: number;
+  maxFiles?: number;
+  minFiles?: number;
+  /** Key of the `storage` adapter to use (default: the single/`default` one). */
+  storage?: string;
+  capture?: 'user' | 'environment';
   /** Number step. */
   step?: number | string;
   /** date: earliest / latest allowed value (YYYY-MM-DD). */

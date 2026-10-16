@@ -78,7 +78,7 @@ const scheme: FormSchema = {
 | `StepSchema`  | `title`, `fields: FieldSchema[]`                                                                                                                                                                                                |
 | `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `max?`, `pattern?`, `defaultValue?`, `autoComplete?`, `inputMode?`, `readOnly?`, `maxLength?`, `step?`, `minDate?`, `maxDate?`, `disabled?`, `helperText?`, `sameAs?`, `showIf?`, `dependentName?`, `dependentOptions?`, `loadDependentOptions?` |
 
-Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `password`, `date`, `checkbox`, `switch`, `select`, `dynamicSelect`, `check`, `radio`.
+Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `password`, `date`, `checkbox`, `switch`, `file`, `image`, `select`, `dynamicSelect`, `check`, `radio`.
 
 - `required` → obligatorio (en `check`, al menos una opción).
 - `min` / `max` → largo del texto, o valor numérico en `number`. En campos opcionales vacíos no se validan.
@@ -110,6 +110,33 @@ Tipos de campo (`type`): `text`, `email`, `number`, `tel`, `url`, `textarea`, `p
 - **`terms`**: texto de términos (`content`: texto o JSX, con scroll) y/o enlace (`href`) más un checkbox de aceptación obligatorio (valor `termsAccepted`; cambialo con `acceptName`/`acceptLabel`, o definí tus propios `fields`).
 - **`review`**: resumen de todos los pasos anteriores con un botón "Editar" por paso (contraseñas enmascaradas; opciones con su etiqueta).
 - **`result`**: pantalla final tras `onSubmit`. Props del paso: `message`, `errorMessage`, `actions: [{ label, href? , onClick? }]`. Se muestra al terminar el envío (éxito o error); en error ofrece "Reintentar" y "Volver al formulario". El último paso que no es `result` es el que envía.
+
+### Archivos y storage
+
+Los campos `file` y `image` (con vista previa) suben cada archivo apenas se elige y guardan en el formulario un **descriptor serializable** (`{ id, name, size, type, url? }`), no el `File`. Props del campo: `accept`, `maxSize` (bytes), `maxFiles` (1 reemplaza; más permite varios), `minFiles`, `capture`, `storage` (clave del adapter). Hay arrastrar y soltar, progreso, cancelar, reintentar y quitar; "Siguiente" espera a que terminen las subidas.
+
+El destino lo definís vos con la prop `storage` (un adapter, o `{ clave: adapter }` y `storage: 'clave'` en el campo). La librería **nunca guarda credenciales**: tu backend firma.
+
+```tsx
+import { ArtisanForm, presignedPut, cloudinary } from 'artisanform';
+
+// S3, Cloudflare R2, Backblaze B2, MinIO… (cualquier servicio S3-compatible)
+const s3 = presignedPut({
+  getUploadUrl: async (file) => {
+    const r = await fetch('/api/upload-url', { method: 'POST', body: JSON.stringify({ name: file.name, type: file.type }) });
+    return r.json(); // { url, headers?, fileUrl?, id? }
+  },
+});
+
+// Cloudinary: preset sin firma, o firmado por tu backend (getSignature)
+const cl = cloudinary({ cloudName: 'demo', uploadPreset: 'mi_preset_unsigned' });
+
+<ArtisanForm scheme={scheme} storage={{ default: s3, imagenes: cl }} onSubmit={save} />;
+```
+
+**Plugin propio:** cualquier objeto `StorageAdapter` (`{ id, upload(file, { onProgress, signal }) → UploadedFile, remove? }`) sirve para otro servicio. `mockStorage()` simula subidas para demos y tests.
+
+> La validación de tipo y tamaño en el navegador es solo UX: el servidor debe validar MIME real, tamaño y escanear los archivos.
 
 ### Tipos de campo propios
 

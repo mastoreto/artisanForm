@@ -1,6 +1,7 @@
 import type { FormikValues } from 'formik';
 import type { ReactNode } from 'react';
 import type { ArtisanLabels } from '../../commons/labels';
+import type { StorageMap } from '../../storage/types';
 import type { SubmitState } from '../../stores/useArtisanStore';
 import { visibleFields } from './conditions';
 import { definitionOf, type FieldRegistry } from './fields';
@@ -20,6 +21,7 @@ export interface StepContext {
   setFieldValue: (name: string, value: unknown) => void;
   labels: ArtisanLabels;
   fieldRegistry: FieldRegistry;
+  storage: StorageMap;
   /** All currently visible steps (in order). */
   steps: StepSchema[];
   /** The step's fields that are currently visible. */
@@ -44,7 +46,7 @@ export interface StepDefinition {
 
 export type StepRegistry = Record<string, StepDefinition>;
 
-const FormStep = ({ fields, fieldRegistry, labels }: StepContext) => (
+const FormStep = ({ fields, fieldRegistry, labels, storage }: StepContext) => (
   <>
     {fields.map((f) => {
       const def = definitionOf(fieldRegistry, f);
@@ -55,7 +57,7 @@ const FormStep = ({ fields, fieldRegistry, labels }: StepContext) => (
               {f.label}
             </span>
           )}
-          {def.render(f, { labels })}
+          {def.render(f, { labels, storage })}
           {def.groupLabel && f.helperText && (
             <p className="mt-1 text-sm text-gray-500">{f.helperText}</p>
           )}
@@ -74,7 +76,9 @@ const displayValue = (
   const raw = values[f.name];
   if (secret) return raw ? '••••••' : '';
   const labelOf = (options: FieldOption[] | undefined, v: unknown) =>
-    options?.find((o) => o.value === v)?.label ?? String(v ?? '');
+    typeof v === 'object' && v !== null && 'name' in v
+      ? String((v as { name: unknown }).name)
+      : (options?.find((o) => o.value === v)?.label ?? String(v ?? ''));
   if (typeof raw === 'boolean') return raw ? labels.yes : labels.no;
   if (Array.isArray(raw))
     return raw.map((v) => labelOf(f.options, v)).join(', ');

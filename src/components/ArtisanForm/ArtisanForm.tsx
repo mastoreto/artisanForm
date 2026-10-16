@@ -2,6 +2,11 @@ import { Form, Formik, type FormikValues, useFormikContext } from 'formik';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import {
+  normalizeStorage,
+  type StorageAdapter,
+  type StorageMap,
+} from '../../storage/types';
+import {
   ArtisanStoreProvider,
   useArtisanStore,
 } from '../../stores/useArtisanStore';
@@ -45,6 +50,8 @@ interface ArtisanFormProps {
   fields?: FieldRegistry;
   /** Custom step kinds, merged over the built-in ones (see `defaultStepRegistry`). */
   stepTypes?: StepRegistry;
+  /** Where file fields upload: one adapter, or a map keyed by the field's `storage`. */
+  storage?: StorageAdapter | StorageMap;
 }
 
 const ValuesWatcher = ({
@@ -66,6 +73,7 @@ const ValuesWatcher = ({
 
 interface WizardProps {
   scheme: FormSchema;
+  storageMap: StorageMap;
   registry: FieldRegistry;
   stepRegistry: StepRegistry;
   labels: ArtisanLabels;
@@ -79,6 +87,7 @@ interface WizardProps {
 /** Renders the current step; lives inside <Formik> to read live values. */
 const Wizard = ({
   scheme,
+  storageMap,
   registry,
   stepRegistry,
   labels,
@@ -221,6 +230,7 @@ const Wizard = ({
     },
     labels,
     fieldRegistry: registry,
+    storage: storageMap,
     fields,
     next,
     back: () => goTo(Math.max(0, step - 1)),
@@ -279,8 +289,10 @@ const ArtisanFormInner = ({
   labels: labelOverrides,
   fields,
   stepTypes,
+  storage,
   ...wizard
 }: ArtisanFormProps) => {
+  const storageMap = useMemo(() => normalizeStorage(storage), [storage]);
   const { persistKey } = wizard;
   const setSubmitState = useArtisanStore((s) => s.setSubmitState);
   const registry = useMemo(
@@ -346,6 +358,7 @@ const ArtisanFormInner = ({
     >
       <Wizard
         scheme={scheme}
+        storageMap={storageMap}
         registry={registry}
         stepRegistry={stepRegistry}
         labels={labels}
