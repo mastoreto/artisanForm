@@ -185,6 +185,17 @@ mercadoPago({
 })
 ```
 
+**PayPal** — `import { paypal } from 'artisanform/payments/paypal'` (`pnpm add @paypal/react-paypal-js`).
+
+```tsx
+paypal({
+  clientId: '…',
+  currency: 'USD',
+  createOrder: (req) => api('/paypal/orders', req),                    // → { orderId } (monto calculado por tu servidor)
+  captureOrder: (req, orderId) => api('/paypal/capture', { orderId }),  // → { status: 'COMPLETED' | 'PENDING' | …, id? }
+})
+```
+
 ### Espera de confirmación
 
 `kind: 'pending'` espera algo externo (un servicio, un webhook) con la estrategia `wait` que elijas, avanza solo al tener éxito y ofrece "Reintentar" / "Volver al formulario" si falla. Props: `wait`, `message`, `resultName` (guarda en el formulario el `data` del éxito), `failTo` (índice del paso al que volver). Si usás `persistKey`, tras recargar la página vuelve a esperar.

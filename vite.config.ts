@@ -27,6 +27,7 @@ export default defineConfig({
         'payments/stripe': 'src/payments/stripe.tsx',
         'payments/lemonsqueezy': 'src/payments/lemonsqueezy.tsx',
         'payments/mercadopago': 'src/payments/mercadopago.tsx',
+        'payments/paypal': 'src/payments/paypal.tsx',
       },
       formats: ['es', 'cjs'],
       fileName: (format, name) =>
@@ -34,7 +35,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: (id) =>
-        /^(react|react-dom|formik|yup|zustand|@stripe|@mercadopago)(\/|$)/.test(
+        /^(react|react-dom|formik|yup|zustand|@stripe|@mercadopago|@paypal)(\/|$)/.test(
           id,
         ),
     },
