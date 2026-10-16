@@ -72,7 +72,6 @@ const PaymentStep = (ctx: StepContext) => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     for (const plugin of available) {
-      if (plugin.mode !== 'redirect') continue;
       const result = plugin.resume?.(params);
       if (!result) continue;
       const url = new URL(window.location.href);

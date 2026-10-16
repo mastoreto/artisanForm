@@ -22,6 +22,8 @@
     "@storybook/react": "^8.3.4",
     "@storybook/react-vite": "^8.3.4",
     "@storybook/test": "^8.3.4",
+    "@stripe/react-stripe-js": "^7.0.0",
+    "@stripe/stripe-js": "^10.1.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",
@@ -51,7 +53,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "yup": "^1.4.0",
-    "zustand": "^5.0.1"
+    "zustand": "^5.0.1",
+    "@stripe/stripe-js": ">=4",
+    "@stripe/react-stripe-js": ">=2"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -77,6 +81,19 @@
       "import": "./dist/artisanForm.es.js",
       "require": "./dist/artisanForm.cjs"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./payments/stripe": {
+      "types": "./dist/payments/stripe.d.ts",
+      "import": "./dist/payments/stripe.es.js",
+      "require": "./dist/payments/stripe.cjs"
+    }
+  },
+  "peerDependenciesMeta": {
+    "@stripe/stripe-js": {
+      "optional": true
+    },
+    "@stripe/react-stripe-js": {
+      "optional": true
+    }
   }
 }

@@ -146,6 +146,22 @@ const miProveedor: PaymentPlugin = {
 };
 ```
 
+#### Proveedores incluidos
+
+Cada uno vive en su subpath y sus SDK son `peerDependencies` **opcionales** (solo instalás lo que usás). Todos siguen el principio de arriba: tu backend define montos y crea las órdenes/sesiones; confirmá el pago real por webhook.
+
+**Stripe** — `import { stripe } from 'artisanform/payments/stripe'` (embebido: `pnpm add @stripe/stripe-js @stripe/react-stripe-js`; Checkout hospedado: sin SDK).
+
+```tsx
+stripe({
+  publishableKey: 'pk_test_…',
+  // embebido (Payment Element): tu backend crea el PaymentIntent y devuelve el client secret
+  createPaymentIntent: (req) => api('/payment-intents', req),            // → { clientSecret }
+  // o mode: 'redirect' (Stripe Checkout): tu backend crea la sesión con estas URLs
+  // createCheckoutSession: (req, { successUrl, cancelUrl }) => api('/checkout', { req, successUrl, cancelUrl }), // → { url }
+})
+```
+
 ### Espera de confirmación
 
 `kind: 'pending'` espera algo externo (un servicio, un webhook) con la estrategia `wait` que elijas, avanza solo al tener éxito y ofrece "Reintentar" / "Volver al formulario" si falla. Props: `wait`, `message`, `resultName` (guarda en el formulario el `data` del éxito), `failTo` (índice del paso al que volver). Si usás `persistKey`, tras recargar la página vuelve a esperar.

@@ -21,12 +21,18 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: 'src/index.ts',
+      // Provider plugins are separate entries so their SDKs stay optional.
+      entry: {
+        index: 'src/index.ts',
+        'payments/stripe': 'src/payments/stripe.tsx',
+      },
       formats: ['es', 'cjs'],
-      fileName: (format) => `artisanForm.${format === 'es' ? 'es.js' : 'cjs'}`,
+      fileName: (format, name) =>
+        `${name === 'index' ? 'artisanForm' : name}.${format === 'es' ? 'es.js' : 'cjs'}`,
     },
     rollupOptions: {
-      external: (id) => /^(react|react-dom|formik|yup|zustand)(\/|$)/.test(id),
+      external: (id) =>
+        /^(react|react-dom|formik|yup|zustand|@stripe)(\/|$)/.test(id),
     },
   },
 });
