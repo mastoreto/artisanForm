@@ -13,11 +13,7 @@ import {
 } from './buildSchema';
 import { visibleFields, visibleSteps } from './conditions';
 import { clearDraft, loadDraft, saveDraft, withoutSecrets } from './draft';
-import {
-  defaultFieldRegistry,
-  definitionOf,
-  type FieldRegistry,
-} from './fields';
+import { defaultFieldRegistry, type FieldRegistry } from './fields';
 import Stepper from './Stepper';
 import {
   defaultStepRegistry,
@@ -151,7 +147,11 @@ const Wizard = ({
 
   // After a successful submit, show the result step if there is one.
   useEffect(() => {
-    if (submitState === 'success' && resultIndex >= 0) goTo(resultIndex);
+    if (
+      (submitState === 'success' || submitState === 'error') &&
+      resultIndex >= 0
+    )
+      goTo(resultIndex);
   }, [submitState]);
 
   useEffect(() => {
@@ -214,6 +214,7 @@ const Wizard = ({
     step: current,
     index: step,
     total: steps.length,
+    steps,
     values,
     setFieldValue: (name, value) => {
       setFieldValue(name, value);
@@ -244,7 +245,7 @@ const Wizard = ({
       <Stepper steps={steps} current={step} labels={labels} />
       <h2 className="mb-4 text-lg font-semibold">{current.title}</h2>
       {definition.render(context)}
-      {(stepError || submitError) && (
+      {(stepError || (submitError && current.kind !== 'result')) && (
         <p role="alert" className="mb-4 text-sm text-red-600">
           {stepError ?? submitError}
         </p>

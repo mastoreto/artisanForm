@@ -10,6 +10,13 @@ export interface ArtisanLabels {
   loadOptionsError: string;
   required: string;
   submitError: string;
+  edit: string;
+  yes: string;
+  no: string;
+  retry: string;
+  backToForm: string;
+  submitting: string;
+  successMessage: string;
   invalidEmail: string;
   invalidNumber: string;
   invalidPattern: string;
@@ -35,6 +42,13 @@ export const defaultLabels: ArtisanLabels = {
   loadOptionsError: 'No se pudieron cargar las opciones',
   required: 'Campo requerido',
   submitError: 'No se pudo enviar el formulario',
+  edit: 'Editar',
+  yes: 'Sí',
+  no: 'No',
+  retry: 'Reintentar',
+  backToForm: 'Volver al formulario',
+  submitting: 'Enviando…',
+  successMessage: '¡Listo! Recibimos tu información.',
   invalidEmail: 'Email inválido',
   invalidNumber: 'Número inválido',
   invalidPattern: 'Formato inválido',
