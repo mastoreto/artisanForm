@@ -11,18 +11,22 @@ export interface Condition {
   not?: boolean;
 }
 
+/** Field types shipped with the library; custom ones come from a field registry. */
+export type BuiltInFieldType =
+  | 'text'
+  | 'email'
+  | 'number'
+  | 'textarea'
+  | 'password'
+  | 'date'
+  | 'select'
+  | 'dynamicSelect'
+  | 'check'
+  | 'radio';
+
 export interface FieldSchema {
-  type:
-    | 'text'
-    | 'email'
-    | 'number'
-    | 'textarea'
-    | 'password'
-    | 'date'
-    | 'select'
-    | 'dynamicSelect'
-    | 'check'
-    | 'radio';
+  /** A built-in type, or any key of a custom registry passed via `fields`. */
+  type: string;
   name: string;
   label: string;
   placeholder?: string;
@@ -47,6 +51,8 @@ export interface FieldSchema {
   sameAs?: string;
   /** Hidden (not rendered, validated or submitted) unless the condition holds. */
   showIf?: Condition;
+  /** Extra properties read by custom field types. */
+  [extra: string]: unknown;
 }
 
 export interface StepSchema {

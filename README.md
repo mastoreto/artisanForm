@@ -91,6 +91,24 @@ Tipos de campo (`type`): `text`, `email`, `number`, `textarea`, `password`, `dat
 - `showIf: { field, equals?, not? }` en un campo o en un paso: se muestra solo si `field` vale alguno de los `equals` (o tiene algún valor si se omite); `not: true` invierte la condición. Lo oculto no se renderiza, no se valida ni se envía en `onSubmit`, y los pasos ocultos se saltean.
 - `sameAs: 'otroCampo'` exige que el valor coincida con el de otro campo (ej. confirmación de contraseña).
 
+### Tipos de campo propios
+
+Cada tipo es una `FieldDefinition` (`render`, `initialValues`, `rules`, y opcionalmente `groupLabel`/`secret`). Los incluidos están en `defaultFieldRegistry`; agregá los tuyos con la prop `fields`:
+
+```tsx
+<ArtisanForm
+  scheme={{ steps: [{ title: 'X', fields: [{ type: 'stars', name: 'rating', label: 'Rating' }] }] }}
+  fields={{
+    stars: {
+      initialValues: (f) => ({ [f.name]: 3 }),
+      rules: () => ({}),
+      render: (f) => <MyStars name={f.name} label={f.label} />,
+    },
+  }}
+  onSubmit={console.log}
+/>
+```
+
 ### Props de `ArtisanForm`
 
 | Prop                  | Descripción                                                                                           |

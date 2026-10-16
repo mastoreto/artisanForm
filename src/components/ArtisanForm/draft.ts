@@ -1,3 +1,8 @@
+import {
+  defaultFieldRegistry,
+  definitionOf,
+  type FieldRegistry,
+} from './fields';
 import type { FormSchema } from './types';
 
 export interface Draft {
@@ -38,10 +43,15 @@ export const clearDraft = (key: string) => {
 export const withoutSecrets = (
   scheme: FormSchema,
   values: Record<string, unknown>,
+  registry: FieldRegistry = defaultFieldRegistry,
 ) => {
   const secret = new Set(
     scheme.steps.flatMap((s) =>
-      s.fields.filter((f) => f.type === 'password').map((f) => f.name),
+      s.fields
+        .filter((f) => definitionOf(registry, f).secret)
+        .flatMap((f) =>
+          Object.keys(definitionOf(registry, f).initialValues(f)),
+        ),
     ),
   );
   return Object.fromEntries(
