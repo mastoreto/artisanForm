@@ -609,3 +609,63 @@ test('a failing onSubmit shows an error and can be retried', async () => {
   await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2));
   await waitFor(() => expect(screen.queryByText('Boom')).toBeNull());
 });
+
+const withResult = (extra: Record<string, unknown> = {}): FormSchema => ({
+  steps: [
+    {
+      title: 'Datos',
+      fields: [
+        { type: 'text', name: 'name', label: 'Nombre' },
+        {
+          type: 'radio',
+          name: 'plan',
+          label: 'Plan',
+          options: [
+            { value: 'free', label: 'Gratis' },
+            { value: 'pro', label: 'Profesional' },
+          ],
+        },
+        { type: 'password', name: 'pw', label: 'Clave' },
+      ],
+    },
+    { title: 'Revisá', kind: 'review' },
+    { title: 'Fin', kind: 'result', message: 'Gracias!', ...extra },
+  ],
+});
+
+test('review step summarizes values (secrets masked) and edit goes back', async () => {
+  const user = userEvent.setup();
+  render(<ArtisanForm scheme={withResult()} onSubmit={() => {}} />);
+  await user.type(screen.getByLabelText('Nombre'), 'Ana');
+  await user.type(screen.getByLabelText('Clave'), 'topsecret');
+  await user.click(screen.getByText('Profesional'));
+  await user.click(screen.getByText('Siguiente'));
+  await screen.findByRole('heading', { name: 'Revisá' });
+  expect(screen.getByText('Ana')).toBeTruthy();
+  expect(screen.getByText('Profesional')).toBeTruthy();
+  expect(screen.queryByText('topsecret')).toBeNull();
+  expect(screen.getByText('••••••')).toBeTruthy();
+
+  await user.click(screen.getByRole('button', { name: /Editar/ }));
+  expect(await screen.findByRole('heading', { name: 'Datos' })).toBeTruthy();
+});
+
+test('result step: success after onSubmit; error shows retry and recovers', async () => {
+  const user = userEvent.setup();
+  let fail = true;
+  const onSubmit = mock(async () => {
+    if (fail) throw new Error('Servidor caído');
+  });
+  render(<ArtisanForm scheme={withResult()} onSubmit={onSubmit} />);
+  await user.click(screen.getByText('Siguiente'));
+  await screen.findByRole('heading', { name: 'Revisá' });
+  await user.click(screen.getByText('Finalizar'));
+
+  expect(await screen.findByText('Servidor caído')).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Fin' })).toBeTruthy();
+  fail = false;
+  await user.click(screen.getByText('Reintentar'));
+  expect(await screen.findByText('Gracias!')).toBeTruthy();
+  expect(onSubmit).toHaveBeenCalledTimes(2);
+  expect(screen.queryByText('Finalizar')).toBeNull();
+});
