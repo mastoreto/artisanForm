@@ -39,10 +39,13 @@ export const useArtisanField = <T = unknown>(
     };
   }, [validators, name, hasValidate]);
 
-  const { field, fieldState } = useController({ name });
+  const { field, fieldState, formState } = useController({ name });
   const found = messageOf(fieldState.error);
   // Like Formik: an error is shown once the field was touched (or Next was tried).
-  const error = fieldState.isTouched || ui?.attempted ? found : undefined;
+  const error =
+    fieldState.isTouched || formState.isSubmitted || ui?.attempted
+      ? found
+      : undefined;
 
   return [
     {

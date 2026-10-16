@@ -349,7 +349,7 @@ pnpm add artisanform react react-dom react-hook-form yup zustand
 
 `ArtisanForm`, los inputs sueltos (`TextInput`, `Textarea`, `Password`, `DateInput`, `Select`, `DynamicSelect`, `Check`, `Radio`), `defaultFieldRegistry`, `defaultStepRegistry`, `defineForm`, `parseArtisanSchema`, `normalizeArtisanSchema`, `evaluateCondition`, `presignedPut`, `cloudinary`, `mockStorage`, `polling`, `sse`, `websocket`, `callback`, `mockPayment`, `useArtisanStore`, `cn`, `defaultLabels` y los tipos (`ArtisanSchemaV1`, `FormSchema`, `StepSchema`, `FieldSchema`, `FieldDefinition`, `StepDefinition`, `ArtisanExtensions`, `ArtisanSnapshotV1`, `StorageAdapter`, `PaymentPlugin`, `WaitStrategy`, `ArtisanLabels`…). Los plugins de pago se importan de `artisanform/payments/<proveedor>`.
 
-Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y **deben renderizarse dentro de un `<FormProvider>` de React Hook Form** (`ArtisanForm` ya provee uno). Muestran el error de Yup cuando el campo fue tocado.
+Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y **deben renderizarse dentro de un `<StandaloneForm initialValues schema onSubmit>`** (lo exporta la librería; `ArtisanForm` no lo necesita). Nunca tocás React Hook Form directamente. Muestran el error de Yup cuando el campo fue tocado.
 
 ## Estructura
 

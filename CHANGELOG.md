@@ -5,7 +5,7 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 ## Unreleased (Phase 2: React Hook Form)
 
 - **Engine:** values, registration, validation and field arrays now run on React Hook Form (one `useForm` per wizard, Yup through `@hookform/resolvers`). Formik is gone. The v1 contract, Yup rules, Zustand step state, payments, storage and waits are unchanged.
-- **Breaking (install):** `react-hook-form` is now a peer dependency (replaces `formik`). Standalone inputs need a `FormProvider` instead of `<Formik>`.
+- **Breaking (install):** `react-hook-form` is now a peer dependency (replaces `formik`). Standalone inputs go inside the new `StandaloneForm` (instead of `<Formik>`); no React Hook Form import needed. The wizard re-renders only on changes to values that conditions read, so typing re-renders just the typed field.
 - Validation runs on change; errors show once the field is touched or "Next" was tried (as before). `trigger` validates only the step's fields.
 - Repeatable fields use `useFieldArray` with stable row ids.
 - A step that stops being visible while active moves the wizard to the same position (clamped); a second "Next" while `beforeNext` runs, or a stale `beforeNext` result, no longer navigates twice; drafts skip identical writes.

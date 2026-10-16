@@ -1,5 +1,6 @@
 import { defaultLabels } from '../commons/labels';
 import {
+  conditionFields,
   evaluateCondition,
   fromLegacyCondition,
 } from '../schema/contract/conditions';
@@ -45,6 +46,20 @@ export const conditionOf = (el: {
 const isVisible = (el: Parameters<typeof conditionOf>[0], values: Values) => {
   const cond = conditionOf(el);
   return !cond || evaluateCondition(cond, values);
+};
+
+/** Names of the fields any step or field condition reads (what visibility depends on). */
+export const conditionNames = (scheme: FormSchema): string[] => {
+  const names = new Set<string>();
+  const add = (el: Parameters<typeof conditionOf>[0]) => {
+    const cond = conditionOf(el);
+    if (cond) for (const n of conditionFields(cond)) names.add(n);
+  };
+  for (const step of scheme.steps) {
+    add(step);
+    for (const f of fieldsOf(step)) add(f);
+  }
+  return [...names];
 };
 
 export const isStepVisible = (step: StepSchema, values: Values) =>
