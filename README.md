@@ -84,6 +84,17 @@ Tipos de campo (`type`): `text`, `email`, `number`, `textarea`, `password`, `dat
 - `defaultValue` → valor inicial (array en `check`). `disabled` y `helperText` aplican a todos los tipos.
 - `dynamicSelect` guarda dos valores: `name` (primer select) y `dependentName` (segundo), cuyas opciones salen de `dependentOptions[valorDelPrimero]`.
 
+### Props de `ArtisanForm`
+
+| Prop                  | Descripción                                                                                           |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `scheme`              | Definición del formulario (obligatoria)                                                               |
+| `onSubmit(values)`    | Se llama al finalizar. Si devuelve una promesa, "Finalizar" queda deshabilitado hasta que se resuelva |
+| `initialValues?`      | Valores iniciales por nombre de campo; pisan los `defaultValue` del scheme                            |
+| `onChange?(values)`   | Se llama con todos los valores en cada cambio                                                         |
+| `onStepChange?(step)` | Se llama con el índice del nuevo paso                                                                 |
+| `step?`               | Lleva el wizard a ese paso cuando cambia (combinar con `onStepChange`)                                |
+
 ### Comportamiento del wizard
 
 - **Siguiente** valida solo los campos del paso actual y marca sus errores; no avanza si hay alguno.

@@ -139,3 +139,57 @@ test('two forms on the same page keep independent steps', async () => {
   expect(await a.findByText('Step two')).toBeTruthy();
   expect(b.getByText('Step one')).toBeTruthy();
 });
+
+test('initialValues, onChange and onStepChange', async () => {
+  const user = userEvent.setup();
+  const onChange = mock((_: unknown) => {});
+  const onStepChange = mock((_: number) => {});
+  render(
+    <ArtisanForm
+      scheme={scheme}
+      onSubmit={() => {}}
+      initialValues={{ name: 'Zoe' }}
+      onChange={onChange}
+      onStepChange={onStepChange}
+    />,
+  );
+  expect((screen.getByLabelText('Nombre') as HTMLInputElement).value).toBe(
+    'Zoe',
+  );
+  expect(onStepChange).not.toHaveBeenCalled();
+  await user.type(screen.getByLabelText('Nombre'), 'x');
+  await waitFor(() => expect(onChange).toHaveBeenCalled());
+  expect((onChange.mock.calls.at(-1) as unknown[])[0]).toMatchObject({
+    name: 'Zoex',
+  });
+  await user.click(screen.getByText('Siguiente'));
+  await waitFor(() => expect(onStepChange).toHaveBeenCalledWith(1));
+});
+
+test('"Finalizar" stays disabled while onSubmit is pending', async () => {
+  const user = userEvent.setup();
+  let release = () => {};
+  const onSubmit = () => new Promise<void>((r) => (release = r));
+  render(
+    <ArtisanForm
+      scheme={{ steps: [scheme.steps[0]] }}
+      onSubmit={onSubmit}
+      initialValues={{ name: 'Zoe' }}
+    />,
+  );
+  const button = () => screen.getByText('Finalizar') as HTMLButtonElement;
+  await user.click(button());
+  await waitFor(() => expect(button().disabled).toBe(true));
+  release();
+  await waitFor(() => expect(button().disabled).toBe(false));
+});
+
+test('controlled step prop moves the wizard', async () => {
+  const noop = () => {};
+  const { rerender } = render(
+    <ArtisanForm scheme={scheme} onSubmit={noop} step={0} />,
+  );
+  expect(screen.getByText('Step one')).toBeTruthy();
+  rerender(<ArtisanForm scheme={scheme} onSubmit={noop} step={1} />);
+  expect(await screen.findByText('Step two')).toBeTruthy();
+});
