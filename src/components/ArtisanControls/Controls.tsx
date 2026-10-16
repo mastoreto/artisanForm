@@ -5,9 +5,11 @@ import { useArtisanStore } from '../../stores/useArtisanStore';
 interface ControlsProps {
   /** Overrides the default advance (e.g. to validate the step first). */
   onNext?: () => void;
+  /** Disables "Finalizar" while a submit is in flight. */
+  isSubmitting?: boolean;
 }
 
-const Controls = ({ onNext }: ControlsProps): JSX.Element => {
+const Controls = ({ onNext, isSubmitting }: ControlsProps): JSX.Element => {
   const isFinalStep = useArtisanStore((state) => state.isFinalStep);
   const step = useArtisanStore((state) => state.step);
   const processStep = useArtisanStore((state) => state.processStep);
@@ -71,7 +73,11 @@ const Controls = ({ onNext }: ControlsProps): JSX.Element => {
         </button>
       )}
       {isFinalStep && (
-        <button type="submit" className={classes.button}>
+        <button
+          type="submit"
+          className={classes.button}
+          disabled={isSubmitting}
+        >
           Finalizar
         </button>
       )}
