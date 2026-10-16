@@ -1,44 +1,30 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import Select from './DynamicSelect';
+import { withFormik } from '../../../../.storybook/withFormik';
+import DynamicSelect from './DynamicSelect';
 
-interface SelectProps {
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-  value: string;
-}
-
-const meta: Meta<SelectProps> = {
+const meta: Meta<typeof DynamicSelect> = {
   title: 'Controls/Artisan Inputs/Dynamic Select',
-  component: Select,
+  component: DynamicSelect,
   tags: ['autodocs'],
-  argTypes: {
-    options: {
-      control: 'object',
-      defaultValue: [
-        { value: '1', label: 'Option 1' },
-        { value: '2', label: 'Option 2' },
-        { value: '3', label: 'Option 3' },
+  args: {
+    name: 'country',
+    dependentName: 'city',
+    options: [
+      { value: 'ar', label: 'Argentina' },
+      { value: 'cl', label: 'Chile' },
+    ],
+    dependentOptions: {
+      ar: [
+        { value: 'bsas', label: 'Buenos Aires' },
+        { value: 'cba', label: 'Córdoba' },
       ],
-    },
-    value: {
-      control: 'text',
-      defaultValue: '1',
+      cl: [{ value: 'scl', label: 'Santiago' }],
     },
   },
 };
 
 export default meta;
 
-type Story = StoryObj<SelectProps>;
-
-export const Default: Story = {
-  args: {
-    options: [
-      { value: '1', label: 'Option 1' },
-      { value: '2', label: 'Option 2' },
-      { value: '3', label: 'Option 3' },
-    ],
-    value: '1',
-    onChange: (value: string) => console.log(value),
-  },
+export const Default: StoryObj<typeof DynamicSelect> = {
+  decorators: [withFormik({ country: 'ar', city: '' })],
 };

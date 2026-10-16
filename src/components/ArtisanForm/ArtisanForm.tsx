@@ -8,7 +8,12 @@ import Radio from '../ArtisanInputs/Radio/Radio';
 import Select from '../ArtisanInputs/Select/Select';
 import Text from '../ArtisanInputs/Text/Text';
 import { useArtisanStore } from '../../stores/useArtisanStore';
-import { buildInitialValues, buildValidationSchema } from './buildSchema';
+import DynamicSelect from '../ArtisanInputs/DynamicSelect/DynamicSelect';
+import {
+  buildInitialValues,
+  buildValidationSchema,
+  fieldNames,
+} from './buildSchema';
 import type { FieldSchema, FormSchema } from './types';
 
 interface ArtisanFormProps {
@@ -40,6 +45,15 @@ const renderField = (f: FieldSchema) => {
       return <DateInput id={f.name} name={f.name} label={f.label} />;
     case 'select':
       return <Select name={f.name} options={f.options ?? []} />;
+    case 'dynamicSelect':
+      return (
+        <DynamicSelect
+          name={f.name}
+          dependentName={f.dependentName ?? `${f.name}Dependent`}
+          options={f.options ?? []}
+          dependentOptions={f.dependentOptions ?? {}}
+        />
+      );
     case 'check':
       return <Check name={f.name} options={f.options ?? []} />;
     case 'radio':
@@ -80,7 +94,7 @@ const ArtisanForm = ({ scheme, onSubmit }: ArtisanFormProps) => {
       {({ validateForm, setTouched, touched }) => {
         // Validate only the current step's fields before moving forward.
         const handleNext = async () => {
-          const names = current.fields.map((f) => f.name);
+          const names = current.fields.flatMap(fieldNames);
           const errors = await validateForm();
           await setTouched({
             ...touched,
@@ -97,6 +111,7 @@ const ArtisanForm = ({ scheme, onSubmit }: ArtisanFormProps) => {
             {current.fields.map((f) => (
               <div key={f.name} className="mb-4">
                 {(f.type === 'select' ||
+                  f.type === 'dynamicSelect' ||
                   f.type === 'check' ||
                   f.type === 'radio') && (
                   <span className="block text-sm font-medium text-gray-700">

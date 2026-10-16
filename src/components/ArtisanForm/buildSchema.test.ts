@@ -25,6 +25,31 @@ const scheme: FormSchema = {
   ],
 };
 
+const dyn: FormSchema = {
+  steps: [
+    {
+      title: 'C',
+      fields: [
+        {
+          type: 'dynamicSelect',
+          name: 'country',
+          dependentName: 'city',
+          label: 'Place',
+          required: true,
+          options: [{ value: 'ar', label: 'AR' }],
+          dependentOptions: { ar: [{ value: 'bsas', label: 'BA' }] },
+        },
+      ],
+    },
+  ],
+};
+
+test('dynamicSelect owns parent and child values', async () => {
+  expect(buildInitialValues(dyn)).toEqual({ country: 'ar', city: 'bsas' });
+  const schema = buildValidationSchema(dyn);
+  expect(await schema.isValid({ country: 'ar', city: '' })).toBe(false);
+});
+
 test('initial values per field type', () => {
   expect(buildInitialValues(scheme)).toEqual({
     name: '',
