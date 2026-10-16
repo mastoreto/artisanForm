@@ -11,6 +11,8 @@ export interface ArtisanLabels {
   required: string;
   submitError: string;
   edit: string;
+  waiting: string;
+  waitFailed: string;
   dropFiles: string;
   chooseFiles: string;
   fileUploading: string;
@@ -57,6 +59,8 @@ export const defaultLabels: ArtisanLabels = {
   required: 'Campo requerido',
   submitError: 'No se pudo enviar el formulario',
   edit: 'Editar',
+  waiting: 'Esperando confirmación…',
+  waitFailed: 'No pudimos confirmar la operación',
   dropFiles: 'Arrastrá archivos acá o',
   chooseFiles: 'elegí desde tu equipo',
   fileUploading: 'Esperá a que terminen de subir los archivos',
