@@ -86,6 +86,11 @@
       "types": "./dist/payments/stripe.d.ts",
       "import": "./dist/payments/stripe.es.js",
       "require": "./dist/payments/stripe.cjs"
+    },
+    "./payments/lemonsqueezy": {
+      "types": "./dist/payments/lemonsqueezy.d.ts",
+      "import": "./dist/payments/lemonsqueezy.es.js",
+      "require": "./dist/payments/lemonsqueezy.cjs"
     }
   },
   "peerDependenciesMeta": {

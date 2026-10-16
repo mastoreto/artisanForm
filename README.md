@@ -162,6 +162,16 @@ stripe({
 })
 ```
 
+**Lemon Squeezy** — `import { lemonSqueezy } from 'artisanform/payments/lemonsqueezy'` (sin SDK: el overlay carga `lemon.js` bajo demanda).
+
+```tsx
+lemonSqueezy({
+  // tu backend llama a POST /v1/checkouts con tu API key y product_options.redirect_url = redirectUrl
+  createCheckout: (req, { redirectUrl }) => api('/lemon/checkout', { req, redirectUrl }), // → { url }
+  mode: 'redirect', // o 'overlay' (modal de lemon.js)
+})
+```
+
 ### Espera de confirmación
 
 `kind: 'pending'` espera algo externo (un servicio, un webhook) con la estrategia `wait` que elijas, avanza solo al tener éxito y ofrece "Reintentar" / "Volver al formulario" si falla. Props: `wait`, `message`, `resultName` (guarda en el formulario el `data` del éxito), `failTo` (índice del paso al que volver). Si usás `persistKey`, tras recargar la página vuelve a esperar.
