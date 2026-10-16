@@ -70,11 +70,11 @@ const scheme: FormSchema = {
 
 ### `FormSchema`
 
-| Tipo          | Campos                                                                                                                                                                                                 |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `FormSchema`  | `steps: StepSchema[]`                                                                                                                                                                                  |
-| `StepSchema`  | `title`, `fields: FieldSchema[]`                                                                                                                                                                       |
-| `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `max?`, `pattern?`, `defaultValue?`, `disabled?`, `helperText?`, `sameAs?`, `showIf?`, `dependentName?`, `dependentOptions?` |
+| Tipo          | Campos                                                                                                                                                                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FormSchema`  | `steps: StepSchema[]`                                                                                                                                                                                                           |
+| `StepSchema`  | `title`, `fields: FieldSchema[]`                                                                                                                                                                                                |
+| `FieldSchema` | `type`, `name`, `label`, `placeholder?`, `options?`, `required?`, `min?`, `max?`, `pattern?`, `defaultValue?`, `disabled?`, `helperText?`, `sameAs?`, `showIf?`, `dependentName?`, `dependentOptions?`, `loadDependentOptions?` |
 
 Tipos de campo (`type`): `text`, `email`, `number`, `textarea`, `password`, `date`, `select`, `dynamicSelect`, `check`, `radio`.
 
@@ -82,7 +82,7 @@ Tipos de campo (`type`): `text`, `email`, `number`, `textarea`, `password`, `dat
 - `min` / `max` → largo del texto, o valor numérico en `number`. En campos opcionales vacíos no se validan.
 - `pattern` → fuente de una expresión regular (ej. `'^[A-Z]{3}$'`). `email` valida formato de correo.
 - `defaultValue` → valor inicial (array en `check`). `disabled` y `helperText` aplican a todos los tipos.
-- `dynamicSelect` guarda dos valores: `name` (primer select) y `dependentName` (segundo), cuyas opciones salen de `dependentOptions[valorDelPrimero]`.
+- `dynamicSelect` guarda dos valores: `name` (primer select) y `dependentName` (segundo), cuyas opciones salen de `dependentOptions[valorDelPrimero]` o, si es asíncrono, de `loadDependentOptions(valorDelPrimero)` (devuelve una promesa de opciones; muestra estados de carga y error).
 
 ### Condicionales y validación cruzada
 

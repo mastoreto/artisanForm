@@ -310,3 +310,65 @@ test('conditional step is skipped and sameAs blocks mismatched values', async ()
   // "Company data" is skipped for kind=person.
   expect(await screen.findByRole('heading', { name: 'Done' })).toBeTruthy();
 });
+
+test('dynamicSelect loads dependent options asynchronously', async () => {
+  const user = userEvent.setup();
+  const load = mock(async (parent: string) => [
+    { value: `${parent}-1`, label: `City of ${parent}` },
+  ]);
+  render(
+    <ArtisanForm
+      onSubmit={() => {}}
+      scheme={{
+        steps: [
+          {
+            title: 'Async',
+            fields: [
+              {
+                type: 'dynamicSelect',
+                name: 'country',
+                dependentName: 'city',
+                label: 'Place',
+                options: [
+                  { value: 'ar', label: 'Argentina' },
+                  { value: 'cl', label: 'Chile' },
+                ],
+                loadDependentOptions: load,
+              },
+            ],
+          },
+        ],
+      }}
+    />,
+  );
+  expect(await screen.findByText('City of ar')).toBeTruthy();
+  await user.selectOptions(screen.getAllByRole('combobox')[0], 'cl');
+  expect(await screen.findByText('City of cl')).toBeTruthy();
+  expect(load).toHaveBeenCalledWith('cl');
+});
+
+test('dynamicSelect shows an error when loading fails', async () => {
+  render(
+    <ArtisanForm
+      onSubmit={() => {}}
+      scheme={{
+        steps: [
+          {
+            title: 'Async',
+            fields: [
+              {
+                type: 'dynamicSelect',
+                name: 'country',
+                dependentName: 'city',
+                label: 'Place',
+                options: [{ value: 'ar', label: 'Argentina' }],
+                loadDependentOptions: () => Promise.reject(new Error('x')),
+              },
+            ],
+          },
+        ],
+      }}
+    />,
+  );
+  expect(await screen.findByRole('alert')).toBeTruthy();
+});

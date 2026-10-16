@@ -28,3 +28,19 @@ export default meta;
 export const Default: StoryObj<typeof DynamicSelect> = {
   decorators: [withFormik({ country: 'ar', city: '' })],
 };
+
+/** The dependent options come from a (fake) async request. */
+export const AsyncOptions: StoryObj<typeof DynamicSelect> = {
+  args: {
+    dependentOptions: undefined,
+    loadDependentOptions: (country: string) =>
+      new Promise((resolve) =>
+        setTimeout(
+          () =>
+            resolve([{ value: `${country}-1`, label: `Ciudad de ${country}` }]),
+          800,
+        ),
+      ),
+  },
+  decorators: [withFormik({ country: 'ar', city: '' })],
+};

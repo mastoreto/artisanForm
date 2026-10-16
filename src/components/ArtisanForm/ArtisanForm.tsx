@@ -61,7 +61,7 @@ const ValuesWatcher = ({
 const isChoice = (f: FieldSchema) =>
   ['select', 'dynamicSelect', 'check', 'radio'].includes(f.type);
 
-const renderField = (f: FieldSchema) => {
+const renderField = (f: FieldSchema, labels: ArtisanLabels) => {
   const text = {
     id: f.name,
     name: f.name,
@@ -93,7 +93,10 @@ const renderField = (f: FieldSchema) => {
         <DynamicSelect
           {...choice}
           dependentName={f.dependentName ?? `${f.name}Dependent`}
-          dependentOptions={f.dependentOptions ?? {}}
+          dependentOptions={f.dependentOptions}
+          loadDependentOptions={f.loadDependentOptions}
+          loadingText={labels.loadingOptions}
+          errorText={labels.loadOptionsError}
         />
       );
     case 'check':
@@ -190,7 +193,7 @@ const Wizard = ({
               {f.label}
             </span>
           )}
-          {renderField(f)}
+          {renderField(f, labels)}
           {isChoice(f) && f.helperText && (
             <p className="mt-1 text-sm text-gray-500">{f.helperText}</p>
           )}

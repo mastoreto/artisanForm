@@ -30,6 +30,8 @@ export interface FieldSchema {
   /** dynamicSelect: name of the dependent field and its options per parent value. */
   dependentName?: string;
   dependentOptions?: Record<string, FieldOption[]>;
+  /** dynamicSelect: async alternative to `dependentOptions`. */
+  loadDependentOptions?: (parentValue: string) => Promise<FieldOption[]>;
   required?: boolean;
   /** Text: min length. Number: min value. */
   min?: number;
