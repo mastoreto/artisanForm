@@ -1,82 +1,89 @@
 # AGENTS.md — ArtisanForm
 
-Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se publica como lib (`vite build`, entry `src/index.ts`) y se desarrolla/documenta con Storybook.
+React library for multi-step forms (wizards) with ready-made inputs. It ships as a library (`vite build`, entry `src/index.ts`) and is developed and documented with Storybook.
+
+## Language
+
+- **Everything generated in this repository is written in English**: code, identifiers, comments, JSDoc, test names, commit messages, PR and issue text, `README.md`, `AGENTS.md`, `CHANGELOG.md` and everything under `docs/`.
+- **Spanish versions live in [`docs/es/`](docs/es/)** and mirror the English documents: [`README`](docs/es/README.md), [`AGENTS`](docs/es/AGENTS.md), [`CHANGELOG`](docs/es/CHANGELOG.md) and [`schema v1`](docs/es/schema-v1.md). Read them when you need the Spanish text; **when you change an English document, update its Spanish copy in the same change**.
+- Exception: the **default user-facing strings** (`src/commons/labels.ts`, validation messages, demo copy in the playground and in stories) are Spanish. That is a product default, not documentation: it is configurable with the `labels` prop and must not be translated as part of a docs change.
+- Reply to people in the language they write to you in; the repository artifacts stay in English.
 
 ## Stack
 
-React 18 · TypeScript (strict) · Tailwind 3 · Zustand (estado de pasos) · Formik + Yup (validación) · Storybook 8 · Vite · pnpm (hay `pnpm-lock.yaml`).
+React 18 · TypeScript (strict) · Tailwind 3 · Zustand (step state) · Formik + Yup (validation) · Storybook 8 · Vite · pnpm (`pnpm-lock.yaml`).
 
-## Comandos
+## Commands
 
 ```bash
 pnpm install
-pnpm storybook         # dev en :6006
+pnpm storybook         # dev server on :6006
 pnpm build-storybook
 pnpm lint              # biome check
 pnpm format            # biome check --write
 ```
 
-Además: `pnpm playground` (app de prueba en vivo, escenarios en `playground/src/scenarios/`), `pnpm e2e` (Playwright, `e2e/`), `pnpm build` (librería), `pnpm typecheck` y `bun test` (tests `*.test.ts` junto al código).
-Verificación mínima de una feature: `pnpm lint` + `pnpm typecheck` + `pnpm build` + `bun test` + la story renderiza sin errores.
+Also: `pnpm playground` (live test app, scenarios in `playground/src/scenarios/`), `pnpm e2e` (Playwright, `e2e/`), `pnpm build` (library), `pnpm typecheck` and `bun test` (`*.test.ts(x)` next to the code).
+Minimum verification for a change: `pnpm lint` + `pnpm typecheck` + `pnpm build` + `bun test` + the story renders without errors. Check the **exit code** of each command, not just the tail of its output.
 
-## Estructura
+## Structure
 
 ```
 src/
-  commons/               cn(), labels (textos), theme (color de marca)
+  commons/               cn(), labels (texts), theme (brand color)
   components/
-    ArtisanControls/     botones Anterior / Siguiente / Finalizar
-    ArtisanForm/         wizard: types, fields.tsx (registro de campos), steps.tsx (registro de pasos),
+    ArtisanControls/     Previous / Next / Finish buttons
+    ArtisanForm/         wizard: types, fields.tsx (field registry), steps.tsx (step registry),
                          buildSchema, conditions, draft, PaymentStep (+ tests)
     ArtisanInputs/<Name>/<Name>.tsx + <Name>.stories.tsx
-  schema/                contrato público v1 (JSON): tipos, specs, condiciones, parser, normalize, legacy.
-                         NO importa react/formik/yup/zustand (test + regla de Biome)
-  persistence/           ArtisanSnapshotV1 y storage de borradores (tampoco importa el motor)
-  payments/              PaymentPlugin + mock y plugins por proveedor (subpaths del paquete)
+  schema/                public v1 contract (JSON): types, specs, conditions, parser, normalize, legacy.
+                         Must NOT import react/formik/yup/zustand (test + Biome rule)
+  persistence/           ArtisanSnapshotV1 and draft storage (does not import the engine either)
+  payments/              PaymentPlugin + mock and per-provider plugins (package subpaths)
   storage/               StorageAdapter + presignedPut, cloudinary, mock
   wait/                  WaitStrategy (polling, sse, websocket, callback)
-  stores/                estado de pasos por instancia
-  index.ts               entry de la lib (exports públicos)
-playground/              app React de prueba (escenarios en src/scenarios)
-e2e/                     tests de Playwright
+  stores/                per-instance step state
+  index.ts               library entry (public exports)
+playground/              React test app (scenarios in src/scenarios)
+e2e/                     Playwright tests
+docs/                    English guides; docs/es/ has the Spanish versions
 ```
 
-El esquema se normaliza (`schema/normalize.ts`) y se proyecta al motor (`ArtisanForm/project.ts`): ahí está la única costura que conoce ambas formas. Un campo o paso nuevo en el contrato v1 necesita: su tipo en `schema/fields.ts|steps.ts`, su entrada en `schema/specs.ts` (el compilador lo exige), el parser y la proyección. Guía: `docs/schema-v1.md`.
+A schema is normalized (`schema/normalize.ts`) and projected to the engine (`ArtisanForm/project.ts`): that is the only seam that knows both shapes. A new field or step in the v1 contract needs its type in `schema/fields.ts|steps.ts`, its entry in `schema/specs.ts` (the compiler enforces it), the parser and the projection. Guide: `docs/schema-v1.md`.
 
-Un tipo de campo nuevo = una `FieldDefinition` en `fields.tsx` (render, valores iniciales, reglas) + su componente en `ArtisanInputs`. Un tipo de paso nuevo = una `StepDefinition` en `steps.tsx`. Las pantallas de estado (resultado, espera, pago) usan `StatusPanel` (icono/spinner + mensaje + acciones) para verse igual.
+A new field type is a `FieldDefinition` in `fields.tsx` (render, initial values, rules) plus its component in `ArtisanInputs`. A new step type is a `StepDefinition` in `steps.tsx`. State screens (result, waiting, payment) share `StatusPanel` (icon/spinner + message + actions) so they look alike.
 
-## Flujo de trabajo por ramas
+## Branch workflow
 
-- `master`: estable / releases. `develop`: integración. **Nunca commitear directo a ninguna de las dos.**
-- Una feature = una rama = un PR, partiendo de `develop`: `feat/AF<n>-<slug-corto>` (ej. `feat/AF3-formik-integration`). Fixes: `fix/AF<n>-<slug>`. Chores: `chore/<slug>`.
-- `AF<n>` es el número del issue (usar `.github/ISSUE_TEMPLATE`). Sin issue, no hay rama.
-- Ramas chicas y de corta vida: un PR debería poder revisarse de una sentada. Si crece, partir en dos.
-- PR hacia `develop` usando `.github/PULL_REQUEST_TEMPLATE.md` completo. `develop` → `master` solo para release.
-- Antes de abrir el PR: rebase/merge de `develop`, `pnpm lint` limpio, story actualizada.
-- Commits: `tipo: :emoji: descripción` en inglés (como el historial: `feat: :sparkles: ...`, `chore: :memo: ...`). Un commit por cambio lógico.
-- Agentes: no hacen push, merge ni PR sin que se pida explícitamente.
+- `master`: stable / releases. `develop`: integration. **Never commit directly to either.**
+- One feature = one branch = one PR, starting from `develop`: `feat/AF<n>-<short-slug>` (e.g. `feat/AF3-formik-integration`). Fixes: `fix/AF<n>-<slug>`. Chores: `chore/<slug>`.
+- `AF<n>` is the issue number (use `.github/ISSUE_TEMPLATE`). No issue, no branch.
+- Small, short-lived branches: a PR should be reviewable in one sitting. If it grows, split it.
+- PRs target `develop` and use the full `.github/PULL_REQUEST_TEMPLATE.md`. `develop` → `master` only for releases.
+- Before opening the PR: rebase/merge `develop`, clean `pnpm lint`, story updated.
+- Commits: `type: :emoji: description` in English (as in the history: `feat: :sparkles: ...`, `chore: :memo: ...`). One commit per logical change.
+- Agents do not push, merge or open PRs unless explicitly asked.
 
-## Convenciones de código
+## Code conventions
 
-- Biome manda (`biome.jsonc`: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 cols). Correr `pnpm format` antes de commitear; no mezclar reformateo con cambios funcionales.
-- Un componente por carpeta, `export default`, con su `*.stories.tsx` al lado.
-- Inputs: `forwardRef`, props tipadas con `interface`, `id` + `label` obligatorios, `className` opcional mezclado vía `cn()`. Accesibilidad básica obligatoria (`label htmlFor`, `aria-invalid`/`aria-describedby` en errores).
-- Estilos solo con Tailwind + `cn()`. Nada de CSS nuevo salvo `src/styles/global.css`.
-- Estado global solo en `useArtisanStore`; estado local de UI en el componente. Nada de estado hardcodeado de demo dentro de componentes.
-- Todo lo público se exporta desde `src/index.ts`.
-- Textos de UI en español (por ahora); código, commits e identificadores en inglés.
-- Mantener simple: no agregar dependencias ni abstracciones sin necesidad concreta.
+- Biome rules (`biome.jsonc`: 2 spaces, single quotes, `;`, trailing comma `all`, 80 columns). Run `pnpm format` before committing; do not mix reformatting with functional changes.
+- One component per folder, `export default`, with its `*.stories.tsx` next to it.
+- Inputs: `forwardRef`, props typed with an `interface`, mandatory `id` + `label`, optional `className` merged through `cn()`. Basic accessibility is mandatory (`label htmlFor`, `aria-invalid`/`aria-describedby` on errors).
+- Styles only with Tailwind + `cn()`. No new CSS except `src/styles/global.css`.
+- Global state only in `useArtisanStore`; local UI state in the component. No hardcoded demo state inside components.
+- Everything public is exported from `src/index.ts`.
+- Keep it simple: no dependencies or abstractions without a concrete need.
 
-## Definición de "hecho"
+## Definition of done
 
-1. Cumple el issue. 2. Story que muestra los estados (default, error, disabled si aplica). 3. Lint y typecheck limpios. 4. Exportado en `index.ts` si es API pública. 5. PR completado.
+1. Meets the issue. 2. A story shows the states (default, error, disabled when applicable). 3. Lint and typecheck are clean. 4. Exported from `index.ts` if it is public API. 5. PR completed.
 
-## Estado actual / deuda conocida
+## Current state / known debt
 
-Versión 0.2.0: wizard por `scheme` con registros extensibles de campos y pasos, pagos por plugin (Stripe, Lemon Squeezy, Mercado Pago, PayPal), archivos con `StorageAdapter`, esperas con `WaitStrategy`, Biome, playground y e2e. Pendiente: CI en GitHub (AF8, rama local `chore/AF8-ci`; el token de `gh` necesita scope `workflow`), publicar el paquete, desplegar Storybook y probar los plugins de pago contra sandbox con credenciales de prueba. Detalle y hoja de ruta en el README.
+Version 0.2.0 plus the unreleased v1 schema contract: a wizard driven by a `scheme` (0.2.0 `FormSchema` or `ArtisanSchemaV1`) with extensible field and step registries, plugin-based payments (Stripe, Lemon Squeezy, Mercado Pago, PayPal), files through `StorageAdapter`, waiting through `WaitStrategy`, versioned draft snapshots, Biome, a playground and e2e tests. Pending: GitHub CI (AF8, local branch `chore/AF8-ci`; the `gh` token needs the `workflow` scope), publishing the package, deploying Storybook, trying the payment plugins against sandboxes with test credentials, and making the default UI interpret `ui.layout`/`density`/`labelPosition`. Details and roadmap in the README.
 
-Las tareas son issues de GitHub con el código `AF<n>` en el título (issue = n-6 hasta AF21; AF22 = issue #16, es decir, n-6 también).
+Tasks are GitHub issues with the `AF<n>` code in the title (issue number = n − 6).
 
-Convenciones de tests: `*.test.ts(x)` junto al código con `bun test` (happy-dom + Testing Library, preload en `bunfig.toml`); flujos en navegador real en `e2e/` con Playwright contra `pnpm playground`. Si el playground ya corre y los cambios no se reflejan, reinicialo (HMR puede quedar desactualizado).
+Test conventions: `*.test.ts(x)` next to the code with `bun test` (happy-dom + Testing Library, preload in `bunfig.toml`); real-browser flows in `e2e/` with Playwright against `pnpm playground`. If the playground is already running and changes do not show up, restart it (HMR can go stale).
 
-Principios que no se negocian: la librería **no maneja secretos ni datos de tarjeta**; montos, órdenes y firmas de subida los resuelve el backend del usuario; los SDK de terceros son peers opcionales en subpaths.
+Non-negotiable principles: the library **never handles secrets or card data**; amounts, orders and upload signatures are resolved by the user's backend; third-party SDKs are optional peers in subpaths; the public schema contract stays serializable and independent of the form engine.
