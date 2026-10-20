@@ -80,9 +80,11 @@
     "lint:react": "eslint .",
     "playground": "vite --config playground/vite.config.ts",
     "e2e": "playwright test",
-    "build:kits": "pnpm -r --filter './packages/*' run build",
-    "typecheck:kits": "pnpm -r --filter './packages/*' run typecheck",
-    "check:kits": "pnpm -r --filter @artisanform/ui-bootstrap --filter @artisanform/ui-mui --filter @artisanform/ui-tailwind --filter @artisanform/ui-scss exec publint --strict"
+    "build:kits": "bun run --filter './packages/*' build",
+    "typecheck:kits": "bun run --filter './packages/*' typecheck",
+    "check:kits": "bun run --filter './packages/ui-{bootstrap,mui,tailwind,scss}' exec publint --strict",
+    "docs": "bun run --filter @artisanform/docs dev",
+    "build:docs": "bun run --filter @artisanform/docs build"
   },
   "version": "0.2.0",
   "sideEffects": [
@@ -124,5 +126,12 @@
     "@paypal/react-paypal-js": {
       "optional": true
     }
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "overrides": {
+    "artisanform": "link:."
   }
 }

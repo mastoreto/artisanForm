@@ -15,24 +15,21 @@ jobs:
         node: [22, 24]
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: pnpm
       - uses: oven-sh/setup-bun@v2
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm lint:react
-      - run: pnpm typecheck
-      - run: pnpm build
-      - run: pnpm check:dist
-      - run: pnpm check:package
-      - run: pnpm build:kits
-      - run: pnpm typecheck:kits
-      - run: pnpm check:kits
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run lint:react
+      - run: bun run typecheck
+      - run: bun run build
+      - run: bun run check:dist
+      - run: bun run check:package
+      - run: bun run build:kits
+      - run: bun run typecheck:kits
+      - run: bun run check:kits
+      - run: bun run build:docs
       - run: bun test
 
   # The same browser flows with the React Compiler on and off.
@@ -45,16 +42,13 @@ jobs:
       ARTISAN_COMPILER: ${{ matrix.compiler }}
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
       - run: npx playwright install --with-deps chromium
-      - run: pnpm e2e
+      - run: bun run e2e
 
   # The packed tarball installed in clean Vite apps (React 18 and 19).
   consumers:
@@ -64,15 +58,12 @@ jobs:
         react: [18, 19]
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
       - run: npx playwright install --with-deps chromium
-      - run: pnpm build
+      - run: bun run build
       - run: node scripts/consumer-test.mjs ${{ matrix.react }} "$RUNNER_TEMP/consumer"
       - run: node scripts/consumer-browser.mjs "$RUNNER_TEMP/consumer/app"

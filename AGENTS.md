@@ -11,21 +11,21 @@ React library for multi-step forms (wizards) with ready-made inputs. It ships as
 
 ## Stack
 
-React 18/19 · TypeScript 6 (strict) · Plain CSS (`af-*` classes + `--artisan-*` variables) · Zustand (step state) · React Hook Form + Yup (validation) · Storybook 10 · Vite 8 + React Compiler (Rust, `react-compiler.ts`) · pnpm (`pnpm-lock.yaml`).
+React 18/19 · TypeScript 6 (strict) · Plain CSS (`af-*` classes + `--artisan-*` variables) · Zustand (step state) · React Hook Form + Yup (validation) · Storybook 10 · Vite 8 + React Compiler (Rust, `react-compiler.ts`) · Bun workspaces (`bun.lock`).
 
 ## Commands
 
 ```bash
-pnpm install
-pnpm storybook         # dev server on :6006
-pnpm build-storybook
-pnpm lint              # biome check
-pnpm format            # biome check --write
+bun install
+bun run storybook         # dev server on :6006
+bun run build-storybook
+bun run lint              # biome check
+bun run format            # biome check --write
 ```
 
-Also: `pnpm playground` (live test app, scenarios in `playground/src/scenarios/`), `pnpm e2e` (Playwright, `e2e/`), `pnpm build` (library), `pnpm typecheck` and `bun test` (`*.test.ts(x)` next to the code).
-Also: `pnpm lint:react` (React Hooks/Compiler rules), `pnpm check:dist` and `pnpm check:package` after a build; `ARTISAN_COMPILER=off` disables the React Compiler (playground, build, e2e) to compare behavior. Never read mutable state (`getValues()`, refs) during render in compiled code.
-Minimum verification for a change: `pnpm lint` + `pnpm typecheck` + `pnpm build` + `bun test` + the story renders without errors. Check the **exit code** of each command, not just the tail of its output.
+Also: `bun run playground` (live test app, scenarios in `playground/src/scenarios/`), `bun run e2e` (Playwright, `e2e/`), `bun run build` (library), `bun run typecheck` and `bun test` (`*.test.ts(x)` next to the code).
+Also: `bun run lint:react` (React Hooks/Compiler rules), `bun run check:dist` and `bun run check:package` after a build; `ARTISAN_COMPILER=off` disables the React Compiler (playground, build, e2e) to compare behavior. Never read mutable state (`getValues()`, refs) during render in compiled code.
+Minimum verification for a change: `bun run lint` + `bun run typecheck` + `bun run build` + `bun test` + the story renders without errors. Check the **exit code** of each command, not just the tail of its output.
 
 ## Structure
 
@@ -76,13 +76,13 @@ A new field type is a `FieldDefinition` in `components/fields/registry.tsx` (ren
 - `AF<n>` is the issue number (use `.github/ISSUE_TEMPLATE`). No issue, no branch.
 - Small, short-lived branches: a PR should be reviewable in one sitting. If it grows, split it.
 - PRs target `develop` and use the full `.github/PULL_REQUEST_TEMPLATE.md`. `develop` → `master` only for releases.
-- Before opening the PR: rebase/merge `develop`, clean `pnpm lint`, story updated.
+- Before opening the PR: rebase/merge `develop`, clean `bun run lint`, story updated.
 - Commits: `type: :emoji: description` in English (as in the history: `feat: :sparkles: ...`, `chore: :memo: ...`). One commit per logical change.
 - Agents do not push, merge or open PRs unless explicitly asked.
 
 ## Code conventions
 
-- Biome rules (`biome.jsonc`: 2 spaces, single quotes, `;`, trailing comma `all`, 80 columns). Run `pnpm format` before committing; do not mix reformatting with functional changes.
+- Biome rules (`biome.jsonc`: 2 spaces, single quotes, `;`, trailing comma `all`, 80 columns). Run `bun run format` before committing; do not mix reformatting with functional changes.
 - One component per folder, `export default`, with its `*.stories.tsx` next to it.
 - Inputs: `forwardRef`, props typed with an `interface`, mandatory `id` + `label`, optional `className` merged through `cx()`. Basic accessibility is mandatory (`label htmlFor`, `aria-invalid`/`aria-describedby` on errors).
 - Styles only in `src/styles/artisanform.css`, as single `af-*` classes (state through `data-*`/`aria-*`) and `--artisan-*` variables: no frameworks, no bare element selectors. Components get class names through `useCx()` so `classNames` and `unstyled` keep working. Tailwind is only used by the playground and Storybook.
@@ -101,6 +101,6 @@ Version 0.2.0 plus the unreleased v1 schema contract: a wizard driven by a `sche
 
 Tasks are GitHub issues with the `AF<n>` code in the title (issue number = n − 6).
 
-Test conventions: `*.test.ts(x)` next to the code with `bun test` (happy-dom + Testing Library, preload in `bunfig.toml`); real-browser flows in `e2e/` with Playwright against `pnpm playground`. If the playground is already running and changes do not show up, restart it (HMR can go stale).
+Test conventions: `*.test.ts(x)` next to the code with `bun test` (happy-dom + Testing Library, preload in `bunfig.toml`); real-browser flows in `e2e/` with Playwright against `bun run playground`. If the playground is already running and changes do not show up, restart it (HMR can go stale).
 
 Non-negotiable principles: the library **never handles secrets or card data**; amounts, orders and upload signatures are resolved by the user's backend; third-party SDKs are optional peers in subpaths; the public schema contract stays serializable and independent of the form engine.

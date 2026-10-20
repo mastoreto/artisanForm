@@ -9,6 +9,6 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "artisanform": "workspace:*"
+    "artisanform": "link:../.."
   }
 }
