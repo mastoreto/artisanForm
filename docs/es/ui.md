@@ -159,6 +159,45 @@ Los pasos propios usan `stepTypes` y la `api` estable del contexto del paso (`Ar
 
 El resto de `StepContext` (`goTo`, `submit`, los datos derivados del store) sigue por compatibilidad pero se salta la validación: preferí `api` en código nuevo. `useArtisanStore` es un detalle interno, no un contrato estable.
 
+## Kits de UI
+
+Un **kit** agrupa las personalizaciones de un sistema de diseño (`components`, `classNames`, `unstyled`, `labels`) para instalarlo y cambiarlo como una sola pieza. El núcleo nunca importa una librería de UI; los kits viven fuera de él.
+
+```tsx
+import { ArtisanForm, defineUiKit } from 'artisanform';
+
+const kit = defineUiKit({
+  name: 'my-design-system',
+  components: { inputs: { text: MyTextField } },
+  classNames: { button: 'btn btn-primary' },
+  labels: { next: 'Continuar' },
+});
+
+<ArtisanForm scheme={scheme} onSubmit={save} kit={kit} />;
+```
+
+- **Precedencia:** UI por defecto < `kit` < props explícitas `components` / `classNames` / `unstyled` / `labels`. `components.inputs` se combina por tipo de campo, `classNames` y `labels` por clave. `mergeUiKits(name, a, b)` combina kits (gana el último).
+- **Qué puede reemplazar un kit:** los inputs de un solo valor de `InputValueByType`, `Stepper`, `Controls`, `FieldWrapper`, `StepHeader` y `FormError`. Los campos que manejan más de un valor o su propio estado (`array`, `file`, `image`, `daterange`, `dynamicSelect`) y el contenido de solo lectura no se reemplazan con `components`; un kit los estiliza con `classNames` y los tokens `--artisan-*`.
+- **Accesibilidad:** el kit es responsable del contrato de "Responsabilidades de accesibilidad". El repo lo verifica con una suite de conformidad (`src/components/ui/__tests__/conformance.tsx`): etiquetas asociadas a controles, `aria-invalid` / `aria-describedby`, foco en el primer campo inválido, campos deshabilitados.
+
+**Kits oficiales** (paquetes aparte, se instalan junto a `artisanform`; el núcleo nunca depende de ellos):
+
+| Kit | Instalación | Notas |
+| --- | --- | --- |
+| Bootstrap 5 | `pnpm add @artisanform/ui-bootstrap` | Solo clases (sin `react-bootstrap`). Cargá el CSS de Bootstrap y `@artisanform/ui-bootstrap/style.css` (mapea `aria-invalid` al aspecto de inválido). |
+| Material UI | `pnpm add @artisanform/ui-mui @mui/material @emotion/react @emotion/styled` | Controles de MUI dentro de `FormControl`; `combobox`, `multiselect`, `otp` y los campos no reemplazables mantienen los componentes por defecto. |
+| Tailwind CSS | `pnpm add @artisanform/ui-tailwind` | Clases utilitarias con `unstyled`. Decile a Tailwind que escanee el paquete: v3 `content: ['./node_modules/@artisanform/ui-tailwind/dist/**/*.js']`, v4 `@source`. |
+| shadcn/ui | `npx shadcn add <url>/artisanform-kit.json` | Copiar y pegar, no es una dependencia de npm: agrega `components/artisanform-kit.tsx` que mapea **tus** `@/components/ui/*`. Generá el item con `pnpm --filter @artisanform/ui-shadcn build` y publicá `r/artisanform-kit.json`. |
+| Sass | `pnpm add @artisanform/ui-scss sass` | `@use '@artisanform/ui-scss' as af; :root { @include af.theme((primary: #7c3aed)); }` emite los tokens `--artisan-*`. |
+
+```tsx
+import { muiKit } from '@artisanform/ui-mui';
+
+<ArtisanForm scheme={scheme} onSubmit={save} kit={muiKit} />;
+```
+
+El aspecto por defecto sigue siendo CSS plano sin herramientas (`artisanform/style.css`); Tailwind, Sass, CSS modules u otro es una elección tuya, nunca un requisito. Los kits se verifican con la misma suite de conformidad y el de shadcn hoy se prueba contra sustitutos tipados de sus componentes (no los reales de Radix).
+
 ## Compatibilidad
 
 - `<ArtisanForm scheme onSubmit />` funciona igual; `components`, `classNames` y `unstyled` son opcionales.

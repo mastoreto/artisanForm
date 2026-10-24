@@ -1,0 +1,32 @@
+{
+  "name": "@artisanform/ui-bootstrap",
+  "version": "0.1.0",
+  "description": "Bootstrap 5 UI kit for ArtisanForm",
+  "license": "MIT",
+  "type": "module",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "scripts": {
+    "build": "vite build && cp src/style.css dist/style.css",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "artisanform": "workspace:^"
+  },
+  "devDependencies": {
+    "artisanform": "workspace:*"
+  }
+}

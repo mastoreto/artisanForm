@@ -159,6 +159,45 @@ Custom steps use `stepTypes` and the stable `api` of the step context (`ArtisanS
 
 The rest of `StepContext` (`goTo`, `submit`, the store-derived data) remains for compatibility but bypasses validation: prefer `api` in new code. `useArtisanStore` is an internal detail and not a stable contract.
 
+## UI kits
+
+A **kit** bundles the customizations of a design system (`components`, `classNames`, `unstyled`, `labels`) so it is installed and swapped as one piece. The core never imports a UI library; kits live outside it.
+
+```tsx
+import { ArtisanForm, defineUiKit } from 'artisanform';
+
+const kit = defineUiKit({
+  name: 'my-design-system',
+  components: { inputs: { text: MyTextField } },
+  classNames: { button: 'btn btn-primary' },
+  labels: { next: 'Continue' },
+});
+
+<ArtisanForm scheme={scheme} onSubmit={save} kit={kit} />;
+```
+
+- **Precedence:** default UI < `kit` < explicit `components` / `classNames` / `unstyled` / `labels` props. `components.inputs` merges per field type, `classNames` and `labels` per key. `mergeUiKits(name, a, b)` combines kits (later wins).
+- **What a kit can replace:** the single-value inputs listed in `InputValueByType`, `Stepper`, `Controls`, `FieldWrapper`, `StepHeader` and `FormError`. Fields that manage more than one value or their own state (`array`, `file`, `image`, `daterange`, `dynamicSelect`) and display content are not replaceable through `components`; a kit styles them with `classNames` and the `--artisan-*` tokens.
+- **Accessibility:** a kit is responsible for the contract in "Accessibility responsibilities". The repo checks it with a conformance suite (`src/components/ui/__tests__/conformance.tsx`): labels tied to controls, `aria-invalid` / `aria-describedby`, focus on the first invalid field, disabled fields.
+
+**Official kits** (separate packages, installed next to `artisanform`; the core never depends on them):
+
+| Kit | Install | Notes |
+| --- | --- | --- |
+| Bootstrap 5 | `pnpm add @artisanform/ui-bootstrap` | Classes only (no `react-bootstrap`). Load Bootstrap's CSS and `@artisanform/ui-bootstrap/style.css` (maps `aria-invalid` to the invalid look). |
+| Material UI | `pnpm add @artisanform/ui-mui @mui/material @emotion/react @emotion/styled` | MUI controls inside `FormControl`; `combobox`, `multiselect`, `otp` and the non-replaceable fields keep the default components. |
+| Tailwind CSS | `pnpm add @artisanform/ui-tailwind` | Utility classes with `unstyled`. Tell Tailwind to scan the package: v3 `content: ['./node_modules/@artisanform/ui-tailwind/dist/**/*.js']`, v4 `@source`. |
+| shadcn/ui | `npx shadcn add <url>/artisanform-kit.json` | Copy-paste, not an npm dependency: it drops `components/artisanform-kit.tsx` that maps **your** `@/components/ui/*`. Build the registry item with `pnpm --filter @artisanform/ui-shadcn build` and host `r/artisanform-kit.json`. |
+| Sass | `pnpm add @artisanform/ui-scss sass` | `@use '@artisanform/ui-scss' as af; :root { @include af.theme((primary: #7c3aed)); }` emits the `--artisan-*` tokens. |
+
+```tsx
+import { muiKit } from '@artisanform/ui-mui';
+
+<ArtisanForm scheme={scheme} onSubmit={save} kit={muiKit} />;
+```
+
+The default look stays plain CSS with no tooling (`artisanform/style.css`); Tailwind, Sass, CSS modules or anything else are your choice, never a requirement. Kits are checked with the same conformance suite and the shadcn kit is currently tested against typed stand-ins of shadcn's components (not the real Radix ones).
+
 ## Compatibility
 
 - `<ArtisanForm scheme onSubmit />` works unchanged; `components`, `classNames` and `unstyled` are opt-in.

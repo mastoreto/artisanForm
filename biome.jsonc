@@ -30,6 +30,20 @@
   },
   "overrides": [
     {
+      // Stand-ins that mimic Radix/shadcn markup (role="checkbox" on a button…)
+      // only to type-check and test the shadcn kit; never published.
+      "includes": ["packages/ui-shadcn/stubs/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off",
+            "noLabelWithoutControl": "off",
+            "useAriaPropsForRole": "off"
+          }
+        }
+      }
+    },
+    {
       // The public contract must not depend on the form engine (React Hook Form,
       // Yup, Zustand) nor on React, so an engine migration never touches it.
       "includes": ["src/schema/**", "src/persistence/**"],

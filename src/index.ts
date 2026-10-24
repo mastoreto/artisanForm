@@ -26,6 +26,11 @@ export {
   type StepDefinition,
   type StepRegistry,
 } from './components/steps/registry';
+export {
+  type ArtisanUiKit,
+  defineUiKit,
+  mergeUiKits,
+} from './components/ui/kit';
 export type {
   ArtisanComponents,
   ArtisanControlsProps,

@@ -1,0 +1,67 @@
+import type { ArtisanUiKit } from 'artisanform';
+
+/**
+ * Bootstrap 5 for ArtisanForm. No `react-bootstrap` needed: the default UI is
+ * switched off (`unstyled`) and every part gets Bootstrap's own classes.
+ * Load Bootstrap's CSS yourself and import `@artisanform/ui-bootstrap/style.css`
+ * (a small bridge that maps `aria-invalid` to Bootstrap's invalid look).
+ */
+export const bootstrapKit = {
+  name: 'bootstrap',
+  unstyled: true,
+  classNames: {
+    root: 'container-fluid p-0',
+    stepper: 'mb-4',
+    stepperList: 'nav nav-pills gap-2',
+    stepperItem: 'nav-link',
+    stepHeader: 'h4 mb-3',
+    fieldGrid: 'row g-3',
+    fieldCell: 'col-12',
+    field: 'mb-1',
+    label: 'form-label',
+    groupLabel: 'form-label d-block',
+    description: 'form-text',
+    error: 'invalid-feedback d-block',
+    input: 'form-control',
+    inputWrap: 'input-group',
+    adornment: 'input-group-text',
+    select: 'form-select',
+    selectIcon: 'd-none',
+    choiceGroup: 'd-flex flex-column gap-1',
+    choice: 'form-check',
+    checkbox: 'form-check-input',
+    switch: 'form-check-input',
+    switchThumb: 'd-none',
+    chipList: 'd-flex flex-wrap gap-1 mb-2',
+    chip: 'badge text-bg-secondary',
+    listbox: 'list-group position-absolute w-100 shadow',
+    option: 'list-group-item list-group-item-action',
+    comboWrap: 'position-relative',
+    range: 'form-range',
+    dropzone: 'border rounded p-4 text-center',
+    fileList: 'list-unstyled mt-2',
+    progress: 'progress mt-1',
+    progressBar: 'progress-bar',
+    link: 'link-primary',
+    smallButton: 'btn btn-sm btn-outline-secondary',
+    arrayList: 'd-flex flex-column gap-3',
+    arrayItem: 'card card-body',
+    arrayItemHeader: 'd-flex justify-content-between mb-2',
+    controls: 'd-flex justify-content-between mt-4',
+    button: 'btn btn-primary',
+    formError: 'alert alert-danger mt-3',
+    status: 'alert alert-info d-flex flex-column gap-2',
+    statusActions: 'd-flex gap-2',
+    spinner: 'spinner-border text-primary',
+    callout: 'alert alert-secondary',
+    stack: 'd-flex flex-column gap-3',
+    muted: 'text-body-secondary',
+    heading: 'h5',
+    divider: 'border-top my-2',
+    reviewList: 'list-group',
+    reviewRow: 'list-group-item d-flex justify-content-between',
+    srOnly: 'visually-hidden',
+  },
+} satisfies ArtisanUiKit;
+
+export default bootstrapKit;

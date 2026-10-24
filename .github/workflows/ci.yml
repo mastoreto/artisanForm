@@ -30,6 +30,9 @@ jobs:
       - run: pnpm build
       - run: pnpm check:dist
       - run: pnpm check:package
+      - run: pnpm build:kits
+      - run: pnpm typecheck:kits
+      - run: pnpm check:kits
       - run: bun test
 
   # The same browser flows with the React Compiler on and off.

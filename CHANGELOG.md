@@ -2,6 +2,12 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Phase 5: UI kits)
+
+- **`kit` prop:** an `ArtisanUiKit` (`components`, `classNames`, `unstyled`, `labels`) with `defineUiKit` / `mergeUiKits`. Precedence: default UI < kit < explicit props. Guide: [docs/ui.md](docs/ui.md).
+- **Workspace packages:** `@artisanform/ui-bootstrap`, `@artisanform/ui-mui`, `@artisanform/ui-tailwind`, `@artisanform/ui-scss` and a shadcn registry item (`packages/ui-shadcn`). The core does not depend on any of them.
+- **Accessibility fix found by the new conformance suite:** the native `select` label is now a real `<label for>` and the select sets `id` and `aria-invalid`.
+
 ## Unreleased (Phase 4: modern stack)
 
 - **Stack:** React 19 (peer range `^18.3.1 || ^19.0.0`, both tested), Vite 8, TypeScript 6, Storybook 10, `@vitejs/plugin-react` 6, ESLint 10 with the React Hooks / Compiler rules (`pnpm lint:react`). Tailwind stays on 3 (only the playground and Storybook use it). Removed unused `sass-embedded`, `ts-node` and `vite-tsconfig-paths`.

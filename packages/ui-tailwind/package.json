@@ -1,0 +1,29 @@
+{
+  "name": "@artisanform/ui-tailwind",
+  "version": "0.1.0",
+  "description": "Tailwind CSS kit for ArtisanForm",
+  "license": "MIT",
+  "type": "module",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "artisanform": "workspace:^"
+  },
+  "devDependencies": {
+    "artisanform": "workspace:*"
+  }
+}

@@ -41,6 +41,7 @@ import {
   defaultStepRegistry,
   type StepRegistry,
 } from '../steps/registry';
+import { type ArtisanUiKit, mergeUiLayers } from '../ui/kit';
 import type { ArtisanComponents } from '../ui/types';
 import { type ArtisanClassNames, UiContext } from '../ui/UiContext';
 import { Wizard } from './Wizard';
@@ -79,6 +80,8 @@ interface ArtisanFormProps {
   storage?: StorageAdapter | StorageMap;
   /** Payment plugins (Stripe, Mercado Pago…, or your own) and the redirect function. */
   plugins?: PluginsConfig;
+  /** A UI kit (design system adapter). Explicit `components`, `classNames`, `unstyled` and `labels` win over it. */
+  kit?: ArtisanUiKit;
   /** Replace parts of the default UI (inputs by type, Stepper, Controls…). See `ArtisanComponents`. */
   components?: ArtisanComponents;
   /** Extra classes per part of the default UI, added to the `af-*` ones. */
@@ -98,11 +101,27 @@ const ArtisanFormInner = ({
   storage,
   plugins,
   onSnapshotConflict,
-  components,
-  classNames,
-  unstyled,
+  kit,
+  components: componentsProp,
+  classNames: classNamesProp,
+  unstyled: unstyledProp,
   ...wizard
 }: ArtisanFormProps) => {
+  // default UI < kit < explicit props
+  const {
+    components,
+    classNames,
+    unstyled,
+    labels: kitLabels,
+  } = useMemo(
+    () =>
+      mergeUiLayers(kit, {
+        components: componentsProp,
+        classNames: classNamesProp,
+        unstyled: unstyledProp,
+      }),
+    [kit, componentsProp, classNamesProp, unstyledProp],
+  );
   const uiConfig = useMemo(
     () => ({ components, classNames, unstyled }),
     [components, classNames, unstyled],
@@ -166,8 +185,8 @@ const ArtisanFormInner = ({
     [scheme, draft, registry, initialOverrides],
   );
   const labels = useMemo(
-    () => ({ ...defaultLabels, ...labelOverrides }),
-    [labelOverrides],
+    () => ({ ...defaultLabels, ...kitLabels, ...labelOverrides }),
+    [kitLabels, labelOverrides],
   );
   const validationSchema = useMemo(
     () => buildValidationSchema(scheme, labels, registry),
