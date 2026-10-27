@@ -19,6 +19,10 @@ import { isSafeFieldName, isSafeUrl } from './contract/url';
  * always allowed).
  */
 export interface SchemaPolicy {
+  /** When set, only these native field types are accepted (default: all). */
+  nativeFieldTypes?: readonly NativeFieldType[];
+  /** When set, only these native step types are accepted (default: all). */
+  nativeStepTypes?: readonly NativeStepType[];
   /** Custom (`x-…`) field types. */
   fieldTypes?: readonly string[];
   /** Custom (`x-…`) step types. */
@@ -466,6 +470,7 @@ export const parseArtisanSchema = (
     description: (v, p) => need.string(v, p, c, true),
     required: (v, p) => need.bool(v, p, c),
     disabled: (v, p) => need.bool(v, p, c),
+    sensitive: (v, p) => need.bool(v, p, c),
     placeholder: (v, p) => need.string(v, p, c, true),
     mask: (v, p) => need.string(v, p, c),
     prefix: (v, p) => need.string(v, p, c, true),
@@ -520,6 +525,16 @@ export const parseArtisanSchema = (
     let keys: readonly string[];
     if (isNativeFieldType(type)) {
       keys = FIELD_KEYS[type];
+      if (
+        !trusted &&
+        pol.nativeFieldTypes &&
+        !pol.nativeFieldTypes.includes(type)
+      )
+        c.error(
+          'policy-violation',
+          `${path}.type`,
+          `field type "${type}" is not allowed for this schema source`,
+        );
     } else if (isExtensionType(type)) {
       if (inArray)
         return c.error(
@@ -729,8 +744,19 @@ export const parseArtisanSchema = (
       return c.error('invalid-type', `${path}.type`, 'type is required');
 
     let keys: readonly string[];
-    if (isNativeStepType(type)) keys = STEP_KEYS[type as NativeStepType];
-    else if (isExtensionType(type)) {
+    if (isNativeStepType(type)) {
+      keys = STEP_KEYS[type as NativeStepType];
+      if (
+        !trusted &&
+        pol.nativeStepTypes &&
+        !pol.nativeStepTypes.includes(type)
+      )
+        c.error(
+          'policy-violation',
+          `${path}.type`,
+          `step type "${type}" is not allowed for this schema source`,
+        );
+    } else if (isExtensionType(type)) {
       if (!trusted && !allowed(pol.stepTypes, type))
         c.error(
           'policy-violation',

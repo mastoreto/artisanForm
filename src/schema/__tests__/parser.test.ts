@@ -686,3 +686,53 @@ test('the optional i18n block is accepted and validated', () => {
     }),
   ).toEqual(['invalid-type @ i18n.messages.es.t']);
 });
+
+test('sensitive is a boolean flag on any value field', () => {
+  const schema = (sensitive: unknown) => ({
+    schemaVersion: 1,
+    id: 'f',
+    steps: [
+      {
+        id: 's',
+        type: 'form',
+        title: 'S',
+        fields: [{ name: 'diet', type: 'text', sensitive }],
+      },
+    ],
+  });
+  expect(parseArtisanSchema(schema(true)).success).toBe(true);
+  expect(parseArtisanSchema(schema('yes')).success).toBe(false);
+});
+
+test('a policy can restrict native field and step types', () => {
+  const schema = {
+    schemaVersion: 1,
+    id: 'f',
+    steps: [
+      {
+        id: 's',
+        type: 'form',
+        title: 'S',
+        fields: [{ name: 'doc', type: 'file' }],
+      },
+      { id: 'p', type: 'payment', title: 'Pay', providers: ['stripe'] },
+    ],
+  };
+  const policy: SchemaPolicy = {
+    nativeFieldTypes: ['text'],
+    nativeStepTypes: ['form', 'result'],
+    paymentProviders: ['stripe'],
+  };
+  const result = parseArtisanSchema(schema, { policy });
+  expect(result.success).toBe(false);
+  expect(
+    result.issues
+      .filter((i) => i.code === 'policy-violation')
+      .map((i) => i.path),
+  ).toEqual(['steps[0].fields[0].type', 'steps[1].type']);
+  // without the restriction both are fine
+  expect(
+    parseArtisanSchema(schema, { policy: { paymentProviders: ['stripe'] } })
+      .success,
+  ).toBe(true);
+});
