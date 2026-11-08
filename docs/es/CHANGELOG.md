@@ -6,7 +6,8 @@
 
 - **Guías nuevas** (inglés en `docs/`, español en `docs/es/`): [pagos](payments.md) (el principio de seguridad, flujos, una checklist de producción), [archivos y storage](files.md), [accesibilidad y entornos probados](accessibility.md) (qué viene incluido, qué verifica axe, qué todavía no está verificado, navegadores/React/Node cubiertos por el CI) y [release](releasing.md) (los cinco paquetes, el workflow `Release`, publicar a mano, Trusted Publishing y una tabla de resolución de problemas con los errores de npm vistos en el primer release).
 - **README y AGENTS.md:** estado beta, instalación con `@beta` y los kits `@beardartisans/ui-*`, un índice de documentación y un "Estado del proyecto" actualizado.
-- **Sitio de docs:** el sitio Starlight (en/es) ahora incluye todas las guías y un enlace a Storybook, con los enlaces entre guías reescritos para que funcionen bajo la ruta base `/artisanForm/`. El nuevo workflow `Docs` publica el sitio y Storybook en GitHub Pages en cada push a `main` (se activa una sola vez en Settings → Pages → Source: GitHub Actions). El CI también compila Storybook.
+- **Sitio de docs:** el sitio Starlight (en/es) ahora incluye todas las guías, con los enlaces entre guías reescritos para que funcionen bajo cualquier ruta base. Se despliega con Vercel (raíz del proyecto `apps/docs`). El CI también compila Storybook, que no está alojado en ningún lado; se levanta con `bun run storybook`.
+- **Guía de release:** documenta que la primera publicación de un paquete también fija el tag `latest`, así que hasta un release estable `npm install artisanform` instala la beta.
 
 ## Sin publicar (Primera beta: 0.3.0-beta.0)
 

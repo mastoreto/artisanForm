@@ -18,4 +18,4 @@ npm install artisanform@beta react react-dom react-hook-form yup zustand
 - [Accessibility and environments](accessibility/): what is built in, what is checked, tested browsers and versions.
 - [Releasing](releasing/): how the five packages are published to npm.
 
-Components, states and controls live in [Storybook](https://mastoreto.github.io/artisanForm/storybook/). The source and the issue tracker are on [GitHub](https://github.com/mastoreto/artisanForm).
+The source and the issue tracker are on [GitHub](https://github.com/mastoreto/artisanForm).

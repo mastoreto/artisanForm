@@ -17,7 +17,7 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 | [Accesibilidad y entornos probados](accessibility.md) | Qué viene incluido, qué se verifica, navegadores y versiones |
 | [Release](releasing.md) | Cómo se publican los cinco paquetes en npm |
 
-Cada guía tiene su original en inglés en [docs/](../). Las guías también se publican como sitio, junto con Storybook, en <https://mastoreto.github.io/artisanForm/> cuando se active GitHub Pages en el repositorio.
+Cada guía tiene su original en inglés en [docs/](../). Las guías también se compilan como sitio de documentación (Starlight, `apps/docs`; se levanta con `bun run docs`).
 
 ## Stack
 
