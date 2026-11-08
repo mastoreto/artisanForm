@@ -13,6 +13,13 @@ test.beforeEach(async ({ page }) => {
 test('uploads a document, blocks while uploading, then submits', async ({
   page,
 }) => {
+  // The demo storage uploads with timers (800 ms). A paused fake clock keeps
+  // the upload "in progress" until the test lets it finish, so this does not
+  // depend on how fast the browser or the CI runner is.
+  await page.clock.install({ time: new Date('2030-01-01T10:00:00') });
+  await page.goto('/?demo=files');
+  await page.clock.pauseAt(new Date('2030-01-01T10:05:00'));
+
   await page.locator('input[type=file]').first().setInputFiles(pdf('dni.pdf'));
   await expect(page.getByRole('progressbar')).toBeVisible();
 
@@ -21,6 +28,7 @@ test('uploads a document, blocks while uploading, then submits', async ({
     page.getByText('Wait for the files to finish uploading'),
   ).toBeVisible();
 
+  await page.clock.runFor(1000);
   await expect(page.getByLabel('Remove dni.pdf')).toBeVisible();
   await page.getByRole('button', { name: 'Next' }).click();
   await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
