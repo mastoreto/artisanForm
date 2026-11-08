@@ -2,6 +2,12 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Documentación)
+
+- **Guías nuevas** (inglés en `docs/`, español en `docs/es/`): [pagos](payments.md) (el principio de seguridad, flujos, una checklist de producción), [archivos y storage](files.md), [accesibilidad y entornos probados](accessibility.md) (qué viene incluido, qué verifica axe, qué todavía no está verificado, navegadores/React/Node cubiertos por el CI) y [release](releasing.md) (los cinco paquetes, el workflow `Release`, publicar a mano, Trusted Publishing y una tabla de resolución de problemas con los errores de npm vistos en el primer release).
+- **README y AGENTS.md:** estado beta, instalación con `@beta` y los kits `@beardartisans/ui-*`, un índice de documentación y un "Estado del proyecto" actualizado.
+- **Sitio de docs:** el sitio Starlight (en/es) ahora incluye todas las guías y un enlace a Storybook, con los enlaces entre guías reescritos para que funcionen bajo la ruta base `/artisanForm/`. El nuevo workflow `Docs` publica el sitio y Storybook en GitHub Pages en cada push a `main` (se activa una sola vez en Settings → Pages → Source: GitHub Actions). El CI también compila Storybook.
+
 ## Sin publicar (Primera beta: 0.3.0-beta.0)
 
 - **Versión:** `0.3.0-beta.0` para el núcleo **y** los cuatro kits de npm (`@beardartisans/ui-bootstrap`, `ui-mui`, `ui-tailwind`, `ui-scss`), publicados juntos con la misma versión; piden `artisanform@^0.3.0-beta.0` como peer. Cada kit tiene ahora su propio `README`, `LICENSE`, metadatos de repositorio y `publishConfig.access: public` (obligatorio en paquetes con scope). `ui-shadcn` sigue privado (es un item de registry para copiar y pegar).
