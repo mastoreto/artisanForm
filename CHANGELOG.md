@@ -2,6 +2,14 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (First beta: 0.3.0-beta.0)
+
+- **Version:** `0.3.0-beta.0` (the `@artisanform/ui-*` kits now peer on `artisanform@^0.3.0-beta.0`).
+- **Accessibility fix found by the new axe suite:** the default primary color was `#3b82f6` (3.68:1 against the white button text, below WCAG AA); it is now `#2563eb` (5.17:1), in `artisanform.css` and in the Sass kit. Override `--artisan-primary` as before.
+- **Tests:** `e2e/a11y.spec.ts` runs axe-core (WCAG 2.0/2.1 A and AA) on the wizard (also with validation errors shown), fields, repeatables, layout and files. Playwright now has `chromium`, `firefox` and `webkit` projects: locally only Chromium runs; set `ARTISAN_BROWSERS=chromium,firefox,webkit` to run all. CI adds an `e2e-browsers` job for Firefox and WebKit.
+- **Packaging:** `bun run check:pack` verifies the tarball contents (only `dist`, `LICENSE`, `README.md`, `package.json`; no sources, tests or stories) and runs in CI and in `prepublishOnly`.
+- **Release:** a manual `Release` workflow (`workflow_dispatch`) runs every check and `npm publish --provenance --tag <tag>`. It needs the `NPM_TOKEN` repository secret and is a dry run unless `dry-run` is turned off. After publishing, verify the registry package with `ARTISAN_SPEC=<version> node scripts/consumer-test.mjs 19`.
+
 ## Unreleased (Release prep)
 
 - **Package metadata:** `license` (MIT, plus a `LICENSE` file), `description`, `keywords`, `repository`, `homepage`, `bugs`, `engines` (Node >= 20.19), `publishConfig.access` and a `prepublishOnly` guard (build + `check:dist` + `check:package` + tests).

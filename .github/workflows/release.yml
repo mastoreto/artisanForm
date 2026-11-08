@@ -1,0 +1,42 @@
+name: Release
+
+# Manual publish of the `artisanform` package to npm.
+# Needs the repository secret NPM_TOKEN (an npm automation token).
+# `dry-run` defaults to true: it runs every check and `npm publish --dry-run`.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: npm dist-tag
+        default: beta
+      dry-run:
+        description: Do not publish, only verify
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write # npm provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run typecheck
+      - run: bun run build
+      - run: bun run check:dist
+      - run: bun run check:package
+      - run: bun run check:pack
+      - run: bun test
+      - name: Publish
+        run: npm publish --provenance --access public --tag "${{ inputs.tag }}" ${{ inputs.dry-run && '--dry-run' || '' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
