@@ -409,7 +409,7 @@ Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must
 
 ### Pending
 
-- **Release:** `develop` → `master`, publish the package (registry to be decided) and deploy Storybook.
+- **Release:** `develop` → `main`, publish the package (registry to be decided) and deploy Storybook.
 - **Real providers:** the plugins are verified against mocks of their SDKs; they still need a pass against sandboxes with test credentials.
 - **UI:** the public headless API (`useArtisanForm`) is not published yet (the behavior already lives in an internal `useWizard`), `layout: 'horizontal'` has no styling of its own and steppers cannot jump between steps. Details in [docs/ui.md](docs/ui.md#pending).
 - **Browser:** component tests run in happy-dom; Playwright covers the playground flows (wizard, files, waiting, mock payments, fields).
@@ -439,9 +439,9 @@ Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must
 
 Details in [AGENTS.md](AGENTS.md) ([Spanish](docs/es/AGENTS.md)). Summary:
 
-- `master` stable, `develop` integration; never commit directly to either.
+- `main` stable, `develop` integration; never commit directly to either.
 - One feature = one branch = one PR from `develop`: `feat/AF<n>-slug`, `fix/AF<n>-slug`, `chore/slug` (`AF<n>` = issue number).
-- PRs go to `develop` with the [template](.github/PULL_REQUEST_TEMPLATE.md); `develop` → `master` only for releases.
+- PRs go to `develop` with the [template](.github/PULL_REQUEST_TEMPLATE.md); `develop` → `main` only for releases.
 - Commits: `type: :emoji: description`, in English.
 - Before the PR: `bun run lint`, `bun run typecheck`, `bun run build` and `bun test` clean, and the story updated.
 

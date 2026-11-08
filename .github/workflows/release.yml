@@ -1,8 +1,11 @@
 name: Release
 
-# Manual publish of the `artisanform` package to npm.
-# Needs the repository secret NPM_TOKEN (an npm automation token).
-# `dry-run` defaults to true: it runs every check and `npm publish --dry-run`.
+# Manual publish to npm of `artisanform` and the official kits
+# (@beardartisans/ui-bootstrap, ui-mui, ui-tailwind, ui-scss), all at the same
+# version. Needs the repository secret NPM_TOKEN: a granular access token with
+# read/write on all packages (the `artisanform` package and the @beardartisans
+# organization scope). `dry-run` defaults to true: it runs every check and
+# `npm publish --dry-run` for each package, and uploads nothing.
 on:
   workflow_dispatch:
     inputs:
@@ -22,6 +25,11 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Real publishes only run from main
+        if: ${{ !inputs.dry-run && github.ref != 'refs/heads/main' }}
+        run: |
+          echo "::error::Publish from main (develop -> main is the release step). Use dry-run elsewhere."
+          exit 1
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -32,11 +40,24 @@ jobs:
       - run: bun run lint
       - run: bun run typecheck
       - run: bun run build
+      - run: bun run build:kits
+      - run: bun run typecheck:kits
       - run: bun run check:dist
       - run: bun run check:package
+      - run: bun run check:kits
       - run: bun run check:pack
       - run: bun test
-      - name: Publish
-        run: npm publish --provenance --access public --tag "${{ inputs.tag }}" ${{ inputs.dry-run && '--dry-run' || '' }}
+      - name: Publish the core, then the kits
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          TAG: ${{ inputs.tag }}
+          DRY_RUN: ${{ inputs.dry-run }}
+        run: |
+          flags="--provenance --access public --tag $TAG"
+          if [ "$DRY_RUN" = "true" ]; then flags="$flags --dry-run"; fi
+          # The core goes first: the kits peer-depend on it.
+          for dir in . packages/ui-bootstrap packages/ui-mui packages/ui-tailwind packages/ui-scss; do
+            echo "::group::npm publish $dir"
+            (cd "$dir" && npm publish $flags)
+            echo "::endgroup::"
+          done

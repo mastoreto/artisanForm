@@ -409,7 +409,7 @@ Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y
 
 ### Pendiente
 
-- **Release:** `develop` → `master`, publicar el paquete (registro a definir) y desplegar Storybook.
+- **Release:** `develop` → `main`, publicar el paquete (registro a definir) y desplegar Storybook.
 - **Proveedores reales:** los plugins se verifican con mocks de sus SDK; falta probarlos contra sandbox con credenciales de prueba.
 - **Navegador:** los tests de componentes corren en happy-dom; Playwright cubre los flujos del playground (wizard, archivos, espera, pagos mock, campos).
 - **UI:** la API headless pública (`useArtisanForm`) todavía no se publica (el comportamiento ya vive en un `useWizard` interno), `layout: 'horizontal'` no tiene estilo propio y los steppers no pueden saltar entre pasos. Detalle en [docs/es/ui.md](ui.md#pendiente).
@@ -439,9 +439,9 @@ Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y
 
 Detalle en [AGENTS.md](AGENTS.md) (original en inglés: [AGENTS.md](../../AGENTS.md)). Resumen:
 
-- `master` estable, `develop` integración; no se commitea directo a ninguna.
+- `main` estable, `develop` integración; no se commitea directo a ninguna.
 - Una feature = una rama = un PR desde `develop`: `feat/AF<n>-slug`, `fix/AF<n>-slug`, `chore/slug` (`AF<n>` = número de issue).
-- PR a `develop` con el [template](../../.github/PULL_REQUEST_TEMPLATE.md); `develop` → `master` solo en releases.
+- PR a `develop` con el [template](../../.github/PULL_REQUEST_TEMPLATE.md); `develop` → `main` solo en releases.
 - Commits: `tipo: :emoji: descripción`, en inglés.
 - Antes del PR: `bun run lint`, `bun run typecheck`, `bun run build` y `bun test` limpios, y story actualizada.
 

@@ -3,8 +3,8 @@ import type { ArtisanUiKit } from 'artisanform';
 /**
  * Tailwind CSS for ArtisanForm: the default UI is switched off (`unstyled`)
  * and every part gets Tailwind utilities. Tell Tailwind to scan this file:
- *   v3: content: ['./node_modules/@artisanform/ui-tailwind/dist/**\/*.js']
- *   v4: @source "../node_modules/@artisanform/ui-tailwind/dist";
+ *   v3: content: ['./node_modules/@beardartisans/ui-tailwind/dist/**\/*.js']
+ *   v4: @source "../node_modules/@beardartisans/ui-tailwind/dist";
  * Error states use the `aria-[invalid=true]:` variant (Tailwind 3.2+).
  */
 export const tailwindKit = {

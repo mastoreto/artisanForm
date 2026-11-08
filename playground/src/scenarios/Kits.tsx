@@ -1,5 +1,5 @@
-import { bootstrapKit } from '@artisanform/ui-bootstrap';
-import '@artisanform/ui-bootstrap/style.css';
+import { bootstrapKit } from '@beardartisans/ui-bootstrap';
+import '@beardartisans/ui-bootstrap/style.css';
 import { ArtisanForm, type FormSchema } from 'artisanform';
 import { useEffect, useState } from 'react';
 

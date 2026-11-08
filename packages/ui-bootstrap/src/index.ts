@@ -3,7 +3,7 @@ import type { ArtisanUiKit } from 'artisanform';
 /**
  * Bootstrap 5 for ArtisanForm. No `react-bootstrap` needed: the default UI is
  * switched off (`unstyled`) and every part gets Bootstrap's own classes.
- * Load Bootstrap's CSS yourself and import `@artisanform/ui-bootstrap/style.css`
+ * Load Bootstrap's CSS yourself and import `@beardartisans/ui-bootstrap/style.css`
  * (a small bridge that maps `aria-invalid` to Bootstrap's invalid look).
  */
 export const bootstrapKit = {

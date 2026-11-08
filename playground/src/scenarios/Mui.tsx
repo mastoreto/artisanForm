@@ -1,4 +1,4 @@
-import { muiKit } from '@artisanform/ui-mui';
+import { muiKit } from '@beardartisans/ui-mui';
 import { ArtisanForm, type FormSchema } from 'artisanform';
 
 const scheme: FormSchema = {
