@@ -25,7 +25,7 @@
     "check": "publint --strict"
   },
   "peerDependencies": {
-    "artisanform": "^0.2.0"
+    "artisanform": "^0.3.0-beta.0"
   },
   "devDependencies": {
     "artisanform": "link:../.."

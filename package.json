@@ -1,6 +1,6 @@
 {
   "name": "artisanform",
-  "version": "0.2.0",
+  "version": "0.3.0-beta.0",
   "description": "Declarative multi-step forms (wizards) for React: a serializable JSON schema, 30+ field types, payments, file uploads and themeable UI kits.",
   "keywords": [
     "react",
@@ -35,6 +35,7 @@
   "type": "module",
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
+    "@axe-core/playwright": "^4.14.0",
     "@biomejs/biome": "2.5.15",
     "@chromatic-com/storybook": "^5.5.1",
     "@emotion/react": "^11.14.0",
@@ -112,7 +113,8 @@
     "check:kits": "bun run --filter './packages/ui-{bootstrap,mui,tailwind,scss}' check",
     "docs": "bun run --filter @artisanform/docs dev",
     "build:docs": "bun run --filter @artisanform/docs build",
-    "prepublishOnly": "bun run build && bun run check:dist && bun run check:package && bun test"
+    "prepublishOnly": "bun run build && bun run check:dist && bun run check:package && bun run check:pack && bun test",
+    "check:pack": "node scripts/check-pack.mjs"
   },
   "sideEffects": [
     "**/*.css"

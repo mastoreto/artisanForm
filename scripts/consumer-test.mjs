@@ -2,6 +2,9 @@
 // Usage: node scripts/consumer-test.mjs <react-major: 18|19> [workdir]
 // Checks: install + typecheck (NodeNext-free bundler TS), vite build, SSR
 // render in Node, real browser flow (type, validate, next, submit).
+// By default it packs the working tree. To test what is on the registry
+// instead (after publishing), set ARTISAN_SPEC to a version or dist-tag:
+//   ARTISAN_SPEC=0.3.0-beta.0 node scripts/consumer-test.mjs 19
 import { execSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -13,9 +16,14 @@ const work =
   process.argv[3] ?? mkdtempSync(join(tmpdir(), `af-consumer-${major}-`));
 const sh = (cmd, cwd = work) => execSync(cmd, { cwd, stdio: 'inherit' });
 
-mkdirSync(join(work, 'pack'), { recursive: true });
-sh(`npm pack --pack-destination ${join(work, 'pack')}`, root);
-const tgz = readdirSync(join(work, 'pack')).find((f) => f.endsWith('.tgz'));
+const spec = process.env.ARTISAN_SPEC;
+let artisanDep = spec ?? '';
+if (!spec) {
+  mkdirSync(join(work, 'pack'), { recursive: true });
+  sh(`npm pack --pack-destination ${join(work, 'pack')}`, root);
+  const tgz = readdirSync(join(work, 'pack')).find((f) => f.endsWith('.tgz'));
+  artisanDep = `file:../pack/${tgz}`;
+}
 
 const reactVersion = major === '18' ? '18.3.1' : '19.3.1';
 const typesVersion = major === '18' ? '^18.3.0' : '19.3.0';
@@ -30,7 +38,7 @@ writeFileSync(
       type: 'module',
       scripts: { build: 'vite build', typecheck: 'tsc --noEmit' },
       dependencies: {
-        artisanform: `file:../pack/${tgz}`,
+        artisanform: artisanDep,
         react: reactVersion,
         'react-dom': reactVersion,
         'react-hook-form': '^7.90.0',
