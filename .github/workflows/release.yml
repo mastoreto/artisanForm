@@ -53,7 +53,10 @@ jobs:
           TAG: ${{ inputs.tag }}
           DRY_RUN: ${{ inputs.dry-run }}
         run: |
-          flags="--provenance --access public --tag $TAG"
+          # --ignore-scripts: the checks already ran in the steps above, and
+          # the core's prepublishOnly would repeat them (under --dry-run its
+          # nested `npm pack` writes no tarball, which breaks `attw --pack`).
+          flags="--provenance --access public --tag $TAG --ignore-scripts"
           if [ "$DRY_RUN" = "true" ]; then flags="$flags --dry-run"; fi
           # The core goes first: the kits peer-depend on it.
           for dir in . packages/ui-bootstrap packages/ui-mui packages/ui-tailwind packages/ui-scss; do
