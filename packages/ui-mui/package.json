@@ -18,7 +18,8 @@
   },
   "scripts": {
     "build": "vite build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "publint --strict"
   },
   "peerDependencies": {
     "@emotion/react": "^11.0.0",

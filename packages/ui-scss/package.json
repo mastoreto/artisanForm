@@ -19,5 +19,8 @@
   },
   "devDependencies": {
     "artisanform": "link:../.."
+  },
+  "scripts": {
+    "check": "publint --strict"
   }
 }

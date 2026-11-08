@@ -21,7 +21,8 @@
   },
   "scripts": {
     "build": "vite build && cp src/style.css dist/style.css",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "publint --strict"
   },
   "peerDependencies": {
     "artisanform": "^0.2.0"

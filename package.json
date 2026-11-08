@@ -109,7 +109,7 @@
     "e2e": "playwright test",
     "build:kits": "bun run --filter './packages/*' build",
     "typecheck:kits": "bun run --filter './packages/*' typecheck",
-    "check:kits": "bun run --filter './packages/ui-{bootstrap,mui,tailwind,scss}' exec publint --strict",
+    "check:kits": "bun run --filter './packages/ui-{bootstrap,mui,tailwind,scss}' check",
     "docs": "bun run --filter @artisanform/docs dev",
     "build:docs": "bun run --filter @artisanform/docs build",
     "prepublishOnly": "bun run build && bun run check:dist && bun run check:package && bun test"
