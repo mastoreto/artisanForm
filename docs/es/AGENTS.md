@@ -7,7 +7,7 @@ Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se 
 ## Idioma
 
 - **Todo lo que se genera en este repositorio va en inglés**: código, identificadores, comentarios, JSDoc, nombres de tests, mensajes de commit, texto de PR e issues, `README.md`, `AGENTS.md`, `CHANGELOG.md` y todo lo que está bajo `docs/`.
-- **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) [`schema v1`](schema-v1.md) y [`UI`](ui.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
+- **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) [`schema v1`](schema-v1.md), [`UI`](ui.md), [`pagos`](payments.md), [`archivos`](files.md), [`accesibilidad`](accessibility.md) y [`release`](releasing.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
 - Los textos de la librería nunca están hardcodeados: los valores por defecto (`src/commons/labels.ts`) están en inglés y todos se sobrescriben con la prop `labels`. Las etiquetas, nombres y títulos de paso son texto libre que aporta el esquema del usuario. Los textos de demo (playground, stories, fixtures, tests) también van en inglés.
 - A las personas se les responde en el idioma en que escriben; los artefactos del repositorio quedan en inglés.
 
@@ -99,7 +99,7 @@ Un tipo de campo nuevo = una `FieldDefinition` en `components/fields/registry.ts
 
 ## Estado actual / deuda conocida
 
-Versión 0.2.0 más el contrato de esquema v1 sin publicar: un wizard guiado por un `scheme` (`FormSchema` 0.2.0 o `ArtisanSchemaV1`) con registros extensibles de campos y pasos, pagos por plugin (Stripe, Lemon Squeezy, Mercado Pago, PayPal), archivos con `StorageAdapter`, esperas con `WaitStrategy`, snapshots de borradores versionados, Biome, playground y tests e2e. El CI de GitHub Actions corre lint, typecheck, build, tests unitarios y e2e en cada PR. Pendiente: publicar el paquete, desplegar Storybook, probar los plugins de pago contra sandbox con credenciales de prueba y una API headless pública (el `useWizard` interno es el punto de partida). Detalle y hoja de ruta en el README.
+Versión `0.3.0-beta.0` (el núcleo y los cuatro kits de npm, en lockstep) con el contrato de esquema v1: un wizard guiado por un `scheme` (`FormSchema` 0.2.0 o `ArtisanSchemaV1`) con registros extensibles de campos y pasos, pagos por plugin (Stripe, Lemon Squeezy, Mercado Pago, PayPal), archivos con `StorageAdapter`, esperas con `WaitStrategy`, snapshots de borradores versionados, Biome, playground y tests e2e. El CI de GitHub Actions corre lint, typecheck, build, chequeos del paquete, tests unitarios, e2e en Chromium, Firefox y WebKit (con chequeos de accesibilidad de axe) y tests de consumidor en proyectos limpios con React 18 y 19 en cada PR; un workflow manual `Release` publica en npm ([`releasing.md`](releasing.md)). Pendiente: Trusted Publishing para npm, probar los plugins de pago contra sandbox con credenciales de prueba y una API headless pública (el `useWizard` interno es el punto de partida). Detalle y hoja de ruta en el README.
 
 Las tareas son issues de GitHub con el código `AF<n>` en el título (número de issue = n − 6).
 
