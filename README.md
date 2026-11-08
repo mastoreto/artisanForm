@@ -4,7 +4,20 @@ React library for building multi-step forms (wizards) from a declarative definit
 
 > 🌐 Spanish version: [docs/es/README.md](docs/es/README.md)
 
-> **Status:** version 0.2.0 plus the unreleased v1 schema contract: a `scheme`-driven wizard with 30+ field types, special steps (terms, payment, waiting, review, result), files with pluggable storage and payment plugins (Stripe, Lemon Squeezy, Mercado Pago, PayPal). Not published to any registry yet. See [Project status](#project-status).
+> **Status:** first public beta, `0.3.0-beta.0` (npm dist-tag `beta`): a `scheme`-driven wizard with 30+ field types, special steps (terms, payment, waiting, review, result), files with pluggable storage, payment plugins (Stripe, Lemon Squeezy, Mercado Pago, PayPal; verified against SDK mocks, not yet live sandboxes) and official UI kits. See [Project status](#project-status).
+
+## Documentation
+
+| Guide | What it covers |
+| --- | --- |
+| [Schema v1](docs/schema-v1.md) | The serializable, versioned schema contract |
+| [UI extension and kits](docs/ui.md) | Styles, `components`, `classNames` and the official kits |
+| [Payments](docs/payments.md) | Plugins, the security principle and a production checklist |
+| [Files and storage](docs/files.md) | `file`/`image` fields and storage adapters |
+| [Accessibility and tested environments](docs/accessibility.md) | What is built in, what is checked, browsers and versions |
+| [Releasing](docs/releasing.md) | How the five packages are published to npm |
+
+Every guide has a Spanish copy under [docs/es/](docs/es/). The guides are also built as a documentation site (Starlight, `apps/docs`; run it with `bun run docs`).
 
 ## Stack
 
@@ -336,11 +349,19 @@ The schema's semantic `ui` settings (`columns`, `span`, `density`, `labelPositio
 
 ## Installation
 
-`react`, `react-dom`, `react-hook-form`, `yup` and `zustand` are `peerDependencies`:
+`react`, `react-dom`, `react-hook-form`, `yup` and `zustand` are `peerDependencies`. While the library is in beta, install it with the `beta` tag:
 
 ```bash
-npm install artisanform react react-dom react-hook-form yup zustand
+npm install artisanform@beta react react-dom react-hook-form yup zustand
 ```
+
+The official UI kits are separate, optional packages under the `@beardartisans` scope; they peer on `artisanform`, which never depends on them:
+
+```bash
+npm install @beardartisans/ui-bootstrap@beta   # or ui-mui, ui-tailwind, ui-scss
+```
+
+Usage of each kit, and the shadcn/ui registry item, is in [docs/ui.md](docs/ui.md#ui-kits).
 
 ### Compatibility
 
@@ -406,13 +427,16 @@ Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must
 - Waiting: `WaitStrategy` with polling, SSE, WebSocket and callback.
 - **Schema v1 (Phase 1):** serializable, versioned contract, declarative conditions, structural parser, normalization with a 0.2.0 adapter, id-based extensions and versioned draft snapshots ([guide](docs/schema-v1.md)).
 - Biome (format + lint), a live playground, unit tests (`bun test`) and e2e tests (Playwright).
+- **UI kits:** `@beardartisans/ui-bootstrap`, `ui-mui`, `ui-tailwind` and `ui-scss` on npm, plus a shadcn/ui registry item ([guide](docs/ui.md#ui-kits)).
+- **Accessibility:** a default theme that meets WCAG AA contrast, and automated axe checks in CI ([guide](docs/accessibility.md)).
+- **Release automation:** a manual `Release` workflow that verifies everything and publishes the five packages with provenance ([guide](docs/releasing.md)).
 
 ### Pending
 
-- **Release:** `develop` → `main`, publish the package (registry to be decided) and deploy Storybook.
+- **Release:** move npm publishing from a token to Trusted Publishing, and cut a stable version after the beta feedback ([docs/releasing.md](docs/releasing.md)).
 - **Real providers:** the plugins are verified against mocks of their SDKs; they still need a pass against sandboxes with test credentials.
 - **UI:** the public headless API (`useArtisanForm`) is not published yet (the behavior already lives in an internal `useWizard`), `layout: 'horizontal'` has no styling of its own and steppers cannot jump between steps. Details in [docs/ui.md](docs/ui.md#pending).
-- **Browser:** component tests run in happy-dom; Playwright covers the playground flows (wizard, files, waiting, mock payments, fields).
+- **Browser:** component tests run in happy-dom; Playwright covers the playground flows (wizard, files, waiting, mock payments, fields) on Chromium, Firefox and WebKit. Screen-reader passes, motion preferences and touch devices are not verified yet ([docs/accessibility.md](docs/accessibility.md)).
 - Default texts are English only; for another language pass `labels` (and write your own field labels).
 
 ### History

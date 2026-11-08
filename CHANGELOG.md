@@ -2,6 +2,13 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Documentation)
+
+- **New guides** (English in `docs/`, Spanish in `docs/es/`): [payments](docs/payments.md) (the security principle, flows, a production checklist), [files and storage](docs/files.md), [accessibility and tested environments](docs/accessibility.md) (what is built in, what axe checks, what is not verified yet, browsers/React/Node covered by CI) and [releasing](docs/releasing.md) (the five packages, the `Release` workflow, publishing by hand, Trusted Publishing and a troubleshooting table with the npm errors seen in the first release).
+- **README and AGENTS.md:** beta status, install with `@beta` and the `@beardartisans/ui-*` kits, a documentation index, and an updated "Project status".
+- **Docs site:** the Starlight site (en/es) now includes all the guides, with links between guides rewritten so they work at any base path. It is deployed with Vercel (project root `apps/docs`). CI also builds Storybook, which is not hosted anywhere; run it with `bun run storybook`.
+- **Release guide:** documents that the first publish of a package also sets the `latest` tag, so until a stable release `npm install artisanform` installs the beta.
+
 ## Unreleased (First beta: 0.3.0-beta.0)
 
 - **Version:** `0.3.0-beta.0` for the core **and** the four npm kits (`@beardartisans/ui-bootstrap`, `ui-mui`, `ui-tailwind`, `ui-scss`), published together in lockstep; they peer on `artisanform@^0.3.0-beta.0`. Each kit now has its own `README`, `LICENSE`, repository metadata and `publishConfig.access: public` (required for scoped packages). `ui-shadcn` stays private (a copy-paste registry item).

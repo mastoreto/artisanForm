@@ -31,6 +31,7 @@ jobs:
       - run: bun run check:kits
       - run: bun run check:pack
       - run: bun run build:docs
+      - run: bun run build-storybook
       - run: bun test
 
   # The same browser flows with the React Compiler on and off.
