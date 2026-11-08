@@ -1,8 +1,25 @@
 {
   "name": "@artisanform/ui-tailwind",
-  "version": "0.1.0",
+  "version": "0.3.0-beta.0",
   "description": "Tailwind CSS kit for ArtisanForm",
   "license": "MIT",
+  "author": "ArtisanForm contributors",
+  "homepage": "https://github.com/mastoreto/artisanForm/tree/develop/packages/ui-tailwind#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mastoreto/artisanForm.git",
+    "directory": "packages/ui-tailwind"
+  },
+  "bugs": {
+    "url": "https://github.com/mastoreto/artisanForm/issues"
+  },
+  "keywords": [
+    "artisanform",
+    "react",
+    "form",
+    "ui-kit",
+    "tailwind"
+  ],
   "type": "module",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,5 +43,8 @@
   },
   "devDependencies": {
     "artisanform": "link:../.."
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
