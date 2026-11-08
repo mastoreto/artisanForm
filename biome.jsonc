@@ -1,0 +1,132 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": {
+    "includes": ["**", "!storybook-static", "!dist"]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 80,
+    "lineEnding": "lf"
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
+    }
+  },
+  "css": { "parser": { "tailwindDirectives": true } },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      // Effects here are deliberately keyed on a subset of their inputs.
+      "correctness": { "useExhaustiveDependencies": "off" }
+    }
+  },
+  "overrides": [
+    {
+      // Stand-ins that mimic Radix/shadcn markup (role="checkbox" on a button…)
+      // only to type-check and test the shadcn kit; never published.
+      "includes": ["packages/ui-shadcn/stubs/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off",
+            "noLabelWithoutControl": "off",
+            "useAriaPropsForRole": "off"
+          }
+        }
+      }
+    },
+    {
+      // The public contract must not depend on the form engine (React Hook Form,
+      // Yup, Zustand) nor on React, so an engine migration never touches it.
+      "includes": ["src/schema/**", "src/persistence/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "src/schema and src/persistence must stay engine-agnostic.",
+                  "react-dom": "src/schema and src/persistence must stay engine-agnostic.",
+                  "react-hook-form": "src/schema and src/persistence must stay engine-agnostic.",
+                  "@hookform/resolvers": "src/schema and src/persistence must stay engine-agnostic.",
+                  "yup": "src/schema and src/persistence must stay engine-agnostic.",
+                  "zustand": "src/schema and src/persistence must stay engine-agnostic."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      // Positional rows/boxes (no stable identity) and the combobox popup
+      // (custom listbox of the ARIA combobox pattern).
+      "includes": [
+        "src/components/inputs/Otp/Otp.tsx",
+        "src/components/inputs/Combobox/Combobox.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": { "useSemanticElements": "off" },
+          "suspicious": { "noArrayIndexKey": "off" }
+        }
+      }
+    },
+    {
+      // ARIA combobox pattern: the listbox/options live in a popup while DOM
+      // focus stays on the input (aria-activedescendant), so options are not
+      // tabbable by design.
+      "includes": ["src/components/inputs/Combobox/Combobox.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveElementToInteractiveRole": "off",
+            "useFocusableInteractive": "off"
+          }
+        }
+      }
+    },
+    {
+      // The scrollable terms text must be reachable with the keyboard.
+      "includes": ["src/components/steps/registry.tsx"],
+      "linter": { "rules": { "a11y": { "noNoninteractiveTabindex": "off" } } }
+    },
+    {
+      // Tailwind v3 `@tailwind` directives.
+      "includes": ["playground/src/playground.css", ".storybook/storybook.css"],
+      "linter": { "rules": { "suspicious": { "noUnknownAtRules": "off" } } }
+    },
+    {
+      // Chip-styled buttons exposed with group/radio roles (a native
+      // fieldset/radio input would defeat the design); static step list.
+      "includes": [
+        "src/components/inputs/Check/Check.tsx",
+        "src/components/inputs/Radio/Radio.tsx",
+        "src/components/inputs/Rating/Rating.tsx",
+        "src/components/steps/PaymentStep.tsx",
+        "src/components/ArtisanForm/Stepper.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": { "useSemanticElements": "off" },
+          "suspicious": { "noArrayIndexKey": "off" }
+        }
+      }
+    },
+    {
+      // Yup's `when({ is, then, otherwise })` API requires a `then` key.
+      "includes": ["src/engine/buildSchema.ts"],
+      "linter": { "rules": { "suspicious": { "noThenProperty": "off" } } }
+    }
+  ],
+  "assist": { "actions": { "source": { "organizeImports": "on" } } }
+}

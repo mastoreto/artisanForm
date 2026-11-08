@@ -1,0 +1,15 @@
+{
+  "name": "@beardartisans/ui-shadcn",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "description": "shadcn/ui kit for ArtisanForm: a template and a registry item (copy-paste, not an npm dependency)",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-registry.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "artisanform": "link:../.."
+  }
+}

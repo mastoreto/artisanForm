@@ -1,6 +1,4 @@
+/** Tailwind only processes the playground and Storybook styles. */
 module.exports = {
-  plugins: {
-    'tailwindcss': {},
-    'autoprefixer': {},
-  }
-}
+  plugins: [require('tailwindcss'), require('autoprefixer')],
+};

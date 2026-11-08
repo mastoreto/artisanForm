@@ -1,5 +1,6 @@
-import type { Preview } from "@storybook/react";
-import '../src/styles/global.css';
+import type { Preview } from '@storybook/react';
+import '../src/styles/artisanform.css';
+import './storybook.css';
 
 const preview: Preview = {
   parameters: {

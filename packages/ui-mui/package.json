@@ -1,0 +1,54 @@
+{
+  "name": "@beardartisans/ui-mui",
+  "version": "0.3.0-beta.0",
+  "description": "Material UI kit for ArtisanForm",
+  "license": "MIT",
+  "author": "ArtisanForm contributors",
+  "homepage": "https://github.com/mastoreto/artisanForm/tree/develop/packages/ui-mui#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mastoreto/artisanForm.git",
+    "directory": "packages/ui-mui"
+  },
+  "bugs": {
+    "url": "https://github.com/mastoreto/artisanForm/issues"
+  },
+  "keywords": [
+    "artisanform",
+    "react",
+    "form",
+    "ui-kit",
+    "mui"
+  ],
+  "type": "module",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "check": "publint --strict"
+  },
+  "peerDependencies": {
+    "@emotion/react": "^11.0.0",
+    "@emotion/styled": "^11.0.0",
+    "@mui/material": "^9.0.0",
+    "artisanform": "^0.3.0-beta.0",
+    "react": "^18.3.1 || ^19.0.0"
+  },
+  "devDependencies": {
+    "artisanform": "link:../.."
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

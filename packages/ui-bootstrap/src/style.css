@@ -1,0 +1,13 @@
+/* Bridge: ArtisanForm reports errors with aria-invalid; Bootstrap styles .is-invalid. */
+.form-control[aria-invalid="true"],
+.form-select[aria-invalid="true"] {
+  border-color: var(--bs-form-invalid-border-color);
+}
+.form-control[aria-invalid="true"]:focus,
+.form-select[aria-invalid="true"]:focus {
+  border-color: var(--bs-form-invalid-border-color);
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
+}
+.form-check-input[aria-invalid="true"] {
+  border-color: var(--bs-form-invalid-border-color);
+}

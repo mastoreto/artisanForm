@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+# Vite 8 needs Node 20.19+ or 22.12+: test the two current LTS lines.
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run lint:react
+      - run: bun run typecheck
+      - run: bun run build
+      - run: bun run check:dist
+      - run: bun run check:package
+      - run: bun run build:kits
+      - run: bun run typecheck:kits
+      - run: bun run check:kits
+      - run: bun run check:pack
+      - run: bun run build:docs
+      - run: bun test
+
+  # The same browser flows with the React Compiler on and off.
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [on, off]
+    env:
+      ARTISAN_COMPILER: ${{ matrix.compiler }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium
+      - run: bun run e2e
+
+  # The same flows in Firefox and WebKit (axe runs once, in Chromium).
+  e2e-browsers:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [firefox, webkit]
+    env:
+      ARTISAN_BROWSERS: ${{ matrix.browser }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: bun run e2e
+
+  # The packed tarball installed in clean Vite apps (React 18 and 19).
+  consumers:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        react: [18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium
+      - run: bun run build
+      - run: bun run build:kits
+      - run: node scripts/consumer-test.mjs ${{ matrix.react }} "$RUNNER_TEMP/consumer"
+      - run: node scripts/consumer-browser.mjs "$RUNNER_TEMP/consumer/app"

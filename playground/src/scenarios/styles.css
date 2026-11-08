@@ -1,0 +1,31 @@
+/* 1) Tokens: change the theme from any CSS. */
+.violet-theme {
+  --artisan-primary: #7c3aed;
+  --artisan-primary-dark: #5b21b6;
+  --artisan-radius: 0.75rem;
+  --artisan-border: #c4b5fd;
+}
+/* 3) Plain CSS (or SCSS/Less): your own classes, nothing from the library. */
+.plain-label {
+  display: block;
+  margin-top: 1rem;
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+.plain-input {
+  display: block;
+  width: 100%;
+  padding: 0.4rem;
+  border: 0;
+  border-bottom: 2px solid #111;
+  background: transparent;
+}
+.plain-controls {
+  margin-top: 1.5rem;
+}
+.plain-button {
+  padding: 0.5rem 1.2rem;
+  border: 2px solid #111;
+  background: #fff;
+  cursor: pointer;
+}

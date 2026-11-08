@@ -6,14 +6,18 @@
     "module": "ESNext",
     "moduleDetection": "force",
     "jsx": "react-jsx",
+    "types": ["bun", "vite/client"],
     "allowJs": true,
     "declaration": true,
     "outDir": "dist",
     "esModuleInterop": true,
-    
 
     // Bundler mode
     "moduleResolution": "bundler",
+    "paths": {
+      "artisanform": ["./src/index.ts"],
+      "@/components/ui/*": ["./packages/ui-shadcn/stubs/*"]
+    },
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
@@ -28,6 +32,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": ["src/**/*", "postcss.config.cjs"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
