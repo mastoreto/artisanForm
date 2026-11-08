@@ -1,14 +1,14 @@
-# @artisanform/ui-tailwind
+# @beardartisans/ui-tailwind
 
-Tailwind CSS kit for [ArtisanForm](https://github.com/mastoreto/artisanForm): Utility classes with `unstyled`. Tell Tailwind to scan the package, e.g. `content: ['./node_modules/@artisanform/ui-tailwind/dist/**/*.js']` (Tailwind 3).
+Tailwind CSS kit for [ArtisanForm](https://github.com/mastoreto/artisanForm): Utility classes with `unstyled`. Tell Tailwind to scan the package, e.g. `content: ['./node_modules/@beardartisans/ui-tailwind/dist/**/*.js']` (Tailwind 3).
 
 ```bash
-npm install artisanform @artisanform/ui-tailwind
+npm install artisanform @beardartisans/ui-tailwind
 ```
 
 ```tsx
 import { ArtisanForm } from 'artisanform';
-import { tailwindKit } from '@artisanform/ui-tailwind';
+import { tailwindKit } from '@beardartisans/ui-tailwind';
 
 <ArtisanForm scheme={scheme} onSubmit={save} kit={tailwindKit} />;
 ```

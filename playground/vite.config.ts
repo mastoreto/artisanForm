@@ -19,11 +19,11 @@ export default defineConfig({
       { find: /^artisanform$/, replacement: resolve(repo, 'src/index.ts') },
       // UI kits (workspace packages) straight from their sources.
       {
-        find: /^@artisanform\/ui-([a-z]+)\/style\.css$/,
+        find: /^@beardartisans\/ui-([a-z]+)\/style\.css$/,
         replacement: `${resolve(repo, 'packages')}/ui-$1/src/style.css`,
       },
       {
-        find: /^@artisanform\/ui-([a-z]+)$/,
+        find: /^@beardartisans\/ui-([a-z]+)$/,
         replacement: `${resolve(repo, 'packages')}/ui-$1/src/index`,
       },
     ],

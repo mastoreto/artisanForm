@@ -30,7 +30,7 @@ if (!spec) {
 const kitNames = ['bootstrap', 'mui', 'tailwind'];
 const kitDeps = {};
 for (const k of kitNames) {
-  const name = `@artisanform/ui-${k}`;
+  const name = `@beardartisans/ui-${k}`;
   if (spec) {
     kitDeps[name] = spec;
     continue;
@@ -38,8 +38,9 @@ for (const k of kitNames) {
   const dir = join(root, 'packages', `ui-${k}`);
   sh(`npm pack --pack-destination ${join(work, 'pack')}`, dir);
   const file = readdirSync(join(work, 'pack')).find(
-    (f) => f.startsWith(`artisanform-ui-${k}-`) && f.endsWith('.tgz'),
+    (f) => f.startsWith(`beardartisans-ui-${k}-`) && f.endsWith('.tgz'),
   );
+  if (!file) throw new Error(`packed tarball for ${name} not found`);
   kitDeps[name] = `file:../pack/${file}`;
 }
 
@@ -126,9 +127,9 @@ export const App = ({ onSubmit }: { onSubmit: (v: unknown) => void }) => (
 writeFileSync(
   join(app, 'src/kits.tsx'),
   `import { ArtisanForm } from 'artisanform';
-import { bootstrapKit } from '@artisanform/ui-bootstrap';
-import { muiKit } from '@artisanform/ui-mui';
-import { tailwindKit } from '@artisanform/ui-tailwind';
+import { bootstrapKit } from '@beardartisans/ui-bootstrap';
+import { muiKit } from '@beardartisans/ui-mui';
+import { tailwindKit } from '@beardartisans/ui-tailwind';
 import { form } from './form';
 
 // Typechecks every official kit against the \`kit\` prop and bundles them.

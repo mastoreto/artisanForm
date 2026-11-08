@@ -1,14 +1,14 @@
-# @artisanform/ui-bootstrap
+# @beardartisans/ui-bootstrap
 
-Bootstrap 5 kit for [ArtisanForm](https://github.com/mastoreto/artisanForm): Bootstrap 5 classes only (no `react-bootstrap`). Load Bootstrap's CSS and `@artisanform/ui-bootstrap/style.css`.
+Bootstrap 5 kit for [ArtisanForm](https://github.com/mastoreto/artisanForm): Bootstrap 5 classes only (no `react-bootstrap`). Load Bootstrap's CSS and `@beardartisans/ui-bootstrap/style.css`.
 
 ```bash
-npm install artisanform @artisanform/ui-bootstrap
+npm install artisanform @beardartisans/ui-bootstrap
 ```
 
 ```tsx
 import { ArtisanForm } from 'artisanform';
-import { bootstrapKit } from '@artisanform/ui-bootstrap';
+import { bootstrapKit } from '@beardartisans/ui-bootstrap';
 
 <ArtisanForm scheme={scheme} onSubmit={save} kit={bootstrapKit} />;
 ```

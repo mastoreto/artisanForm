@@ -1,4 +1,4 @@
-import { tailwindKit } from '@artisanform/ui-tailwind';
+import { tailwindKit } from '@beardartisans/ui-tailwind';
 import { ArtisanForm, type FormSchema } from 'artisanform';
 
 const scheme: FormSchema = {

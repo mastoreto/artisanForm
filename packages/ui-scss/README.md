@@ -1,13 +1,13 @@
-# @artisanform/ui-scss
+# @beardartisans/ui-scss
 
 Sass kit for [ArtisanForm](https://github.com/mastoreto/artisanForm): A Sass mixin that emits the `--artisan-*` tokens.
 
 ```bash
-npm install artisanform @artisanform/ui-scss sass
+npm install artisanform @beardartisans/ui-scss sass
 ```
 
 ```scss
-@use '@artisanform/ui-scss' as af;
+@use '@beardartisans/ui-scss' as af;
 
 :root {
   @include af.theme((primary: #7c3aed));

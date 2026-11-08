@@ -1,14 +1,14 @@
-# @artisanform/ui-mui
+# @beardartisans/ui-mui
 
 Material UI kit for [ArtisanForm](https://github.com/mastoreto/artisanForm): Material UI controls inside `FormControl`. Needs `@mui/material`, `@emotion/react` and `@emotion/styled`.
 
 ```bash
-npm install artisanform @artisanform/ui-mui
+npm install artisanform @beardartisans/ui-mui
 ```
 
 ```tsx
 import { ArtisanForm } from 'artisanform';
-import { muiKit } from '@artisanform/ui-mui';
+import { muiKit } from '@beardartisans/ui-mui';
 
 <ArtisanForm scheme={scheme} onSubmit={save} kit={muiKit} />;
 ```
