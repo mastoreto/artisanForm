@@ -84,5 +84,6 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: npx playwright install --with-deps chromium
       - run: bun run build
+      - run: bun run build:kits
       - run: node scripts/consumer-test.mjs ${{ matrix.react }} "$RUNNER_TEMP/consumer"
       - run: node scripts/consumer-browser.mjs "$RUNNER_TEMP/consumer/app"

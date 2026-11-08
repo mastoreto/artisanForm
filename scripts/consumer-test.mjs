@@ -5,6 +5,8 @@
 // By default it packs the working tree. To test what is on the registry
 // instead (after publishing), set ARTISAN_SPEC to a version or dist-tag:
 //   ARTISAN_SPEC=0.3.0-beta.0 node scripts/consumer-test.mjs 19
+// The official kits (bootstrap, mui, tailwind) are installed too: packed from
+// packages/ (run `bun run build:kits` first) or from the registry.
 import { execSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -25,6 +27,22 @@ if (!spec) {
   artisanDep = `file:../pack/${tgz}`;
 }
 
+const kitNames = ['bootstrap', 'mui', 'tailwind'];
+const kitDeps = {};
+for (const k of kitNames) {
+  const name = `@artisanform/ui-${k}`;
+  if (spec) {
+    kitDeps[name] = spec;
+    continue;
+  }
+  const dir = join(root, 'packages', `ui-${k}`);
+  sh(`npm pack --pack-destination ${join(work, 'pack')}`, dir);
+  const file = readdirSync(join(work, 'pack')).find(
+    (f) => f.startsWith(`artisanform-ui-${k}-`) && f.endsWith('.tgz'),
+  );
+  kitDeps[name] = `file:../pack/${file}`;
+}
+
 const reactVersion = major === '18' ? '18.3.1' : '19.3.1';
 const typesVersion = major === '18' ? '^18.3.0' : '19.3.0';
 const app = join(work, 'app');
@@ -39,6 +57,10 @@ writeFileSync(
       scripts: { build: 'vite build', typecheck: 'tsc --noEmit' },
       dependencies: {
         artisanform: artisanDep,
+        ...kitDeps,
+        '@mui/material': '^9.5.0',
+        '@emotion/react': '^11.14.0',
+        '@emotion/styled': '^11.14.1',
         react: reactVersion,
         'react-dom': reactVersion,
         'react-hook-form': '^7.90.0',
@@ -102,11 +124,28 @@ export const App = ({ onSubmit }: { onSubmit: (v: unknown) => void }) => (
 `,
 );
 writeFileSync(
+  join(app, 'src/kits.tsx'),
+  `import { ArtisanForm } from 'artisanform';
+import { bootstrapKit } from '@artisanform/ui-bootstrap';
+import { muiKit } from '@artisanform/ui-mui';
+import { tailwindKit } from '@artisanform/ui-tailwind';
+import { form } from './form';
+
+// Typechecks every official kit against the \`kit\` prop and bundles them.
+export const kits = { bootstrapKit, muiKit, tailwindKit };
+export const WithKits = ({ name }: { name: keyof typeof kits }) => (
+  <ArtisanForm scheme={form} onSubmit={() => {}} kit={kits[name]} />
+);
+`,
+);
+writeFileSync(
   join(app, 'src/main.tsx'),
   `import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './form';
+import { kits } from './kits';
 
+(window as any).__kits = Object.keys(kits);
 createRoot(document.getElementById('root')!).render(
   <StrictMode><App onSubmit={(v) => { (window as any).__submitted = v; }} /></StrictMode>,
 );

@@ -4,11 +4,11 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
 ## Unreleased (First beta: 0.3.0-beta.0)
 
-- **Version:** `0.3.0-beta.0` (the `@artisanform/ui-*` kits now peer on `artisanform@^0.3.0-beta.0`).
+- **Version:** `0.3.0-beta.0` for the core **and** the four npm kits (`@artisanform/ui-bootstrap`, `ui-mui`, `ui-tailwind`, `ui-scss`), published together in lockstep; they peer on `artisanform@^0.3.0-beta.0`. Each kit now has its own `README`, `LICENSE`, repository metadata and `publishConfig.access: public` (required for scoped packages). `ui-shadcn` stays private (a copy-paste registry item).
 - **Accessibility fix found by the new axe suite:** the default primary color was `#3b82f6` (3.68:1 against the white button text, below WCAG AA); it is now `#2563eb` (5.17:1), in `artisanform.css` and in the Sass kit. Override `--artisan-primary` as before.
 - **Tests:** `e2e/a11y.spec.ts` runs axe-core (WCAG 2.0/2.1 A and AA) on the wizard (also with validation errors shown), fields, repeatables, layout and files. Playwright now has `chromium`, `firefox` and `webkit` projects: locally only Chromium runs; set `ARTISAN_BROWSERS=chromium,firefox,webkit` to run all. CI adds an `e2e-browsers` job for Firefox and WebKit.
-- **Packaging:** `bun run check:pack` verifies the tarball contents (only `dist`, `LICENSE`, `README.md`, `package.json`; no sources, tests or stories) and runs in CI and in `prepublishOnly`.
-- **Release:** a manual `Release` workflow (`workflow_dispatch`) runs every check and `npm publish --provenance --tag <tag>`. It needs the `NPM_TOKEN` repository secret and is a dry run unless `dry-run` is turned off. After publishing, verify the registry package with `ARTISAN_SPEC=<version> node scripts/consumer-test.mjs 19`.
+- **Packaging:** `bun run check:pack` verifies the tarball of the core and of every kit (only the built output, `LICENSE`, `README.md`, `package.json`; no sources, tests or stories; kit versions equal to the core's) and runs in CI and in `prepublishOnly`. The consumer test also installs the bootstrap, mui and tailwind kits and typechecks them against the `kit` prop.
+- **Release:** a manual `Release` workflow (`workflow_dispatch`) runs every check and then publishes the core and the kits with `npm publish --provenance --tag <tag>`. It needs the `NPM_TOKEN` repository secret (a granular token with read/write on all packages, covering `artisanform` and the `@artisanform` organization) and is a dry run unless `dry-run` is turned off. After publishing, verify the registry packages with `ARTISAN_SPEC=<version> node scripts/consumer-test.mjs 19`.
 
 ## Unreleased (Release prep)
 
