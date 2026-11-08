@@ -37,6 +37,10 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run build:docs
+        env:
+          DOCS_BASE: /artisanForm
+          DOCS_SITE: https://mastoreto.github.io
+          DOCS_STORYBOOK_URL: https://mastoreto.github.io/artisanForm/storybook/
       - run: bun run build-storybook
       - run: cp -r storybook-static apps/docs/dist/storybook
       - uses: actions/upload-pages-artifact@v3
