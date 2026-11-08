@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [develop, master]
+    branches: [develop, main]
   push:
-    branches: [develop, master]
+    branches: [develop, main]
 
 # Vite 8 needs Node 20.19+ or 22.12+: test the two current LTS lines.
 jobs:

@@ -73,11 +73,11 @@ Un tipo de campo nuevo = una `FieldDefinition` en `components/fields/registry.ts
 
 ## Flujo de trabajo por ramas
 
-- `master`: estable / releases. `develop`: integración. **Nunca commitear directo a ninguna de las dos.**
+- `main`: estable / releases. `develop`: integración. **Nunca commitear directo a ninguna de las dos.**
 - Una feature = una rama = un PR, partiendo de `develop`: `feat/AF<n>-<slug-corto>` (ej. `feat/AF3-formik-integration`). Fixes: `fix/AF<n>-<slug>`. Chores: `chore/<slug>`.
 - `AF<n>` es el número del issue (usar `.github/ISSUE_TEMPLATE`). Sin issue, no hay rama.
 - Ramas chicas y de corta vida: un PR debería poder revisarse de una sentada. Si crece, partir en dos.
-- PR hacia `develop` usando `.github/PULL_REQUEST_TEMPLATE.md` completo. `develop` → `master` solo para release.
+- PR hacia `develop` usando `.github/PULL_REQUEST_TEMPLATE.md` completo. `develop` → `main` solo para release.
 - Antes de abrir el PR: rebase/merge de `develop`, `bun run lint` limpio, story actualizada.
 - Commits: `tipo: :emoji: descripción` en inglés (como el historial: `feat: :sparkles: ...`, `chore: :memo: ...`). Un commit por cambio lógico.
 - Agentes: no hacen push, merge ni PR sin que se pida explícitamente.

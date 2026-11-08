@@ -71,11 +71,11 @@ A new field type is a `FieldDefinition` in `components/fields/registry.tsx` (ren
 
 ## Branch workflow
 
-- `master`: stable / releases. `develop`: integration. **Never commit directly to either.**
+- `main`: stable / releases. `develop`: integration. **Never commit directly to either.**
 - One feature = one branch = one PR, starting from `develop`: `feat/AF<n>-<short-slug>` (e.g. `feat/AF3-formik-integration`). Fixes: `fix/AF<n>-<slug>`. Chores: `chore/<slug>`.
 - `AF<n>` is the issue number (use `.github/ISSUE_TEMPLATE`). No issue, no branch.
 - Small, short-lived branches: a PR should be reviewable in one sitting. If it grows, split it.
-- PRs target `develop` and use the full `.github/PULL_REQUEST_TEMPLATE.md`. `develop` → `master` only for releases.
+- PRs target `develop` and use the full `.github/PULL_REQUEST_TEMPLATE.md`. `develop` → `main` only for releases.
 - Before opening the PR: rebase/merge `develop`, clean `bun run lint`, story updated.
 - Commits: `type: :emoji: description` in English (as in the history: `feat: :sparkles: ...`, `chore: :memo: ...`). One commit per logical change.
 - Agents do not push, merge or open PRs unless explicitly asked.

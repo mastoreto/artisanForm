@@ -1,9 +1,9 @@
 name: Release
 
 # Manual publish to npm of `artisanform` and the official kits
-# (@artisanform/ui-bootstrap, ui-mui, ui-tailwind, ui-scss), all at the same
+# (@beardartisans/ui-bootstrap, ui-mui, ui-tailwind, ui-scss), all at the same
 # version. Needs the repository secret NPM_TOKEN: a granular access token with
-# read/write on all packages (the `artisanform` package and the @artisanform
+# read/write on all packages (the `artisanform` package and the @beardartisans
 # organization scope). `dry-run` defaults to true: it runs every check and
 # `npm publish --dry-run` for each package, and uploads nothing.
 on:
@@ -25,6 +25,11 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Real publishes only run from main
+        if: ${{ !inputs.dry-run && github.ref != 'refs/heads/main' }}
+        run: |
+          echo "::error::Publish from main (develop -> main is the release step). Use dry-run elsewhere."
+          exit 1
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
