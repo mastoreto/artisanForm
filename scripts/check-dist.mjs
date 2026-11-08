@@ -1,6 +1,6 @@
 // Verifies the built package: React Compiler output is present, every bare
 // import is a declared dependency, and React itself is not bundled.
-// Usage: node scripts/check-dist.mjs   (after `pnpm build`)
+// Usage: node scripts/check-dist.mjs   (after `bun run build`)
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 

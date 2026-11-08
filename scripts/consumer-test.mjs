@@ -14,7 +14,7 @@ const work =
 const sh = (cmd, cwd = work) => execSync(cmd, { cwd, stdio: 'inherit' });
 
 mkdirSync(join(work, 'pack'), { recursive: true });
-sh(`pnpm pack --pack-destination ${join(work, 'pack')}`, root);
+sh(`npm pack --pack-destination ${join(work, 'pack')}`, root);
 const tgz = readdirSync(join(work, 'pack')).find((f) => f.endsWith('.tgz'));
 
 const reactVersion = major === '18' ? '18.3.1' : '19.3.1';
@@ -118,8 +118,8 @@ console.log('SSR OK (' + html.length + ' chars)');
 `,
 );
 
-sh('pnpm install --no-frozen-lockfile', app);
-sh('pnpm typecheck', app);
-sh('pnpm build', app);
+sh('npm install --no-audit --no-fund', app);
+sh('npm run typecheck', app);
+sh('npm run build', app);
 sh('node ssr.mjs', app);
 console.log(`consumer React ${reactVersion} OK -> ${app}`);

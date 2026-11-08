@@ -2,6 +2,12 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Release prep)
+
+- **Package metadata:** `license` (MIT, plus a `LICENSE` file), `description`, `keywords`, `repository`, `homepage`, `bugs`, `engines` (Node >= 20.19), `publishConfig.access` and a `prepublishOnly` guard (build + `check:dist` + `check:package` + tests).
+- **Bun everywhere:** README, docs, Playwright and scripts no longer reference pnpm for contributor commands; consumer installs are documented with `npm install`, and the consumer test scripts use `npm` (always available in CI).
+- **Lint:** `react-hooks/exhaustive-deps` is off for the payment providers, whose effects run once on mount by design (a re-run would create a second payment). Configured in `eslint.config.js` because the React Compiler skips components with `eslint-disable` comments.
+
 ## Unreleased (Phase 5: UI kits)
 
 - **`kit` prop:** an `ArtisanUiKit` (`components`, `classNames`, `unstyled`, `labels`) with `defineUiKit` / `mergeUiKits`. Precedence: default UI < kit < explicit props. Guide: [docs/ui.md](docs/ui.md).
@@ -10,10 +16,10 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
 ## Unreleased (Phase 4: modern stack)
 
-- **Stack:** React 19 (peer range `^18.3.1 || ^19.0.0`, both tested), Vite 8, TypeScript 6, Storybook 10, `@vitejs/plugin-react` 6, ESLint 10 with the React Hooks / Compiler rules (`pnpm lint:react`). Tailwind stays on 3 (only the playground and Storybook use it). Removed unused `sass-embedded`, `ts-node` and `vite-tsconfig-paths`.
+- **Stack:** React 19 (peer range `^18.3.1 || ^19.0.0`, both tested), Vite 8, TypeScript 6, Storybook 10, `@vitejs/plugin-react` 6, ESLint 10 with the React Hooks / Compiler rules (`bun run lint:react`). Tailwind stays on 3 (only the playground and Storybook use it). Removed unused `sass-embedded`, `ts-node` and `vite-tsconfig-paths`.
 - **React Compiler (Rust):** the library is compiled with `oxc-transform-react` (`react-compiler.ts`, `target: '18'`), so consumers need no configuration. `react-compiler-runtime` is a dependency and stays external. `ARTISAN_COMPILER=off` disables it. Fixes found by the compiler: refs and mutable reads during render (`useArtisanForm`, `useArtisanField`, `Combobox`, `PaymentStep`), stale memo dependencies in `ArtisanForm`. `useWizard` opts out on purpose (`getValues()` during render).
 - **Breaking (packaging):** ESM only; files are `dist/index.js` and `dist/payments/<name>.js`; `main`/CJS removed; `.d.ts` use explicit `.js` specifiers (Node16/NodeNext ready); `Controls` no longer references the global `JSX` namespace; source maps are shipped.
-- **Verification:** `pnpm check:dist` (compiled output, declared imports, no bundled React), `pnpm check:package` (`publint`, `attw`), consumer tests with the packed tarball in clean Vite apps on React 18 and 19 (+ SSR + browser), CI runs e2e with the compiler on and off on Node 22/24.
+- **Verification:** `bun run check:dist` (compiled output, declared imports, no bundled React), `bun run check:package` (`publint`, `attw`), consumer tests with the packed tarball in clean Vite apps on React 18 and 19 (+ SSR + browser), CI runs e2e with the compiler on and off on Node 22/24.
 
 ## Unreleased (Phase 3: extensible UI)
 
@@ -54,7 +60,7 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 - **Files:** `StorageAdapter` with `presignedPut` (S3/R2/Backblaze) and `cloudinary`; progress, cancel, retry, previews, drag and drop.
 - **Payments:** `PaymentPlugin` (embedded and redirect, idempotency, resume) with Stripe, Lemon Squeezy, Mercado Pago and PayPal plugins in `artisanform/payments/*` (SDKs as optional peers).
 - **Waiting:** `WaitStrategy` with `polling`, `sse`, `websocket` and `callback`.
-- **Tooling:** Biome replaces Prettier; playground with `pnpm playground`; e2e tests with Playwright.
+- **Tooling:** Biome replaces Prettier; playground with `bun run playground`; e2e tests with Playwright.
 
 ## 0.1.0 (unreleased)
 

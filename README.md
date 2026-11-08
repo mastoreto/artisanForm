@@ -18,26 +18,26 @@ React library for building multi-step forms (wizards) from a declarative definit
 | Build                  | Vite 8 library mode (Rolldown/Oxc) + React Compiler (Rust) + `vite-plugin-dts` |
 | Tests                  | `bun test` + Testing Library (happy-dom), Playwright (e2e)  |
 | Formatting and linting | Biome 2 (+ ESLint only for the React Hooks / Compiler rules) |
-| Package manager        | pnpm                                                        |
+| Package manager        | Bun                                                          |
 
 ## Getting started
 
 ```bash
-pnpm install
-pnpm storybook   # http://localhost:6006
+bun install
+bun run storybook   # http://localhost:6006
 ```
 
 | Script                      | Description                                                                                         |
 | --------------------------- | --------------------------------------------------------------------------------------------------- |
-| `pnpm storybook`            | Storybook dev server (port 6006)                                                                    |
-| `pnpm build-storybook`      | Static Storybook                                                                                    |
-| `pnpm build`                | Library build in `dist/` (ESM + `.d.ts`, compiled with React Compiler)                              |
-| `pnpm lint:react`           | ESLint with the React Hooks and React Compiler rules                                                |
-| `pnpm check:dist` / `check:package` | Inspect the built output / validate the package (`publint`, `attw`)                         |
-| `pnpm typecheck`            | `tsc --noEmit`                                                                                      |
-| `pnpm lint` / `pnpm format` | Biome check / check --write                                                                         |
-| `pnpm playground`           | React test app (http://localhost:5173) that uses `src/` with HMR; scenarios at `?demo=<id>`         |
-| `pnpm e2e`                  | Playwright tests (`e2e/`) against the playground. First time: `npx playwright install chromium`     |
+| `bun run storybook`            | Storybook dev server (port 6006)                                                                    |
+| `bun run build-storybook`      | Static Storybook                                                                                    |
+| `bun run build`                | Library build in `dist/` (ESM + `.d.ts`, compiled with React Compiler)                              |
+| `bun run lint:react`           | ESLint with the React Hooks and React Compiler rules                                                |
+| `bun run check:dist` / `check:package` | Inspect the built output / validate the package (`publint`, `attw`)                         |
+| `bun run typecheck`            | `tsc --noEmit`                                                                                      |
+| `bun run lint` / `bun run format` | Biome check / check --write                                                                         |
+| `bun run playground`           | React test app (http://localhost:5173) that uses `src/` with HMR; scenarios at `?demo=<id>`         |
+| `bun run e2e`                  | Playwright tests (`e2e/`) against the playground. First time: `npx playwright install chromium`     |
 | `bun test`                  | Unit and component tests (`*.test.ts(x)`)                                                           |
 
 ## Usage
@@ -180,7 +180,7 @@ const myProvider: PaymentPlugin = {
 
 Each one lives in its own subpath and its SDKs are **optional** `peerDependencies` (install only what you use). All follow the principle above: your backend defines amounts and creates orders/sessions; confirm the real payment through a webhook.
 
-**Stripe** — `import { stripe } from 'artisanform/payments/stripe'` (embedded: `pnpm add @stripe/stripe-js @stripe/react-stripe-js`; hosted Checkout: no SDK).
+**Stripe** — `import { stripe } from 'artisanform/payments/stripe'` (embedded: `npm install @stripe/stripe-js @stripe/react-stripe-js`; hosted Checkout: no SDK).
 
 ```tsx
 stripe({
@@ -202,7 +202,7 @@ lemonSqueezy({
 })
 ```
 
-**Mercado Pago** — `import { mercadoPago } from 'artisanform/payments/mercadopago'` (embedded: `pnpm add @mercadopago/sdk-react`; Checkout Pro: no SDK).
+**Mercado Pago** — `import { mercadoPago } from 'artisanform/payments/mercadopago'` (embedded: `npm install @mercadopago/sdk-react`; Checkout Pro: no SDK).
 
 ```tsx
 mercadoPago({
@@ -215,7 +215,7 @@ mercadoPago({
 })
 ```
 
-**PayPal** — `import { paypal } from 'artisanform/payments/paypal'` (`pnpm add @paypal/react-paypal-js`).
+**PayPal** — `import { paypal } from 'artisanform/payments/paypal'` (`npm install @paypal/react-paypal-js`).
 
 ```tsx
 paypal({
@@ -339,7 +339,7 @@ The schema's semantic `ui` settings (`columns`, `span`, `density`, `labelPositio
 `react`, `react-dom`, `react-hook-form`, `yup` and `zustand` are `peerDependencies`:
 
 ```bash
-pnpm add artisanform react react-dom react-hook-form yup zustand
+npm install artisanform react react-dom react-hook-form yup zustand
 ```
 
 ### Compatibility
@@ -443,7 +443,7 @@ Details in [AGENTS.md](AGENTS.md) ([Spanish](docs/es/AGENTS.md)). Summary:
 - One feature = one branch = one PR from `develop`: `feat/AF<n>-slug`, `fix/AF<n>-slug`, `chore/slug` (`AF<n>` = issue number).
 - PRs go to `develop` with the [template](.github/PULL_REQUEST_TEMPLATE.md); `develop` → `master` only for releases.
 - Commits: `type: :emoji: description`, in English.
-- Before the PR: `pnpm lint`, `pnpm typecheck`, `pnpm build` and `bun test` clean, and the story updated.
+- Before the PR: `bun run lint`, `bun run typecheck`, `bun run build` and `bun test` clean, and the story updated.
 
 ## Conventions
 

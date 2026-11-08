@@ -18,26 +18,26 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 | Build                    | Vite 8 en modo librería (Rolldown/Oxc) + React Compiler (Rust) + `vite-plugin-dts` |
 | Tests                    | `bun test` + Testing Library (happy-dom), Playwright (e2e) |
 | Formato y lint           | Biome 2 (+ ESLint solo para las reglas de React Hooks / Compiler) |
-| Gestor de paquetes       | pnpm                                        |
+| Gestor de paquetes       | Bun                                          |
 
 ## Primeros pasos
 
 ```bash
-pnpm install
-pnpm storybook   # http://localhost:6006
+bun install
+bun run storybook   # http://localhost:6006
 ```
 
 | Script                      | Descripción                                          |
 | --------------------------- | ---------------------------------------------------- |
-| `pnpm storybook`            | Storybook en desarrollo (puerto 6006)                |
-| `pnpm build-storybook`      | Storybook estático                                   |
-| `pnpm build`                | Build de la librería en `dist/` (ESM + `.d.ts`, compilada con React Compiler) |
-| `pnpm lint:react`           | ESLint con las reglas de React Hooks y React Compiler |
-| `pnpm check:dist` / `check:package` | Inspecciona la salida / valida el paquete (`publint`, `attw`) |
-| `pnpm typecheck`            | `tsc --noEmit`                                       |
-| `pnpm lint` / `pnpm format` | Biome check / check --write                         |
-| `pnpm playground`           | App React de prueba (http://localhost:5173) que usa `src/` con HMR; escenarios en `?demo=<id>` |
-| `pnpm e2e`                  | Tests de Playwright (`e2e/`) contra el playground. Primera vez: `npx playwright install chromium` |
+| `bun run storybook`            | Storybook en desarrollo (puerto 6006)                |
+| `bun run build-storybook`      | Storybook estático                                   |
+| `bun run build`                | Build de la librería en `dist/` (ESM + `.d.ts`, compilada con React Compiler) |
+| `bun run lint:react`           | ESLint con las reglas de React Hooks y React Compiler |
+| `bun run check:dist` / `check:package` | Inspecciona la salida / valida el paquete (`publint`, `attw`) |
+| `bun run typecheck`            | `tsc --noEmit`                                       |
+| `bun run lint` / `bun run format` | Biome check / check --write                         |
+| `bun run playground`           | App React de prueba (http://localhost:5173) que usa `src/` con HMR; escenarios en `?demo=<id>` |
+| `bun run e2e`                  | Tests de Playwright (`e2e/`) contra el playground. Primera vez: `npx playwright install chromium` |
 | `bun test`                  | Tests (`*.test.ts(x)`)                               |
 
 ## Uso
@@ -180,7 +180,7 @@ const miProveedor: PaymentPlugin = {
 
 Cada uno vive en su subpath y sus SDK son `peerDependencies` **opcionales** (solo instalás lo que usás). Todos siguen el principio de arriba: tu backend define montos y crea las órdenes/sesiones; confirmá el pago real por webhook.
 
-**Stripe** — `import { stripe } from 'artisanform/payments/stripe'` (embebido: `pnpm add @stripe/stripe-js @stripe/react-stripe-js`; Checkout hospedado: sin SDK).
+**Stripe** — `import { stripe } from 'artisanform/payments/stripe'` (embebido: `npm install @stripe/stripe-js @stripe/react-stripe-js`; Checkout hospedado: sin SDK).
 
 ```tsx
 stripe({
@@ -202,7 +202,7 @@ lemonSqueezy({
 })
 ```
 
-**Mercado Pago** — `import { mercadoPago } from 'artisanform/payments/mercadopago'` (embebido: `pnpm add @mercadopago/sdk-react`; Checkout Pro: sin SDK).
+**Mercado Pago** — `import { mercadoPago } from 'artisanform/payments/mercadopago'` (embebido: `npm install @mercadopago/sdk-react`; Checkout Pro: sin SDK).
 
 ```tsx
 mercadoPago({
@@ -215,7 +215,7 @@ mercadoPago({
 })
 ```
 
-**PayPal** — `import { paypal } from 'artisanform/payments/paypal'` (`pnpm add @paypal/react-paypal-js`).
+**PayPal** — `import { paypal } from 'artisanform/payments/paypal'` (`npm install @paypal/react-paypal-js`).
 
 ```tsx
 paypal({
@@ -339,7 +339,7 @@ Los ajustes semánticos `ui` del esquema (`columns`, `span`, `density`, `labelPo
 `react`, `react-dom`, `react-hook-form`, `yup` y `zustand` son `peerDependencies`:
 
 ```bash
-pnpm add artisanform react react-dom react-hook-form yup zustand
+npm install artisanform react react-dom react-hook-form yup zustand
 ```
 
 ### Compatibilidad
@@ -443,7 +443,7 @@ Detalle en [AGENTS.md](AGENTS.md) (original en inglés: [AGENTS.md](../../AGENTS
 - Una feature = una rama = un PR desde `develop`: `feat/AF<n>-slug`, `fix/AF<n>-slug`, `chore/slug` (`AF<n>` = número de issue).
 - PR a `develop` con el [template](../../.github/PULL_REQUEST_TEMPLATE.md); `develop` → `master` solo en releases.
 - Commits: `tipo: :emoji: descripción`, en inglés.
-- Antes del PR: `pnpm lint`, `pnpm typecheck`, `pnpm build` y `bun test` limpios, y story actualizada.
+- Antes del PR: `bun run lint`, `bun run typecheck`, `bun run build` y `bun test` limpios, y story actualizada.
 
 ## Convenciones
 
