@@ -17,7 +17,7 @@ React library for building multi-step forms (wizards) from a declarative definit
 | [Accessibility and tested environments](docs/accessibility.md) | What is built in, what is checked, browsers and versions |
 | [Releasing](docs/releasing.md) | How the five packages are published to npm |
 
-Every guide has a Spanish copy under [docs/es/](docs/es/). The guides are also published as a site, together with Storybook, at <https://mastoreto.github.io/artisanForm/> once GitHub Pages is enabled for the repository.
+Every guide has a Spanish copy under [docs/es/](docs/es/). The guides are also built as a documentation site (Starlight, `apps/docs`; run it with `bun run docs`).
 
 ## Stack
 

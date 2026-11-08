@@ -18,7 +18,7 @@ How ArtisanForm is published to npm. Five packages ship together, all at the sam
 
 - `develop` is integration; `main` is what gets released. Nobody commits to either directly: changes arrive through pull requests, and `develop` → `main` is only for releases.
 - The kits peer on the core (`artisanform@^<version>`), so they are released **in lockstep**: same version number, published in this order: core, bootstrap, mui, tailwind, scss. `check:pack` fails if a kit version differs from the core's.
-- Pre-releases use a `-beta.N` suffix and the `beta` dist-tag, so `npm install artisanform` keeps resolving to the latest stable version once there is one. Install a beta with `npm install artisanform@beta`.
+- Pre-releases use a `-beta.N` suffix and the `beta` dist-tag. The **very first** publish of a package also sets `latest` (npm does it when a package has no `latest` yet), so until the first stable release a plain `npm install artisanform` installs the beta; that is what happened with `0.3.0-beta.0`. Once a stable version is published with `--tag latest`, later `--tag beta` publishes leave `latest` alone. Install a beta explicitly with `npm install artisanform@beta`.
 
 ## One-time setup
 
