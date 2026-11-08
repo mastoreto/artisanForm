@@ -109,5 +109,13 @@ apps/docs/.astro
 apps/docs/dist
 apps/docs/src/content/docs/schema-v1.md
 apps/docs/src/content/docs/ui.md
+apps/docs/src/content/docs/payments.md
+apps/docs/src/content/docs/files.md
+apps/docs/src/content/docs/accessibility.md
+apps/docs/src/content/docs/releasing.md
 apps/docs/src/content/docs/es/schema-v1.md
 apps/docs/src/content/docs/es/ui.md
+apps/docs/src/content/docs/es/payments.md
+apps/docs/src/content/docs/es/files.md
+apps/docs/src/content/docs/es/accessibility.md
+apps/docs/src/content/docs/es/releasing.md
