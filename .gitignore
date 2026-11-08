@@ -103,3 +103,11 @@ test-results
 web_modules/
 yarn-debug.log*
 yarn-error.log*
+
+# docs site
+apps/docs/.astro
+apps/docs/dist
+apps/docs/src/content/docs/schema-v1.md
+apps/docs/src/content/docs/ui.md
+apps/docs/src/content/docs/es/schema-v1.md
+apps/docs/src/content/docs/es/ui.md

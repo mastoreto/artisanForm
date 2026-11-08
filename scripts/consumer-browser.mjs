@@ -5,8 +5,8 @@ import { chromium } from '@playwright/test';
 
 const [dir, port = '4173'] = process.argv.slice(2);
 const preview = spawn(
-  'pnpm',
-  ['exec', 'vite', 'preview', '--port', port, '--strictPort'],
+  'npx',
+  ['vite', 'preview', '--port', port, '--strictPort'],
   { cwd: dir, stdio: 'ignore' },
 );
 const fail = async (msg) => {

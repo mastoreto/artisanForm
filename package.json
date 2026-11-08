@@ -1,5 +1,32 @@
 {
   "name": "artisanform",
+  "version": "0.2.0",
+  "description": "Declarative multi-step forms (wizards) for React: a serializable JSON schema, 30+ field types, payments, file uploads and themeable UI kits.",
+  "keywords": [
+    "react",
+    "form",
+    "forms",
+    "wizard",
+    "multi-step",
+    "stepper",
+    "json-schema",
+    "react-hook-form",
+    "yup",
+    "payments",
+    "stripe",
+    "file-upload",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "ArtisanForm contributors",
+  "homepage": "https://github.com/mastoreto/artisanForm#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mastoreto/artisanForm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mastoreto/artisanForm/issues"
+  },
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -80,11 +107,13 @@
     "lint:react": "eslint .",
     "playground": "vite --config playground/vite.config.ts",
     "e2e": "playwright test",
-    "build:kits": "pnpm -r --filter './packages/*' run build",
-    "typecheck:kits": "pnpm -r --filter './packages/*' run typecheck",
-    "check:kits": "pnpm -r --filter @artisanform/ui-bootstrap --filter @artisanform/ui-mui --filter @artisanform/ui-tailwind --filter @artisanform/ui-scss exec publint --strict"
+    "build:kits": "bun run --filter './packages/*' build",
+    "typecheck:kits": "bun run --filter './packages/*' typecheck",
+    "check:kits": "bun run --filter './packages/ui-{bootstrap,mui,tailwind,scss}' check",
+    "docs": "bun run --filter @artisanform/docs dev",
+    "build:docs": "bun run --filter @artisanform/docs build",
+    "prepublishOnly": "bun run build && bun run check:dist && bun run check:package && bun test"
   },
-  "version": "0.2.0",
   "sideEffects": [
     "**/*.css"
   ],
@@ -124,5 +153,18 @@
     "@paypal/react-paypal-js": {
       "optional": true
     }
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "overrides": {
+    "artisanform": "link:."
+  },
+  "engines": {
+    "node": ">=20.19"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

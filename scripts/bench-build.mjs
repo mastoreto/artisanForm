@@ -22,7 +22,7 @@ for (const mode of ['off', 'on']) {
   let bytes = 0;
   for (let i = 0; i < 3; i++) {
     const t = performance.now();
-    execSync('pnpm build', {
+    execSync('bun run build', {
       stdio: 'ignore',
       env: { ...process.env, ARTISAN_COMPILER: mode },
     });

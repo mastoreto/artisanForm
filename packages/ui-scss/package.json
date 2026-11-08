@@ -15,9 +15,12 @@
     }
   },
   "peerDependencies": {
-    "artisanform": "workspace:^"
+    "artisanform": "^0.2.0"
   },
   "devDependencies": {
-    "artisanform": "workspace:*"
+    "artisanform": "link:../.."
+  },
+  "scripts": {
+    "check": "publint --strict"
   }
 }

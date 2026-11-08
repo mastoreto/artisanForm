@@ -184,11 +184,11 @@ const kit = defineUiKit({
 
 | Kit | Install | Notes |
 | --- | --- | --- |
-| Bootstrap 5 | `pnpm add @artisanform/ui-bootstrap` | Classes only (no `react-bootstrap`). Load Bootstrap's CSS and `@artisanform/ui-bootstrap/style.css` (maps `aria-invalid` to the invalid look). |
-| Material UI | `pnpm add @artisanform/ui-mui @mui/material @emotion/react @emotion/styled` | MUI controls inside `FormControl`; `combobox`, `multiselect`, `otp` and the non-replaceable fields keep the default components. |
-| Tailwind CSS | `pnpm add @artisanform/ui-tailwind` | Utility classes with `unstyled`. Tell Tailwind to scan the package: v3 `content: ['./node_modules/@artisanform/ui-tailwind/dist/**/*.js']`, v4 `@source`. |
-| shadcn/ui | `npx shadcn add <url>/artisanform-kit.json` | Copy-paste, not an npm dependency: it drops `components/artisanform-kit.tsx` that maps **your** `@/components/ui/*`. Build the registry item with `pnpm --filter @artisanform/ui-shadcn build` and host `r/artisanform-kit.json`. |
-| Sass | `pnpm add @artisanform/ui-scss sass` | `@use '@artisanform/ui-scss' as af; :root { @include af.theme((primary: #7c3aed)); }` emits the `--artisan-*` tokens. |
+| Bootstrap 5 | `npm install @artisanform/ui-bootstrap` | Classes only (no `react-bootstrap`). Load Bootstrap's CSS and `@artisanform/ui-bootstrap/style.css` (maps `aria-invalid` to the invalid look). |
+| Material UI | `npm install @artisanform/ui-mui @mui/material @emotion/react @emotion/styled` | MUI controls inside `FormControl`; `combobox`, `multiselect`, `otp` and the non-replaceable fields keep the default components. |
+| Tailwind CSS | `npm install @artisanform/ui-tailwind` | Utility classes with `unstyled`. Tell Tailwind to scan the package: v3 `content: ['./node_modules/@artisanform/ui-tailwind/dist/**/*.js']`, v4 `@source`. |
+| shadcn/ui | `npx shadcn add <url>/artisanform-kit.json` | Copy-paste, not an npm dependency: it drops `components/artisanform-kit.tsx` that maps **your** `@/components/ui/*`. Build the registry item with `bun run --filter @artisanform/ui-shadcn build` and host `r/artisanform-kit.json`. |
+| Sass | `npm install @artisanform/ui-scss sass` | `@use '@artisanform/ui-scss' as af; :root { @include af.theme((primary: #7c3aed)); }` emits the `--artisan-*` tokens. |
 
 ```tsx
 import { muiKit } from '@artisanform/ui-mui';

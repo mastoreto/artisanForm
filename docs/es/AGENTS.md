@@ -13,21 +13,21 @@ Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se 
 
 ## Stack
 
-React 18/19 · TypeScript 6 (strict) · CSS plano (clases `af-*` + variables `--artisan-*`) · Zustand (estado de pasos) · React Hook Form + Yup (validación) · Storybook 10 · Vite 8 + React Compiler (Rust, `react-compiler.ts`) · pnpm (hay `pnpm-lock.yaml`).
+React 18/19 · TypeScript 6 (strict) · CSS plano (clases `af-*` + variables `--artisan-*`) · Zustand (estado de pasos) · React Hook Form + Yup (validación) · Storybook 10 · Vite 8 + React Compiler (Rust, `react-compiler.ts`) · Bun workspaces (hay `bun.lock`).
 
 ## Comandos
 
 ```bash
-pnpm install
-pnpm storybook         # dev en :6006
-pnpm build-storybook
-pnpm lint              # biome check
-pnpm format            # biome check --write
+bun install
+bun run storybook         # dev en :6006
+bun run build-storybook
+bun run lint              # biome check
+bun run format            # biome check --write
 ```
 
-Además: `pnpm playground` (app de prueba en vivo, escenarios en `playground/src/scenarios/`), `pnpm e2e` (Playwright, `e2e/`), `pnpm build` (librería), `pnpm typecheck` y `bun test` (tests `*.test.ts(x)` junto al código).
-Además: `pnpm lint:react` (reglas de React Hooks/Compiler), `pnpm check:dist` y `pnpm check:package` tras un build; `ARTISAN_COMPILER=off` desactiva React Compiler (playground, build, e2e) para comparar comportamiento. No leas estado mutable (`getValues()`, refs) durante el render en código compilado.
-Verificación mínima de un cambio: `pnpm lint` + `pnpm typecheck` + `pnpm build` + `bun test` + la story renderiza sin errores. Verificá el **código de salida** de cada comando, no solo el final de su salida.
+Además: `bun run playground` (app de prueba en vivo, escenarios en `playground/src/scenarios/`), `bun run e2e` (Playwright, `e2e/`), `bun run build` (librería), `bun run typecheck` y `bun test` (tests `*.test.ts(x)` junto al código).
+Además: `bun run lint:react` (reglas de React Hooks/Compiler), `bun run check:dist` y `bun run check:package` tras un build; `ARTISAN_COMPILER=off` desactiva React Compiler (playground, build, e2e) para comparar comportamiento. No leas estado mutable (`getValues()`, refs) durante el render en código compilado.
+Verificación mínima de un cambio: `bun run lint` + `bun run typecheck` + `bun run build` + `bun test` + la story renderiza sin errores. Verificá el **código de salida** de cada comando, no solo el final de su salida.
 
 ## Estructura
 
@@ -78,13 +78,13 @@ Un tipo de campo nuevo = una `FieldDefinition` en `components/fields/registry.ts
 - `AF<n>` es el número del issue (usar `.github/ISSUE_TEMPLATE`). Sin issue, no hay rama.
 - Ramas chicas y de corta vida: un PR debería poder revisarse de una sentada. Si crece, partir en dos.
 - PR hacia `develop` usando `.github/PULL_REQUEST_TEMPLATE.md` completo. `develop` → `master` solo para release.
-- Antes de abrir el PR: rebase/merge de `develop`, `pnpm lint` limpio, story actualizada.
+- Antes de abrir el PR: rebase/merge de `develop`, `bun run lint` limpio, story actualizada.
 - Commits: `tipo: :emoji: descripción` en inglés (como el historial: `feat: :sparkles: ...`, `chore: :memo: ...`). Un commit por cambio lógico.
 - Agentes: no hacen push, merge ni PR sin que se pida explícitamente.
 
 ## Convenciones de código
 
-- Biome manda (`biome.jsonc`: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 cols). Correr `pnpm format` antes de commitear; no mezclar reformateo con cambios funcionales.
+- Biome manda (`biome.jsonc`: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 cols). Correr `bun run format` antes de commitear; no mezclar reformateo con cambios funcionales.
 - Un componente por carpeta, `export default`, con su `*.stories.tsx` al lado.
 - Inputs: `forwardRef`, props tipadas con `interface`, `id` + `label` obligatorios, `className` opcional mezclado vía `cx()`. Accesibilidad básica obligatoria (`label htmlFor`, `aria-invalid`/`aria-describedby` en errores).
 - Estilos solo en `src/styles/artisanform.css`, como clases `af-*` simples (el estado por `data-*`/`aria-*`) y variables `--artisan-*`: sin frameworks, sin selectores de elemento sueltos. Los componentes obtienen sus clases con `useCx()` para que `classNames` y `unstyled` sigan funcionando. Tailwind solo lo usan el playground y Storybook.
@@ -103,6 +103,6 @@ Versión 0.2.0 más el contrato de esquema v1 sin publicar: un wizard guiado por
 
 Las tareas son issues de GitHub con el código `AF<n>` en el título (número de issue = n − 6).
 
-Convenciones de tests: `*.test.ts(x)` junto al código con `bun test` (happy-dom + Testing Library, preload en `bunfig.toml`); flujos en navegador real en `e2e/` con Playwright contra `pnpm playground`. Si el playground ya corre y los cambios no se reflejan, reinicialo (HMR puede quedar desactualizado).
+Convenciones de tests: `*.test.ts(x)` junto al código con `bun test` (happy-dom + Testing Library, preload en `bunfig.toml`); flujos en navegador real en `e2e/` con Playwright contra `bun run playground`. Si el playground ya corre y los cambios no se reflejan, reinicialo (HMR puede quedar desactualizado).
 
 Principios que no se negocian: la librería **no maneja secretos ni datos de tarjeta**; montos, órdenes y firmas de subida los resuelve el backend del usuario; los SDK de terceros son peers opcionales en subpaths; el contrato público del esquema se mantiene serializable e independiente del motor de formularios.

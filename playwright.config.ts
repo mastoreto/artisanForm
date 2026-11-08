@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   use: { baseURL: 'http://localhost:5173' },
   webServer: {
-    command: 'pnpm playground',
+    command: 'bun run playground',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
   },
