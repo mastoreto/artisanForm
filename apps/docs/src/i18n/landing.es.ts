@@ -22,7 +22,7 @@ export const es: LandingCopy = {
       { label: 'FAQ', href: '#faq' },
       { label: 'Changelog', href: `${project.repo}/blob/main/CHANGELOG.md` },
     ],
-    docsCta: 'Buscar en la documentación',
+    docsCta: 'Docs',
     github: 'GitHub',
   },
   hero: {
@@ -241,6 +241,11 @@ export const es: LandingCopy = {
     title: 'ArtisanForm',
     text: 'Forjado para flujos complejos y validación estrictamente tipada.',
     chips: ['React 18 / 19', 'Solo ESM'],
+    links: [
+      { label: 'Inicio rápido', href: '/es/docs/' },
+      { label: 'Schema v1', href: '/es/docs/schema-v1/' },
+      { label: 'UI y kits', href: '/es/docs/ui/' },
+    ],
     repo: 'Repositorio en GitHub',
     llms: 'llms.txt',
     year: en.footer.year,

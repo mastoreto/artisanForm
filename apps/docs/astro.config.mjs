@@ -44,6 +44,7 @@ export default defineConfig({
         es: { label: 'Español', lang: 'es' },
       },
       favicon: '/favicon.svg',
+      logo: { src: './src/assets/logo.svg', alt: '' },
       social: [
         {
           icon: 'github',
@@ -112,9 +113,37 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: 'Documentation',
-          translations: { es: 'Documentación' },
-          items: [{ autogenerate: { directory: 'docs' } }],
+          label: 'Start',
+          translations: { es: 'Empezar' },
+          items: [
+            {
+              slug: 'docs',
+              label: 'Quickstart',
+              translations: { es: 'Inicio rápido' },
+            },
+          ],
+        },
+        {
+          label: 'Guides',
+          translations: { es: 'Guías' },
+          items: [
+            { slug: 'docs/schema-v1', label: 'Schema v1' },
+            {
+              slug: 'docs/ui',
+              label: 'UI and kits',
+              translations: { es: 'UI y kits' },
+            },
+          ],
+        },
+        {
+          label: 'Reference',
+          translations: { es: 'Referencia' },
+          items: [{ autogenerate: { directory: 'docs/reference' } }],
+        },
+        {
+          label: 'Migration',
+          translations: { es: 'Migración' },
+          items: [{ autogenerate: { directory: 'docs/migrate' } }],
         },
       ],
     }),

@@ -16,6 +16,7 @@ const f = Astro.props.t;
       <p class="text-xs text-zinc-400">© {f.year} ArtisanForm. {f.text}</p>
     </div>
     <div class="flex flex-wrap items-center justify-center gap-2">
+      {f.links.map((l) => <a href={l.href} class="rounded-full px-3 py-1 font-mono text-xs text-zinc-300 transition hover:bg-white/5 hover:text-white">{l.label}</a>)}
       {f.chips.map((chip) => <Pill tone="neutral">{chip}</Pill>)}
       <a href="/llms.txt" class="rounded-full px-3 py-1 font-mono text-xs text-zinc-300 transition hover:bg-white/5 hover:text-white">{f.llms}</a>
       <a href={project.repo} target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-xs text-zinc-300 transition hover:bg-white/5 hover:text-white"><Icon name="open-in-new" class="size-4" />{f.repo}</a>

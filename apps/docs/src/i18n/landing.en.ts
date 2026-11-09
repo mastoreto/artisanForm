@@ -24,7 +24,7 @@ export const en = {
       { label: 'FAQ', href: '#faq' },
       { label: 'Changelog', href: `${project.repo}/blob/main/CHANGELOG.md` },
     ],
-    docsCta: 'Search the docs',
+    docsCta: 'Docs',
     github: 'GitHub',
   },
   hero: {
@@ -393,6 +393,11 @@ export default function ContactPage() {
     title: 'ArtisanForm',
     text: 'Forged for complex flows and strictly typed validation.',
     chips: ['React 18 / 19', 'ESM only'],
+    links: [
+      { label: 'Quickstart', href: '/docs/' },
+      { label: 'Schema v1', href: '/docs/schema-v1/' },
+      { label: 'UI and kits', href: '/docs/ui/' },
+    ],
     repo: 'GitHub repository',
     llms: 'llms.txt',
     year: new Date().getFullYear(),

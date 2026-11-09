@@ -14,7 +14,7 @@ const c = Astro.props.t;
   <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-12">
     <div class="space-y-6 lg:col-span-7">
       <SectionHeading eyebrow={c.eyebrow} title={c.title} lead={c.lead} titleId="compat-title" />
-      <div class="surface overflow-x-auto">
+      <div class="surface overflow-x-auto" tabindex="0" role="region" aria-labelledby="compat-title">
         <table class="w-full border-collapse text-left text-sm">
           <thead>
             <tr class="border-b border-white/10 bg-white/[0.04] font-mono text-xs text-zinc-300">
