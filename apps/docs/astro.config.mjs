@@ -29,6 +29,8 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     css: { postcss: {} },
+    // Native binding lives next to satteri; bundling it breaks its lookup.
+    ssr: { external: ['satteri', 'astro-og-canvas'] },
   },
   integrations: [
     icon(),

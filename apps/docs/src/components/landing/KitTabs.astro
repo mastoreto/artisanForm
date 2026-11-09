@@ -44,7 +44,7 @@ const k = Astro.props.t;
           <span class="flex items-center gap-2 font-mono text-xs text-white sm:text-sm"><Icon name="integration-instructions" class="size-4 text-slag" />{kit.title}</span>
           <span class="font-mono text-xs text-slag">{kit.id === 'scss' ? 'SCSS' : 'TSX'}</span>
         </div>
-        <Code code={kit.code} lang={kit.id === 'scss' ? 'scss' : 'tsx'} theme="github-dark-default" />
+        <Code code={kit.code} lang={kit.id === 'scss' ? 'scss' : 'tsx'} theme="css-variables" />
       </div>
     ))}
   </div>
