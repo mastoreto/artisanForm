@@ -22,6 +22,7 @@ export const es: LandingCopy = {
       { label: 'FAQ', href: '#faq' },
       { label: 'Changelog', href: `${project.repo}/blob/main/CHANGELOG.md` },
     ],
+    menu: 'Menú',
     docsCta: 'Docs',
     github: 'GitHub',
   },

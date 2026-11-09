@@ -24,6 +24,7 @@ export const en = {
       { label: 'FAQ', href: '#faq' },
       { label: 'Changelog', href: `${project.repo}/blob/main/CHANGELOG.md` },
     ],
+    menu: 'Menu',
     docsCta: 'Docs',
     github: 'GitHub',
   },

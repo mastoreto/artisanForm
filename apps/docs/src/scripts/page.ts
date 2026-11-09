@@ -36,3 +36,23 @@ const io = new IntersectionObserver((entries) => {
   }
 });
 for (const el of document.querySelectorAll('[data-forge]')) io.observe(el);
+
+// Mobile menu (<details>): close on link click, Escape or outside click.
+const menu = document.querySelector<HTMLDetailsElement>('[data-menu]');
+if (menu) {
+  const close = () => {
+    menu.open = false;
+  };
+  menu.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('nav a')) close();
+  });
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.open) {
+      close();
+      menu.querySelector('summary')?.focus();
+    }
+  });
+  addEventListener('click', (e) => {
+    if (!menu.contains(e.target as Node)) close();
+  });
+}
