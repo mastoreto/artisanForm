@@ -14,7 +14,7 @@ const { t } = Astro.props;
     <div class="flex items-center gap-4">
       <a href={t.home} class="group flex min-h-11 items-center gap-2" aria-label="ArtisanForm">
         <img src="/favicon.svg" alt="" width="32" height="32" class="size-8" />
-        <span class="font-display text-lg font-semibold tracking-tight text-white">ArtisanForm</span>
+        <span class="font-display text-sm font-semibold leading-none tracking-tight text-white max-sm:flex max-sm:flex-col sm:text-lg" aria-hidden="true"><span>Artisan</span><span>Form</span></span>
       </a>
       <span class="hidden sm:block"><Pill class="font-mono">v{project.version}</Pill></span>
     </div>
