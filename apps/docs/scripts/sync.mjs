@@ -17,13 +17,15 @@ const slugs = new Map(pages);
 // `](ui.md#x)` between synced guides becomes a site link (`../ui/#x`), which
 // works under any base path. Other relative links are left as they are.
 const siteLinks = (body) =>
-  body.replace(/\]\(([a-z0-9-]+\.md)(#[^)]*)?\)/g, (match, file, hash = '') =>
-    slugs.has(file) ? `](../${slugs.get(file)}/${hash})` : match,
+  body.replace(
+    /\]\((?:es\/)?([a-z0-9-]+\.md)(#[^)]*)?\)/g,
+    (match, file, hash = '') =>
+      slugs.has(file) ? `](../${slugs.get(file)}/${hash})` : match,
   );
 
 for (const [dir, lang] of [
-  ['docs/', ''],
-  ['docs/es/', 'es/'],
+  ['docs/', 'docs/'],
+  ['docs/es/', 'es/docs/'],
 ]) {
   mkdirSync(new URL(lang, out), { recursive: true });
   for (const [file, slug] of pages) {

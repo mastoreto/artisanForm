@@ -1,0 +1,29 @@
+---
+import '../styles/landing.css';
+import ForgeBackground from '../components/landing/ForgeBackground.astro';
+import SEO from '../components/seo/SEO.astro';
+
+interface Props {
+  lang: 'en' | 'es';
+  title: string;
+  description: string;
+  alternates: Record<string, string>;
+  image: string;
+  imageAlt: string;
+  jsonLd?: object[];
+}
+const { lang, ...seo } = Astro.props;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <SEO lang={lang} {...seo} />
+  </head>
+  <body class="relative min-h-screen font-sans antialiased">
+    <ForgeBackground />
+    <slot />
+  </body>
+</html>

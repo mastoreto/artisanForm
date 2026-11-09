@@ -148,7 +148,7 @@ Una entrada sin `render`, `initialValues` o `rules` lanza error al montar, con e
 
 Los pasos propios usan `stepTypes` y la `api` estable del contexto del paso (`ArtisanStepApi`):
 
-| `api` | |
+| `api` | Descripción |
 | --- | --- |
 | `step` | `{ id, title, kind, index, total }` |
 | `values` | valores actuales (solo lectura) |

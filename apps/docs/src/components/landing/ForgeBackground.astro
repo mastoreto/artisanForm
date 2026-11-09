@@ -1,0 +1,15 @@
+---
+// Static CSS poster first; the WebGL shader loads after idle (see scripts/forge-shader.ts).
+---
+<div class="forge-bg" aria-hidden="true"><canvas data-forge-canvas></canvas></div>
+<div class="forge-dots" aria-hidden="true"></div>
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-forge-canvas]');
+  if (canvas) {
+    const start = () => import('../../scripts/forge-shader').then((m) => m.startForgeShader(canvas));
+    const schedule = () =>
+      'requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 2500 }) : setTimeout(start, 1200);
+    if (document.readyState === 'complete') schedule();
+    else addEventListener('load', schedule, { once: true });
+  }
+</script>

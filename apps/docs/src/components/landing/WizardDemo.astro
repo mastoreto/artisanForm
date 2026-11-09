@@ -1,0 +1,111 @@
+---
+import type { LandingCopy } from '../../i18n/landing.en';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  t: LandingCopy;
+}
+const { w } = { w: Astro.props.t.demo.wizard };
+const field =
+  'w-full rounded-xl border border-slate-500 bg-volcano-900 px-4 py-3 text-sm text-white placeholder-slag outline-none transition focus:border-ember focus:ring-2 focus:ring-ember/40 aria-[invalid=true]:border-magma';
+const panel = 'forge-strike rounded-2xl border border-white/10 bg-black/50 p-3';
+const label = 'mb-2 block text-xs font-medium text-slate-200';
+---
+<div data-wizard class="surface relative flex min-h-[520px] flex-col overflow-hidden border-white/15 shadow-xl shadow-black/40">
+
+  <div class="relative z-10 flex items-center justify-between border-b border-white/10 bg-white/[0.04] px-5 py-3">
+    <div class="flex items-center gap-2.5">
+      <span class="font-display text-sm font-semibold text-white sm:text-base">{w.title}</span>
+    </div>
+    <button type="button" data-reset class="inline-flex cursor-pointer items-center gap-1.5 min-h-11 rounded-full border border-white/10 bg-white/5 px-3 text-xs text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95">
+      <Icon name="restart-alt" class="size-3.5" />{w.reset}
+    </button>
+  </div>
+
+  <form novalidate class="relative z-10 flex flex-1 flex-col justify-between p-6 md:p-8" data-done-text={w.done} data-yes={w.yes} data-no={w.no}>
+    <div>
+      <p data-step-status class="sr-only" role="status" aria-live="polite"></p>
+      <ol aria-label={w.stepsLabel} class="forge-strike relative mb-8 flex items-start justify-between rounded-2xl border border-iron-700 bg-black/50 p-4">
+        <span class="spark" style="top:6px;right:18px;--dx:-12px;--dy:-24px" aria-hidden="true"></span>
+        <span class="spark" style="top:4px;right:46px;--dx:10px;--dy:-20px;--d:0.04s" aria-hidden="true"></span>
+        <span class="absolute left-12 right-12 top-9 h-[3px] rounded-full bg-white/10" aria-hidden="true"></span>
+        <span class="absolute left-12 right-12 top-9 h-[3px]" aria-hidden="true"><span class="wizard-line block h-full rounded-full bg-ember"></span></span>
+        {w.steps.map((name, i) => (
+          <li data-node data-state={i === 0 ? 'current' : 'upcoming'} class="group relative z-10 flex w-20 flex-col items-center text-center">
+            <span class="flex size-10 items-center justify-center rounded-full border border-iron-600 bg-volcano-850 font-mono text-xs font-semibold text-slate-300 transition group-data-[state=complete]:border-slag group-data-[state=complete]:text-white group-data-[state=current]:border-2 group-data-[state=current]:border-ember group-data-[state=current]:text-white">
+              <span class="group-data-[state=complete]:hidden">{i + 1}</span>
+              <Icon name="check" class="hidden size-4 group-data-[state=complete]:block" />
+            </span>
+            <span class="mt-2 text-xs font-medium text-slate-300 group-data-[state=current]:font-semibold group-data-[state=current]:text-white">{name}</span>
+          </li>
+        ))}
+      </ol>
+
+      <fieldset data-panel class="space-y-5">
+        <legend class="sr-only">{w.steps[0]}</legend>
+        <div class={panel}>
+          <span class="spark" style="top:8px;right:14px;--dx:-10px;--dy:-22px" aria-hidden="true"></span>
+          <span class="spark" style="bottom:-2px;right:48px;--dx:14px;--dy:-18px;--d:0.04s" aria-hidden="true"></span>
+          <label for="wz-project" class={label}>{w.projectLabel} <span class="text-slag" aria-hidden="true">*</span></label>
+          <input id="wz-project" name="project" type="text" required minlength="3" autocomplete="off" value={w.defaults.project} class={field} aria-describedby="wz-project-hint" data-field />
+          <p id="wz-project-hint" class="mt-2 text-xs text-slag">{w.projectHint}</p>
+          <p data-error-for="wz-project" hidden class="mt-1 text-xs text-red-400">{w.projectError}</p>
+        </div>
+        <div class={panel} style="--d:0.06s">
+          <span class="spark" style="top:6px;left:96px;--dx:12px;--dy:-20px;--d:0.06s" aria-hidden="true"></span>
+          <label for="wz-email" class={label}>{w.emailLabel} <span class="text-slag" aria-hidden="true">*</span></label>
+          <input id="wz-email" name="email" type="email" required autocomplete="off" value={w.defaults.email} class={field} data-field />
+          <p data-error-for="wz-email" hidden class="mt-1 text-xs text-red-400">{w.emailError}</p>
+        </div>
+        <div class="forge-strike flex items-center gap-3 rounded-xl border border-iron-700 bg-white/[0.04] p-3.5" style="--d:0.12s">
+          <span class="flex size-9 shrink-0 items-center justify-center rounded-xl border border-iron-700 bg-white/5 text-slag"><Icon name="save-as" class="size-5" /></span>
+          <div class="text-left">
+            <p class="text-xs font-semibold text-white">{w.draftTitle}</p>
+            <p class="text-xs text-slag">{w.draftHint}</p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset data-panel hidden class="space-y-5">
+        <legend class="sr-only">{w.steps[1]}</legend>
+        <div class={panel}>
+          <label for="wz-kit" class={label}>{w.kitLabel}</label>
+          <select id="wz-kit" name="kit" class={field} data-field>
+            {w.kits.map((k) => <option value={k}>{k}</option>)}
+          </select>
+        </div>
+        <label for="wz-strict" class="forge-strike flex cursor-pointer items-center justify-between rounded-xl border border-iron-700 bg-white/[0.04] p-3.5" style="--d:0.06s">
+          <span>
+            <span class="block text-xs font-semibold text-white">{w.strictLabel}</span>
+            <span class="block text-xs text-slag">{w.strictHint}</span>
+          </span>
+          <input id="wz-strict" name="strict" type="checkbox" checked class="size-4 cursor-pointer accent-ember" data-field />
+        </label>
+      </fieldset>
+
+      <fieldset data-panel hidden class="space-y-4">
+        <legend class="sr-only">{w.steps[2]}</legend>
+        <dl class="forge-strike space-y-3 rounded-xl border border-iron-700 bg-volcano-900 p-4 text-xs">
+          {['project', 'email', 'kit', 'strict'].map((key, i) => (
+            <div class="flex items-center justify-between gap-4 border-b border-white/10 pb-2.5 last:border-0 last:pb-0">
+              <dt class="text-slag">{w.reviewRows[i]}</dt>
+              <dd class="font-semibold text-white" data-out={key}></dd>
+            </div>
+          ))}
+        </dl>
+        <p data-done hidden role="status" class="flex items-center gap-2.5 rounded-xl border border-iron-700 bg-white/5 p-3.5 text-xs text-slate-300">
+          <Icon name="verified" class="size-4 shrink-0 text-slag" /><span data-done-text></span>
+        </p>
+      </fieldset>
+    </div>
+
+    <div class="mt-6 flex items-center justify-between border-t border-white/10 pt-6">
+      <button type="button" data-prev disabled class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30">
+        <Icon name="arrow-back" />{w.back}
+      </button>
+      <button type="button" data-next data-label-next={w.next} data-label-finish={w.finish} class="forge-strike inline-flex cursor-pointer items-center gap-2 rounded-xl border border-molten bg-ember-deep px-6 py-3 text-sm font-medium text-white transition hover:bg-ember-press active:scale-95">
+        <span data-next-label>{w.next}</span><Icon name="arrow-forward" />
+      </button>
+    </div>
+  </form>
+</div>

@@ -148,7 +148,7 @@ An entry without `render`, `initialValues` or `rules` throws at mount, naming th
 
 Custom steps use `stepTypes` and the stable `api` of the step context (`ArtisanStepApi`):
 
-| `api` | |
+| `api` | Description |
 | --- | --- |
 | `step` | `{ id, title, kind, index, total }` |
 | `values` | current values (read-only) |
