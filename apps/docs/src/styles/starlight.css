@@ -1,10 +1,15 @@
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/jetbrains-mono";
-/* Starlight theme aligned with the landing (dark, ember accent). */
-:root,
-:root[data-theme="dark"] {
+
+/* Starlight theme aligned with the landing: ember accent, volcanic dark. */
+:root {
   --sl-font: "Inter Variable", system-ui, sans-serif;
   --sl-font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
+/* Dark surfaces apply to the dark theme only: scoping them to bare `:root`
+   forced a dark body under the light theme's dark text (contrast ~1:1). */
+:root[data-theme="dark"] {
   --sl-color-accent-low: #3a1706;
   --sl-color-accent: var(--af-ember);
   --sl-color-accent-high: var(--af-molten);
@@ -14,6 +19,7 @@
   --sl-color-gray-4: var(--af-iron-600);
   --sl-color-hairline: var(--af-iron-700);
 }
+
 :root[data-theme="light"] {
   --sl-color-accent-low: #ffe1cf;
   --sl-color-accent: #c2410c;

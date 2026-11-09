@@ -53,7 +53,28 @@ export default defineConfig({
       ],
       customCss: ['./src/styles/tokens.css', './src/styles/starlight.css'],
       head: [
-        { tag: 'meta', attrs: { name: 'theme-color', content: '#090a0d' } },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'theme-color',
+            content: '#090a0d',
+            media: '(prefers-color-scheme: dark)',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'theme-color',
+            content: '#ffffff',
+            media: '(prefers-color-scheme: light)',
+          },
+        },
+        // Wide tables scroll horizontally; make them keyboard-reachable.
+        {
+          tag: 'script',
+          content:
+            "addEventListener('DOMContentLoaded',()=>{for(const t of document.querySelectorAll('.sl-markdown-content table')){if(t.scrollWidth>t.clientWidth)t.tabIndex=0}})",
+        },
         { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
         {
           tag: 'meta',
