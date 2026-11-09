@@ -9,6 +9,6 @@ interface Props {
 const m = Astro.props.t;
 ---
 <section class="deferred border-b border-white/5 px-6 py-20 lg:px-12" aria-labelledby="minimal-title">
-  <div class="mx-auto mb-10 max-w-4xl"><SectionHeading align="center" eyebrow={m.eyebrow} title={m.title} lead={m.lead} titleId="minimal-title" /></div>
+  <div class="mx-auto mb-10 max-w-4xl"><SectionHeading align="center" title={m.title} lead={m.lead} titleId="minimal-title" /></div>
   <CodeWindow class="mx-auto max-w-4xl" file={m.file} code={m.code} copy={{ label: m.copy, done: m.copied }} />
 </section>

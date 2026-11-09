@@ -10,7 +10,8 @@ precision mediump float;
 uniform float u_time;uniform vec2 u_res;uniform vec2 u_mouse;
 void main(){
   vec2 uv=(gl_FragCoord.xy-.5*u_res)/min(u_res.x,u_res.y);
-  vec3 col=vec3(.055,.065,.09);
+  vec3 base=vec3(.055,.065,.09);
+  vec3 col=base;
   float t=mod(u_time,3.2);
   vec2 c=vec2(0.,.08);
   if(u_mouse.x>0.&&u_mouse.y>0.){c=mix(c,(u_mouse-.5*u_res)/min(u_res.x,u_res.y),.25);}
@@ -29,6 +30,7 @@ void main(){
   col+=mix(ember,white,flash*.7)*(flash*.75/(d+.22));
   col+=ember*wave*.6;
   col+=mix(fire,white,.5)*sparks*.35;
+  col=mix(base,col,.6);
   col*=smoothstep(1.3,.35,length(uv));
   gl_FragColor=vec4(col,1.);
 }`;

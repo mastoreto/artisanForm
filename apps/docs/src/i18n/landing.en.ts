@@ -28,7 +28,6 @@ export const en = {
     github: 'GitHub',
   },
   hero: {
-    badge: 'Forged for modern React · React 18 & 19',
     titleA: 'Describe the form.',
     titleB: 'Launch the wizard.',
     lead: 'The declarative TypeScript library for complex multi-step flows, onboarding and checkouts, without tying you to any UI.',
@@ -49,8 +48,6 @@ export const en = {
   },
   demo: {
     id: 'demo',
-    eyebrow: 'Live workbench',
-    icon: 'precision-manufacturing',
     title: 'Forge it live: a declarative wizard',
     lead: 'Define the shape of your steps in TypeScript and watch the same wizard run on the right. Try the validation.',
     kitLabel: 'Rendered with',
@@ -133,8 +130,6 @@ export const checkoutForge = defineForm({
     },
   },
   features: {
-    eyebrow: 'Precision engineering',
-    icon: 'hardware',
     title: 'Built for demanding flows',
     lead: 'Drop the repetitive state, step and sync boilerplate. ArtisanForm gives you a tested base with no lock-in.',
     items: [
@@ -142,50 +137,36 @@ export const checkoutForge = defineForm({
         icon: 'code-blocks',
         title: 'Declarative schema',
         text: 'Write it in TypeScript with defineForm for compile-time safety, or receive plain JSON from an API and validate it at runtime with parseArtisanSchema.',
-        foot: 'Strict inference',
-        tag: 'defineForm()',
       },
       {
         icon: 'widgets',
         title: '30+ field types',
         text: 'Text, email, password, combobox, multiselect, range, OTP, rating, file and image uploads through pluggable storage, and repeatable rows.',
-        foot: 'Ready to use',
-        tag: 'fields: [...]',
       },
       {
         icon: 'alt-route',
         title: 'Conditional logic and steps',
         text: 'Declarative visibleWhen conditions: no eval, no opaque callbacks. Terms, payment (Stripe, Lemon Squeezy, Mercado Pago, PayPal), waiting, review and result steps.',
-        foot: 'No side effects',
-        tag: 'visibleWhen',
       },
       {
         icon: 'history-edu',
         title: 'Automatic drafts',
         text: 'persistKey stores versioned draft snapshots so users can reload and continue. Secrets such as passwords are never written to a draft.',
-        foot: 'Privacy by design',
-        tag: 'persistKey',
       },
       {
         icon: 'accessibility-new',
         title: 'Accessible by contract',
         text: 'Labels tied to controls, aria-invalid and aria-describedby on errors, and focus on the first invalid field. Every kit is checked with a shared conformance suite.',
-        foot: 'Keyboard friendly',
-        tag: 'aria-invalid',
       },
       {
         icon: 'layers',
         title: 'UI-library agnostic',
         text: 'Ships with plain CSS by default. Switch to Tailwind, shadcn/ui, Material UI, Bootstrap or Sass by passing a single kit prop.',
-        foot: 'No vendor lock-in',
-        tag: 'kit={...}',
       },
     ],
   },
   kits: {
     id: 'kits',
-    eyebrow: 'Component ecosystem',
-    icon: 'palette',
     title: 'Change design system in one line',
     lead: 'Clean precedence: default styles first, then your kit, and finally your own props.',
     precedence: ['Precedence:', 'Base CSS', 'kit={...}', 'Overrides'],
@@ -285,7 +266,6 @@ export default function App() {
     ],
   },
   compat: {
-    eyebrow: 'Compatibility matrix',
     title: 'Made for modern React',
     lead: 'No obsolete polyfills, and nothing blocks your move to React 19.',
     head: ['Requirement', 'Supported', 'Status'],
@@ -325,7 +305,6 @@ export default function App() {
     },
   },
   minimal: {
-    eyebrow: 'Minimal working example',
     title: 'One file to your first wizard',
     lead: 'A single file, with no proprietary stylesheet to fight in production.',
     file: 'ContactWizard.tsx',
@@ -353,7 +332,6 @@ export default function ContactPage() {
   },
   faq: {
     id: 'faq',
-    eyebrow: 'FAQ',
     title: 'Frequently asked questions',
     items: [
       {

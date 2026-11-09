@@ -10,13 +10,13 @@ interface Props {
 }
 const { demo } = Astro.props.t;
 ---
-<section id={demo.id} data-forge class="deferred relative border-b border-white/5 px-6 py-20 lg:px-12" aria-labelledby="demo-title">
+<section id={demo.id} class="deferred relative border-b border-white/5 px-6 py-20 lg:px-12" aria-labelledby="demo-title">
   <div class="mx-auto max-w-7xl">
     <div class="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-      <SectionHeading eyebrow={demo.eyebrow} icon={demo.icon} title={demo.title} lead={demo.lead} titleId="demo-title" />
-      <p class="flex items-center gap-3 text-xs text-zinc-400">
+      <SectionHeading title={demo.title} lead={demo.lead} titleId="demo-title" />
+      <p class="flex items-center gap-3 text-xs text-slag">
         {demo.kitLabel}
-        <span class="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1.5 font-mono text-orange-300">
+        <span class="inline-flex items-center gap-2 rounded-full border border-iron-700 bg-white/5 px-3.5 py-1.5 font-mono text-slate-300">
           <Icon name="deployed-code" class="size-4" />{demo.kitName}
         </span>
       </p>
@@ -24,8 +24,8 @@ const { demo } = Astro.props.t;
     <div class="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
       <div class="lg:col-span-6">
         <CodeWindow file={demo.codeFile} code={demo.code} badge={demo.codeBadge}>
-          <div class="flex items-center justify-between border-t border-white/10 bg-white/[0.03] px-5 py-3 font-mono text-xs text-zinc-400">
-            <span class="flex items-center gap-1.5"><Icon name="check-circle" class="size-4 text-amber-400" />{demo.codeFooter[0]}</span>
+          <div class="flex items-center justify-between border-t border-white/10 bg-white/[0.03] px-5 py-3 font-mono text-xs text-slag">
+            <span class="flex items-center gap-1.5"><Icon name="check-circle" class="size-4 text-slag" />{demo.codeFooter[0]}</span>
             <span>{demo.codeFooter[1]}</span>
           </div>
         </CodeWindow>

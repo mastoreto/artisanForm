@@ -10,14 +10,14 @@ const f = Astro.props.t;
 ---
 <section id={f.id} class="deferred border-b border-white/5 px-6 py-20 lg:px-12" aria-labelledby="faq-title">
   <div class="mx-auto max-w-3xl">
-    <div class="mb-10"><SectionHeading align="center" eyebrow={f.eyebrow} title={f.title} titleId="faq-title" /></div>
+    <div class="mb-10"><SectionHeading align="center" title={f.title} titleId="faq-title" /></div>
     <div class="space-y-3">
       {f.items.map((item) => (
-        <details class="group surface px-5 py-4 open:border-orange-500/40">
+        <details class="group surface px-5 py-4 open:border-iron-700">
           <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-display font-medium text-white [&::-webkit-details-marker]:hidden">
-            {item.q}<Icon name="expand-more" class="size-5 shrink-0 text-orange-400 transition group-open:rotate-180" />
+            {item.q}<Icon name="expand-more" class="size-5 shrink-0 text-slag transition group-open:rotate-180" />
           </summary>
-          <p class="mt-3 text-sm leading-relaxed text-zinc-400">{item.a}</p>
+          <p class="mt-3 text-sm leading-relaxed text-slag">{item.a}</p>
         </details>
       ))}
     </div>

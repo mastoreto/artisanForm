@@ -26,7 +26,6 @@ export const es: LandingCopy = {
     github: 'GitHub',
   },
   hero: {
-    badge: 'Forjado para el React moderno · React 18 y 19',
     titleA: 'Describí el formulario.',
     titleB: 'Lanzá el wizard.',
     lead: 'La librería declarativa de TypeScript para forjar flujos multi-paso complejos, onboarding y checkouts, sin atarte a ninguna UI.',
@@ -47,7 +46,6 @@ export const es: LandingCopy = {
   },
   demo: {
     ...en.demo,
-    eyebrow: 'Banco de trabajo en vivo',
     title: 'Forjalo en vivo: wizard declarativo',
     lead: 'Definí la forma de tus pasos en TypeScript y mirá el mismo wizard funcionando a la derecha. Probá la validación.',
     kitLabel: 'Renderizado con',
@@ -80,8 +78,6 @@ export const es: LandingCopy = {
     },
   },
   features: {
-    eyebrow: 'Ingeniería de precisión',
-    icon: 'hardware',
     title: 'Diseñado para flujos exigentes',
     lead: 'Eliminá el boilerplate repetitivo de estado, pasos y sincronización. ArtisanForm te da una base probada y sin bloqueos propietarios.',
     items: [
@@ -89,49 +85,36 @@ export const es: LandingCopy = {
         icon: 'code-blocks',
         title: 'Esquema declarativo',
         text: 'Escribilo en TypeScript con defineForm para seguridad de tipos en compilación, o recibí JSON plano desde una API y validalo en runtime con parseArtisanSchema.',
-        foot: 'Inferencia estricta',
-        tag: 'defineForm()',
       },
       {
         icon: 'widgets',
         title: '30+ tipos de campo',
         text: 'Texto, email, password, combobox, selección múltiple, range, OTP, calificaciones, subida de archivos e imágenes con almacenamiento enchufable y filas repetibles.',
-        foot: 'Listo para usar',
-        tag: 'fields: [...]',
       },
       {
         icon: 'alt-route',
         title: 'Lógica condicional y pasos',
         text: 'Condiciones declarativas con visibleWhen: sin eval ni callbacks opacos. Pasos de términos, pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal), espera, revisión y resultado.',
-        foot: 'Sin efectos colaterales',
-        tag: 'visibleWhen',
       },
       {
         icon: 'history-edu',
         title: 'Borradores automáticos',
         text: 'persistKey guarda snapshots versionados del borrador para que el usuario recargue y continúe. Los secretos, como las contraseñas, nunca se escriben en un borrador.',
-        foot: 'Privacidad por diseño',
-        tag: 'persistKey',
       },
       {
         icon: 'accessibility-new',
         title: 'Accesible por contrato',
         text: 'Etiquetas vinculadas a los controles, aria-invalid y aria-describedby en errores, y foco en el primer campo inválido. Cada kit se verifica con una suite de conformidad común.',
-        foot: 'Navegable por teclado',
-        tag: 'aria-invalid',
       },
       {
         icon: 'layers',
         title: 'Agnóstico a librerías de UI',
         text: 'Viene con CSS plano por defecto. Pasá a Tailwind, shadcn/ui, Material UI, Bootstrap o Sass con una sola prop kit.',
-        foot: 'Cero vendor lock-in',
-        tag: 'kit={...}',
       },
     ],
   },
   kits: {
     ...en.kits,
-    eyebrow: 'Ecosistema de componentes',
     title: 'Cambiá de sistema de diseño en una sola línea',
     lead: 'Precedencia limpia: estilos por defecto primero, luego tu kit y finalmente tus props directas.',
     precedence: ['Precedencia:', 'CSS base', 'kit={...}', 'Overrides'],
@@ -152,7 +135,6 @@ export const es: LandingCopy = {
     })),
   },
   compat: {
-    eyebrow: 'Matriz de compatibilidad',
     title: 'Hecho para el React moderno',
     lead: 'Sin polyfills obsoletos y sin bloquear tu migración a React 19.',
     head: ['Requisito', 'Soporte', 'Estado'],
@@ -193,7 +175,6 @@ export const es: LandingCopy = {
   },
   minimal: {
     ...en.minimal,
-    eyebrow: 'Ejemplo mínimo funcional',
     title: 'Un archivo para tu primer wizard',
     lead: 'Un solo archivo, sin hojas de estilo propietarias que rompan tu producción.',
     copy: 'Copiar',
@@ -201,7 +182,6 @@ export const es: LandingCopy = {
   },
   faq: {
     id: 'faq',
-    eyebrow: 'FAQ',
     title: 'Preguntas frecuentes',
     items: [
       {

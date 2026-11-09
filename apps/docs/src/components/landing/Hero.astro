@@ -1,9 +1,7 @@
 ---
-import { project } from '../../data/project';
 import type { LandingCopy } from '../../i18n/landing.en';
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
-import Pill from '../ui/Pill.astro';
 
 interface Props {
   t: LandingCopy;
@@ -13,36 +11,31 @@ const { hero } = t;
 ---
 <section class="relative border-b border-white/5 px-6 pb-24 pt-32 lg:px-12" aria-labelledby="hero-title">
   <div class="mx-auto flex max-w-6xl flex-col items-center text-center">
-    <Pill class="mb-6 border-orange-500/30 bg-black/60 px-4 py-1.5 text-xs">
-      <span class="relative flex size-2"><span class="absolute inline-flex size-full animate-ping rounded-full bg-forge opacity-75"></span><span class="relative inline-flex size-2 rounded-full bg-ember"></span></span>
-      {hero.badge}
-      <span class="ml-1 hidden rounded-full sm:inline border border-white/10 bg-white/10 px-2 py-0.5 text-[10px] text-orange-400">v{project.version}</span>
-    </Pill>
     <h1 id="hero-title" class="mb-4 max-w-4xl font-display text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
       {hero.titleA}<br />
-      <span class="bg-gradient-to-r from-orange-400 via-amber-400 to-rose-400 bg-clip-text text-transparent">{hero.titleB}</span>
+      <span class="text-molten">{hero.titleB}</span>
     </h1>
-    <p class="mb-10 max-w-2xl text-lg leading-relaxed text-zinc-300">{hero.lead}</p>
+    <p class="mb-10 max-w-2xl text-lg leading-relaxed text-slate-300">{hero.lead}</p>
 
-    <div class="surface mb-10 flex w-full max-w-2xl items-center justify-between gap-4 p-2.5 shadow-2xl shadow-black/70 transition hover:border-orange-500/50 sm:p-3">
+    <div class="surface mb-10 flex w-full max-w-2xl items-center justify-between gap-4 p-2.5 shadow-2xl shadow-black/70 transition hover:border-iron-600 sm:p-3">
       <div class="flex items-center gap-2 overflow-hidden pl-3 text-left">
-        <span aria-hidden="true" class="select-none font-mono font-bold text-forge">❯</span>
-        <code class="truncate font-mono text-xs text-zinc-200 sm:text-sm" aria-label={hero.install.label}>{hero.install.command}</code>
+        <span aria-hidden="true" class="select-none font-mono font-bold text-slag">❯</span>
+        <code class="truncate font-mono text-xs text-slate-200 sm:text-sm" aria-label={hero.install.label}>{hero.install.command}</code>
       </div>
-      <button type="button" data-copy={hero.install.command} data-copied={hero.install.copied} class="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs text-zinc-300 transition hover:border-orange-500/40 hover:bg-white/10 hover:text-white active:scale-95">
-        <Icon name="content-copy" class="size-4 text-amber-400" /><span data-copy-label>{hero.install.copy}</span>
+      <button type="button" data-copy={hero.install.command} data-copied={hero.install.copied} class="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs text-slate-300 transition hover:border-iron-600 hover:bg-white/10 hover:text-white active:scale-95">
+        <Icon name="content-copy" class="size-4 text-slag" /><span data-copy-label>{hero.install.copy}</span>
       </button>
     </div>
 
     <div class="flex flex-wrap items-center justify-center gap-4">
       <Button href={hero.primary.href}><Icon name="local-fire-department" class="size-5" />{hero.primary.label}</Button>
-      <Button href={hero.secondary.href} variant="iron" external><Icon name="terminal" class="size-5 text-zinc-400" />{hero.secondary.label}</Button>
+      <Button href={hero.secondary.href} variant="iron" external><Icon name="terminal" class="size-5 text-slag" />{hero.secondary.label}</Button>
     </div>
 
-    <ul class="mt-14 flex flex-wrap items-center justify-center gap-3 border-t border-white/10 pt-8 text-xs font-medium text-zinc-300 sm:gap-6 sm:text-sm">
+    <ul class="mt-14 flex flex-wrap items-center justify-center gap-3 border-t border-white/10 pt-8 text-xs font-medium text-slate-300 sm:gap-6 sm:text-sm">
       {hero.chips.map((chip) => (
         <li class="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/60 px-3 py-1">
-          <Icon name={chip.icon} class="size-4 text-orange-400" />{chip.text}
+          <Icon name={chip.icon} class="size-4 text-slag" />{chip.text}
         </li>
       ))}
     </ul>
