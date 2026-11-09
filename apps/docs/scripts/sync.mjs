@@ -10,14 +10,22 @@ const pages = [
 ];
 
 for (const [dir, lang] of [
-  ['docs/', ''],
-  ['docs/es/', 'es/'],
+  ['docs/', 'docs/'],
+  ['docs/es/', 'es/docs/'],
 ]) {
   mkdirSync(new URL(lang, out), { recursive: true });
   for (const [file, slug] of pages) {
     const src = readFileSync(new URL(dir + file, root), 'utf8');
     const title = src.match(/^# (.+)$/m)?.[1] ?? slug;
-    const body = src.replace(/^# .+\n/m, '').replace(/^> 🌐.*\n/m, '');
+    const prefix = lang ? `/${lang}` : '/';
+    // Guide-to-guide links (`ui.md#x`) become site routes (`/docs/ui/#x`).
+    const body = src
+      .replace(/^# .+\n/m, '')
+      .replace(/^> 🌐.*\n/m, '')
+      .replace(
+        /\]\((?:es\/)?(schema-v1|ui)\.md(#[^)]*)?\)/g,
+        (_, page, hash = '') => `](${prefix}${page}/${hash})`,
+      );
     writeFileSync(
       new URL(`${lang}${slug}.md`, out),
       `---\ntitle: ${JSON.stringify(title)}\n---\n${body}`,

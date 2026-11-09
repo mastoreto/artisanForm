@@ -1,0 +1,15 @@
+/* ArtisanForge design tokens (from the landing DESIGN.md), shared by the landing and Starlight. */
+:root {
+  --af-volcano-950: #090a0d;
+  --af-volcano-900: #0d0e12;
+  --af-volcano-850: #14171f;
+  --af-volcano-800: #1b202c;
+  --af-iron-700: #2d3748;
+  --af-iron-600: #3e4a5d;
+  --af-ember: #ea580c;
+  --af-forge: #f97316;
+  --af-molten: #fb923c;
+  --af-magma: #dc2626;
+  --af-slag: #94a3b8;
+  --af-text: #e3e2e7;
+}

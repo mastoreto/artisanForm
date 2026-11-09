@@ -1,0 +1,21 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
+/* Starlight theme aligned with the landing (dark, ember accent). */
+:root,
+:root[data-theme="dark"] {
+  --sl-font: "Inter Variable", system-ui, sans-serif;
+  --sl-font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+  --sl-color-accent-low: #3a1706;
+  --sl-color-accent: var(--af-ember);
+  --sl-color-accent-high: var(--af-molten);
+  --sl-color-black: var(--af-volcano-950);
+  --sl-color-gray-6: var(--af-volcano-900);
+  --sl-color-gray-5: var(--af-volcano-800);
+  --sl-color-gray-4: var(--af-iron-600);
+  --sl-color-hairline: var(--af-iron-700);
+}
+:root[data-theme="light"] {
+  --sl-color-accent-low: #ffe1cf;
+  --sl-color-accent: #c2410c;
+  --sl-color-accent-high: #7c2d12;
+}
