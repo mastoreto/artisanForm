@@ -4,6 +4,9 @@ Material UI kit for [ArtisanForm](https://github.com/mastoreto/artisanForm): Mat
 
 ```bash
 npm install artisanform @beardartisans/ui-mui
+pnpm add artisanform @beardartisans/ui-mui
+yarn add artisanform @beardartisans/ui-mui
+bun add artisanform @beardartisans/ui-mui
 ```
 
 ```tsx

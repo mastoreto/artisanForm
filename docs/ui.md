@@ -182,13 +182,15 @@ const kit = defineUiKit({
 
 **Official kits** (separate packages, installed next to `artisanform`; the core never depends on them):
 
-| Kit | Install | Notes |
+Install each kit with your package manager (`npm install`, `pnpm add`, `yarn add` or `bun add`).
+
+| Kit | Package | Notes |
 | --- | --- | --- |
-| Bootstrap 5 | `npm install @beardartisans/ui-bootstrap` | Classes only (no `react-bootstrap`). Load Bootstrap's CSS and `@beardartisans/ui-bootstrap/style.css` (maps `aria-invalid` to the invalid look). |
-| Material UI | `npm install @beardartisans/ui-mui @mui/material @emotion/react @emotion/styled` | MUI controls inside `FormControl`; `combobox`, `multiselect`, `otp` and the non-replaceable fields keep the default components. |
-| Tailwind CSS | `npm install @beardartisans/ui-tailwind` | Utility classes with `unstyled`. Tell Tailwind to scan the package: v3 `content: ['./node_modules/@beardartisans/ui-tailwind/dist/**/*.js']`, v4 `@source`. |
+| Bootstrap 5 | `@beardartisans/ui-bootstrap` | Classes only (no `react-bootstrap`). Load Bootstrap's CSS and `@beardartisans/ui-bootstrap/style.css` (maps `aria-invalid` to the invalid look). |
+| Material UI | `@beardartisans/ui-mui @mui/material @emotion/react @emotion/styled` | MUI controls inside `FormControl`; `combobox`, `multiselect`, `otp` and the non-replaceable fields keep the default components. |
+| Tailwind CSS | `@beardartisans/ui-tailwind` | Utility classes with `unstyled`. Tell Tailwind to scan the package: v3 `content: ['./node_modules/@beardartisans/ui-tailwind/dist/**/*.js']`, v4 `@source`. |
 | shadcn/ui | `npx shadcn add <url>/artisanform-kit.json` | Copy-paste, not an npm dependency: it drops `components/artisanform-kit.tsx` that maps **your** `@/components/ui/*`. Build the registry item with `bun run --filter @beardartisans/ui-shadcn build` and host `r/artisanform-kit.json`. |
-| Sass | `npm install @beardartisans/ui-scss sass` | `@use '@beardartisans/ui-scss' as af; :root { @include af.theme((primary: #7c3aed)); }` emits the `--artisan-*` tokens. |
+| Sass | `@beardartisans/ui-scss sass` | `@use '@beardartisans/ui-scss' as af; :root { @include af.theme((primary: #7c3aed)); }` emits the `--artisan-*` tokens. |
 
 ```tsx
 import { muiKit } from '@beardartisans/ui-mui';

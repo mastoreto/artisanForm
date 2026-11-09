@@ -193,7 +193,7 @@ const miProveedor: PaymentPlugin = {
 
 Cada uno vive en su subpath y sus SDK son `peerDependencies` **opcionales** (solo instalás lo que usás). Todos siguen el principio de arriba: tu backend define montos y crea las órdenes/sesiones; confirmá el pago real por webhook.
 
-**Stripe** — `import { stripe } from 'artisanform/payments/stripe'` (embebido: `npm install @stripe/stripe-js @stripe/react-stripe-js`; Checkout hospedado: sin SDK).
+**Stripe** — `import { stripe } from 'artisanform/payments/stripe'` (embebido: `@stripe/stripe-js` and `@stripe/react-stripe-js`; Checkout hospedado: sin SDK).
 
 ```tsx
 stripe({
@@ -215,7 +215,7 @@ lemonSqueezy({
 })
 ```
 
-**Mercado Pago** — `import { mercadoPago } from 'artisanform/payments/mercadopago'` (embebido: `npm install @mercadopago/sdk-react`; Checkout Pro: sin SDK).
+**Mercado Pago** — `import { mercadoPago } from 'artisanform/payments/mercadopago'` (embebido: `@mercadopago/sdk-react`; Checkout Pro: sin SDK).
 
 ```tsx
 mercadoPago({
@@ -228,7 +228,7 @@ mercadoPago({
 })
 ```
 
-**PayPal** — `import { paypal } from 'artisanform/payments/paypal'` (`npm install @paypal/react-paypal-js`).
+**PayPal** — `import { paypal } from 'artisanform/payments/paypal'` (install `@paypal/react-paypal-js`).
 
 ```tsx
 paypal({
@@ -349,16 +349,23 @@ Los ajustes semánticos `ui` del esquema (`columns`, `span`, `density`, `labelPo
 
 ## Instalación
 
-`react`, `react-dom`, `react-hook-form`, `yup` y `zustand` son `peerDependencies`. Mientras la librería esté en beta, instalala con el tag `beta`:
+`react-hook-form`, `yup` y `zustand` son `peerDependencies` (junto a `react` y `react-dom`, que ya tenés); usá npm, pnpm, yarn o bun. Mientras la librería esté en beta, instalala con el tag `beta`:
 
 ```bash
-npm install artisanform@beta react react-dom react-hook-form yup zustand
+npm install artisanform@beta react-hook-form yup zustand
+pnpm add artisanform@beta react-hook-form yup zustand
+yarn add artisanform@beta react-hook-form yup zustand
+bun add artisanform@beta react-hook-form yup zustand
 ```
 
 Los kits de UI oficiales son paquetes aparte y opcionales, bajo el scope `@beardartisans`; tienen a `artisanform` como peer, y `artisanform` nunca depende de ellos:
 
 ```bash
-npm install @beardartisans/ui-bootstrap@beta   # o ui-mui, ui-tailwind, ui-scss
+npm install @beardartisans/ui-bootstrap@beta
+pnpm add @beardartisans/ui-bootstrap@beta
+yarn add @beardartisans/ui-bootstrap@beta
+bun add @beardartisans/ui-bootstrap@beta
+# o ui-mui, ui-tailwind, ui-scss
 ```
 
 El uso de cada kit, y el item de registry de shadcn/ui, están en [docs/es/ui.md](ui.md#kits-de-ui).
