@@ -97,12 +97,6 @@
   background-size: 24px 24px;
 }
 
-/* Below-the-fold sections are skipped by layout/paint until near the viewport. */
-.deferred {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 720px;
-}
-
 /* Surfaces: opaque-ish (no backdrop blur over the animated canvas). */
 .surface {
   background: rgb(9 10 13 / 0.78);

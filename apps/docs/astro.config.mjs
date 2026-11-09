@@ -70,11 +70,12 @@ export default defineConfig({
             media: '(prefers-color-scheme: light)',
           },
         },
-        // Wide tables scroll horizontally; make them keyboard-reachable.
+        // Wide tables scroll horizontally: make them keyboard-reachable. Code
+        // blocks are focusable regions: give each a unique accessible name.
         {
           tag: 'script',
           content:
-            "addEventListener('DOMContentLoaded',()=>{for(const t of document.querySelectorAll('.sl-markdown-content table')){if(t.scrollWidth>t.clientWidth)t.tabIndex=0}})",
+            "const fix=()=>{for(const t of document.querySelectorAll('.sl-markdown-content table')){if(t.scrollWidth>t.clientWidth)t.tabIndex=0}document.querySelectorAll('pre[role=region]:not([aria-label])').forEach((p,i)=>p.setAttribute('aria-label','Code '+(i+1)+(p.dataset.language?' ('+p.dataset.language+')':'')))};addEventListener('DOMContentLoaded',()=>{fix();new MutationObserver(fix).observe(document.body,{subtree:true,attributes:true,attributeFilter:['role']})})",
         },
         { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
         {

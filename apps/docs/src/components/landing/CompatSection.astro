@@ -10,7 +10,7 @@ interface Props {
 }
 const c = Astro.props.t;
 ---
-<section class="deferred border-b border-white/5 px-6 py-20 lg:px-12" aria-labelledby="compat-title">
+<section class="border-b border-white/5 px-6 py-20 lg:px-12" aria-labelledby="compat-title">
   <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-12">
     <div class="space-y-6 lg:col-span-7">
       <SectionHeading title={c.title} lead={c.lead} titleId="compat-title" />
@@ -43,7 +43,7 @@ const c = Astro.props.t;
             <p class="text-xs text-slag">{c.status.text}</p>
           </div>
         </div>
-        <Button href={c.status.href} variant="iron" external class="px-3.5 py-1.5 text-xs">{c.status.cta}</Button>
+        <Button href={c.status.href} variant="iron" external class="min-h-11 px-3.5 py-2 text-xs">{c.status.cta}</Button>
       </div>
     </div>
   </div>

@@ -14,6 +14,10 @@ function init(root: HTMLElement) {
   const nextLabel = root.querySelector('[data-next-label]') as HTMLElement;
   const done = root.querySelector<HTMLElement>('[data-done]') as HTMLElement;
   const fields = [...root.querySelectorAll<HTMLInputElement>('[data-field]')];
+  const status = root.querySelector('[data-step-status]') as HTMLElement;
+  const names = nodes.map(
+    (n) => n.querySelector('span:last-child')?.textContent ?? '',
+  );
   let step = 0;
 
   const read = (): Record<string, string | boolean> => {
@@ -95,6 +99,7 @@ function init(root: HTMLElement) {
       '--wizard-progress',
       `${(step / (panels.length - 1)) * 100}%`,
     );
+    status.textContent = `${step + 1} / ${panels.length}: ${names[step]}`;
     prev.disabled = step === 0;
     const last = step === panels.length - 1;
     nextLabel.textContent =
