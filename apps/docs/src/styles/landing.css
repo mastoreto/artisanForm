@@ -1,0 +1,221 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
+
+@theme {
+  --color-volcano-950: #090a0d;
+  --color-volcano-900: #0d0e12;
+  --color-volcano-850: #14171f;
+  --color-volcano-800: #1b202c;
+  --color-iron-700: #2d3748;
+  --color-iron-600: #3e4a5d;
+  --color-ember: #ea580c;
+  --color-forge: #f97316;
+  --color-molten: #fb923c;
+  --color-magma: #dc2626;
+  --color-slag: #94a3b8;
+  --font-display: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    background: var(--color-volcano-950);
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    margin: 0;
+    background: var(--color-volcano-950);
+    color: var(--af-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-molten);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-forge) 35%, transparent);
+    color: #fff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Poster: this is what paints first (LCP); the WebGL canvas fades in over it. */
+.forge-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60rem 36rem at 50% -8%,
+      rgb(249 115 22 / 0.2),
+      transparent 70%
+    ),
+    radial-gradient(
+      40rem 28rem at 50% 38%,
+      rgb(234 88 12 / 0.1),
+      transparent 70%
+    ),
+    var(--color-volcano-950);
+}
+.forge-bg canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.forge-bg canvas[data-ready] {
+  opacity: 1;
+}
+.forge-dots {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  opacity: 0.2;
+  background-image: radial-gradient(
+    rgb(255 255 255 / 0.07) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+/* Below-the-fold sections are skipped by layout/paint until near the viewport. */
+.deferred {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+
+/* Surfaces: opaque-ish (no backdrop blur over the animated canvas). */
+.surface {
+  background: rgb(9 10 13 / 0.78);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+}
+
+/*
+ * Forge strike: compositor-only (transform + opacity). The glow is a
+ * pre-rendered shadow on a pseudo-element whose opacity pulses.
+ */
+.forge-strike {
+  position: relative;
+  animation: strike-impact 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  animation-delay: var(--d, 0s);
+}
+.forge-strike::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px rgb(251 146 60 / 0.9),
+    0 12px 36px -4px rgb(249 115 22 / 0.55);
+  opacity: 0;
+  animation: strike-glow 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  animation-delay: var(--d, 0s);
+}
+.glow-pulse {
+  animation: glow-pulse 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes strike-impact {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  5% {
+    transform: translateY(-2px);
+  }
+  10% {
+    transform: translateY(1px);
+  }
+  18% {
+    transform: translateY(0);
+  }
+}
+@keyframes strike-glow {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  28% {
+    opacity: 0;
+  }
+}
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  6% {
+    opacity: 0.95;
+  }
+  22% {
+    opacity: 0.45;
+  }
+}
+@keyframes scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  50%,
+  100% {
+    transform: translateX(200%);
+  }
+}
+.scan-beam {
+  animation: scan 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Off-screen or reduced motion: nothing animates. */
+[data-forge]:not([data-visible]) .forge-strike,
+[data-forge]:not([data-visible]) .forge-strike::after,
+[data-forge]:not([data-visible]) .glow-pulse,
+[data-forge]:not([data-visible]) .scan-beam {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .forge-strike,
+  .forge-strike::after,
+  .glow-pulse,
+  .scan-beam {
+    animation: none;
+  }
+}
+
+/* Shiki output sits on our own surface. */
+.code-window pre.astro-code {
+  /* biome-ignore lint/complexity/noImportantStyles: overrides Shiki's inline background */
+  background: transparent !important;
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  font: 400 0.8125rem / 1.6 var(--font-mono);
+}
+.code-window pre.astro-code code {
+  font: inherit;
+}
+
+/* Wizard connector line */
+.wizard-line {
+  width: var(--wizard-progress, 0%);
+  transition: width 0.5s ease;
+}

@@ -1,0 +1,34 @@
+---
+import type { LandingCopy } from '../../i18n/landing.en';
+import Card from '../ui/Card.astro';
+import Icon from '../ui/Icon.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+
+interface Props {
+  t: LandingCopy['features'];
+}
+const f = Astro.props.t;
+---
+<section class="deferred border-b border-white/5 px-6 py-24 lg:px-12" aria-labelledby="features-title">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-16"><SectionHeading align="center" eyebrow={f.eyebrow} icon={f.icon} title={f.title} lead={f.lead} titleId="features-title" /></div>
+    <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {f.items.map((item) => (
+        <li class="flex">
+          <Card class="group flex w-full flex-col justify-between">
+            <div>
+              <div class="mb-5 flex size-12 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-400 transition group-hover:bg-gradient-to-br group-hover:from-orange-500 group-hover:to-amber-500 group-hover:text-white">
+                <Icon name={item.icon} class="size-6" />
+              </div>
+              <h3 class="mb-2 font-display text-lg font-semibold text-white transition-colors group-hover:text-amber-300">{item.title}</h3>
+              <p class="text-sm leading-relaxed text-zinc-400">{item.text}</p>
+            </div>
+            <div class="mt-6 flex items-center justify-between border-t border-white/10 pt-4 font-mono text-xs text-zinc-400">
+              <span>{item.foot}</span><code class="text-orange-300">{item.tag}</code>
+            </div>
+          </Card>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

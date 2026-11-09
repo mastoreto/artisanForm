@@ -1,0 +1,15 @@
+---
+interface Props {
+  tone?: 'ember' | 'amber' | 'neutral';
+  class?: string;
+}
+const { tone = 'ember', class: className = '' } = Astro.props;
+const tones = {
+  ember: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
+  amber: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+  neutral: 'bg-white/5 text-zinc-300 border-white/10',
+};
+---
+<span class:list={['inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-semibold', tones[tone], className]}>
+  <slot />
+</span>

@@ -1,0 +1,50 @@
+---
+import type { LandingCopy } from '../../i18n/landing.en';
+import Button from '../ui/Button.astro';
+import Callout from '../ui/Callout.astro';
+import Icon from '../ui/Icon.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+
+interface Props {
+  t: LandingCopy['compat'];
+}
+const c = Astro.props.t;
+---
+<section class="deferred border-b border-white/5 px-6 py-20 lg:px-12" aria-labelledby="compat-title">
+  <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-12">
+    <div class="space-y-6 lg:col-span-7">
+      <SectionHeading eyebrow={c.eyebrow} title={c.title} lead={c.lead} titleId="compat-title" />
+      <div class="surface overflow-x-auto">
+        <table class="w-full border-collapse text-left text-sm">
+          <thead>
+            <tr class="border-b border-white/10 bg-white/[0.04] font-mono text-xs text-zinc-300">
+              {c.head.map((h, i) => <th scope="col" class:list={['px-5 py-3.5 font-medium', i === 2 && 'text-right']}>{h}</th>)}
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5 text-zinc-300">
+            {c.rows.map(([req, support, status]) => (
+              <tr class="transition-colors hover:bg-white/[0.02]">
+                <th scope="row" class="px-5 py-3.5 font-semibold text-white">{req}</th>
+                <td class="px-5 py-3.5 text-zinc-400">{support}</td>
+                <td class="px-5 py-3.5 text-right"><span class="rounded-full border border-orange-500/30 bg-orange-500/15 px-2.5 py-0.5 font-mono text-xs text-orange-300">{status}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="space-y-4 lg:col-span-5">
+      {c.callouts.map((co, i) => <Callout icon={co.icon} title={co.title} tone={i ? 'amber' : 'ember'}>{co.text}</Callout>)}
+      <div class="surface flex items-center justify-between gap-3 p-5">
+        <div class="flex items-center gap-3">
+          <Icon name={c.status.icon} class="size-6 text-orange-400" />
+          <div>
+            <p class="text-sm font-medium text-white">{c.status.title}</p>
+            <p class="text-xs text-zinc-400">{c.status.text}</p>
+          </div>
+        </div>
+        <Button href={c.status.href} variant="iron" external class="px-3.5 py-1.5 text-xs">{c.status.cta}</Button>
+      </div>
+    </div>
+  </div>
+</section>

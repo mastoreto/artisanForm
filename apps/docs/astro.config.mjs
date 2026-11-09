@@ -53,6 +53,20 @@ export default defineConfig({
         { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
         {
           tag: 'meta',
+          attrs: {
+            property: 'og:image',
+            content: new URL('/og/en.png', site).href,
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'twitter:image',
+            content: new URL('/og/en.png', site).href,
+          },
+        },
+        {
+          tag: 'meta',
           attrs: { name: 'twitter:card', content: 'summary_large_image' },
         },
       ],

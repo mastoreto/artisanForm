@@ -1,0 +1,48 @@
+---
+// Head tags for pages outside Starlight (Starlight handles its own docs head).
+interface Props {
+  title: string;
+  description: string;
+  lang: 'en' | 'es';
+  /** Absolute-path alternates by hreflang, e.g. { en: '/', es: '/es/' }. */
+  alternates: Record<string, string>;
+  image: string; // absolute path, e.g. /og/en.png
+  imageAlt: string;
+  jsonLd?: object[];
+}
+const {
+  title,
+  description,
+  lang,
+  alternates,
+  image,
+  imageAlt,
+  jsonLd = [],
+} = Astro.props;
+const site = Astro.site;
+const abs = (path: string) => new URL(path, site).href;
+const canonical = abs(Astro.url.pathname);
+const locale = { en: 'en_US', es: 'es_ES' }[lang];
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{Object.entries(alternates).map(([code, path]) => <link rel="alternate" hreflang={code} href={abs(path)} />)}
+<link rel="alternate" hreflang="x-default" href={abs(alternates.en)} />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<meta name="theme-color" content="#090a0d" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="ArtisanForm" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content={locale} />
+<meta property="og:image" content={abs(image)} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={imageAlt} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={abs(image)} />
+{jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
