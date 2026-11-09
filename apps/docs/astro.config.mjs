@@ -3,6 +3,7 @@ import starlight from '@astrojs/starlight';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 import icon from 'astro-icon';
+import starlightLlmsTxt from 'starlight-llms-txt';
 
 // Canonical origin: set SITE_URL in the deploy environment (no domain yet).
 const site = process.env.SITE_URL ?? 'https://artisanform.example';
@@ -72,6 +73,21 @@ export default defineConfig({
           tag: 'meta',
           attrs: { name: 'twitter:card', content: 'summary_large_image' },
         },
+      ],
+      plugins: [
+        starlightLlmsTxt({
+          projectName: 'ArtisanForm',
+          description,
+          details:
+            'ArtisanForm never handles secrets or card data: amounts, orders and upload signatures are resolved by your backend. Third-party SDKs are optional peers. The public schema contract stays serializable and independent of the form engine. 0.x beta, not published to a registry yet.',
+          optionalLinks: [
+            {
+              label: 'Source code',
+              url: 'https://github.com/mastoreto/artisanForm',
+              description: 'GitHub repository',
+            },
+          ],
+        }),
       ],
       sidebar: [
         {
