@@ -25,7 +25,10 @@ export default defineConfig({
     '/es/ui': '/es/docs/ui/',
   },
   // Inline empty PostCSS config: the repo root one belongs to the library playground.
-  vite: { plugins: [tailwindcss()], css: { postcss: {} } },
+  vite: {
+    plugins: [tailwindcss()],
+    css: { postcss: {} },
+  },
   integrations: [
     icon(),
     sitemap({
@@ -74,7 +77,7 @@ export default defineConfig({
         {
           label: 'Documentation',
           translations: { es: 'Documentación' },
-          autogenerate: { directory: 'docs' },
+          items: [{ autogenerate: { directory: 'docs' } }],
         },
       ],
     }),
