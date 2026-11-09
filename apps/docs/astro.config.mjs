@@ -134,6 +134,26 @@ export default defineConfig({
               label: 'UI and kits',
               translations: { es: 'UI y kits' },
             },
+            {
+              slug: 'docs/payments',
+              label: 'Payments',
+              translations: { es: 'Pagos' },
+            },
+            {
+              slug: 'docs/files',
+              label: 'Files and storage',
+              translations: { es: 'Archivos y storage' },
+            },
+            {
+              slug: 'docs/accessibility',
+              label: 'Accessibility and environments',
+              translations: { es: 'Accesibilidad y entornos' },
+            },
+            {
+              slug: 'docs/releasing',
+              label: 'Releasing',
+              translations: { es: 'Release' },
+            },
           ],
         },
         {

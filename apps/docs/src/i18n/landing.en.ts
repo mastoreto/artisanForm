@@ -2,7 +2,7 @@
 import { project } from '../data/project';
 
 const pm =
-  'npm install artisanform react react-dom react-hook-form yup zustand';
+  'npm install artisanform@beta react react-dom react-hook-form yup zustand';
 
 export const en = {
   lang: 'en' as 'en' | 'es',
