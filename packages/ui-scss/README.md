@@ -4,6 +4,9 @@ Sass kit for [ArtisanForm](https://github.com/mastoreto/artisanForm): A Sass mix
 
 ```bash
 npm install artisanform @beardartisans/ui-scss sass
+pnpm add artisanform @beardartisans/ui-scss sass
+yarn add artisanform @beardartisans/ui-scss sass
+bun add artisanform @beardartisans/ui-scss sass
 ```
 
 ```scss

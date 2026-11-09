@@ -4,7 +4,7 @@ description: Construye tu primer formulario multi-paso con ArtisanForm en pocos 
 tableOfContents: false
 ---
 
-import { Steps, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+import { Steps, CardGrid, LinkCard, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 ArtisanForm convierte un esquema declarativo y serializable en JSON en un formulario multi-paso (wizard) funcional en React, con validación, borradores y kits de UI intercambiables.
 
@@ -16,11 +16,30 @@ ArtisanForm es una beta 0.x y todavía no está publicada en ningún registro. H
 
 <Steps>
 
-1. **Instala** la librería y sus peers (React 18.3.1 o superior, incluido 19).
+1. **Instalá** la librería y sus peers de formulario (funciona con el React que ya tenés, 18.3.1 o superior, incluido 19).
 
-   ```bash
-   npm install artisanform@beta react react-dom react-hook-form yup zustand
-   ```
+   <Tabs syncKey="pm">
+     <TabItem label="npm">
+     ```bash
+     npm install artisanform@beta react-hook-form yup zustand
+     ```
+     </TabItem>
+     <TabItem label="pnpm">
+     ```bash
+     pnpm add artisanform@beta react-hook-form yup zustand
+     ```
+     </TabItem>
+     <TabItem label="yarn">
+     ```bash
+     yarn add artisanform@beta react-hook-form yup zustand
+     ```
+     </TabItem>
+     <TabItem label="bun">
+     ```bash
+     bun add artisanform@beta react-hook-form yup zustand
+     ```
+     </TabItem>
+   </Tabs>
 
 2. **Describe el formulario** con `defineForm`: una lista de pasos, cada uno con campos tipados.
 

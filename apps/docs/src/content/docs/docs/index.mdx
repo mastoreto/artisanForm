@@ -4,7 +4,7 @@ description: Build your first multi-step form with ArtisanForm in a few minutes,
 tableOfContents: false
 ---
 
-import { Steps, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+import { Steps, CardGrid, LinkCard, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 ArtisanForm turns a declarative, JSON-serializable schema into a working multi-step form (wizard) in React, with validation, drafts and swappable UI kits.
 
@@ -16,11 +16,30 @@ ArtisanForm is a 0.x beta and is not published to a registry yet. Until the firs
 
 <Steps>
 
-1. **Install** the library and its peers (React 18.3.1 or later, including 19).
+1. **Install** the library and its form peers (it works with the React you already have, 18.3.1 or later, including 19).
 
-   ```bash
-   npm install artisanform@beta react react-dom react-hook-form yup zustand
-   ```
+   <Tabs syncKey="pm">
+     <TabItem label="npm">
+     ```bash
+     npm install artisanform@beta react-hook-form yup zustand
+     ```
+     </TabItem>
+     <TabItem label="pnpm">
+     ```bash
+     pnpm add artisanform@beta react-hook-form yup zustand
+     ```
+     </TabItem>
+     <TabItem label="yarn">
+     ```bash
+     yarn add artisanform@beta react-hook-form yup zustand
+     ```
+     </TabItem>
+     <TabItem label="bun">
+     ```bash
+     bun add artisanform@beta react-hook-form yup zustand
+     ```
+     </TabItem>
+   </Tabs>
 
 2. **Describe the form** with `defineForm`: a list of steps, each with typed fields.
 

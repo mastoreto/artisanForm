@@ -4,6 +4,9 @@ Bootstrap 5 kit for [ArtisanForm](https://github.com/mastoreto/artisanForm): Boo
 
 ```bash
 npm install artisanform @beardartisans/ui-bootstrap
+pnpm add artisanform @beardartisans/ui-bootstrap
+yarn add artisanform @beardartisans/ui-bootstrap
+bun add artisanform @beardartisans/ui-bootstrap
 ```
 
 ```tsx

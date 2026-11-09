@@ -4,6 +4,9 @@ Tailwind CSS kit for [ArtisanForm](https://github.com/mastoreto/artisanForm): Ut
 
 ```bash
 npm install artisanform @beardartisans/ui-tailwind
+pnpm add artisanform @beardartisans/ui-tailwind
+yarn add artisanform @beardartisans/ui-tailwind
+bun add artisanform @beardartisans/ui-tailwind
 ```
 
 ```tsx
