@@ -107,15 +107,15 @@ yarn-error.log*
 # docs site
 apps/docs/.astro
 apps/docs/dist
-apps/docs/src/content/docs/schema-v1.md
-apps/docs/src/content/docs/ui.md
-apps/docs/src/content/docs/payments.md
-apps/docs/src/content/docs/files.md
-apps/docs/src/content/docs/accessibility.md
-apps/docs/src/content/docs/releasing.md
-apps/docs/src/content/docs/es/schema-v1.md
-apps/docs/src/content/docs/es/ui.md
-apps/docs/src/content/docs/es/payments.md
-apps/docs/src/content/docs/es/files.md
-apps/docs/src/content/docs/es/accessibility.md
-apps/docs/src/content/docs/es/releasing.md
+apps/docs/src/content/docs/docs/schema-v1.md
+apps/docs/src/content/docs/docs/ui.md
+apps/docs/src/content/docs/docs/payments.md
+apps/docs/src/content/docs/docs/files.md
+apps/docs/src/content/docs/docs/accessibility.md
+apps/docs/src/content/docs/docs/releasing.md
+apps/docs/src/content/docs/es/docs/schema-v1.md
+apps/docs/src/content/docs/es/docs/ui.md
+apps/docs/src/content/docs/es/docs/payments.md
+apps/docs/src/content/docs/es/docs/files.md
+apps/docs/src/content/docs/es/docs/accessibility.md
+apps/docs/src/content/docs/es/docs/releasing.md

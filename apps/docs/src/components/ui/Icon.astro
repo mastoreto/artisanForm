@@ -1,0 +1,10 @@
+---
+import { Icon as AstroIcon } from 'astro-icon/components';
+
+interface Props {
+  name: string; // material-symbols icon name, e.g. "content-copy"
+  class?: string;
+}
+const { name, class: className = 'size-4' } = Astro.props;
+---
+<AstroIcon name={`material-symbols:${name}`} class={className} aria-hidden="true" />

@@ -1,0 +1,90 @@
+---
+title: Quickstart
+description: Build your first multi-step form with ArtisanForm in a few minutes, then find the schema, UI and reference guides.
+tableOfContents: false
+---
+
+import { Steps, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+
+ArtisanForm turns a declarative, JSON-serializable schema into a working multi-step form (wizard) in React, with validation, drafts and swappable UI kits.
+
+<Aside type="caution" title="Beta">
+ArtisanForm is a 0.x beta and is not published to a registry yet. Until the first publish, follow the [repository](https://github.com/mastoreto/artisanForm) for installing from source.
+</Aside>
+
+## Your first wizard
+
+<Steps>
+
+1. **Install** the library and its peers (React 18.3.1 or later, including 19).
+
+   ```bash
+   npm install artisanform@beta react react-dom react-hook-form yup zustand
+   ```
+
+2. **Describe the form** with `defineForm`: a list of steps, each with typed fields.
+
+3. **Render it** with `<ArtisanForm>`. `onSubmit` receives the validated values.
+
+   ```tsx
+   import { ArtisanForm, defineForm } from 'artisanform';
+   import 'artisanform/style.css';
+
+   const form = defineForm({
+     schemaVersion: 1,
+     id: 'contact',
+     steps: [
+       {
+         id: 'main',
+         type: 'form',
+         title: 'Contact',
+         fields: [
+           { name: 'email', type: 'email', label: 'Email', required: true },
+         ],
+       },
+     ],
+   });
+
+   export default function ContactPage() {
+     return (
+       <ArtisanForm scheme={form} onSubmit={(values) => console.log(values)} />
+     );
+   }
+   ```
+
+</Steps>
+
+## Where to go next
+
+<CardGrid>
+  <LinkCard
+    title="Schema v1"
+    description="Steps, field types, conditions, JSON from an API and drafts."
+    href="/docs/schema-v1/"
+  />
+  <LinkCard
+    title="UI and kits"
+    description="Restyle the default UI, replace components or install a Tailwind, MUI, Bootstrap, Sass or shadcn kit."
+    href="/docs/ui/"
+  />
+  <LinkCard
+    title="Payments"
+    description="Plugins, the security principle and a production checklist."
+    href="/docs/payments/"
+  />
+  <LinkCard
+    title="Files and storage"
+    description="`file` and `image` fields and storage adapters."
+    href="/docs/files/"
+  />
+  <LinkCard
+    title="Accessibility and environments"
+    description="What is built in, what is checked, tested browsers and versions."
+    href="/docs/accessibility/"
+  />
+  <LinkCard
+    title="Releasing"
+    description="How the five packages are published to npm."
+    href="/docs/releasing/"
+  />
+</CardGrid>

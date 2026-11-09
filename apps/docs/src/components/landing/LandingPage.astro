@@ -1,0 +1,81 @@
+---
+import { project } from '../../data/project';
+import type { LandingCopy } from '../../i18n/landing.en';
+import Landing from '../../layouts/Landing.astro';
+import CompatSection from './CompatSection.astro';
+import DemoSection from './DemoSection.astro';
+import Faq from './Faq.astro';
+import FeatureGrid from './FeatureGrid.astro';
+import FinalCta from './FinalCta.astro';
+import Footer from './Footer.astro';
+import Header from './Header.astro';
+import Hero from './Hero.astro';
+import KitTabs from './KitTabs.astro';
+import MinimalExample from './MinimalExample.astro';
+
+interface Props {
+  t: LandingCopy;
+}
+const { t } = Astro.props;
+const home = new URL(t.home, Astro.site).href;
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'ArtisanForm',
+    url: home,
+    inLanguage: t.lang,
+    description: t.meta.description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: 'ArtisanForm',
+    description: t.meta.description,
+    codeRepository: project.repo,
+    programmingLanguage: 'TypeScript',
+    runtimePlatform: 'React',
+    license: 'https://opensource.org/license/mit',
+    version: project.version,
+    url: home,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    inLanguage: t.lang,
+    mainEntity: t.faq.items.map((i) => ({
+      '@type': 'Question',
+      name: i.q,
+      acceptedAnswer: { '@type': 'Answer', text: i.a },
+    })),
+  },
+];
+---
+<Landing
+  lang={t.lang}
+  title={t.meta.title}
+  description={t.meta.description}
+  alternates={{ en: '/', es: '/es/' }}
+  image={`/og/${t.lang}.png`}
+  imageAlt={t.meta.imageAlt}
+  jsonLd={jsonLd}
+>
+  <a href="#main" class="sr-only z-[60] rounded bg-forge px-3 py-2 text-black focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>
+  <Header t={t} />
+  <main id="main">
+    <Hero t={t} />
+    <DemoSection t={t} />
+    <FeatureGrid t={t.features} />
+    <KitTabs t={t.kits} />
+    <CompatSection t={t.compat} />
+    <MinimalExample t={t.minimal} />
+    <Faq t={t.faq} />
+    <FinalCta t={t.cta} />
+  </main>
+  <Footer t={t.footer} />
+  <script>
+    import '../../scripts/page';
+    import '../../scripts/wizard';
+    import '../../scripts/kit-tabs';
+  </script>
+</Landing>

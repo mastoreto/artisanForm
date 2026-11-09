@@ -1,0 +1,25 @@
+---
+import type { LandingCopy } from '../../i18n/landing.en';
+import Icon from '../ui/Icon.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+
+interface Props {
+  t: LandingCopy['faq'];
+}
+const f = Astro.props.t;
+---
+<section id={f.id} class="border-b border-white/5 px-6 py-20 lg:px-12" aria-labelledby="faq-title">
+  <div class="mx-auto max-w-3xl">
+    <div class="mb-10"><SectionHeading title={f.title} titleId="faq-title" /></div>
+    <div class="space-y-3">
+      {f.items.map((item) => (
+        <details class="group surface px-5 open:border-iron-700">
+          <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-4 font-display font-medium text-white [&::-webkit-details-marker]:hidden">
+            {item.q}<Icon name="expand-more" class="size-5 shrink-0 text-slag transition group-open:rotate-180" />
+          </summary>
+          <p class="pb-4 text-sm leading-relaxed text-slag">{item.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
