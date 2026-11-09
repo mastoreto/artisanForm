@@ -27,10 +27,9 @@ void main(){
   }
   vec3 ember=vec3(.98,.45,.09),fire=vec3(.92,.22,.05),white=vec3(1.,.95,.85);
   col+=mix(fire,ember,clamp(d*1.8,0.,1.))*core*.55;
-  col+=mix(ember,white,flash*.7)*(flash*.75/(d+.22));
+  col+=mix(ember,white,flash*.5)*(flash*.5/(d+.22));
   col+=ember*wave*.6;
   col+=mix(fire,white,.5)*sparks*.35;
-  col=mix(base,col,.6);
   col*=smoothstep(1.3,.35,length(uv));
   gl_FragColor=vec4(col,1.);
 }`;

@@ -25,7 +25,9 @@ const label = 'mb-2 block text-xs font-medium text-slate-200';
   <form novalidate class="relative z-10 flex flex-1 flex-col justify-between p-6 md:p-8" data-done-text={w.done} data-yes={w.yes} data-no={w.no}>
     <div>
       <p data-step-status class="sr-only" role="status" aria-live="polite"></p>
-      <ol aria-label={w.stepsLabel} class="relative mb-8 flex items-start justify-between rounded-2xl border border-iron-700 bg-black/50 p-4">
+      <ol aria-label={w.stepsLabel} class="forge-strike relative mb-8 flex items-start justify-between rounded-2xl border border-iron-700 bg-black/50 p-4">
+        <span class="spark" style="top:6px;right:18px;--dx:-12px;--dy:-24px" aria-hidden="true"></span>
+        <span class="spark" style="top:4px;right:46px;--dx:10px;--dy:-20px;--d:0.04s" aria-hidden="true"></span>
         <span class="absolute left-12 right-12 top-9 h-[3px] rounded-full bg-white/10" aria-hidden="true"></span>
         <span class="absolute left-12 right-12 top-9 h-[3px]" aria-hidden="true"><span class="wizard-line block h-full rounded-full bg-ember"></span></span>
         {w.steps.map((name, i) => (
@@ -42,12 +44,15 @@ const label = 'mb-2 block text-xs font-medium text-slate-200';
       <fieldset data-panel class="space-y-5">
         <legend class="sr-only">{w.steps[0]}</legend>
         <div class={panel}>
+          <span class="spark" style="top:8px;right:14px;--dx:-10px;--dy:-22px" aria-hidden="true"></span>
+          <span class="spark" style="bottom:-2px;right:48px;--dx:14px;--dy:-18px;--d:0.04s" aria-hidden="true"></span>
           <label for="wz-project" class={label}>{w.projectLabel} <span class="text-slag" aria-hidden="true">*</span></label>
           <input id="wz-project" name="project" type="text" required minlength="3" autocomplete="off" value={w.defaults.project} class={field} aria-describedby="wz-project-hint" data-field />
           <p id="wz-project-hint" class="mt-2 text-xs text-slag">{w.projectHint}</p>
           <p data-error-for="wz-project" hidden class="mt-1 text-xs text-red-400">{w.projectError}</p>
         </div>
         <div class={panel} style="--d:0.06s">
+          <span class="spark" style="top:6px;left:96px;--dx:12px;--dy:-20px;--d:0.06s" aria-hidden="true"></span>
           <label for="wz-email" class={label}>{w.emailLabel} <span class="text-slag" aria-hidden="true">*</span></label>
           <input id="wz-email" name="email" type="email" required autocomplete="off" value={w.defaults.email} class={field} data-field />
           <p data-error-for="wz-email" hidden class="mt-1 text-xs text-red-400">{w.emailError}</p>
@@ -98,7 +103,7 @@ const label = 'mb-2 block text-xs font-medium text-slate-200';
       <button type="button" data-prev disabled class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30">
         <Icon name="arrow-back" />{w.back}
       </button>
-      <button type="button" data-next data-label-next={w.next} data-label-finish={w.finish} class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-molten bg-ember-deep px-6 py-3 text-sm font-medium text-white transition hover:bg-ember-press active:scale-95">
+      <button type="button" data-next data-label-next={w.next} data-label-finish={w.finish} class="forge-strike inline-flex cursor-pointer items-center gap-2 rounded-xl border border-molten bg-ember-deep px-6 py-3 text-sm font-medium text-white transition hover:bg-ember-press active:scale-95">
         <span data-next-label>{w.next}</span><Icon name="arrow-forward" />
       </button>
     </div>

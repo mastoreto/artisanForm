@@ -10,7 +10,7 @@ interface Props {
 }
 const { demo } = Astro.props.t;
 ---
-<section id={demo.id} class="relative border-b border-white/5 px-6 py-20 lg:px-12" aria-labelledby="demo-title">
+<section id={demo.id} data-forge class="relative border-b border-white/5 px-6 py-20 lg:px-12" aria-labelledby="demo-title">
   <div class="mx-auto max-w-7xl">
     <div class="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
       <SectionHeading title={demo.title} lead={demo.lead} titleId="demo-title" />
