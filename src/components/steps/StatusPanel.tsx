@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
-import { useCx } from '../ui/UiContext';
+import type { ArtisanStatusPanelProps } from '../ui/types';
+import { useComponents, useCx } from '../ui/UiContext';
 
 /** Secondary action of a state screen (retry, back, links…). */
 export const ActionButton = (
@@ -23,7 +24,7 @@ export const ActionLink = ({
   return <a {...rest} className={cx('action', className)} />;
 };
 
-type Tone = 'success' | 'error' | 'pending';
+type Tone = ArtisanStatusPanelProps['tone'];
 
 const icon: Record<Tone, string> = {
   success: 'M5 13l4 4L19 7',
@@ -35,18 +36,12 @@ const icon: Record<Tone, string> = {
  * One look for every "state" screen (result, waiting, payment…): a status
  * icon (check, cross or spinner), a message and optional actions.
  */
-const StatusPanel = ({
+export const DefaultStatusPanel = ({
   tone,
   message,
   children,
   className,
-}: {
-  tone: Tone;
-  message: ReactNode;
-  /** Buttons/links shown under the message. */
-  children?: ReactNode;
-  className?: string;
-}) => {
+}: ArtisanStatusPanelProps) => {
   const cx = useCx();
   return (
     <div
@@ -75,6 +70,12 @@ const StatusPanel = ({
       {children && <div className={cx('statusActions')}>{children}</div>}
     </div>
   );
+};
+
+/** Renders `components.StatusPanel` when the app provides one. */
+const StatusPanel = (props: ArtisanStatusPanelProps) => {
+  const Custom = useComponents().StatusPanel;
+  return Custom ? <Custom {...props} /> : <DefaultStatusPanel {...props} />;
 };
 
 export default StatusPanel;

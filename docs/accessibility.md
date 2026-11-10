@@ -28,7 +28,7 @@ Automated checks find only part of the possible problems (keyboard flow, focus o
 ## What is not verified yet
 
 - Manual passes with a screen reader (NVDA, JAWS, VoiceOver, TalkBack).
-- Motion: the default styles only use short (150 ms) transitions and a loading spinner, and they do not react to `prefers-reduced-motion` yet.
+- Motion: with `prefers-reduced-motion: reduce` the default styles turn transitions off and slow the spinner (covered by a stylesheet test, not by a browser run).
 - Right-to-left languages, Windows high-contrast mode and zoomed layouts.
 - Touch devices: the tests use desktop browser profiles.
 

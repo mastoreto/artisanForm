@@ -67,6 +67,10 @@ interface ArtisanFormProps<
   classNames?: ArtisanClassNames;
   /** Do not emit the `af-*` classes: bring your own styles. */
   unstyled?: boolean;
+  /** Let the user go back to a finished step by clicking it in the stepper (off by default). */
+  stepperNavigation?: boolean;
+  /** Color theme: `dark`, or `auto` to follow the OS (default: the light tokens, as before). */
+  theme?: 'light' | 'dark' | 'auto';
 }
 
 /**
@@ -81,6 +85,8 @@ const ArtisanForm = <S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1>({
   unstyled: unstyledProp,
   labels: labelOverrides,
   className,
+  stepperNavigation,
+  theme,
   ...options
 }: ArtisanFormProps<S>) => {
   // default UI < kit < explicit props
@@ -110,7 +116,12 @@ const ArtisanForm = <S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1>({
   return (
     <ArtisanWizardProvider wizard={wizard}>
       <UiContext.Provider value={uiConfig}>
-        <Wizard wizard={wizard} className={className} />
+        <Wizard
+          wizard={wizard}
+          className={className}
+          stepperNavigation={stepperNavigation}
+          theme={theme}
+        />
       </UiContext.Provider>
     </ArtisanWizardProvider>
   );

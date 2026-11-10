@@ -96,7 +96,21 @@ export interface ArtisanStepperProps {
   }[];
   /** Index of the current step among `steps`. */
   current: number;
+  /**
+   * Present when the form lets the user go back through the stepper: call it
+   * with the index of a `done` step (only those are selectable).
+   */
+  onSelect?: (index: number) => void;
   labels: ArtisanLabels;
+}
+
+/** The "state screen" shared by the payment, waiting and result steps. */
+export interface ArtisanStatusPanelProps {
+  tone: 'success' | 'error' | 'pending';
+  message: ReactNode;
+  /** Buttons or links shown under the message. */
+  children?: ReactNode;
+  className?: string;
 }
 
 export interface ArtisanControlsProps {
@@ -131,6 +145,8 @@ export interface ArtisanComponents {
   FieldWrapper?: ComponentType<ArtisanFieldWrapperProps>;
   StepHeader?: ComponentType<ArtisanStepHeaderProps>;
   FormError?: ComponentType<ArtisanFormErrorProps>;
+  /** The screen of the payment, waiting and result steps (icon + message + actions). */
+  StatusPanel?: ComponentType<ArtisanStatusPanelProps>;
   /** Replace the control of single-value field types, by field `type`. */
   inputs?: ArtisanInputComponents;
 }

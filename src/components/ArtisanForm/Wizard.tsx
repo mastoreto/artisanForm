@@ -27,9 +27,14 @@ const DefaultControls = ({ error: _error, ...props }: ArtisanControlsProps) => (
 export const Wizard = ({
   wizard,
   className,
+  stepperNavigation,
+  theme,
 }: {
   wizard: ArtisanWizard;
   className?: string;
+  /** Let the user go back to a finished step through the stepper. */
+  stepperNavigation?: boolean;
+  theme?: 'light' | 'dark' | 'auto';
 }) => {
   const cx = useCx();
   const custom = useComponents();
@@ -63,6 +68,7 @@ export const Wizard = ({
       noValidate
       ref={bindForm}
       className={cx('root', className)}
+      data-theme={theme}
       data-layout={formUi.layout}
       data-density={formUi.density}
       data-label-position={formUi.labelPosition}
@@ -71,7 +77,12 @@ export const Wizard = ({
         void wizard.next();
       }}
     >
-      <StepperSlot steps={steps} current={step} labels={labels} />
+      <StepperSlot
+        steps={steps}
+        current={step}
+        onSelect={stepperNavigation ? wizard.goTo : undefined}
+        labels={labels}
+      />
       <StepHeaderSlot title={current.title} index={step} total={steps.length} />
       {wizard.renderStep()}
       {formError && <FormErrorSlot message={formError} />}

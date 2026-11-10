@@ -47,6 +47,7 @@ export type {
   ArtisanFormErrorProps,
   ArtisanInputComponents,
   ArtisanInputProps,
+  ArtisanStatusPanelProps,
   ArtisanStepHeaderProps,
   ArtisanStepperProps,
   InputValueByType,

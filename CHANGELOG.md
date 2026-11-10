@@ -2,6 +2,13 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Personalization)
+
+- **`components.StatusPanel` (AF89):** the screen of the payment, waiting and result steps can be replaced (`ArtisanStatusPanelProps`).
+- **Stepper navigation:** `<ArtisanForm stepperNavigation>` makes finished steps clickable (`ArtisanStepperProps.onSelect`; off by default).
+- **Theme, motion, focus:** `theme="dark" | "auto"` redefines the color tokens (opt-in; nothing changes without it), `prefers-reduced-motion` turns transitions off, and more interactive parts show a `:focus-visible` outline. New `stepperButton` class slot.
+- **Not in this change:** `layout: 'horizontal'` styling and a uniform contract for multi-value inputs (`array`, `file`, `dynamicSelect`, `daterange`) are still pending.
+
 ## Unreleased (Typed values and navigation by id)
 
 - **`InferValues` and typed `onSubmit` (AF88):** `defineForm` now keeps the literal type of the schema (a `const` generic; the same object comes back), and `InferValues<typeof schema>` computes the submitted values from it. `ArtisanForm` and `useArtisanWizard` are generic over the schema and type `onSubmit` with it; a schema that is not a literal (or a 0.2.0 `FormSchema`) still gets `Record<string, unknown>`.

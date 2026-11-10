@@ -2,6 +2,13 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Personalización)
+
+- **`components.StatusPanel` (AF89):** la pantalla de los pasos de pago, espera y resultado se puede reemplazar (`ArtisanStatusPanelProps`).
+- **Navegación del stepper:** `<ArtisanForm stepperNavigation>` hace clicables los pasos terminados (`ArtisanStepperProps.onSelect`; desactivado por defecto).
+- **Tema, movimiento, foco:** `theme="dark" | "auto"` redefine los tokens de color (opt-in; sin él nada cambia), `prefers-reduced-motion` apaga las transiciones y más partes interactivas muestran un contorno `:focus-visible`. Nuevo slot de clase `stepperButton`.
+- **No incluido:** el estilo de `layout: 'horizontal'` y un contrato uniforme para inputs multivalor (`array`, `file`, `dynamicSelect`, `daterange`) siguen pendientes.
+
 ## Sin publicar (Valores tipados y navegación por id)
 
 - **`InferValues` y `onSubmit` tipado (AF88):** `defineForm` ahora conserva el tipo literal del schema (un genérico `const`; devuelve el mismo objeto) y `InferValues<typeof schema>` calcula los valores enviados a partir de él. `ArtisanForm` y `useArtisanWizard` son genéricos sobre el schema y tipan `onSubmit` con él; un schema que no es literal (o un `FormSchema` 0.2.0) sigue recibiendo `Record<string, unknown>`.

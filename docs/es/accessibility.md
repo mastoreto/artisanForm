@@ -28,7 +28,7 @@ Los chequeos automáticos encuentran solo una parte de los problemas posibles (e
 ## Qué todavía no está verificado
 
 - Pasadas manuales con un lector de pantalla (NVDA, JAWS, VoiceOver, TalkBack).
-- Movimiento: los estilos por defecto solo usan transiciones cortas (150 ms) y un spinner de carga, y todavía no reaccionan a `prefers-reduced-motion`.
+- Movimiento: con `prefers-reduced-motion: reduce` los estilos por defecto apagan las transiciones y vuelven más lento el spinner (cubierto por un test de la hoja de estilos, no por una ejecución en navegador).
 - Idiomas de derecha a izquierda, el modo de alto contraste de Windows y los layouts con zoom.
 - Dispositivos táctiles: los tests usan perfiles de navegador de escritorio.
 
