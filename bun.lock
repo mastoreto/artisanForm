@@ -97,17 +97,17 @@
     },
     "packages/ui-bootstrap": {
       "name": "@beardartisans/ui-bootstrap",
-      "version": "0.3.0-beta.0",
+      "version": "0.3.0-beta.1",
       "devDependencies": {
         "artisanform": "link:../..",
       },
       "peerDependencies": {
-        "artisanform": "^0.3.0-beta.0",
+        "artisanform": "^0.3.0-beta.1",
       },
     },
     "packages/ui-mui": {
       "name": "@beardartisans/ui-mui",
-      "version": "0.3.0-beta.0",
+      "version": "0.3.0-beta.1",
       "devDependencies": {
         "artisanform": "link:../..",
       },
@@ -115,18 +115,18 @@
         "@emotion/react": "^11.0.0",
         "@emotion/styled": "^11.0.0",
         "@mui/material": "^9.0.0",
-        "artisanform": "^0.3.0-beta.0",
+        "artisanform": "^0.3.0-beta.1",
         "react": "^18.3.1 || ^19.0.0",
       },
     },
     "packages/ui-scss": {
       "name": "@beardartisans/ui-scss",
-      "version": "0.3.0-beta.0",
+      "version": "0.3.0-beta.1",
       "devDependencies": {
         "artisanform": "link:../..",
       },
       "peerDependencies": {
-        "artisanform": "^0.3.0-beta.0",
+        "artisanform": "^0.3.0-beta.1",
       },
     },
     "packages/ui-shadcn": {
@@ -138,12 +138,12 @@
     },
     "packages/ui-tailwind": {
       "name": "@beardartisans/ui-tailwind",
-      "version": "0.3.0-beta.0",
+      "version": "0.3.0-beta.1",
       "devDependencies": {
         "artisanform": "link:../..",
       },
       "peerDependencies": {
-        "artisanform": "^0.3.0-beta.0",
+        "artisanform": "^0.3.0-beta.1",
       },
     },
   },

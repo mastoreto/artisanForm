@@ -1,6 +1,6 @@
 {
   "name": "artisanform",
-  "version": "0.3.0-beta.0",
+  "version": "0.3.0-beta.1",
   "description": "Declarative multi-step forms (wizards) for React: a serializable JSON schema, 30+ field types, payments, file uploads and themeable UI kits.",
   "keywords": [
     "react",
