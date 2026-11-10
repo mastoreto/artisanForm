@@ -417,3 +417,37 @@ test('remote policy: only what the host explicitly allows can be referenced', ()
     }),
   ).toEqual([]);
 });
+
+test('rejects unsafe link schemes and accepts safe ones', () => {
+  const withHref = (href: string) => {
+    const s = valid();
+    (s.steps[2] as Record<string, unknown>).actions = [{ label: 'Go', href }];
+    return s;
+  };
+  for (const bad of [
+    'javascript:alert(1)',
+    ' JaVaScRiPt:alert(1)',
+    'java\tscript:alert(1)',
+    'data:text/html,x',
+    'vbscript:x',
+  ])
+    expect(errors(withHref(bad))).toEqual([
+      'unsafe-url @ steps[2].actions[0].href',
+    ]);
+  for (const ok of [
+    'https://a.dev/x',
+    'mailto:a@b.dev',
+    '/docs',
+    '#top',
+    'a/b?x=1:2',
+  ])
+    expect(errors(withHref(ok))).toEqual([]);
+});
+
+test('rejects field names that are prototype keys or path syntax', () => {
+  for (const name of ['__proto__', 'constructor', 'prototype', 'a.b', 'a[0]']) {
+    const s = valid();
+    (s.steps[0].fields?.[1] as Record<string, unknown>).name = name;
+    expect(errors(s)).toContain('invalid-name @ steps[0].fields[1].name');
+  }
+});

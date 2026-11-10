@@ -6,6 +6,10 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
 - **Integrations (AF77):** a `wait` message with an unknown `status` now fails the step instead of waiting for the timeout, and a `websocket()` that closes before a final status fails (closing it ourselves is not a failure). `cloudinary()` throws a clear upload error when the response is not the expected JSON. The payment idempotency key uses `crypto.getRandomValues` when `randomUUID` is unavailable (insecure contexts) instead of `Math.random`, and fails if there is no `crypto` at all. The files guide states that `accept` and `maxSize` are not a security control.
 
+## Unreleased (Security)
+
+- **Schema hardening (AF76):** `parseArtisanSchema` rejects a `href` that is not `http:`, `https:`, `mailto:` or relative (`unsafe-url`, so `javascript:` links are refused) and field names that are prototype keys or use path syntax (`invalid-name`). The renderer also skips an unsafe `href`, which covers 0.2.0 schemas. Schemas that used those values now fail validation.
+
 ## Unreleased (Security: behavior change)
 
 - **Payment return URL is no longer trusted (AF78):** `resume()` of the redirect plugins (Stripe, Mercado Pago, Lemon Squeezy and the mock) now reports `processing` where it used to report `succeeded`, because anyone could forge `?stripe_status=success` and make the wizard record a paid step. Embedded flows (`render` → `onResult`) are unchanged. **If you rely on a redirect checkout, add a `pending` step after the payment step so your backend confirms the payment**; the `payment` value in the submitted payload must never be treated as proof of payment.

@@ -6,6 +6,10 @@
 
 - **Integraciones (AF77):** un mensaje de `wait` con un `status` desconocido ahora hace fallar el paso en vez de esperar al timeout, y un `websocket()` que se cierra antes de un estado final falla (cerrarlo nosotros no es un fallo). `cloudinary()` lanza un error de subida claro cuando la respuesta no es el JSON esperado. La idempotency key de pago usa `crypto.getRandomValues` cuando `randomUUID` no está disponible (contextos no seguros) en vez de `Math.random`, y falla si no hay `crypto`. La guía de archivos aclara que `accept` y `maxSize` no son un control de seguridad.
 
+## Sin publicar (Seguridad)
+
+- **Endurecimiento del schema (AF76):** `parseArtisanSchema` rechaza un `href` que no sea `http:`, `https:`, `mailto:` o relativo (`unsafe-url`, así que los enlaces `javascript:` se rechazan) y los nombres de campo que sean claves de prototipo o usen sintaxis de ruta (`invalid-name`). El render también omite un `href` inseguro, lo que cubre los schemas 0.2.0. Los schemas que usaban esos valores ahora fallan la validación.
+
 ## Sin publicar (Seguridad: cambio de comportamiento)
 
 - **La URL de retorno del pago ya no es de confianza (AF78):** `resume()` de los plugins de redirección (Stripe, Mercado Pago, Lemon Squeezy y el mock) ahora informa `processing` donde antes informaba `succeeded`, porque cualquiera podía falsificar `?stripe_status=success` y hacer que el wizard registre un paso pagado. Los flujos embebidos (`render` → `onResult`) no cambian. **Si usás un checkout por redirección, agregá un paso `pending` después del de pago** para que tu backend confirme el pago; el valor `payment` del payload enviado nunca debe tratarse como prueba de pago.
