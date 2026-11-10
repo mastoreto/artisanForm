@@ -57,20 +57,21 @@ const PaymentStep = (ctx: StepContext) => {
   const advanced = useRef(false);
 
   // Aborted when the step unmounts (the user left, or the wizard moved on), so
-  // an in-flight `start()` can stop. A fresh controller per mount (StrictMode).
-  const controller = useRef(new AbortController());
+  // an in-flight `start()` can stop. A fresh controller after StrictMode's
+  // simulated unmount.
+  const [controller, setController] = useState(() => new AbortController());
   useEffect(() => {
-    if (controller.current.signal.aborted)
-      controller.current = new AbortController();
-    return () => controller.current.abort();
-  }, []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- replaces a controller aborted by the simulated unmount
+    if (controller.signal.aborted) setController(new AbortController());
+    return () => controller.abort();
+  }, [controller]);
 
   const request = () => ({
     values,
     idempotencyKey: key,
     returnUrl: baseUrl(),
     cancelUrl: baseUrl(),
-    signal: controller.current.signal,
+    signal: controller.signal,
   });
 
   const finish = (plugin: PaymentPlugin, result: PaymentResult) => {
