@@ -2,6 +2,10 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Security: payments in the core)
+
+- **Untrusted return URL, enforced in the core (AF86, behavior change for custom plugins):** `PaymentStep` now downgrades any `resume()` result from `succeeded` to `processing`, not only the bundled plugins. `PaymentRequest.signal` is aborted when the payment step unmounts (it never was). `parseArtisanSchema` emits the warning `payment-without-confirmation` when a `payment` step is not followed by a `wait` step. **If a custom plugin read a success from the URL and relied on it, add a `pending` step that confirms the payment on your backend.**
+
 ## Unreleased (Fixes)
 
 - **`failTo` with hidden steps (AF85):** a `wait` step's `failTo` was projected to an index in the full step list but used as an index among the visible steps, so a hidden step before the target sent the user to the wrong step. It stays a step id now and is resolved against the visible steps when the wait fails (a hidden target falls back to going back one step).

@@ -784,7 +784,24 @@ export const parseArtisanSchema = (
     c.error('invalid-type', 'steps', 'steps must be an array');
   else if (input.steps.length === 0)
     c.error('empty-steps', 'steps', 'a schema needs at least one step');
-  else for (const [i, s] of input.steps.entries()) checkStep(s, `steps[${i}]`);
+  else {
+    for (const [i, s] of input.steps.entries()) checkStep(s, `steps[${i}]`);
+    // A payment recorded in the browser is never proof of payment: a redirect
+    // return only reports "processing". Ask for a `wait` step to confirm it.
+    for (const [i, s] of input.steps.entries()) {
+      const next = input.steps[i + 1];
+      if (
+        isObj(s) &&
+        s.type === 'payment' &&
+        !(isObj(next) && next.type === 'wait')
+      )
+        c.warn(
+          'payment-without-confirmation',
+          `steps[${i}]`,
+          'a payment step should be followed by a wait step where your backend confirms the payment',
+        );
+    }
+  }
 
   for (const r of refs.fieldRefs) {
     if (!refs.fieldNames.has(r.name))

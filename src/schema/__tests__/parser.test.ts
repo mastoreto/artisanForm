@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { parseArtisanSchema, type SchemaPolicy } from '../parser';
 
 const valid = () => ({
@@ -450,4 +450,34 @@ test('rejects field names that are prototype keys or path syntax', () => {
     (s.steps[0].fields?.[1] as Record<string, unknown>).name = name;
     expect(errors(s)).toContain('invalid-name @ steps[0].fields[1].name');
   }
+});
+
+describe('payment without confirmation', () => {
+  const schema = (steps: unknown[]) => ({
+    schemaVersion: 1,
+    id: 'p',
+    steps,
+  });
+  const pay = { id: 'p', type: 'payment', title: 'P', providers: ['stripe'] };
+  const warns = (steps: unknown[]) =>
+    parseArtisanSchema(schema(steps)).issues.filter(
+      (i) => i.code === 'payment-without-confirmation',
+    );
+
+  test('a payment step not followed by a wait step is a warning, never an error', () => {
+    const r = parseArtisanSchema(
+      schema([pay, { id: 'r', type: 'result', title: 'R' }]),
+    );
+    expect(r.success).toBe(true);
+    expect(warns([pay, { id: 'r', type: 'result', title: 'R' }])).toHaveLength(
+      1,
+    );
+    expect(warns([pay])).toHaveLength(1);
+  });
+
+  test('followed by a wait step: no warning', () => {
+    expect(
+      warns([pay, { id: 'w', type: 'wait', title: 'W', strategy: 's' }]),
+    ).toEqual([]);
+  });
 });

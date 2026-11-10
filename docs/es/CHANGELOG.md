@@ -2,6 +2,10 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Seguridad: pagos en el núcleo)
+
+- **URL de retorno no confiable, aplicado en el núcleo (AF86, cambio de comportamiento para plugins propios):** `PaymentStep` ahora degrada cualquier resultado de `resume()` de `succeeded` a `processing`, no solo el de los plugins incluidos. `PaymentRequest.signal` se aborta cuando el paso de pago se desmonta (antes nunca). `parseArtisanSchema` emite el aviso `payment-without-confirmation` cuando un paso `payment` no va seguido de un paso `wait`. **Si un plugin propio leía un éxito de la URL y dependía de eso, agregá un paso `pending` que confirme el pago en tu backend.**
+
 ## Sin publicar (Correcciones)
 
 - **`failTo` con pasos ocultos (AF85):** el `failTo` de un paso `wait` se proyectaba a un índice de la lista completa pero se usaba como índice entre los pasos visibles, así que un paso oculto antes del destino llevaba al usuario al paso equivocado. Ahora sigue siendo un id de paso y se resuelve contra los pasos visibles cuando la espera falla (si el destino está oculto, retrocede un paso).
