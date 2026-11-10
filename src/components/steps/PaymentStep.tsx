@@ -7,9 +7,16 @@ import { useCx } from '../ui/UiContext';
 import type { StepContext } from './registry';
 import StatusPanel, { ActionButton } from './StatusPanel';
 
-const newKey = () =>
-  globalThis.crypto?.randomUUID?.() ??
-  `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+// `randomUUID` needs a secure context; `getRandomValues` does not. No weaker fallback.
+const newKey = () => {
+  const c = globalThis.crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  if (c?.getRandomValues)
+    return Array.from(c.getRandomValues(new Uint8Array(16)), (b) =>
+      b.toString(16).padStart(2, '0'),
+    ).join('');
+  throw new Error('Payments need a secure random source (crypto)');
+};
 
 /** The URL without parameters this library added (so it can be returned to). */
 const baseUrl = () => {
