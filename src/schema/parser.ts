@@ -9,6 +9,7 @@ import {
 } from './contract/specs';
 import type { NativeStepType } from './contract/steps';
 import type { SchemaIssue } from './contract/types';
+import { isSafeFieldName, isSafeUrl } from './contract/url';
 
 /**
  * Which locally registered things a schema may reference. Used for schemas
@@ -238,8 +239,23 @@ export const parseArtisanSchema = (
   };
   const seenNames = new Map<string, string>();
 
+  const checkUrl = (href: unknown, path: string) => {
+    if (typeof href === 'string' && !isSafeUrl(href))
+      c.error(
+        'unsafe-url',
+        path,
+        'links must be http:, https:, mailto: or relative',
+      );
+  };
+
   const claimName = (name: unknown, path: string) => {
     if (typeof name !== 'string' || name === '') return;
+    if (!isSafeFieldName(name))
+      c.error(
+        'invalid-name',
+        path,
+        `name "${name}" is not allowed (reserved word or contains ".", "[" or "]")`,
+      );
     const first = seenNames.get(name);
     if (first)
       c.error(
@@ -715,13 +731,19 @@ export const parseArtisanSchema = (
             }
             checkKeys(a, ['label', 'href', 'action'], `${p}[${i}]`, c);
             need.string(a.label, `${p}[${i}].label`, c, true);
-            if (a.href !== undefined) need.string(a.href, `${p}[${i}].href`, c);
+            if (a.href !== undefined) {
+              need.string(a.href, `${p}[${i}].href`, c);
+              checkUrl(a.href, `${p}[${i}].href`);
+            }
             if (a.action !== undefined)
               reference(a.action, pol.actions, `${p}[${i}].action`, 'action');
           }
       } else if (k === 'config') {
         if (!isObj(v)) c.error('invalid-type', p, 'must be an object');
-      } else need.string(v, p, c, true); // message, errorMessage, summary, content, href
+      } else {
+        need.string(v, p, c, true); // message, errorMessage, summary, content, href
+        if (k === 'href') checkUrl(v, p);
+      }
     }
 
     if (type === 'form' && s.fields === undefined)
