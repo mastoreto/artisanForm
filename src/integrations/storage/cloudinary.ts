@@ -44,15 +44,21 @@ export const cloudinary = ({
       form,
       { onProgress, signal },
     );
-    const res = JSON.parse(xhr.responseText) as {
-      public_id: string;
-      secure_url: string;
-      bytes: number;
-    };
+    let res: { public_id?: unknown; secure_url?: unknown; bytes?: unknown };
+    try {
+      res = JSON.parse(xhr.responseText);
+    } catch {
+      throw new Error('Cloudinary returned an invalid response');
+    }
+    if (
+      typeof res?.public_id !== 'string' ||
+      typeof res.secure_url !== 'string'
+    )
+      throw new Error('Cloudinary returned an invalid response');
     return {
       id: res.public_id,
       name: file.name,
-      size: res.bytes ?? file.size,
+      size: typeof res.bytes === 'number' ? res.bytes : file.size,
       type: file.type,
       url: res.secure_url,
     };

@@ -28,6 +28,8 @@ The library **never holds storage credentials**. Your backend signs the upload (
 
 The user gets drag and drop, previews for images, a progress bar, cancel, retry and remove. The **Next** button waits until every upload has finished, and a failed upload shows its error with a *Retry* button.
 
+> **`accept` and `maxSize` are checks for the user's convenience, not a security control**: they run in the browser and anyone can skip them. Enforce the type and size where the file lands: in the conditions of the pre-signed URL your backend signs, or in the Cloudinary preset.
+
 What the form stores (and what `onSubmit` receives) is a descriptor:
 
 ```ts
