@@ -32,6 +32,9 @@ export const isSnapshotV1 = (v: unknown): v is ArtisanSnapshotV1 =>
   v.formId !== '' &&
   (v.formRevision === undefined || Number.isInteger(v.formRevision)) &&
   typeof v.currentStepId === 'string' &&
+  (v.history === undefined ||
+    (Array.isArray(v.history) &&
+      v.history.every((id) => typeof id === 'string'))) &&
   isObj(v.values) &&
   isJSONValue(v.values);
 
@@ -93,6 +96,7 @@ export const createSnapshot = (args: {
   formId: string;
   formRevision?: number;
   currentStepId: string;
+  history?: string[];
   /** Secrets must already be removed by the caller (it knows the field types). */
   values: Record<string, unknown>;
 }): ArtisanSnapshotV1 => ({
@@ -102,6 +106,7 @@ export const createSnapshot = (args: {
     ? { formRevision: args.formRevision }
     : {}),
   currentStepId: args.currentStepId,
+  ...(args.history && args.history.length > 0 ? { history: args.history } : {}),
   values: toJSONValues(args.values),
 });
 

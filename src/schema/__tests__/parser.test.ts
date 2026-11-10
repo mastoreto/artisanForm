@@ -481,3 +481,88 @@ describe('payment without confirmation', () => {
     ).toEqual([]);
   });
 });
+
+describe('transitions', () => {
+  const step = (id: string, extra: Record<string, unknown> = {}) => ({
+    id,
+    type: 'form',
+    title: id,
+    fields: [],
+    ...extra,
+  });
+  const parse = (steps: unknown[]) =>
+    parseArtisanSchema({ schemaVersion: 1, id: 't', steps });
+  const codes = (steps: unknown[], severity: 'error' | 'warning') =>
+    parse(steps)
+      .issues.filter((i) => i.severity === severity)
+      .map((i) => i.code);
+
+  test('a forward transition and a bounded way back are valid', () => {
+    const r = parse([
+      step('a', {
+        next: [{ when: { field: 'x', operator: 'filled' }, to: 'c' }],
+      }),
+      step('b'),
+      step('c', { next: [{ to: 'b' }] }),
+      step('d'),
+    ]);
+    // c → b goes back, and b has no loop
+    expect(r.success).toBe(false);
+    expect(
+      codes(
+        [
+          step('a'),
+          step('b', { loop: { max: 2 } }),
+          step('c', { next: [{ to: 'b' }] }),
+        ],
+        'error',
+      ),
+    ).toEqual([]);
+  });
+
+  test('a way back to a step without loop.max is rejected', () => {
+    expect(
+      codes([step('a'), step('b', { next: [{ to: 'a' }] })], 'error'),
+    ).toEqual(['unbounded-loop']);
+    expect(codes([step('a', { next: [{ to: 'a' }] })], 'error')).toEqual([
+      'unbounded-loop',
+    ]);
+  });
+
+  test('an unknown target and malformed properties are errors', () => {
+    expect(codes([step('a', { next: [{ to: 'nope' }] })], 'error')).toEqual([
+      'unknown-step-reference',
+    ]);
+    expect(codes([step('a', { loop: { max: 0 } })], 'error')).toEqual([
+      'invalid-type',
+    ]);
+    expect(codes([step('a', { revisit: 'sometimes' })], 'error')).toHaveLength(
+      1,
+    );
+    expect(
+      codes([step('a', { next: [{ to: 'a', x: 1 }] })], 'error').length,
+    ).toBeGreaterThan(0);
+  });
+
+  test('a step no path reaches is a warning', () => {
+    // a always goes to c, so b is skipped
+    expect(
+      codes(
+        [step('a', { next: [{ to: 'c' }] }), step('b'), step('c')],
+        'warning',
+      ),
+    ).toEqual(['unreachable-step']);
+    expect(
+      codes(
+        [
+          step('a', {
+            next: [{ when: { field: 'x', operator: 'filled' }, to: 'c' }],
+          }),
+          step('b'),
+          step('c'),
+        ],
+        'warning',
+      ),
+    ).toEqual([]);
+  });
+});

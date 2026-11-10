@@ -2,6 +2,10 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Workflows)
+
+- **Transitions (AF90):** steps accept `next: { when?, to }[]` (first matching edge decides the next step), `loop: { max }` (bounds re-entries; required on the target of a way back) and `revisit: 'allow' | 'deny'` (a finished `deny` step cannot be returned to). Back follows the path taken; the path is saved in the draft (`history?` in the snapshot, still `snapshotVersion` 1) so a reload resumes on the branch. The parser reports `unbounded-loop` (error) and `unreachable-step` (warning). Schemas without these properties behave exactly as before. `useArtisanWizard` adds `canGoBack` and guards `goTo`/`goToStep` with the revisit rule. See [schema v1](docs/schema-v1.md#transitions-loops-and-revisit-).
+
 ## Unreleased (Personalization)
 
 - **`components.StatusPanel` (AF89):** the screen of the payment, waiting and result steps can be replaced (`ArtisanStatusPanelProps`).

@@ -2,6 +2,10 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Workflows)
+
+- **Transiciones (AF90):** los pasos aceptan `next: { when?, to }[]` (la primera arista que coincide decide el siguiente paso), `loop: { max }` (acota los reingresos; obligatorio en el destino de un camino de vuelta) y `revisit: 'allow' | 'deny'` (a un paso `deny` terminado no se puede volver). Atrás sigue el camino recorrido; el camino se guarda en el borrador (`history?` en el snapshot, `snapshotVersion` sigue en 1) para que una recarga retome la rama. El parser informa `unbounded-loop` (error) y `unreachable-step` (aviso). Los schemas sin estas propiedades se comportan exactamente igual. `useArtisanWizard` agrega `canGoBack` y protege `goTo`/`goToStep` con la regla de revisitar. Ver [schema v1](schema-v1.md#transiciones-bucles-y-revisitar-).
+
 ## Sin publicar (Personalización)
 
 - **`components.StatusPanel` (AF89):** la pantalla de los pasos de pago, espera y resultado se puede reemplazar (`ArtisanStatusPanelProps`).

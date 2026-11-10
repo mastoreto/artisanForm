@@ -13,6 +13,8 @@ export interface ArtisanSnapshotV1 {
   formRevision?: number;
   /** Where the user was, by stable step id (not by index). */
   currentStepId: string;
+  /** Ids of the steps already left, in order (only forms with transitions write it). */
+  history?: string[];
   values: Record<string, JSONValue>;
 }
 

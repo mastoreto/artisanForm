@@ -27,6 +27,8 @@ export interface RestoredDraft {
   values: Record<string, unknown>;
   /** Index among the currently visible steps. */
   stepIndex: number;
+  /** Steps already left (forms with transitions). */
+  history: string[];
 }
 
 export interface DraftContext {
@@ -84,14 +86,22 @@ export const restoreDraft = (ctx: DraftContext): RestoredDraft | null => {
     Math.max(0, visibleIds(ctx.scheme, s.values).indexOf(s.currentStepId));
 
   if (reason === null && snapshot) {
-    return { values: snapshot.values, stepIndex: indexOf(snapshot) };
+    return {
+      values: snapshot.values,
+      stepIndex: indexOf(snapshot),
+      history: snapshot.history ?? [],
+    };
   }
 
   const decision =
     ctx.onConflict?.({ reason: reason ?? 'corrupt', snapshot, current }) ??
     'backup';
   if (decision === 'restore' && snapshot) {
-    return { values: snapshot.values, stepIndex: indexOf(snapshot) };
+    return {
+      values: snapshot.values,
+      stepIndex: indexOf(snapshot),
+      history: snapshot.history ?? [],
+    };
   }
   if (decision === 'discard') clearSnapshot(ctx.persistKey);
   else backupStored(ctx.persistKey, raw);
@@ -102,6 +112,7 @@ export const saveDraft = (
   ctx: Pick<DraftContext, 'persistKey' | 'formId' | 'revision'>,
   currentStepId: string | undefined,
   values: Record<string, unknown>,
+  history?: string[],
 ) => {
   if (!currentStepId) return;
   writeSnapshot(
@@ -110,6 +121,7 @@ export const saveDraft = (
       formId: ctx.formId,
       formRevision: ctx.revision,
       currentStepId,
+      history,
       values,
     }),
   );

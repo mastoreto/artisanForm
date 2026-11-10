@@ -32,6 +32,7 @@ test('a saved draft restores its values and the visible step index', () => {
   expect(restoreDraft(ctx)).toEqual({
     values: { name: 'Ana', city: 'Cali' },
     stepIndex: 1,
+    history: [],
   });
 });
 

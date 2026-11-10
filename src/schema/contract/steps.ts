@@ -18,6 +18,19 @@ export interface StepHooksV1 {
   onEnter?: string;
 }
 
+/** One outgoing edge of a step: taken when `when` holds (always, if omitted). */
+export interface StepTransitionV1 {
+  when?: ConditionV1;
+  /** Id of the step to go to. */
+  to: string;
+}
+
+/** Bounds how often a step can be entered again through a transition. */
+export interface StepLoopV1 {
+  /** Re-entries allowed (the first visit does not count). At least 1. */
+  max: number;
+}
+
 export interface StepBaseV1 {
   /** Stable identity: navigation, snapshots and references use it, not the index. */
   id: string;
@@ -27,6 +40,16 @@ export interface StepBaseV1 {
   ui?: StepUIConfig;
   controls?: StepControlsV1;
   hooks?: StepHooksV1;
+  /**
+   * Where to go after this step, in order; the first edge whose `when` holds
+   * wins. No match (or no `next`) means the next visible step. Targets that
+   * are not visible, or are `result` steps, are skipped.
+   */
+  next?: StepTransitionV1[];
+  /** Required on the target of a transition that goes back (or to itself). */
+  loop?: StepLoopV1;
+  /** `deny`: once finished, the user cannot come back to this step (and Back stops here). Default `allow`. */
+  revisit?: 'allow' | 'deny';
 }
 
 export interface FormStepV1 extends StepBaseV1 {

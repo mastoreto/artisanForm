@@ -40,7 +40,7 @@ Las mismas de `ArtisanForm` sin las props de UI, con `schema` en vez de `scheme`
 | `current` | `{ id, index, kind, title, fields }` (`fields` son los visibles ahora) o `null`. |
 | `next()` | Valida el paso, corre `beforeNext` y avanza (o envía en el último paso). |
 | `back()`, `goTo(index)`, `submit()` | Navegación y envío. `submit()` no valida el paso. |
-| `isFirst`, `isLast` | Para tus botones. |
+| `isFirst`, `canGoBack`, `isLast` | Para tus botones. Con transiciones, `canGoBack` es falso si no hay camino de vuelta (o hay un paso `revisit: 'deny'` terminado atrás). |
 | `submitState`, `submitError`, `stepError` | `idle \| submitting \| success \| error` y los mensajes. |
 | `renderStep()`, `controls`, `bindForm`, `labels`, `ui` | Lo que usa el renderer por defecto: dibuja un paso con su tipo registrado (pago, espera, resumen…), los controles por defecto del paso, un `ref` (callback) para el `<form>` (el foco va al primer campo inválido), los textos combinados y la config `ui` del formulario. |
 

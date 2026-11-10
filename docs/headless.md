@@ -40,7 +40,7 @@ The same as `ArtisanForm` minus the UI props, with `schema` instead of `scheme`:
 | `current` | `{ id, index, kind, title, fields }` (`fields` are the ones visible now) or `null`. |
 | `next()` | Validates the step, runs `beforeNext`, then moves on (or submits on the last step). |
 | `back()`, `goTo(index)`, `submit()` | Navigation and submit. `submit()` bypasses step validation. |
-| `isFirst`, `isLast` | For your buttons. |
+| `isFirst`, `canGoBack`, `isLast` | For your buttons. With transitions, `canGoBack` is false when there is no path back (or a finished `revisit: 'deny'` step is behind). |
 | `submitState`, `submitError`, `stepError` | `idle \| submitting \| success \| error` and the messages. |
 | `renderStep()`, `controls`, `bindForm`, `labels`, `ui` | What the default renderer uses: render a step with its registered step type (payment, pending, review…), the step's default controls, a callback `ref` for the `<form>` so focus moves to the first invalid field, the merged labels and the form's `ui` settings. |
 

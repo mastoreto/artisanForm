@@ -130,12 +130,14 @@ export interface ArtisanWizard {
   /** Validates the step, runs `beforeNext`, then moves on (or submits on the last step). */
   next: () => Promise<void>;
   back: () => void;
-  /** Index among `steps`. */
+  /** Index among `steps`. Refused when a finished `revisit: 'deny'` step is in the way. */
   goTo: (index: number) => void;
   /** Moves to the visible step with this id, without validating. `false` if there is none (unknown or hidden). */
   goToStep: (id: string) => boolean;
   submit: () => Promise<void>;
+  /** No way back from here (first step, or a finished `revisit: 'deny'` step is behind). */
   isFirst: boolean;
+  canGoBack: boolean;
   isLast: boolean;
   submitState: SubmitState;
   submitError: string | null;
@@ -333,6 +335,7 @@ export const useArtisanWizard = <
     onChange,
     onStepChange,
     persistKey,
+    initialHistory: draft?.history,
     onSubmitValues: submitValues,
     step:
       (stepFromId !== undefined && stepFromId >= 0 ? stepFromId : undefined) ??
@@ -368,6 +371,7 @@ export const useArtisanWizard = <
       goToStep: () => false,
       submit: async () => {},
       isFirst: true,
+      canGoBack: false,
       isLast: true,
       submitState: 'idle',
       submitError: null,
@@ -384,7 +388,13 @@ export const useArtisanWizard = <
       id: s.id ?? String(i),
       title: s.title,
       kind: s.kind ?? 'form',
-      state: i < step ? 'done' : i === step ? 'current' : 'upcoming',
+      // With transitions, "done" is what was actually visited, not what comes first.
+      state:
+        i === step
+          ? 'current'
+          : (inner.flow ? inner.history.includes(s.id ?? '') : i < step)
+            ? 'done'
+            : 'upcoming',
     })),
     step,
     current: {
@@ -396,15 +406,16 @@ export const useArtisanWizard = <
     },
     next: inner.next,
     back: context.back,
-    goTo: inner.goTo,
+    goTo: (index) => {
+      inner.jumpTo(index);
+    },
     goToStep: (id) => {
       const index = inner.steps.findIndex((s) => s.id === id);
-      if (index < 0) return false;
-      inner.goTo(index);
-      return true;
+      return index < 0 ? false : inner.jumpTo(index);
     },
     submit: context.submit,
-    isFirst: step <= 0,
+    isFirst: !inner.canGoBack,
+    canGoBack: inner.canGoBack,
     isLast: step >= inner.finalIndex,
     submitState: inner.submitState,
     submitError: inner.submitError,

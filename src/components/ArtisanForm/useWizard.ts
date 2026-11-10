@@ -15,6 +15,12 @@ import type { FormValues } from '../../engine/form/types';
 import type { FormUi } from '../../engine/form/validators';
 import { resolveStep } from '../../engine/navigation';
 import type { ArtisanStore } from '../../engine/store/useArtisanStore';
+import {
+  canJumpTo,
+  resolveBack,
+  resolveNext,
+  usesFlow,
+} from '../../engine/transitions';
 import type { StorageMap } from '../../integrations/storage/types';
 import type { FormUIConfig } from '../../schema/contract/types';
 import type { BeforeNextResult, FormSchema } from '../../schema/legacy/types';
@@ -51,6 +57,8 @@ export interface WizardProps {
   onStepChange?: (step: number) => void;
   step?: number;
   persistKey?: string;
+  /** Steps already left, restored from a draft (forms with transitions). */
+  initialHistory?: string[];
 }
 
 /**
@@ -60,6 +68,7 @@ export interface WizardProps {
  * `Wizard` only renders what this returns; a headless API would expose this.
  */
 export const useWizard = ({
+  initialHistory,
   methods,
   store,
   uiState,
@@ -135,13 +144,40 @@ export const useWizard = ({
   // the user already moved must not move them again.
   const navigation = useRef(0);
   const busy = useRef(false);
-  const goTo = (index: number) => {
+  const moveTo = (index: number) => {
     navigation.current += 1;
     ui?.setAttempted(false);
     setStepError(null);
     setStep(index);
     setProcessStep(index);
   };
+
+  // Transitions, loops and revisit rules only apply when the schema uses them;
+  // otherwise navigation is the plain linear one it always was.
+  const flow = useMemo(() => usesFlow(scheme), [scheme]);
+  const [history, setHistory] = useState<string[]>(initialHistory ?? []);
+  // Any jump to a step already left rewinds the history to before it.
+  const goTo = (index: number) => {
+    const id = steps[index]?.id;
+    if (flow && id && history.includes(id))
+      setHistory(history.slice(0, history.lastIndexOf(id)));
+    moveTo(index);
+  };
+  // For the user (stepper, `goToStep`): refused when a finished `revisit: 'deny'` step is in the way.
+  const jumpTo = (index: number) => {
+    const id = steps[index]?.id;
+    if (flow && id && !canJumpTo(steps, history, id)) return false;
+    goTo(index);
+    return true;
+  };
+  const back = () => {
+    if (!flow) return goTo(Math.max(0, step - 1));
+    const previous = resolveBack(steps, history);
+    if (!previous) return;
+    setHistory(previous.history);
+    moveTo(previous.index);
+  };
+  const canGoBack = flow ? resolveBack(steps, history) !== null : step > 0;
 
   useEffect(() => {
     setStep(stepProp ?? 0);
@@ -193,15 +229,16 @@ export const useWizard = ({
     if (!persistKey) return;
     const save = () => {
       const safe = withoutSecrets(scheme, getValues(), registry);
-      const fingerprint = JSON.stringify([steps[step]?.id, safe]);
+      const left = flow ? history : undefined;
+      const fingerprint = JSON.stringify([steps[step]?.id, safe, left]);
       if (fingerprint === lastSaved.current) return;
       lastSaved.current = fingerprint;
-      saveDraft({ persistKey, ...snapshotMeta }, steps[step]?.id, safe);
+      saveDraft({ persistKey, ...snapshotMeta }, steps[step]?.id, safe, left);
     };
     save();
     const subscription = watch(save);
     return () => subscription.unsubscribe();
-  }, [step, persistKey, steps.map((s) => s.id).join('|')]);
+  }, [step, persistKey, steps.map((s) => s.id).join('|'), history.join('|')]);
 
   // After a blocked "Next", move focus to the first invalid field.
   useEffect(() => {
@@ -251,7 +288,12 @@ export const useWizard = ({
       await submitForm();
       return;
     }
-    goTo(step + 1);
+    if (flow) {
+      setHistory([...history, current.id ?? String(step)]);
+      moveTo(resolveNext(steps, step, getValues(), history));
+      return;
+    }
+    moveTo(step + 1);
   };
 
   const ownedNames = new Set([
@@ -282,12 +324,10 @@ export const useWizard = ({
     },
     errors: stepErrors,
     next,
-    back: () => goTo(Math.max(0, step - 1)),
+    back,
     goToStep: (id) => {
       const index = steps.findIndex((s) => s.id === id);
-      if (index < 0) return false;
-      goTo(index);
-      return true;
+      return index < 0 ? false : jumpTo(index);
     },
     submitState,
     submitError,
@@ -310,7 +350,7 @@ export const useWizard = ({
     plugins: pluginsMap,
     fields,
     next,
-    back: () => goTo(Math.max(0, step - 1)),
+    back,
     goTo,
     submit: submitForm,
     submitState,
@@ -329,6 +369,11 @@ export const useWizard = ({
     },
     next,
     goTo,
+    jumpTo,
+    back,
+    canGoBack,
+    history,
+    flow,
     finalIndex,
     stepError,
     submitError,

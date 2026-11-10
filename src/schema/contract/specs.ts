@@ -106,6 +106,9 @@ const stepBase = [
   'ui',
   'controls',
   'hooks',
+  'next',
+  'loop',
+  'revisit',
 ] as const;
 
 export const STEP_KEYS = {

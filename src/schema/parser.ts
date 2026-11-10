@@ -629,6 +629,35 @@ export const parseArtisanSchema = (
         else need.bool(val, `${p}.${k}`, c);
       }
     },
+    next: (v, p) => {
+      if (!Array.isArray(v))
+        return c.error('invalid-type', p, 'must be an array of transitions');
+      for (const [i, edge] of v.entries()) {
+        const ep = `${p}[${i}]`;
+        if (!isObj(edge))
+          return c.error('invalid-type', ep, 'a transition must be an object');
+        checkKeys(edge, ['when', 'to'], ep, c);
+        if (edge.when !== undefined) checkCondition(edge.when, `${ep}.when`);
+        if (typeof edge.to !== 'string' || edge.to === '')
+          c.error('invalid-type', `${ep}.to`, 'must be a step id');
+        else refs.stepRefs.push({ id: edge.to, path: `${ep}.to` });
+      }
+    },
+    loop: (v, p) => {
+      if (!isObj(v)) return c.error('invalid-type', p, 'must be an object');
+      checkKeys(v, ['max'], p, c);
+      if (
+        !Number.isInteger(v.max) ||
+        (v.max as number) < 1 ||
+        (v.max as number) > 1000
+      )
+        c.error(
+          'invalid-type',
+          `${p}.max`,
+          'must be an integer from 1 to 1000',
+        );
+    },
+    revisit: (v, p) => need.oneOf(v, p, c, ['allow', 'deny']),
     hooks: (v, p) => {
       if (!isObj(v)) return c.error('invalid-type', p, 'must be an object');
       checkKeys(v, ['beforeNext', 'onEnter'], p, c);
@@ -780,12 +809,67 @@ export const parseArtisanSchema = (
     }
   };
 
+  // Transitions: a way back needs a bounded target, and every step should be reachable.
+  const checkFlow = (all: unknown[]) => {
+    const ids = all.map((s) =>
+      isObj(s) && typeof s.id === 'string' ? s.id : '',
+    );
+    const edges = (i: number) => {
+      const s = all[i];
+      return isObj(s) && Array.isArray(s.next)
+        ? s.next.flatMap((e, j) =>
+            isObj(e) && typeof e.to === 'string' && ids.includes(e.to)
+              ? [
+                  {
+                    to: ids.indexOf(e.to),
+                    always: e.when === undefined,
+                    path: `steps[${i}].next[${j}].to`,
+                  },
+                ]
+              : [],
+          )
+        : [];
+    };
+    for (let i = 0; i < all.length; i++)
+      for (const e of edges(i)) {
+        const target = all[e.to];
+        const bounded = isObj(target) && isObj(target.loop);
+        if (e.to <= i && !bounded)
+          c.error(
+            'unbounded-loop',
+            e.path,
+            `"${ids[e.to]}" is reached again by a transition: it needs loop: { max }`,
+          );
+      }
+    const seen = new Set([0]);
+    const queue = [0];
+    while (queue.length > 0) {
+      const i = queue.shift() as number;
+      const out = edges(i);
+      // The linear step is only a fallback while no edge always applies.
+      const linear = out.some((e) => e.always) ? [] : [i + 1];
+      for (const to of [...linear, ...out.map((e) => e.to)])
+        if (to < all.length && !seen.has(to)) {
+          seen.add(to);
+          queue.push(to);
+        }
+    }
+    for (let i = 1; i < all.length; i++)
+      if (!seen.has(i))
+        c.warn(
+          'unreachable-step',
+          `steps[${i}]`,
+          `step "${ids[i]}" cannot be reached`,
+        );
+  };
+
   if (!Array.isArray(input.steps))
     c.error('invalid-type', 'steps', 'steps must be an array');
   else if (input.steps.length === 0)
     c.error('empty-steps', 'steps', 'a schema needs at least one step');
   else {
     for (const [i, s] of input.steps.entries()) checkStep(s, `steps[${i}]`);
+    checkFlow(input.steps);
     // A payment recorded in the browser is never proof of payment: a redirect
     // return only reports "processing". Ask for a `wait` step to confirm it.
     for (const [i, s] of input.steps.entries()) {

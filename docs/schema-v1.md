@@ -72,6 +72,23 @@ Fields share `FieldBase` (`name`, `id?`, `label?`, `description?`, `required?`, 
 
 A field with a property its type does not accept is a parser **error** (`unknown-property`); it is not ignored.
 
+### Transitions, loops and revisit ✅
+
+Optional on every step; a schema that uses none of them navigates exactly as before (next visible step, Back goes one step back).
+
+```jsonc
+{ "id": "plan", "type": "form", "title": "Plan", "fields": [ … ],
+  "next": [ { "when": { "field": "plan", "operator": "eq", "value": "pro" }, "to": "pay" },
+            { "to": "review" } ] }
+```
+
+- **`next: { when?, to }[]`**: after the step validates, the first edge whose `when` holds (always, if omitted) decides where to go; `to` is a step id. No match, a hidden target or a `result` target falls back to the next visible step.
+- **`loop: { max }`**: required on the target of an edge that goes back (or to itself). It is how many times the step can be **entered again** (the first visit does not count); once used up, the edge is skipped.
+- **`revisit: 'allow' | 'deny'`** (default `allow`): `deny` means that once the step is finished the user cannot come back to it, and Back stops right after it (a paid step cannot be undone). The stepper and `goToStep` refuse jumps across it.
+- **Back** follows the path actually taken (a history of finished steps, saved in the draft as `history?` in the snapshot; `snapshotVersion` stays 1), not the step order.
+- **Parser:** an edge to an unknown id is `unknown-step-reference`; going back to a step without `loop` is `unbounded-loop` (error); a step no path reaches is `unreachable-step` (warning); `loop.max` must be an integer from 1 to 1000.
+- **Limits:** the last visible non-`result` step still submits (branches should reconverge, or hide steps with `visibleWhen`); no parallel branches or sub-flows.
+
 ## 4. Declarative conditions ✅
 
 ```json

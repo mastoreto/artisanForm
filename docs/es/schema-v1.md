@@ -72,6 +72,23 @@ Los campos comparten `FieldBase` (`name`, `id?`, `label?`, `description?`, `requ
 
 Un campo con una propiedad que su tipo no admite es un **error** del parser (`unknown-property`), no se ignora.
 
+### Transiciones, bucles y revisitar ✅
+
+Opcionales en cada paso; un schema que no usa ninguna navega exactamente como antes (siguiente paso visible, Atrás retrocede un paso).
+
+```jsonc
+{ "id": "plan", "type": "form", "title": "Plan", "fields": [ … ],
+  "next": [ { "when": { "field": "plan", "operator": "eq", "value": "pro" }, "to": "pay" },
+            { "to": "review" } ] }
+```
+
+- **`next: { when?, to }[]`**: cuando el paso valida, la primera arista cuyo `when` se cumple (siempre, si se omite) decide adónde ir; `to` es un id de paso. Sin coincidencia, un destino oculto o un destino `result` vuelve al siguiente paso visible.
+- **`loop: { max }`**: obligatorio en el destino de una arista que vuelve atrás (o a sí mismo). Es cuántas veces el paso puede **reingresarse** (la primera visita no cuenta); agotado, la arista se omite.
+- **`revisit: 'allow' | 'deny'`** (por defecto `allow`): `deny` significa que, una vez terminado el paso, el usuario no puede volver a él y Atrás se detiene justo después (un paso pagado no se deshace). El stepper y `goToStep` rechazan saltos que lo crucen.
+- **Atrás** sigue el camino realmente recorrido (un historial de pasos terminados, guardado en el borrador como `history?` del snapshot; `snapshotVersion` sigue en 1), no el orden de los pasos.
+- **Parser:** una arista a un id desconocido es `unknown-step-reference`; volver a un paso sin `loop` es `unbounded-loop` (error); un paso que ningún camino alcanza es `unreachable-step` (aviso); `loop.max` debe ser un entero de 1 a 1000.
+- **Límites:** el último paso visible que no es `result` sigue enviando (las ramas deberían reconverger, o ocultar pasos con `visibleWhen`); sin ramas paralelas ni sub-flujos.
+
 ## 4. Condiciones declarativas ✅
 
 ```json
