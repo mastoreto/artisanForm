@@ -394,3 +394,42 @@ describe('incompatible drafts are never destroyed silently', () => {
     await waitFor(() => expect(stored()).toBeNull());
   });
 });
+
+test('draftStorage replaces localStorage and draftDebounceMs batches the writes', async () => {
+  const writes: string[] = [];
+  const store = new Map<string, string>();
+  const draftStorage = {
+    getItem: (k: string) => store.get(k) ?? null,
+    setItem: (k: string, v: string) => {
+      writes.push(v);
+      store.set(k, v);
+    },
+    removeItem: (k: string) => void store.delete(k),
+  };
+  const user = userEvent.setup();
+  const view = render(
+    <ArtisanForm
+      scheme={{
+        steps: [
+          { title: 'A', fields: [{ type: 'text', name: 'a', label: 'A' }] },
+          { title: 'B', fields: [] },
+        ],
+      }}
+      onSubmit={() => {}}
+      persistKey="deb"
+      draftStorage={draftStorage}
+      draftDebounceMs={80}
+    />,
+  );
+  const initial = writes.length; // the first save is immediate
+  await user.type(screen.getByLabelText('A'), 'abcd');
+  expect(writes.length).toBe(initial); // typing wrote nothing yet
+  await waitFor(() => expect(writes.length).toBe(initial + 1));
+  expect(JSON.parse(writes.at(-1) ?? '{}').values.a).toBe('abcd');
+  expect(localStorage.getItem('artisanform:deb')).toBeNull();
+
+  // leaving flushes what was typed
+  await user.type(screen.getByLabelText('A'), 'e');
+  view.unmount();
+  expect(JSON.parse(writes.at(-1) ?? '{}').values.a).toBe('abcde');
+});

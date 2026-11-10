@@ -2,6 +2,10 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Persistence)
+
+- **Pluggable drafts, debounce and migrations (AF92):** `draftStorage` (any synchronous `getItem`/`setItem`/`removeItem` store), `draftDebounceMs` (writes also happen on step change and unmount, never after a successful submit) and `snapshotMigrations` (a chain of functions that bring a draft saved against an older `revision` up to the current one; failures fall back to `onSnapshotConflict`, and the original is kept in the backup slot). The IO helpers (`readSnapshot`, `writeSnapshot`, `clearSnapshot`, `readRaw`, `backupStored`) and `migrateSnapshot` are exported. Not included: asynchronous storage.
+
 ## Unreleased (Waiting)
 
 - **`wait` options (AF91, decision: no separate `action` step):** `timeoutMs`, `retry: { max, backoffMs? }` and `cancellable` on `wait` steps (and on 0.2.0 `pending` steps). New default labels `waitTimeout` and `cancel`. The parser validates them (`timeoutMs` 1–3 600 000, `retry.max` 1–10, `backoffMs` 0–60 000).

@@ -22,6 +22,7 @@ import {
   usesFlow,
 } from '../../engine/transitions';
 import type { StorageMap } from '../../integrations/storage/types';
+import type { DraftStorage } from '../../persistence';
 import type { FormUIConfig } from '../../schema/contract/types';
 import type { BeforeNextResult, FormSchema } from '../../schema/legacy/types';
 import type { FieldRegistry } from '../fields/registry';
@@ -59,6 +60,9 @@ export interface WizardProps {
   persistKey?: string;
   /** Steps already left, restored from a draft (forms with transitions). */
   initialHistory?: string[];
+  draftStorage?: DraftStorage;
+  /** Wait this long after the last change before writing the draft (default: write at once). */
+  draftDebounceMs?: number;
 }
 
 /**
@@ -69,6 +73,8 @@ export interface WizardProps {
  */
 export const useWizard = ({
   initialHistory,
+  draftStorage,
+  draftDebounceMs = 0,
   methods,
   store,
   uiState,
@@ -227,18 +233,46 @@ export const useWizard = ({
   const lastSaved = useRef('');
   useEffect(() => {
     if (!persistKey) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const save = () => {
+      timer = undefined;
+      // A submitted form cleared its draft: nothing may write it back.
+      if (store.getState().submitState === 'success') return;
       const safe = withoutSecrets(scheme, getValues(), registry);
       const left = flow ? history : undefined;
       const fingerprint = JSON.stringify([steps[step]?.id, safe, left]);
       if (fingerprint === lastSaved.current) return;
       lastSaved.current = fingerprint;
-      saveDraft({ persistKey, ...snapshotMeta }, steps[step]?.id, safe, left);
+      saveDraft(
+        { persistKey, storage: draftStorage, ...snapshotMeta },
+        steps[step]?.id,
+        safe,
+        left,
+      );
+    };
+    // Typing can write on every keystroke; `draftDebounceMs` batches that.
+    const schedule = () => {
+      if (draftDebounceMs <= 0) return save();
+      clearTimeout(timer);
+      timer = setTimeout(save, draftDebounceMs);
     };
     save();
-    const subscription = watch(save);
-    return () => subscription.unsubscribe();
-  }, [step, persistKey, steps.map((s) => s.id).join('|'), history.join('|')]);
+    const subscription = watch(schedule);
+    return () => {
+      subscription.unsubscribe();
+      // Leaving the step or the form must not lose what was typed.
+      if (timer !== undefined) {
+        clearTimeout(timer);
+        save();
+      }
+    };
+  }, [
+    step,
+    persistKey,
+    steps.map((s) => s.id).join('|'),
+    history.join('|'),
+    draftDebounceMs,
+  ]);
 
   // After a blocked "Next", move focus to the first invalid field.
   useEffect(() => {

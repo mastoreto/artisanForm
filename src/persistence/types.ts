@@ -18,6 +18,18 @@ export interface ArtisanSnapshotV1 {
   values: Record<string, JSONValue>;
 }
 
+/**
+ * Migrates a snapshot from one `formRevision` to a higher one. It receives a
+ * copy, returns the new snapshot (with the higher `formRevision`) and may throw
+ * to give up; the old draft is then kept aside, not lost.
+ */
+export type SnapshotMigration = (
+  snapshot: ArtisanSnapshotV1,
+) => ArtisanSnapshotV1;
+
+/** Keyed by the revision each one migrates **from**. */
+export type SnapshotMigrations = Record<number, SnapshotMigration>;
+
 export type ConflictReason =
   /** Saved for another form. */
   | 'form-id'

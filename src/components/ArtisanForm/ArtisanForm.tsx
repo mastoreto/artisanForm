@@ -7,7 +7,12 @@ import type {
   StorageAdapter,
   StorageMap,
 } from '../../integrations/storage/types';
-import type { ConflictDecision, SnapshotConflict } from '../../persistence';
+import type {
+  ConflictDecision,
+  DraftStorage,
+  SnapshotConflict,
+  SnapshotMigrations,
+} from '../../persistence';
 import type { ArtisanSchemaV1 } from '../../schema/contract/define';
 import type { FormSchema } from '../../schema/legacy/types';
 import type { FieldRegistry } from '../fields/registry';
@@ -51,6 +56,12 @@ interface ArtisanFormProps<
   className?: string;
   /** Saves values and step to localStorage under this key and restores them on mount. Passwords are never saved; the draft is cleared on submit. */
   persistKey?: string;
+  /** Where the draft lives (default `localStorage`): `sessionStorage` or your own synchronous store. */
+  draftStorage?: DraftStorage;
+  /** Wait this long after the last change before writing the draft (default 0: write at once). */
+  draftDebounceMs?: number;
+  /** Brings a draft saved against an older `revision` up to the current one (see `migrateSnapshot`). */
+  snapshotMigrations?: SnapshotMigrations;
   /** Custom field types, merged over the built-in ones (see `defaultFieldRegistry`). */
   fields?: FieldRegistry;
   /** Custom step kinds, merged over the built-in ones (see `defaultStepRegistry`). */

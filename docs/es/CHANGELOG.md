@@ -2,6 +2,10 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Persistencia)
+
+- **Borradores conectables, debounce y migraciones (AF92):** `draftStorage` (cualquier store síncrono con `getItem`/`setItem`/`removeItem`), `draftDebounceMs` (también se escribe al cambiar de paso y al desmontar, nunca después de un envío exitoso) y `snapshotMigrations` (una cadena de funciones que llevan un borrador guardado con una `revision` anterior a la actual; los fallos caen en `onSnapshotConflict` y el original queda en el slot de respaldo). Los helpers de IO (`readSnapshot`, `writeSnapshot`, `clearSnapshot`, `readRaw`, `backupStored`) y `migrateSnapshot` se exportan. No incluido: storage asíncrono.
+
 ## Sin publicar (Espera)
 
 - **Opciones de `wait` (AF91, decisión: sin paso `action` aparte):** `timeoutMs`, `retry: { max, backoffMs? }` y `cancellable` en pasos `wait` (y en pasos `pending` 0.2.0). Nuevos textos por defecto `waitTimeout` y `cancel`. El parser las valida (`timeoutMs` 1–3 600 000, `retry.max` 1–10, `backoffMs` 0–60 000).

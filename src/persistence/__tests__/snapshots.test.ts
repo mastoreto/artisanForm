@@ -6,8 +6,10 @@ import {
   clearSnapshot,
   createSnapshot,
   isSnapshotV1,
+  migrateSnapshot,
   parseStored,
   readRaw,
+  readSnapshot,
   storageKey,
   toJSONValues,
   upgradeLegacyDraft,
@@ -222,5 +224,75 @@ describe('storage', () => {
     expect(() => writeSnapshot('k', snap, broken)).not.toThrow();
     expect(() => clearSnapshot('k', broken)).not.toThrow();
     expect(() => backupStored('k', '{}', broken)).not.toThrow();
+  });
+});
+
+describe('migrateSnapshot and readSnapshot', () => {
+  const at = (rev: number, values: Record<string, unknown> = {}) =>
+    createSnapshot({
+      formId: 'f',
+      formRevision: rev,
+      currentStepId: 'a',
+      values,
+    });
+  const migrations = {
+    1: (s: ReturnType<typeof at>) => ({
+      ...s,
+      formRevision: 2,
+      values: { ...s.values, fullName: s.values.name },
+    }),
+    2: (s: ReturnType<typeof at>) => ({ ...s, formRevision: 3 }),
+  };
+
+  test('chains migrations up to the target revision', () => {
+    const r = migrateSnapshot(at(1, { name: 'Ana' }), 3, migrations);
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.snapshot.formRevision).toBe(3);
+      expect(r.snapshot.values).toEqual({ name: 'Ana', fullName: 'Ana' });
+    }
+  });
+
+  test('never mutates the snapshot it was given', () => {
+    const original = at(1, { name: 'Ana' });
+    const copy = JSON.stringify(original);
+    migrateSnapshot(original, 3, {
+      1: (s) => {
+        s.values.name = 'changed';
+        return { ...s, formRevision: 3 };
+      },
+    });
+    expect(JSON.stringify(original)).toBe(copy);
+  });
+
+  test('reports every way a chain can fail instead of throwing', () => {
+    const reason = (s: ReturnType<typeof at>, target: number, m: object) => {
+      const r = migrateSnapshot(s, target, m as never);
+      return r.ok ? 'ok' : r.reason;
+    };
+    expect(reason(at(1, { name: 'Ana' }), 3, { 1: migrations[1] })).toBe(
+      'no-migration',
+    );
+    expect(
+      reason(at(1), 2, {
+        1: () => {
+          throw new Error('x');
+        },
+      }),
+    ).toBe('threw');
+    expect(reason(at(1), 2, { 1: () => ({ nope: true }) })).toBe('invalid');
+    expect(
+      reason(at(1), 2, { 1: (s: object) => ({ ...s, formRevision: 1 }) }),
+    ).toBe('not-forward');
+    expect(reason(at(5), 2, migrations)).toBe('newer');
+  });
+
+  test('readSnapshot reads from any storage with get/set/remove', () => {
+    const s = memory();
+    expect(readSnapshot('k', s)).toBeNull();
+    writeSnapshot('k', at(1), s);
+    expect(readSnapshot('k', s)?.kind).toBe('snapshot');
+    s.setItem('artisanform:bad', '{nope');
+    expect(readSnapshot('bad', s)?.kind).toBe('corrupt');
   });
 });

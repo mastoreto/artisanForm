@@ -217,7 +217,7 @@ Una referencia sin registrar **falla de forma explícita** (`ArtisanSchemaError`
 
 - `schemaVersion: 1` identifica el formato. Un número mayor se rechaza (`unsupported-version`) en lugar de interpretarse mal. Un esquema **sin** `schemaVersion` se trata como 0.2.0 en `normalizeArtisanSchema`.
 - `id` identifica el formulario y `revision` una definición concreta; ambos se registran en los borradores.
-- Las migraciones automáticas de datos están ⏳ fuera de alcance: se detecta la incompatibilidad y decide el consumidor (§11).
+- Las migraciones de datos son opt-in (`snapshotMigrations`, §11): sin ellas se detecta la incompatibilidad y decide el consumidor.
 
 ## 11. Persistencia ✅
 
@@ -239,6 +239,9 @@ interface ArtisanSnapshotV1 {
 - **Incompatibilidades** (`form-id`, `revision`, `step-missing`, `unsupported-version`, `corrupt`): el borrador **nunca se borra en silencio**. `onSnapshotConflict(conflict) → 'backup' | 'restore' | 'discard'`; por defecto `backup`: se mueve a `artisanform:<key>:incompatible` (una sola ranura) y el formulario arranca limpio. `restore` aplica los valores igualmente (empezando por el primer paso si el paso ya no existe); `discard` lo elimina. Si falta la revisión en alguno de los lados, no se considera un conflicto.
 - **Atención con formularios 0.2.0:** sus ids de paso se derivan del título, así que **renombrar o reordenar títulos hace que un borrador ya guardado no encuentre su paso** (`step-missing`) y, con la política por defecto, se respalde y el formulario arranque limpio. En 0.2.0 el borrador se restauraba por índice y sobrevivía a un cambio de título. Pasá a `ArtisanSchemaV1` con ids explícitos, o usá `onSnapshotConflict={() => 'restore'}` para conservar los valores (se empieza en el primer paso).
 - Si el paso guardado existe pero hoy está oculto, se restauran los valores y se empieza en el primer paso visible.
+- **Dónde y cuándo se escribe:** `draftStorage` (cualquier cosa con `getItem`/`setItem`/`removeItem`, síncrona: `sessionStorage`, uno en memoria o propio; por defecto `localStorage`) y `draftDebounceMs` (por defecto 0 = en cada cambio; con una demora también escribe al cambiar de paso o al desmontar, y nunca después de un envío exitoso).
+- **Migraciones:** `snapshotMigrations={{ 1: (s) => ({ ...s, formRevision: 2, values: { ...s.values, fullName: s.values.name } }) }}` lleva un borrador guardado con la revisión 1 a la `revision` del formulario. Cada migración recibe una copia del snapshot en la revisión *n* y lo devuelve en una revisión mayor; la cadena corre hasta que la revisión coincide. Si falta una migración, lanza, devuelve algo que no es un snapshot o no sube la revisión, el borrador pasa por `onSnapshotConflict` como antes. Tras una migración exitosa el original queda en el slot de respaldo. `migrateSnapshot` se exporta para probarlas.
+- **Helpers de IO** (exportados): `readSnapshot`, `writeSnapshot`, `clearSnapshot`, `readRaw`, `backupStored`, `createSnapshot`, `parseStored`, `checkSnapshot`, `migrateSnapshot`.
 
 ## 12. Compatibilidad con 0.2.0 🔁
 
@@ -281,7 +284,7 @@ No hay dos motores ni ramas de compatibilidad en los componentes. `FormSchema`, 
 - `optionsSource` solo en `combobox`/`multiselect`.
 - Los `hooks` y `onSnapshotConflict` de un esquema 0.2.0 siguen siendo código TypeScript, no datos.
 - Los mensajes de validación y textos de interfaz siguen saliendo de `labels` (no del esquema).
-- Los snapshots no tienen migraciones automáticas; un único respaldo por clave.
+- Un único respaldo por clave; el storage debe ser síncrono (todavía no hay borradores asíncronos).
 
 ## 14. Reservado para fases futuras ⏳
 

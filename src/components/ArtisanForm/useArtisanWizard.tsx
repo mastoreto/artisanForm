@@ -29,7 +29,12 @@ import {
   type StorageAdapter,
   type StorageMap,
 } from '../../integrations/storage/types';
-import type { ConflictDecision, SnapshotConflict } from '../../persistence';
+import type {
+  ConflictDecision,
+  DraftStorage,
+  SnapshotConflict,
+  SnapshotMigrations,
+} from '../../persistence';
 import type { ArtisanSchemaV1 } from '../../schema/contract/define';
 import type { InferValues } from '../../schema/contract/infer';
 import type { FormUIConfig } from '../../schema/contract/types';
@@ -86,6 +91,12 @@ export interface ArtisanWizardOptions<
   labels?: Partial<ArtisanLabels>;
   /** Saves values and step to localStorage under this key and restores them on mount. */
   persistKey?: string;
+  /** Where the draft lives (default `localStorage`): `sessionStorage` or your own synchronous store. */
+  draftStorage?: DraftStorage;
+  /** Wait this long after the last change before writing the draft (default 0: write at once). The draft is also written when the step changes or the form unmounts. */
+  draftDebounceMs?: number;
+  /** Brings a draft saved against an older `revision` of the schema up to the current one (see `migrateSnapshot`). */
+  snapshotMigrations?: SnapshotMigrations;
   /** Custom field types, merged over the built-in ones. */
   fields?: FieldRegistry;
   /** Custom step kinds, merged over the built-in ones. */
@@ -196,6 +207,9 @@ export const useArtisanWizard = <
   plugins,
   onSnapshotConflict,
   persistKey,
+  draftStorage,
+  draftDebounceMs,
+  snapshotMigrations,
   step: stepProp,
   stepId,
   onStepIdChange,
@@ -249,6 +263,8 @@ export const useArtisanWizard = <
           revision: projection.revision,
           scheme,
           onConflict: onSnapshotConflict,
+          storage: draftStorage,
+          migrations: snapshotMigrations,
         })
       : null,
   );
@@ -292,7 +308,7 @@ export const useArtisanWizard = <
       );
       return;
     }
-    if (persistKey) clearDraft(persistKey);
+    if (persistKey) clearDraft(persistKey, draftStorage);
     setSubmitState('success');
   };
 
@@ -336,6 +352,8 @@ export const useArtisanWizard = <
     onStepChange,
     persistKey,
     initialHistory: draft?.history,
+    draftStorage,
+    draftDebounceMs,
     onSubmitValues: submitValues,
     step:
       (stepFromId !== undefined && stepFromId >= 0 ? stepFromId : undefined) ??

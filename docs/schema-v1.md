@@ -217,7 +217,7 @@ A reference nobody registered **fails explicitly** (`ArtisanSchemaError`, `unres
 
 - `schemaVersion: 1` identifies the format. A higher number is rejected (`unsupported-version`) rather than misinterpreted. A schema **without** `schemaVersion` is treated as 0.2.0 by `normalizeArtisanSchema`.
 - `id` identifies the form and `revision` a concrete definition; both are recorded in drafts.
-- Automatic data migrations are ⏳ out of scope: an incompatibility is detected and the consumer decides (§11).
+- Data migrations are opt-in (`snapshotMigrations`, §11): without them an incompatibility is detected and the consumer decides.
 
 ## 11. Persistence ✅
 
@@ -239,6 +239,9 @@ interface ArtisanSnapshotV1 {
 - **Incompatibilities** (`form-id`, `revision`, `step-missing`, `unsupported-version`, `corrupt`): the draft is **never deleted silently**. `onSnapshotConflict(conflict) → 'backup' | 'restore' | 'discard'`; the default is `backup`: it is moved to `artisanform:<key>:incompatible` (a single slot) and the form starts clean. `restore` applies the values anyway (starting at the first step if the step no longer exists); `discard` deletes it. If the revision is missing on either side it is not a conflict.
 - **Careful with 0.2.0 forms:** their step ids are derived from the title, so **renaming or reordering titles makes an already saved draft miss its step** (`step-missing`) and, with the default policy, it is backed up and the form starts clean. In 0.2.0 the draft was restored by index and survived a title change. Move to `ArtisanSchemaV1` with explicit ids, or use `onSnapshotConflict={() => 'restore'}` to keep the values (it starts at the first step).
 - If the saved step exists but is currently hidden, the values are restored and it starts at the first visible step.
+- **Where and when it is written:** `draftStorage` (anything with `getItem`/`setItem`/`removeItem`, synchronous: `sessionStorage`, an in-memory or your own store; default `localStorage`) and `draftDebounceMs` (default 0 = on every change; with a delay it also writes when the step changes or the form unmounts, and never after a successful submit).
+- **Migrations:** `snapshotMigrations={{ 1: (s) => ({ ...s, formRevision: 2, values: { ...s.values, fullName: s.values.name } }) }}` brings a draft saved against revision 1 up to the form's `revision`. Each migration receives a copy of the snapshot at revision *n* and returns it at a higher revision; the chain runs until the revision matches. If a migration is missing, throws, returns something that is not a snapshot or does not raise the revision, the draft goes through `onSnapshotConflict` as before. After a successful migration the original is kept in the backup slot. `migrateSnapshot` is exported to test them.
+- **IO helpers** (exported): `readSnapshot`, `writeSnapshot`, `clearSnapshot`, `readRaw`, `backupStored`, `createSnapshot`, `parseStored`, `checkSnapshot`, `migrateSnapshot`.
 
 ## 12. Compatibility with 0.2.0 🔁
 
@@ -281,7 +284,7 @@ There are no two engines and no compatibility branches in the components. `FormS
 - `optionsSource` only on `combobox`/`multiselect`.
 - `hooks` and `onSnapshotConflict` of a 0.2.0 schema are still TypeScript code, not data.
 - Validation messages and interface texts still come from `labels` (not from the schema).
-- Snapshots have no automatic migrations; a single backup per key.
+- A single backup slot per key; storage must be synchronous (no async drafts yet).
 
 ## 14. Reserved for future phases ⏳
 
