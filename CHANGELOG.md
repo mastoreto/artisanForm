@@ -2,6 +2,11 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Typed values and navigation by id)
+
+- **`InferValues` and typed `onSubmit` (AF88):** `defineForm` now keeps the literal type of the schema (a `const` generic; the same object comes back), and `InferValues<typeof schema>` computes the submitted values from it. `ArtisanForm` and `useArtisanWizard` are generic over the schema and type `onSubmit` with it; a schema that is not a literal (or a 0.2.0 `FormSchema`) still gets `Record<string, unknown>`.
+- **Navigation by id:** `wizard.goToStep(id)`, the `stepId` / `onStepIdChange` options and `ArtisanStepApi.goToStep(id)`. The index API is unchanged. Typed props for custom step types (`StepDefinition<P>`) are not part of this change.
+
 ## Unreleased (Headless)
 
 - **`useArtisanWizard` (AF87):** the wizard's behavior is now a public hook (see [docs/headless.md](docs/headless.md)), exported from `artisanform` and from the new `artisanform/headless` entry (no stylesheet). It returns the React Hook Form instance, the visible steps, the current step, `next/back/goTo/submit`, the submit state and what the default renderer needs; `ArtisanWizardProvider` and `useArtisanField` bind your inputs. `ArtisanForm` is now a thin consumer of this hook, and `Wizard` only renders what it returns. The internal `useArtisanForm` was renamed `useFormBinding`. `useWizard` takes the form, the store and the UI state as parameters instead of reading them from context. No behavior change for `ArtisanForm` users.

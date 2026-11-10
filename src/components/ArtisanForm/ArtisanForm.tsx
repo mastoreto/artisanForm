@@ -15,19 +15,26 @@ import type { StepRegistry } from '../steps/registry';
 import { type ArtisanUiKit, mergeUiLayers } from '../ui/kit';
 import type { ArtisanComponents } from '../ui/types';
 import { type ArtisanClassNames, UiContext } from '../ui/UiContext';
-import { ArtisanWizardProvider, useArtisanWizard } from './useArtisanWizard';
+import {
+  ArtisanWizardProvider,
+  useArtisanWizard,
+  type ValuesOf,
+} from './useArtisanWizard';
 import { Wizard } from './Wizard';
 
-interface ArtisanFormProps {
+interface ArtisanFormProps<
+  S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1,
+> {
   /**
    * The form definition: an `ArtisanSchemaV1` (JSON-serializable, see
    * `defineForm`) or a 0.2.0 `FormSchema` (adapted internally).
    */
-  scheme: FormSchema | ArtisanSchemaV1;
+  scheme: S;
   /** Local functions and components a v1 schema refers to by id. */
   extensions?: ArtisanExtensions;
   /** Return a promise to keep "Finish" disabled until it settles. */
-  onSubmit: (values: FormValues) => unknown;
+  /** The values are typed when `scheme` comes from `defineForm` (see `InferValues`). */
+  onSubmit: (values: ValuesOf<S>) => unknown;
   /** What to do with a saved draft that does not fit this form (default: `backup`). */
   onSnapshotConflict?: (conflict: SnapshotConflict) => ConflictDecision;
   /** Overrides the scheme defaults for the given field names. */
@@ -66,7 +73,7 @@ interface ArtisanFormProps {
  * The ready-made UI: `useArtisanWizard` for the behavior, `Wizard` for the
  * markup, a kit and `components`/`classNames` for the look.
  */
-const ArtisanForm = ({
+const ArtisanForm = <S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1>({
   scheme,
   kit,
   components: componentsProp,
@@ -75,7 +82,7 @@ const ArtisanForm = ({
   labels: labelOverrides,
   className,
   ...options
-}: ArtisanFormProps) => {
+}: ArtisanFormProps<S>) => {
   // default UI < kit < explicit props
   const {
     components,
@@ -99,7 +106,7 @@ const ArtisanForm = ({
     () => ({ ...kitLabels, ...labelOverrides }),
     [kitLabels, labelOverrides],
   );
-  const wizard = useArtisanWizard({ schema: scheme, labels, ...options });
+  const wizard = useArtisanWizard<S>({ schema: scheme, labels, ...options });
   return (
     <ArtisanWizardProvider wizard={wizard}>
       <UiContext.Provider value={uiConfig}>

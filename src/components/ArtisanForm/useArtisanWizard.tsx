@@ -31,6 +31,7 @@ import {
 } from '../../integrations/storage/types';
 import type { ConflictDecision, SnapshotConflict } from '../../persistence';
 import type { ArtisanSchemaV1 } from '../../schema/contract/define';
+import type { InferValues } from '../../schema/contract/infer';
 import type { FormUIConfig } from '../../schema/contract/types';
 import type {
   FieldSchema,
@@ -50,16 +51,23 @@ import {
 } from '../steps/registry';
 import { useWizard } from './useWizard';
 
-export interface ArtisanWizardOptions {
+/** The submitted values: inferred from a literal v1 schema, a plain record otherwise. */
+export type ValuesOf<S> = S extends ArtisanSchemaV1
+  ? InferValues<S>
+  : FormValues;
+
+export interface ArtisanWizardOptions<
+  S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1,
+> {
   /**
    * The form definition: an `ArtisanSchemaV1` (JSON-serializable, see
    * `defineForm`) or a 0.2.0 `FormSchema` (adapted internally).
    */
-  schema: FormSchema | ArtisanSchemaV1;
+  schema: S;
   /** Local functions and components a v1 schema refers to by id. */
   extensions?: ArtisanExtensions;
   /** Return a promise to keep the last step's action disabled until it settles. */
-  onSubmit: (values: FormValues) => unknown;
+  onSubmit: (values: ValuesOf<S>) => unknown;
   /** What to do with a saved draft that does not fit this form (default: `backup`). */
   onSnapshotConflict?: (conflict: SnapshotConflict) => ConflictDecision;
   /** Overrides the schema defaults for the given field names. */
@@ -70,6 +78,10 @@ export interface ArtisanWizardOptions {
   onChange?: (values: FormValues) => void;
   /** Drives the wizard to this step index when it changes (pair with onStepChange). */
   step?: number;
+  /** Drives the wizard to the step with this id (index-free; pair with `onStepIdChange`). Wins over `step`. */
+  stepId?: string;
+  /** Called with the new step id whenever the wizard moves. */
+  onStepIdChange?: (stepId: string) => void;
   /** Overrides any text or validation message (default: English). */
   labels?: Partial<ArtisanLabels>;
   /** Saves values and step to localStorage under this key and restores them on mount. */
@@ -120,6 +132,8 @@ export interface ArtisanWizard {
   back: () => void;
   /** Index among `steps`. */
   goTo: (index: number) => void;
+  /** Moves to the visible step with this id, without validating. `false` if there is none (unknown or hidden). */
+  goToStep: (id: string) => boolean;
   submit: () => Promise<void>;
   isFirst: boolean;
   isLast: boolean;
@@ -166,7 +180,9 @@ export const ArtisanWizardProvider = ({
  * and waiting, with no markup. React Hook Form holds the values (`wizard.form`),
  * a Zustand store the step state, Yup the rules. Call it once per form.
  */
-export const useArtisanWizard = ({
+export const useArtisanWizard = <
+  S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1,
+>({
   schema: input,
   extensions,
   onSubmit,
@@ -179,9 +195,11 @@ export const useArtisanWizard = ({
   onSnapshotConflict,
   persistKey,
   step: stepProp,
+  stepId,
+  onStepIdChange,
   onStepChange,
   onChange,
-}: ArtisanWizardOptions): ArtisanWizard => {
+}: ArtisanWizardOptions<S>): ArtisanWizard => {
   const [store] = useState(createArtisanStore);
   const { setSubmitState } = store.getState();
   const pluginsMap = useMemo(
@@ -263,7 +281,7 @@ export const useArtisanWizard = ({
       await onSubmit(
         Object.fromEntries(
           Object.entries(values).filter(([k]) => shown.has(k)),
-        ),
+        ) as ValuesOf<S>,
       );
     } catch (e) {
       setSubmitState(
@@ -294,6 +312,11 @@ export const useArtisanWizard = ({
     methods.reset(initialValues);
   }, [projection.key]);
 
+  // An id wins over an index; resolved against what is visible with the initial values.
+  const stepFromId =
+    stepId === undefined
+      ? undefined
+      : visibleSteps(scheme, initialValues).findIndex((s) => s.id === stepId);
   const inner = useWizard({
     methods,
     store,
@@ -312,9 +335,20 @@ export const useArtisanWizard = ({
     persistKey,
     onSubmitValues: submitValues,
     step:
+      (stepFromId !== undefined && stepFromId >= 0 ? stepFromId : undefined) ??
       stepProp ??
       (draft ? Math.min(draft.stepIndex, scheme.steps.length - 1) : undefined),
   });
+
+  const activeId = inner?.steps[inner.step]?.id;
+  const firstId = useRef(true);
+  useEffect(() => {
+    if (firstId.current) {
+      firstId.current = false;
+      return;
+    }
+    if (activeId !== undefined) onStepIdChange?.(activeId);
+  }, [activeId]);
 
   const common = {
     form: methods,
@@ -331,6 +365,7 @@ export const useArtisanWizard = ({
       next: async () => {},
       back: () => {},
       goTo: () => {},
+      goToStep: () => false,
       submit: async () => {},
       isFirst: true,
       isLast: true,
@@ -362,6 +397,12 @@ export const useArtisanWizard = ({
     next: inner.next,
     back: context.back,
     goTo: inner.goTo,
+    goToStep: (id) => {
+      const index = inner.steps.findIndex((s) => s.id === id);
+      if (index < 0) return false;
+      inner.goTo(index);
+      return true;
+    },
     submit: context.submit,
     isFirst: step <= 0,
     isLast: step >= inner.finalIndex,

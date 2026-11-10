@@ -46,6 +46,11 @@ Las mismas de `ArtisanForm` sin las props de UI, con `schema` en vez de `scheme`
 
 Los inputs se enlazan al formulario con `useArtisanField(name)` (dentro de `ArtisanWizardProvider`) o directamente con `wizard.form` (`Controller`, `register`). Los pasos y campos ocultos se saltan y nunca se envían, igual que en `ArtisanForm`.
 
+## Valores tipados y navegación por id
+
+- **Valores tipados.** `defineForm` conserva el tipo literal del schema y `InferValues<typeof schema>` da los valores enviados (los campos con `required: true` son claves obligatorias, el resto opcionales porque los pasos y campos ocultos no se envían; los campos `file`, `image` y `x-*` son `unknown`; un paso `payment` agrega `payment` y uno `terms` agrega `termsAccepted`). `ArtisanForm` y `useArtisanWizard` infieren el parámetro de `onSubmit` a partir de él. Un schema que no es literal (JSON parseado, un `FormSchema` 0.2.0) da un record plano.
+- **Por id.** `wizard.goToStep(id)` va a un paso visible sin validar (`false` si el id no existe o está oculto); `stepId` lleva el wizard a un paso y `onStepIdChange` informa los cambios. La API por índice (`goTo`, `step`, `onStepChange`) se mantiene; los pasos custom también reciben `api.goToStep(id)`.
+
 ## Notas
 
 - **Llamalo una vez por formulario.** No dibujes un `ArtisanForm` y un `useArtisanWizard` para el mismo schema.

@@ -46,6 +46,8 @@ export interface ArtisanStepApi {
   errors: Readonly<Record<string, string>>;
   next(): Promise<void>;
   back(): void;
+  /** Moves to a visible step by id without validating; `false` if there is none (unknown or hidden). */
+  goToStep(id: string): boolean;
   submitState: SubmitState;
   submitError: string | null;
   /** Message of the last blocked transition (`beforeNext`). */

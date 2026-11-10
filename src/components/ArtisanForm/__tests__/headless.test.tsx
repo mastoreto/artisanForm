@@ -120,3 +120,50 @@ test('a custom UI keeps validation, conditions and navigation, with no af-* clas
   });
   expect(container.innerHTML).not.toContain('af-');
 });
+
+const Nav = ({
+  stepId,
+  onId,
+}: {
+  stepId?: string;
+  onId?: (id: string) => void;
+}) => {
+  const wizard = useArtisanWizard({
+    schema,
+    onSubmit: () => {},
+    stepId,
+    onStepIdChange: onId,
+  });
+  return (
+    <ArtisanWizardProvider wizard={wizard}>
+      <p data-testid="current">{wizard.current?.id}</p>
+      <button type="button" onClick={() => wizard.goToStep('end')}>
+        to end
+      </button>
+      <button type="button" onClick={() => wizard.goToStep('extra')}>
+        to extra
+      </button>
+    </ArtisanWizardProvider>
+  );
+};
+
+test('goToStep moves by id, rejects hidden steps and reports the new id', async () => {
+  const user = userEvent.setup();
+  const onId = mock((_: string) => {});
+  render(<Nav onId={onId} />);
+  expect(screen.getByTestId('current').textContent).toBe('who');
+  await user.click(screen.getByText('to extra')); // hidden: company is empty
+  expect(screen.getByTestId('current').textContent).toBe('who');
+  await user.click(screen.getByText('to end'));
+  expect(screen.getByTestId('current').textContent).toBe('end');
+  expect(onId.mock.calls.map((c) => c[0])).toEqual(['end']);
+});
+
+test('stepId starts the wizard at that step and follows changes', async () => {
+  const view = render(<Nav stepId="end" />);
+  expect(screen.getByTestId('current').textContent).toBe('end');
+  view.rerender(<Nav stepId="who" />);
+  await waitFor(() =>
+    expect(screen.getByTestId('current').textContent).toBe('who'),
+  );
+});

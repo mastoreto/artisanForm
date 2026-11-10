@@ -46,6 +46,11 @@ The same as `ArtisanForm` minus the UI props, with `schema` instead of `scheme`:
 
 Inputs bind to the form through `useArtisanField(name)` (inside `ArtisanWizardProvider`) or directly through `wizard.form` (`Controller`, `register`). Hidden steps and fields are skipped and never submitted, exactly as in `ArtisanForm`.
 
+## Typed values and navigation by id
+
+- **Typed values.** `defineForm` keeps the literal type of the schema, and `InferValues<typeof schema>` gives the submitted values (`required: true` fields are required keys, the rest optional because hidden steps and fields are not submitted; `file`, `image` and `x-*` fields are `unknown`; a `payment` step adds `payment` and a `terms` step `termsAccepted`). `ArtisanForm` and `useArtisanWizard` infer `onSubmit`'s parameter from it. A schema that is not a literal (parsed JSON, a 0.2.0 `FormSchema`) gives a plain record.
+- **By id.** `wizard.goToStep(id)` moves to a visible step without validating (`false` if the id is unknown or hidden); `stepId` drives the wizard to a step and `onStepIdChange` reports moves. The index API (`goTo`, `step`, `onStepChange`) stays; custom steps get `api.goToStep(id)` too.
+
 ## Notes
 
 - **Call it once per form.** Do not render an `ArtisanForm` and a `useArtisanWizard` for the same schema.

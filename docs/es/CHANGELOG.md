@@ -2,6 +2,11 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Valores tipados y navegación por id)
+
+- **`InferValues` y `onSubmit` tipado (AF88):** `defineForm` ahora conserva el tipo literal del schema (un genérico `const`; devuelve el mismo objeto) y `InferValues<typeof schema>` calcula los valores enviados a partir de él. `ArtisanForm` y `useArtisanWizard` son genéricos sobre el schema y tipan `onSubmit` con él; un schema que no es literal (o un `FormSchema` 0.2.0) sigue recibiendo `Record<string, unknown>`.
+- **Navegación por id:** `wizard.goToStep(id)`, las opciones `stepId` / `onStepIdChange` y `ArtisanStepApi.goToStep(id)`. La API por índice no cambia. Las props tipadas de los pasos custom (`StepDefinition<P>`) no forman parte de este cambio.
+
 ## Sin publicar (Headless)
 
 - **`useArtisanWizard` (AF87):** el comportamiento del wizard ahora es un hook público (ver [docs/es/headless.md](headless.md)), exportado desde `artisanform` y desde la nueva entrada `artisanform/headless` (sin hoja de estilos). Devuelve la instancia de React Hook Form, los pasos visibles, el paso actual, `next/back/goTo/submit`, el estado de envío y lo que necesita el renderer por defecto; `ArtisanWizardProvider` y `useArtisanField` enlazan tus inputs. `ArtisanForm` pasa a ser un consumidor fino de este hook y `Wizard` solo dibuja lo que devuelve. El `useArtisanForm` interno se renombró `useFormBinding`. `useWizard` recibe el formulario, el store y el estado de UI como parámetros en vez de leerlos del contexto. Sin cambios de comportamiento para quien usa `ArtisanForm`.

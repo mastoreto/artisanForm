@@ -283,6 +283,12 @@ export const useWizard = ({
     errors: stepErrors,
     next,
     back: () => goTo(Math.max(0, step - 1)),
+    goToStep: (id) => {
+      const index = steps.findIndex((s) => s.id === id);
+      if (index < 0) return false;
+      goTo(index);
+      return true;
+    },
     submitState,
     submitError,
     error: stepError,
