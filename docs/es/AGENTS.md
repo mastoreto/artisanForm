@@ -42,7 +42,7 @@ src/
   persistence/           ArtisanSnapshotV1 y storage de borradores (tampoco importa el motor)
   engine/                ejecuta un esquema; acá viven React Hook Form/Yup/Zustand
     project.ts           esquema normalizado → la forma que consume el wizard (la única costura que conoce ambas)
-    form/                useArtisanForm (un solo useForm), useArtisanField (binding de inputs), errors, validators
+    form/                useFormBinding (un solo useForm), useArtisanField (binding de inputs), errors, validators
     buildSchema.ts · conditions.ts · draft.ts · extensions.ts · navigation.ts · store/useArtisanStore.ts
   components/
     ArtisanForm/         ArtisanForm.tsx (público) · Wizard.tsx (render) · useWizard.ts (comportamiento) · Stepper.tsx · __tests__/ (integración)
@@ -63,6 +63,7 @@ packages/                paquetes del workspace: ui-bootstrap, ui-mui, ui-tailwi
 playground/              app React de prueba (escenarios en src/scenarios)
 e2e/                     tests de Playwright
 docs/                    guías en inglés; docs/es/ tiene las versiones en español
+apps/docs/               sitio de documentación Astro/Starlight (en/es), desplegado con Vercel
 ```
 
 Los tests viven en una carpeta `__tests__/` junto al código que cubren (las stories quedan al lado de su componente). Los archivos de configuración de la raíz (`vite`, `tailwind`, `postcss`, `biome`, `tsconfig`, `bunfig`, `playwright`) se quedan ahí porque las herramientas los buscan en ese lugar.

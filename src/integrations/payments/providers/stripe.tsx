@@ -179,14 +179,14 @@ export const stripe = ({
       cancelUrl: withParams(request.cancelUrl, 'stripe_status=cancel'),
     });
   },
+  // The return URL is forgeable: a success there is only "processing" until
+  // your backend confirms it (see ../resume.ts).
   resume: (params): PaymentResult | null => {
     // Embedded payment methods that redirect (3DS, bank redirects…).
     const redirectStatus = params.get('redirect_status');
     if (redirectStatus) {
       const reference = params.get('payment_intent') ?? undefined;
-      if (redirectStatus === 'succeeded')
-        return { status: 'succeeded', reference };
-      if (redirectStatus === 'processing')
+      if (redirectStatus === 'succeeded' || redirectStatus === 'processing')
         return { status: 'processing', reference };
       return { status: 'failed' };
     }
@@ -194,7 +194,7 @@ export const stripe = ({
     const checkout = params.get('stripe_status');
     if (checkout === 'success')
       return {
-        status: 'succeeded',
+        status: 'processing',
         reference: params.get('session_id') ?? undefined,
       };
     if (checkout === 'cancel') return { status: 'failed' };

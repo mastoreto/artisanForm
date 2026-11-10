@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Loading from '../Loading';
+import { fromReturnUrl } from '../resume';
 import type {
   EmbeddedRenderProps,
   PaymentPlugin,
@@ -177,9 +178,12 @@ export const mercadoPago = ({
         : marker === 'pending'
           ? 'pending'
           : 'rejected');
-    return toResult(
-      status,
-      params.get('payment_id') ?? params.get('collection_id') ?? undefined,
+    // The return URL is forgeable: an approval there is only "processing".
+    return fromReturnUrl(
+      toResult(
+        status,
+        params.get('payment_id') ?? params.get('collection_id') ?? undefined,
+      ),
     );
   },
 });

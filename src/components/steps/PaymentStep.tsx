@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { fromReturnUrl } from '../../integrations/payments/resume';
 import type {
   PaymentPlugin,
   PaymentResult,
@@ -7,9 +8,16 @@ import { useCx } from '../ui/UiContext';
 import type { StepContext } from './registry';
 import StatusPanel, { ActionButton } from './StatusPanel';
 
-const newKey = () =>
-  globalThis.crypto?.randomUUID?.() ??
-  `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+// `randomUUID` needs a secure context; `getRandomValues` does not. No weaker fallback.
+const newKey = () => {
+  const c = globalThis.crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  if (c?.getRandomValues)
+    return Array.from(c.getRandomValues(new Uint8Array(16)), (b) =>
+      b.toString(16).padStart(2, '0'),
+    ).join('');
+  throw new Error('Payments need a secure random source (crypto)');
+};
 
 /** The URL without parameters this library added (so it can be returned to). */
 const baseUrl = () => {
@@ -48,12 +56,22 @@ const PaymentStep = (ctx: StepContext) => {
   const [key, setKey] = useState(newKey);
   const advanced = useRef(false);
 
+  // Aborted when the step unmounts (the user left, or the wizard moved on), so
+  // an in-flight `start()` can stop. A fresh controller after StrictMode's
+  // simulated unmount.
+  const [controller, setController] = useState(() => new AbortController());
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- replaces a controller aborted by the simulated unmount
+    if (controller.signal.aborted) setController(new AbortController());
+    return () => controller.abort();
+  }, [controller]);
+
   const request = () => ({
     values,
     idempotencyKey: key,
     returnUrl: baseUrl(),
     cancelUrl: baseUrl(),
-    signal: new AbortController().signal,
+    signal: controller.signal,
   });
 
   const finish = (plugin: PaymentPlugin, result: PaymentResult) => {
@@ -75,8 +93,11 @@ const PaymentStep = (ctx: StepContext) => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     for (const plugin of available) {
-      const result = plugin.resume?.(params);
-      if (!result) continue;
+      const reported = plugin.resume?.(params);
+      if (!reported) continue;
+      // The return URL is forgeable: whatever a plugin reports from it, the
+      // core never records it as `succeeded` (a `pending` step confirms it).
+      const result = fromReturnUrl(reported);
       const url = new URL(window.location.href);
       for (const k of plugin.resumeKeys ?? []) url.searchParams.delete(k);
       window.history.replaceState(null, '', url);

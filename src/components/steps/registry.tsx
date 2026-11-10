@@ -7,6 +7,7 @@ import type { SubmitState } from '../../engine/store/useArtisanStore';
 import type { PaymentPlugin } from '../../integrations/payments/types';
 import type { StorageMap } from '../../integrations/storage/types';
 import type { WaitStatus, WaitStrategy } from '../../integrations/wait';
+import { isSafeUrl } from '../../schema/contract/url';
 import type {
   FieldOption,
   FieldSchema,
@@ -45,6 +46,8 @@ export interface ArtisanStepApi {
   errors: Readonly<Record<string, string>>;
   next(): Promise<void>;
   back(): void;
+  /** Moves to a visible step by id without validating; `false` if there is none (unknown or hidden). */
+  goToStep(id: string): boolean;
   submitState: SubmitState;
   submitError: string | null;
   /** Message of the last blocked transition (`beforeNext`). */
@@ -281,17 +284,19 @@ const ResultStep = ({
         tone="success"
         message={(step.message as string | undefined) ?? labels.successMessage}
       >
-        {actions.map((a) =>
-          a.href ? (
-            <ActionLink key={a.label} href={a.href}>
-              {a.label}
-            </ActionLink>
-          ) : (
-            <ActionButton key={a.label} onClick={a.onClick}>
-              {a.label}
-            </ActionButton>
-          ),
-        )}
+        {actions
+          .filter((a) => !a.href || isSafeUrl(a.href))
+          .map((a) =>
+            a.href ? (
+              <ActionLink key={a.label} href={a.href}>
+                {a.label}
+              </ActionLink>
+            ) : (
+              <ActionButton key={a.label} onClick={a.onClick}>
+                {a.label}
+              </ActionButton>
+            ),
+          )}
       </StatusPanel>
     );
   }
@@ -311,7 +316,7 @@ const TermsStep = (ctx: StepContext) => {
           {content}
         </section>
       )}
-      {href && (
+      {href && isSafeUrl(href) && (
         <p className={cx('text')}>
           <a
             href={href}
@@ -335,10 +340,14 @@ const TermsStep = (ctx: StepContext) => {
 const PendingStep = (ctx: StepContext) => {
   const { step, labels, values, goTo, index } = ctx;
   const wait = step.wait as WaitStrategy | undefined;
+  const timeoutMs = step.timeoutMs as number | undefined;
+  const retry = step.retry as { max: number; backoffMs?: number } | undefined;
   const [status, setStatus] = useState<WaitStatus>({ status: 'pending' });
   const [attempt, setAttempt] = useState(0);
   const [resolved, setResolved] = useState<{ data: unknown } | null>(null);
   const advanced = useRef(false);
+  // Automatic retries used since the user last asked (or since the step began).
+  const retries = useRef(0);
   const resultName = step.resultName as string | undefined;
 
   useEffect(() => {
@@ -349,22 +358,47 @@ const PendingStep = (ctx: StepContext) => {
     advanced.current = false;
     const controller = new AbortController();
     let done = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    const finish = () => {
+      done = true;
+      clearTimeout(deadline);
+    };
+    // A failure is retried by itself (growing delay) before the user sees it.
+    const fail = (message?: string) => {
+      finish();
+      controller.abort();
+      if (retry && retries.current < retry.max) {
+        retries.current += 1;
+        timer = setTimeout(
+          () => setAttempt((n) => n + 1),
+          (retry.backoffMs ?? 1000) * retries.current,
+        );
+        return;
+      }
+      setStatus({ status: 'failed', message });
+    };
     const stop = wait.subscribe(
       (next) => {
         if (done) return;
+        if (next.status === 'failed') return fail(next.message);
         setStatus(next);
         if (next.status === 'success') {
-          done = true;
+          finish();
           if (resultName) ctx.setFieldValue(resultName, next.data);
           setResolved({ data: next.data });
-        } else if (next.status === 'failed') {
-          done = true;
         }
       },
       { values, signal: controller.signal },
     );
+    if (timeoutMs)
+      deadline = setTimeout(() => {
+        if (!done) fail(labels.waitTimeout);
+      }, timeoutMs);
     return () => {
       done = true;
+      clearTimeout(timer);
+      clearTimeout(deadline);
       controller.abort();
       stop();
     };
@@ -379,16 +413,23 @@ const PendingStep = (ctx: StepContext) => {
     void ctx.next();
   }, [resolved, values]);
 
+  // `failTo` is a step id; it only counts if that step is currently visible.
+  const failId = typeof step.failTo === 'string' ? step.failTo : undefined;
+  const found = failId ? ctx.steps.findIndex((s) => s.id === failId) : -1;
+  const leave = () => goTo(found >= 0 ? found : Math.max(0, index - 1));
+
   if (status.status === 'failed') {
-    const target = step.failTo as number | undefined;
     return (
       <StatusPanel tone="error" message={status.message ?? labels.waitFailed}>
-        <ActionButton onClick={() => setAttempt((n) => n + 1)}>
+        <ActionButton
+          onClick={() => {
+            retries.current = 0;
+            setAttempt((n) => n + 1);
+          }}
+        >
           {labels.retry}
         </ActionButton>
-        <ActionButton onClick={() => goTo(target ?? Math.max(0, index - 1))}>
-          {labels.backToForm}
-        </ActionButton>
+        <ActionButton onClick={leave}>{labels.backToForm}</ActionButton>
       </StatusPanel>
     );
   }
@@ -400,7 +441,11 @@ const PendingStep = (ctx: StepContext) => {
           ? status.message
           : ((step.message as string | undefined) ?? labels.waiting)
       }
-    />
+    >
+      {step.cancellable ? (
+        <ActionButton onClick={leave}>{labels.cancel}</ActionButton>
+      ) : null}
+    </StatusPanel>
   );
 };
 
@@ -436,14 +481,19 @@ export const defaultStepRegistry: StepRegistry = {
   },
 };
 
+const UnknownStep = ({ kind }: { kind: string }) => {
+  const cx = useCx();
+  return (
+    <p role="alert" className={cx('error')}>
+      {`Unknown step kind "${kind}"`}
+    </p>
+  );
+};
+
 export const stepDefinitionOf = (
   registry: StepRegistry,
   step: StepSchema,
 ): StepDefinition =>
   registry[step.kind ?? 'form'] ?? {
-    render: () => (
-      <p role="alert" className="af-error">
-        {`Unknown step kind "${step.kind}"`}
-      </p>
-    ),
+    render: () => <UnknownStep kind={String(step.kind)} />,
   };

@@ -9,6 +9,7 @@ import {
 } from './contract/specs';
 import type { NativeStepType } from './contract/steps';
 import type { SchemaIssue } from './contract/types';
+import { isSafeFieldName, isSafeUrl } from './contract/url';
 
 /**
  * Which locally registered things a schema may reference. Used for schemas
@@ -238,8 +239,23 @@ export const parseArtisanSchema = (
   };
   const seenNames = new Map<string, string>();
 
+  const checkUrl = (href: unknown, path: string) => {
+    if (typeof href === 'string' && !isSafeUrl(href))
+      c.error(
+        'unsafe-url',
+        path,
+        'links must be http:, https:, mailto: or relative',
+      );
+  };
+
   const claimName = (name: unknown, path: string) => {
     if (typeof name !== 'string' || name === '') return;
+    if (!isSafeFieldName(name))
+      c.error(
+        'invalid-name',
+        path,
+        `name "${name}" is not allowed (reserved word or contains ".", "[" or "]")`,
+      );
     const first = seenNames.get(name);
     if (first)
       c.error(
@@ -613,6 +629,35 @@ export const parseArtisanSchema = (
         else need.bool(val, `${p}.${k}`, c);
       }
     },
+    next: (v, p) => {
+      if (!Array.isArray(v))
+        return c.error('invalid-type', p, 'must be an array of transitions');
+      for (const [i, edge] of v.entries()) {
+        const ep = `${p}[${i}]`;
+        if (!isObj(edge))
+          return c.error('invalid-type', ep, 'a transition must be an object');
+        checkKeys(edge, ['when', 'to'], ep, c);
+        if (edge.when !== undefined) checkCondition(edge.when, `${ep}.when`);
+        if (typeof edge.to !== 'string' || edge.to === '')
+          c.error('invalid-type', `${ep}.to`, 'must be a step id');
+        else refs.stepRefs.push({ id: edge.to, path: `${ep}.to` });
+      }
+    },
+    loop: (v, p) => {
+      if (!isObj(v)) return c.error('invalid-type', p, 'must be an object');
+      checkKeys(v, ['max'], p, c);
+      if (
+        !Number.isInteger(v.max) ||
+        (v.max as number) < 1 ||
+        (v.max as number) > 1000
+      )
+        c.error(
+          'invalid-type',
+          `${p}.max`,
+          'must be an integer from 1 to 1000',
+        );
+    },
+    revisit: (v, p) => need.oneOf(v, p, c, ['allow', 'deny']),
     hooks: (v, p) => {
       if (!isObj(v)) return c.error('invalid-type', p, 'must be an object');
       checkKeys(v, ['beforeNext', 'onEnter'], p, c);
@@ -688,7 +733,41 @@ export const parseArtisanSchema = (
       } else if (k === 'strategy')
         reference(v, pol.waitStrategies, p, 'wait strategy');
       else if (k === 'renderer') reference(v, pol.renderers, p, 'renderer');
-      else if (k === 'failTo') {
+      else if (k === 'timeoutMs') {
+        if (
+          !Number.isInteger(v) ||
+          (v as number) < 1 ||
+          (v as number) > 3_600_000
+        )
+          c.error('invalid-type', p, 'must be an integer from 1 to 3600000');
+      } else if (k === 'cancellable') need.bool(v, p, c);
+      else if (k === 'retry') {
+        if (!isObj(v)) c.error('invalid-type', p, 'must be an object');
+        else {
+          checkKeys(v, ['max', 'backoffMs'], p, c);
+          if (
+            !Number.isInteger(v.max) ||
+            (v.max as number) < 1 ||
+            (v.max as number) > 10
+          )
+            c.error(
+              'invalid-type',
+              `${p}.max`,
+              'must be an integer from 1 to 10',
+            );
+          if (
+            v.backoffMs !== undefined &&
+            (!Number.isInteger(v.backoffMs) ||
+              (v.backoffMs as number) < 0 ||
+              (v.backoffMs as number) > 60_000)
+          )
+            c.error(
+              'invalid-type',
+              `${p}.backoffMs`,
+              'must be an integer from 0 to 60000',
+            );
+        }
+      } else if (k === 'failTo') {
         need.string(v, p, c);
         if (typeof v === 'string') refs.stepRefs.push({ id: v, path: p });
       } else if (k === 'resultName') {
@@ -715,13 +794,19 @@ export const parseArtisanSchema = (
             }
             checkKeys(a, ['label', 'href', 'action'], `${p}[${i}]`, c);
             need.string(a.label, `${p}[${i}].label`, c, true);
-            if (a.href !== undefined) need.string(a.href, `${p}[${i}].href`, c);
+            if (a.href !== undefined) {
+              need.string(a.href, `${p}[${i}].href`, c);
+              checkUrl(a.href, `${p}[${i}].href`);
+            }
             if (a.action !== undefined)
               reference(a.action, pol.actions, `${p}[${i}].action`, 'action');
           }
       } else if (k === 'config') {
         if (!isObj(v)) c.error('invalid-type', p, 'must be an object');
-      } else need.string(v, p, c, true); // message, errorMessage, summary, content, href
+      } else {
+        need.string(v, p, c, true); // message, errorMessage, summary, content, href
+        if (k === 'href') checkUrl(v, p);
+      }
     }
 
     if (type === 'form' && s.fields === undefined)
@@ -758,11 +843,83 @@ export const parseArtisanSchema = (
     }
   };
 
+  // Transitions: a way back needs a bounded target, and every step should be reachable.
+  const checkFlow = (all: unknown[]) => {
+    const ids = all.map((s) =>
+      isObj(s) && typeof s.id === 'string' ? s.id : '',
+    );
+    const edges = (i: number) => {
+      const s = all[i];
+      return isObj(s) && Array.isArray(s.next)
+        ? s.next.flatMap((e, j) =>
+            isObj(e) && typeof e.to === 'string' && ids.includes(e.to)
+              ? [
+                  {
+                    to: ids.indexOf(e.to),
+                    always: e.when === undefined,
+                    path: `steps[${i}].next[${j}].to`,
+                  },
+                ]
+              : [],
+          )
+        : [];
+    };
+    for (let i = 0; i < all.length; i++)
+      for (const e of edges(i)) {
+        const target = all[e.to];
+        const bounded = isObj(target) && isObj(target.loop);
+        if (e.to <= i && !bounded)
+          c.error(
+            'unbounded-loop',
+            e.path,
+            `"${ids[e.to]}" is reached again by a transition: it needs loop: { max }`,
+          );
+      }
+    const seen = new Set([0]);
+    const queue = [0];
+    while (queue.length > 0) {
+      const i = queue.shift() as number;
+      const out = edges(i);
+      // The linear step is only a fallback while no edge always applies.
+      const linear = out.some((e) => e.always) ? [] : [i + 1];
+      for (const to of [...linear, ...out.map((e) => e.to)])
+        if (to < all.length && !seen.has(to)) {
+          seen.add(to);
+          queue.push(to);
+        }
+    }
+    for (let i = 1; i < all.length; i++)
+      if (!seen.has(i))
+        c.warn(
+          'unreachable-step',
+          `steps[${i}]`,
+          `step "${ids[i]}" cannot be reached`,
+        );
+  };
+
   if (!Array.isArray(input.steps))
     c.error('invalid-type', 'steps', 'steps must be an array');
   else if (input.steps.length === 0)
     c.error('empty-steps', 'steps', 'a schema needs at least one step');
-  else for (const [i, s] of input.steps.entries()) checkStep(s, `steps[${i}]`);
+  else {
+    for (const [i, s] of input.steps.entries()) checkStep(s, `steps[${i}]`);
+    checkFlow(input.steps);
+    // A payment recorded in the browser is never proof of payment: a redirect
+    // return only reports "processing". Ask for a `wait` step to confirm it.
+    for (const [i, s] of input.steps.entries()) {
+      const next = input.steps[i + 1];
+      if (
+        isObj(s) &&
+        s.type === 'payment' &&
+        !(isObj(next) && next.type === 'wait')
+      )
+        c.warn(
+          'payment-without-confirmation',
+          `steps[${i}]`,
+          'a payment step should be followed by a wait step where your backend confirms the payment',
+        );
+    }
+  }
 
   for (const r of refs.fieldRefs) {
     if (!refs.fieldNames.has(r.name))

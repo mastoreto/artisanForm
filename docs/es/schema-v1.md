@@ -45,7 +45,7 @@ Todo paso tiene `id` (obligatorio, único), `title` y `type`. Opcionales comunes
 | --- | --- | --- |
 | `form` | `fields` | `kind` ausente o `form` |
 | `payment` | `providers` (ids), `resultName?`, `summary?` (texto) | `provider`/`providers` |
-| `wait` | `strategy` (id), `message?`, `resultName?`, `failTo?` (id de paso) | `kind: 'pending'` |
+| `wait` | `strategy` (id), `message?`, `resultName?`, `failTo?` (id de paso), `timeoutMs?`, `retry?: { max, backoffMs? }`, `cancellable?` | `kind: 'pending'` (las mismas tres opciones) |
 | `terms` | `content?` (texto), `href?`, `accept?: { name?, label? }` | `acceptName`/`acceptLabel` |
 | `review` | — | igual |
 | `result` | `message?`, `errorMessage?`, `actions?: { label, href?, action? }[]` | `actions[].onClick` → `action` (id) |
@@ -71,6 +71,27 @@ Los campos comparten `FieldBase` (`name`, `id?`, `label?`, `description?`, `requ
 | Propio | `x-…` | `config` (JSON) |
 
 Un campo con una propiedad que su tipo no admite es un **error** del parser (`unknown-property`), no se ignora.
+
+### Espera: timeout, reintento y cancelar ✅
+
+En un paso `wait` (o un paso `pending` 0.2.0): `timeoutMs` hace fallar el paso si sigue pendiente pasado ese tiempo (mensaje `labels.waitTimeout`); `retry: { max, backoffMs? }` reintenta solo después de un fallo (demora `backoffMs × n`, 1000 ms por defecto, `max` de 1 a 10) antes de que el usuario lo vea, y el Reintentar del usuario reinicia la cuenta; `cancellable: true` muestra un botón Cancelar (`labels.cancel`) que aborta la espera y va adonde va `failTo`. Valen para cualquier estrategia, además de lo que la estrategia haga por su cuenta (`polling` tiene su propio `timeout`).
+
+### Transiciones, bucles y revisitar ✅
+
+Opcionales en cada paso; un schema que no usa ninguna navega exactamente como antes (siguiente paso visible, Atrás retrocede un paso).
+
+```jsonc
+{ "id": "plan", "type": "form", "title": "Plan", "fields": [ … ],
+  "next": [ { "when": { "field": "plan", "operator": "eq", "value": "pro" }, "to": "pay" },
+            { "to": "review" } ] }
+```
+
+- **`next: { when?, to }[]`**: cuando el paso valida, la primera arista cuyo `when` se cumple (siempre, si se omite) decide adónde ir; `to` es un id de paso. Sin coincidencia, un destino oculto o un destino `result` vuelve al siguiente paso visible.
+- **`loop: { max }`**: obligatorio en el destino de una arista que vuelve atrás (o a sí mismo). Es cuántas veces el paso puede **reingresarse** (la primera visita no cuenta); agotado, la arista se omite.
+- **`revisit: 'allow' | 'deny'`** (por defecto `allow`): `deny` significa que, una vez terminado el paso, el usuario no puede volver a él y Atrás se detiene justo después (un paso pagado no se deshace). El stepper y `goToStep` rechazan saltos que lo crucen.
+- **Atrás** sigue el camino realmente recorrido (un historial de pasos terminados, guardado en el borrador como `history?` del snapshot; `snapshotVersion` sigue en 1), no el orden de los pasos.
+- **Parser:** una arista a un id desconocido es `unknown-step-reference`; volver a un paso sin `loop` es `unbounded-loop` (error); un paso que ningún camino alcanza es `unreachable-step` (aviso); `loop.max` debe ser un entero de 1 a 1000.
+- **Límites:** el último paso visible que no es `result` sigue enviando (las ramas deberían reconverger, o ocultar pasos con `visibleWhen`); sin ramas paralelas ni sub-flujos.
 
 ## 4. Condiciones declarativas ✅
 
@@ -167,7 +188,9 @@ Un esquema remoto **no es de confianza solo por ser JSON válido**: con `policy`
 
 `parseArtisanSchema(input: unknown, { policy? })` → `{ success: true, schema, issues }` | `{ success: false, issues }`. Es **manual y sin dependencias** (no usa AJV: AJV compila validadores con `new Function`, lo que choca con el principio de no ejecutar código dinámico y con CSP estrictas). Comprueba: objeto JSON válido y serializable, `schemaVersion`, obligatorios, discriminadores, propiedades desconocidas, ids de paso y nombres duplicados, condiciones y sus referencias, `failTo`, patrones (`RegExp` válidos, ≤ 500 caracteres) y la política. Cada `SchemaIssue` trae `code` estable y una `path` legible (`steps[1].fields[0].type`). Devuelve **el mismo objeto** que recibió (no lo copia ni lo muta).
 
-Códigos frecuentes: `missing-version`, `unsupported-version` (versiones futuras), `unknown-type`, `unknown-property`, `duplicate-id`, `duplicate-name`, `unknown-field-reference`, `unknown-step-reference`, `not-serializable`, `policy-violation`, `invalid-pattern`, `unsupported-in-array`.
+Códigos frecuentes: `missing-version`, `unsupported-version` (versiones futuras), `unknown-type`, `unknown-property`, `duplicate-id`, `duplicate-name`, `unknown-field-reference`, `unknown-step-reference`, `not-serializable`, `policy-violation`, `invalid-pattern`, `unsupported-in-array`, `unsafe-url`, `invalid-name`.
+
+Dos reglas protegen los schemas que vienen de una fuente no confiable (un CMS, un backend): un `href` (paso `terms`, `actions` del resultado) debe ser `http:`, `https:`, `mailto:` o una referencia relativa, o da `unsafe-url`; y un nombre de campo no puede ser `__proto__`, `constructor` ni `prototype`, ni contener `.`, `[` o `]`, o da `invalid-name`. El render también omite un `href` inseguro, lo que cubre los schemas 0.2.0.
 
 Esto valida **la definición**. La validación de **los valores** que escribe el usuario sigue siendo Yup (sin cambios).
 
@@ -194,7 +217,7 @@ Una referencia sin registrar **falla de forma explícita** (`ArtisanSchemaError`
 
 - `schemaVersion: 1` identifica el formato. Un número mayor se rechaza (`unsupported-version`) en lugar de interpretarse mal. Un esquema **sin** `schemaVersion` se trata como 0.2.0 en `normalizeArtisanSchema`.
 - `id` identifica el formulario y `revision` una definición concreta; ambos se registran en los borradores.
-- Las migraciones automáticas de datos están ⏳ fuera de alcance: se detecta la incompatibilidad y decide el consumidor (§11).
+- Las migraciones de datos son opt-in (`snapshotMigrations`, §11): sin ellas se detecta la incompatibilidad y decide el consumidor.
 
 ## 11. Persistencia ✅
 
@@ -216,6 +239,9 @@ interface ArtisanSnapshotV1 {
 - **Incompatibilidades** (`form-id`, `revision`, `step-missing`, `unsupported-version`, `corrupt`): el borrador **nunca se borra en silencio**. `onSnapshotConflict(conflict) → 'backup' | 'restore' | 'discard'`; por defecto `backup`: se mueve a `artisanform:<key>:incompatible` (una sola ranura) y el formulario arranca limpio. `restore` aplica los valores igualmente (empezando por el primer paso si el paso ya no existe); `discard` lo elimina. Si falta la revisión en alguno de los lados, no se considera un conflicto.
 - **Atención con formularios 0.2.0:** sus ids de paso se derivan del título, así que **renombrar o reordenar títulos hace que un borrador ya guardado no encuentre su paso** (`step-missing`) y, con la política por defecto, se respalde y el formulario arranque limpio. En 0.2.0 el borrador se restauraba por índice y sobrevivía a un cambio de título. Pasá a `ArtisanSchemaV1` con ids explícitos, o usá `onSnapshotConflict={() => 'restore'}` para conservar los valores (se empieza en el primer paso).
 - Si el paso guardado existe pero hoy está oculto, se restauran los valores y se empieza en el primer paso visible.
+- **Dónde y cuándo se escribe:** `draftStorage` (cualquier cosa con `getItem`/`setItem`/`removeItem`, síncrona: `sessionStorage`, uno en memoria o propio; por defecto `localStorage`) y `draftDebounceMs` (por defecto 0 = en cada cambio; con una demora también escribe al cambiar de paso o al desmontar, y nunca después de un envío exitoso).
+- **Migraciones:** `snapshotMigrations={{ 1: (s) => ({ ...s, formRevision: 2, values: { ...s.values, fullName: s.values.name } }) }}` lleva un borrador guardado con la revisión 1 a la `revision` del formulario. Cada migración recibe una copia del snapshot en la revisión *n* y lo devuelve en una revisión mayor; la cadena corre hasta que la revisión coincide. Si falta una migración, lanza, devuelve algo que no es un snapshot o no sube la revisión, el borrador pasa por `onSnapshotConflict` como antes. Tras una migración exitosa el original queda en el slot de respaldo. `migrateSnapshot` se exporta para probarlas.
+- **Helpers de IO** (exportados): `readSnapshot`, `writeSnapshot`, `clearSnapshot`, `readRaw`, `backupStored`, `createSnapshot`, `parseStored`, `checkSnapshot`, `migrateSnapshot`.
 
 ## 12. Compatibilidad con 0.2.0 🔁
 
@@ -249,7 +275,7 @@ No hay dos motores ni ramas de compatibilidad en los componentes. `FormSchema`, 
 
 **Ids de paso derivados.** `slug(title)` (con tildes plegadas), `-2`, `-3`… ante colisiones, `<type>-<posición>` si el título no da nada. Son deterministas (sin aleatorios ni fechas) pero **cambian si se reordenan o renombran pasos**: en v1 el `id` explícito es obligatorio justamente por eso.
 
-**Diferencias deliberadas.** `failTo` (índice en 0.2.0) se convierte a id y vuelve a índice sobre la lista **completa** de pasos (igual que antes, sin tener en cuenta pasos ocultos). En v1 un `name` duplicado es un error; en 0.2.0 sigue permitido y solo avisa. Un `terms` con `fields` propios no es representable en v1 (se descartan con aviso; rige el checkbox por defecto). Las condiciones `showIf` dentro de filas de `array` nunca se aplicaron y se descartan con aviso.
+**Diferencias deliberadas.** `failTo` (índice en 0.2.0) se convierte a id y se queda como id: el wizard lo resuelve contra los pasos **visibles** cuando la espera falla (si ese paso está oculto, el botón retrocede un paso). En v1 un `name` duplicado es un error; en 0.2.0 sigue permitido y solo avisa. Un `terms` con `fields` propios no es representable en v1 (se descartan con aviso; rige el checkbox por defecto). Las condiciones `showIf` dentro de filas de `array` nunca se aplicaron y se descartan con aviso.
 
 ## 13. Limitaciones actuales
 
@@ -258,7 +284,7 @@ No hay dos motores ni ramas de compatibilidad en los componentes. `FormSchema`, 
 - `optionsSource` solo en `combobox`/`multiselect`.
 - Los `hooks` y `onSnapshotConflict` de un esquema 0.2.0 siguen siendo código TypeScript, no datos.
 - Los mensajes de validación y textos de interfaz siguen saliendo de `labels` (no del esquema).
-- Los snapshots no tienen migraciones automáticas; un único respaldo por clave.
+- Un único respaldo por clave; el storage debe ser síncrono (todavía no hay borradores asíncronos).
 
 ## 14. Reservado para fases futuras ⏳
 

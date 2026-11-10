@@ -46,12 +46,12 @@ test('redirect: your backend returns the checkout URL; the redirect URL is passe
   );
 });
 
-test('resume: the success redirect finishes the step', () => {
+test('resume: the success redirect is only a hint (processing, never succeeded)', () => {
   const { resume } = lemonSqueezy({
     createCheckout: async () => ({ url: '' }),
   });
   expect(resume?.(new URLSearchParams('lemon_status=success'))).toEqual({
-    status: 'succeeded',
+    status: 'processing',
   });
   expect(resume?.(new URLSearchParams('x=1'))).toBeNull();
 });

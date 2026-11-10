@@ -9,12 +9,15 @@ import type {
   ConflictDecision,
   ConflictReason,
   SnapshotConflict,
+  SnapshotMigrations,
 } from '../persistence';
 import {
   backupStored,
   checkSnapshot,
   clearSnapshot,
   createSnapshot,
+  type DraftStorage,
+  migrateSnapshot,
   parseStored,
   readRaw,
   upgradeLegacyDraft,
@@ -27,6 +30,8 @@ export interface RestoredDraft {
   values: Record<string, unknown>;
   /** Index among the currently visible steps. */
   stepIndex: number;
+  /** Steps already left (forms with transitions). */
+  history: string[];
 }
 
 export interface DraftContext {
@@ -36,6 +41,10 @@ export interface DraftContext {
   /** The projected schema the engine runs (its steps carry ids). */
   scheme: FormSchema;
   onConflict?: (conflict: SnapshotConflict) => ConflictDecision;
+  /** Where the draft lives (default `localStorage`). */
+  storage?: DraftStorage;
+  /** Brings a draft saved against an older `revision` up to this one. */
+  migrations?: SnapshotMigrations;
 }
 
 const stepIdsOf = (scheme: FormSchema) =>
@@ -53,7 +62,7 @@ const visibleIds = (scheme: FormSchema, values: Record<string, unknown>) =>
  * goes through `onConflict` (default: back it up and start clean).
  */
 export const restoreDraft = (ctx: DraftContext): RestoredDraft | null => {
-  const raw = readRaw(ctx.persistKey);
+  const raw = readRaw(ctx.persistKey, ctx.storage);
   if (raw === null) return null;
   const record = parseStored(raw);
   const current = {
@@ -67,6 +76,19 @@ export const restoreDraft = (ctx: DraftContext): RestoredDraft | null => {
   if (record.kind === 'snapshot') {
     snapshot = record.snapshot;
     reason = checkSnapshot(snapshot, current);
+    // A draft saved against an older revision may be brought up to date.
+    if (reason === 'revision' && ctx.migrations && ctx.revision !== undefined) {
+      const migrated = migrateSnapshot(snapshot, ctx.revision, ctx.migrations);
+      if (migrated.ok) {
+        const again = checkSnapshot(migrated.snapshot, current);
+        if (again === null) {
+          // Keep the original aside (one slot) before it is overwritten.
+          backupStored(ctx.persistKey, raw, ctx.storage);
+          snapshot = migrated.snapshot;
+          reason = null;
+        }
+      }
+    }
   } else if (record.kind === 'legacy') {
     // A 0.2.0 draft knows no form id: it adopts the running form's.
     snapshot =
@@ -84,24 +106,33 @@ export const restoreDraft = (ctx: DraftContext): RestoredDraft | null => {
     Math.max(0, visibleIds(ctx.scheme, s.values).indexOf(s.currentStepId));
 
   if (reason === null && snapshot) {
-    return { values: snapshot.values, stepIndex: indexOf(snapshot) };
+    return {
+      values: snapshot.values,
+      stepIndex: indexOf(snapshot),
+      history: snapshot.history ?? [],
+    };
   }
 
   const decision =
     ctx.onConflict?.({ reason: reason ?? 'corrupt', snapshot, current }) ??
     'backup';
   if (decision === 'restore' && snapshot) {
-    return { values: snapshot.values, stepIndex: indexOf(snapshot) };
+    return {
+      values: snapshot.values,
+      stepIndex: indexOf(snapshot),
+      history: snapshot.history ?? [],
+    };
   }
-  if (decision === 'discard') clearSnapshot(ctx.persistKey);
-  else backupStored(ctx.persistKey, raw);
+  if (decision === 'discard') clearSnapshot(ctx.persistKey, ctx.storage);
+  else backupStored(ctx.persistKey, raw, ctx.storage);
   return null;
 };
 
 export const saveDraft = (
-  ctx: Pick<DraftContext, 'persistKey' | 'formId' | 'revision'>,
+  ctx: Pick<DraftContext, 'persistKey' | 'formId' | 'revision' | 'storage'>,
   currentStepId: string | undefined,
   values: Record<string, unknown>,
+  history?: string[],
 ) => {
   if (!currentStepId) return;
   writeSnapshot(
@@ -110,12 +141,15 @@ export const saveDraft = (
       formId: ctx.formId,
       formRevision: ctx.revision,
       currentStepId,
+      history,
       values,
     }),
+    ctx.storage,
   );
 };
 
-export const clearDraft = (persistKey: string) => clearSnapshot(persistKey);
+export const clearDraft = (persistKey: string, storage?: DraftStorage) =>
+  clearSnapshot(persistKey, storage);
 
 /** Passwords (and anything else a field marks secret) are never written to storage. */
 export const withoutSecrets = (

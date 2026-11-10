@@ -340,6 +340,11 @@ export const adaptLegacySchema = (
         out.strategy = bind(`legacy:${id}:wait`, x.wait, `${path}.wait`);
       text('message');
       text('resultName');
+      // Same options as the v1 wait step.
+      for (const key of ['timeoutMs', 'retry', 'cancellable']) {
+        known.add(key);
+        if (x[key] !== undefined) out[key] = x[key];
+      }
       if (typeof x.failTo === 'number') {
         const target = stepIds[x.failTo];
         if (target) out.failTo = target;

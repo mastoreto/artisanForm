@@ -188,6 +188,9 @@ export const projectToRuntime = (
     };
     if (step.visibleWhen) out.visibleWhen = step.visibleWhen;
     if (step.controls) out.controls = step.controls;
+    if (step.next !== undefined) out.next = step.next;
+    if (step.loop !== undefined) out.loop = step.loop;
+    if (step.revisit !== undefined) out.revisit = step.revisit;
 
     const hooks = (step.hooks ?? {}) as Record<string, string>;
     if (hooks.beforeNext)
@@ -220,10 +223,12 @@ export const projectToRuntime = (
       out.wait = resolve('waits', String(step.strategy), `${path}.strategy`);
       if (step.message !== undefined) out.message = step.message;
       if (step.resultName !== undefined) out.resultName = step.resultName;
-      if (typeof step.failTo === 'string') {
-        const index = stepIds.indexOf(step.failTo);
-        if (index >= 0) out.failTo = index; // index in the full list, as in 0.2.0
-      }
+      for (const key of ['timeoutMs', 'retry', 'cancellable'])
+        if (step[key] !== undefined) out[key] = step[key];
+      // A step id: the wizard resolves it against the visible steps at
+      // navigation time (an index in the full list would drift when a step is hidden).
+      if (typeof step.failTo === 'string' && stepIds.includes(step.failTo))
+        out.failTo = step.failTo;
     } else if (type === 'terms') {
       textProp('content');
       if (step.href !== undefined) out.href = step.href;

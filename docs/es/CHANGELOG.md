@@ -2,7 +2,67 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
-## Sin publicar (Documentación)
+## 0.3.0-beta.1 (2026-11-10)
+
+Segunda beta. Destacados: la API headless pública (`useArtisanWizard`, `artisanform/headless`), valores de formulario tipados (`InferValues`), transiciones declarativas con bucles acotados y reglas de revisita, timeout/reintento/cancelación en `wait`, borradores conectables y migrables, un tema oscuro y un slot `StatusPanel`, y la URL de retorno de pagos como no confiable en el núcleo. **Cambios de comportamiento a leer antes de actualizar:** los pagos por redirección informan `processing`, nunca `succeeded` (AF78, AF86), y `parseArtisanSchema` rechaza valores `href` inseguros y nombres de campo peligrosos (AF76).
+
+### Persistencia
+
+- **Borradores conectables, debounce y migraciones (AF92):** `draftStorage` (cualquier store síncrono con `getItem`/`setItem`/`removeItem`), `draftDebounceMs` (también se escribe al cambiar de paso y al desmontar, nunca después de un envío exitoso) y `snapshotMigrations` (una cadena de funciones que llevan un borrador guardado con una `revision` anterior a la actual; los fallos caen en `onSnapshotConflict` y el original queda en el slot de respaldo). Los helpers de IO (`readSnapshot`, `writeSnapshot`, `clearSnapshot`, `readRaw`, `backupStored`) y `migrateSnapshot` se exportan. No incluido: storage asíncrono.
+
+### Espera
+
+- **Opciones de `wait` (AF91, decisión: sin paso `action` aparte):** `timeoutMs`, `retry: { max, backoffMs? }` y `cancellable` en pasos `wait` (y en pasos `pending` 0.2.0). Nuevos textos por defecto `waitTimeout` y `cancel`. El parser las valida (`timeoutMs` 1–3 600 000, `retry.max` 1–10, `backoffMs` 0–60 000).
+
+### Workflows
+
+- **Transiciones (AF90):** los pasos aceptan `next: { when?, to }[]` (la primera arista que coincide decide el siguiente paso), `loop: { max }` (acota los reingresos; obligatorio en el destino de un camino de vuelta) y `revisit: 'allow' | 'deny'` (a un paso `deny` terminado no se puede volver). Atrás sigue el camino recorrido; el camino se guarda en el borrador (`history?` en el snapshot, `snapshotVersion` sigue en 1) para que una recarga retome la rama. El parser informa `unbounded-loop` (error) y `unreachable-step` (aviso). Los schemas sin estas propiedades se comportan exactamente igual. `useArtisanWizard` agrega `canGoBack` y protege `goTo`/`goToStep` con la regla de revisitar. Ver [schema v1](schema-v1.md#transiciones-bucles-y-revisitar-).
+
+### Personalización
+
+- **`components.StatusPanel` (AF89):** la pantalla de los pasos de pago, espera y resultado se puede reemplazar (`ArtisanStatusPanelProps`).
+- **Navegación del stepper:** `<ArtisanForm stepperNavigation>` hace clicables los pasos terminados (`ArtisanStepperProps.onSelect`; desactivado por defecto).
+- **Tema, movimiento, foco:** `theme="dark" | "auto"` redefine los tokens de color (opt-in; sin él nada cambia), `prefers-reduced-motion` apaga las transiciones y más partes interactivas muestran un contorno `:focus-visible`. Nuevo slot de clase `stepperButton`.
+- **No incluido:** el estilo de `layout: 'horizontal'` y un contrato uniforme para inputs multivalor (`array`, `file`, `dynamicSelect`, `daterange`) siguen pendientes.
+
+### Valores tipados y navegación por id
+
+- **`InferValues` y `onSubmit` tipado (AF88):** `defineForm` ahora conserva el tipo literal del schema (un genérico `const`; devuelve el mismo objeto) y `InferValues<typeof schema>` calcula los valores enviados a partir de él. `ArtisanForm` y `useArtisanWizard` son genéricos sobre el schema y tipan `onSubmit` con él; un schema que no es literal (o un `FormSchema` 0.2.0) sigue recibiendo `Record<string, unknown>`.
+- **Navegación por id:** `wizard.goToStep(id)`, las opciones `stepId` / `onStepIdChange` y `ArtisanStepApi.goToStep(id)`. La API por índice no cambia. Las props tipadas de los pasos custom (`StepDefinition<P>`) no forman parte de este cambio.
+
+### Headless
+
+- **`useArtisanWizard` (AF87):** el comportamiento del wizard ahora es un hook público (ver [docs/es/headless.md](headless.md)), exportado desde `artisanform` y desde la nueva entrada `artisanform/headless` (sin hoja de estilos). Devuelve la instancia de React Hook Form, los pasos visibles, el paso actual, `next/back/goTo/submit`, el estado de envío y lo que necesita el renderer por defecto; `ArtisanWizardProvider` y `useArtisanField` enlazan tus inputs. `ArtisanForm` pasa a ser un consumidor fino de este hook y `Wizard` solo dibuja lo que devuelve. El `useArtisanForm` interno se renombró `useFormBinding`. `useWizard` recibe el formulario, el store y el estado de UI como parámetros en vez de leerlos del contexto. Sin cambios de comportamiento para quien usa `ArtisanForm`.
+
+### Seguridad: pagos en el núcleo
+
+- **URL de retorno no confiable, aplicado en el núcleo (AF86, cambio de comportamiento para plugins propios):** `PaymentStep` ahora degrada cualquier resultado de `resume()` de `succeeded` a `processing`, no solo el de los plugins incluidos. `PaymentRequest.signal` se aborta cuando el paso de pago se desmonta (antes nunca). `parseArtisanSchema` emite el aviso `payment-without-confirmation` cuando un paso `payment` no va seguido de un paso `wait`. **Si un plugin propio leía un éxito de la URL y dependía de eso, agregá un paso `pending` que confirme el pago en tu backend.**
+
+### Correcciones
+
+- **`failTo` con pasos ocultos (AF85):** el `failTo` de un paso `wait` se proyectaba a un índice de la lista completa pero se usaba como índice entre los pasos visibles, así que un paso oculto antes del destino llevaba al usuario al paso equivocado. Ahora sigue siendo un id de paso y se resuelve contra los pasos visibles cuando la espera falla (si el destino está oculto, retrocede un paso).
+
+### Tests
+
+- **Tests de caracterización (AF84):** la proyección (`engine/project.ts`), el store de pasos y el borrador (`engine/draft.ts`) tienen tests propios, y el test de aislamiento de capas también rechaza imports relativos de `engine/`, `components/`, `integrations/` y `styles/` desde `schema/` y `persistence/`, además de `import()`, `require()` e imports de efecto de React, React Hook Form, Yup y Zustand. Los tres warnings de lint desaparecieron y el fallback de paso desconocido pasa por `cx` (así `unstyled` y `classNames` aplican).
+
+### Planificación
+
+- **Plan de evolución (AF83):** [docs/es/planning/artisanform-evolution.md](planning/artisanform-evolution.md) audita el estado actual y planifica la API headless (`useArtisanWizard`), valores tipados, workflows y migraciones de snapshots, con las decisiones tomadas. AGENTS.md lista `apps/docs` y la documentación llama `useArtisanWizard` al futuro hook headless.
+
+### Robustez
+
+- **Integraciones (AF77):** un mensaje de `wait` con un `status` desconocido ahora hace fallar el paso en vez de esperar al timeout, y un `websocket()` que se cierra antes de un estado final falla (cerrarlo nosotros no es un fallo). `cloudinary()` lanza un error de subida claro cuando la respuesta no es el JSON esperado. La idempotency key de pago usa `crypto.getRandomValues` cuando `randomUUID` no está disponible (contextos no seguros) en vez de `Math.random`, y falla si no hay `crypto`. La guía de archivos aclara que `accept` y `maxSize` no son un control de seguridad.
+
+### Seguridad
+
+- **Endurecimiento del schema (AF76):** `parseArtisanSchema` rechaza un `href` que no sea `http:`, `https:`, `mailto:` o relativo (`unsafe-url`, así que los enlaces `javascript:` se rechazan) y los nombres de campo que sean claves de prototipo o usen sintaxis de ruta (`invalid-name`). El render también omite un `href` inseguro, lo que cubre los schemas 0.2.0. Los schemas que usaban esos valores ahora fallan la validación.
+
+### Seguridad: cambio de comportamiento
+
+- **La URL de retorno del pago ya no es de confianza (AF78):** `resume()` de los plugins de redirección (Stripe, Mercado Pago, Lemon Squeezy y el mock) ahora informa `processing` donde antes informaba `succeeded`, porque cualquiera podía falsificar `?stripe_status=success` y hacer que el wizard registre un paso pagado. Los flujos embebidos (`render` → `onResult`) no cambian. **Si usás un checkout por redirección, agregá un paso `pending` después del de pago** para que tu backend confirme el pago; el valor `payment` del payload enviado nunca debe tratarse como prueba de pago.
+
+### Documentación
 
 - **Guías nuevas** (inglés en `docs/`, español en `docs/es/`): [pagos](payments.md) (el principio de seguridad, flujos, una checklist de producción), [archivos y storage](files.md), [accesibilidad y entornos probados](accessibility.md) (qué viene incluido, qué verifica axe, qué todavía no está verificado, navegadores/React/Node cubiertos por el CI) y [release](releasing.md) (los cinco paquetes, el workflow `Release`, publicar a mano, Trusted Publishing y una tabla de resolución de problemas con los errores de npm vistos en el primer release).
 - **README y AGENTS.md:** estado beta, instalación con `@beta` y los kits `@beardartisans/ui-*`, un índice de documentación y un "Estado del proyecto" actualizado.

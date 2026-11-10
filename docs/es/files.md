@@ -28,6 +28,8 @@ La librería **nunca guarda credenciales de storage**. Tu backend firma la subid
 
 El usuario tiene arrastrar y soltar, vistas previas para imágenes, barra de progreso, cancelar, reintentar y quitar. El botón **Siguiente** espera a que terminen todas las subidas, y una subida fallida muestra su error con un botón *Reintentar*.
 
+> **`accept` y `maxSize` son comprobaciones de comodidad para el usuario, no un control de seguridad**: se ejecutan en el navegador y cualquiera puede saltearlas. Imponé el tipo y el tamaño donde llega el archivo: en las condiciones de la URL pre-firmada que firma tu backend, o en el preset de Cloudinary.
+
 Lo que guarda el formulario (y lo que recibe `onSubmit`) es un descriptor:
 
 ```ts

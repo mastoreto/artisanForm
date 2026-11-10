@@ -166,7 +166,8 @@ test('redirect plugin: resumes on return, cleans the URL and advances', async ()
   expect(window.location.search).toBe('?keep=1');
   expect(onSubmit.mock.calls[0][0]).toMatchObject({
     plan: 'pro',
-    payment: { status: 'succeeded' },
+    // the return URL is forgeable, so it never produces "succeeded"
+    payment: { status: 'processing' },
   });
 });
 
@@ -205,4 +206,63 @@ test('after a failure the user can switch to another payment method', async () =
   await user.click(await screen.findByText('Pay with Good'));
   await user.click(await screen.findByText('Pay (mock)'));
   expect(await screen.findByText('Paid')).toBeTruthy();
+});
+
+test('the core downgrades a custom plugin that reports "succeeded" from the return URL', async () => {
+  localStorage.clear();
+  const onSubmit = mock((_: unknown) => {});
+  localStorage.setItem(
+    'artisanform:pay-custom',
+    JSON.stringify({ values: { plan: 'pro' }, step: 1 }),
+  );
+  setUrl('/?paid=1');
+  const naive: PaymentPlugin = {
+    id: 'naive',
+    name: 'Naive',
+    mode: 'redirect',
+    resumeKeys: ['paid'],
+    start: async () => ({ url: 'https://pay.example' }),
+    // a plugin that trusts the query string
+    resume: (params) =>
+      params.get('paid') ? { status: 'succeeded', reference: 'r1' } : null,
+  };
+  render(
+    <ArtisanForm
+      scheme={scheme({ provider: 'naive' })}
+      onSubmit={onSubmit}
+      persistKey="pay-custom"
+      plugins={{ payments: [naive] }}
+    />,
+  );
+  expect(await screen.findByText('Paid')).toBeTruthy();
+  expect(onSubmit.mock.calls[0][0]).toMatchObject({
+    payment: { provider: 'naive', status: 'processing', reference: 'r1' },
+  });
+});
+
+test('the request signal is aborted when the payment step unmounts', async () => {
+  const user = userEvent.setup();
+  let signal: AbortSignal | undefined;
+  const plugin: PaymentPlugin = {
+    id: 'slow',
+    name: 'Slow',
+    mode: 'redirect',
+    start: (request: PaymentRequest) => {
+      signal = request.signal;
+      return new Promise(() => {}); // never resolves
+    },
+  };
+  const view = render(
+    <ArtisanForm
+      scheme={scheme({ provider: 'slow' })}
+      onSubmit={() => {}}
+      plugins={{ payments: [plugin] }}
+    />,
+  );
+  await user.click(screen.getByText('Next'));
+  await user.click(await screen.findByText('Pay with Slow'));
+  await waitFor(() => expect(signal).toBeTruthy());
+  expect(signal?.aborted).toBe(false);
+  view.unmount();
+  expect(signal?.aborted).toBe(true);
 });

@@ -128,13 +128,14 @@ test('redirect: passes success/cancel URLs and returns the hosted checkout URL',
 test('resume reads Stripe return params (Checkout and redirect-based methods)', () => {
   const { resume } = stripe({ publishableKey: 'pk' });
   const read = (q: string) => resume?.(new URLSearchParams(q));
+  // the URL is forgeable: a success there is only "processing" (never "succeeded")
   expect(read('stripe_status=success&session_id=cs_9')).toEqual({
-    status: 'succeeded',
+    status: 'processing',
     reference: 'cs_9',
   });
   expect(read('stripe_status=cancel')).toEqual({ status: 'failed' });
   expect(read('payment_intent=pi_2&redirect_status=succeeded')).toEqual({
-    status: 'succeeded',
+    status: 'processing',
     reference: 'pi_2',
   });
   expect(read('payment_intent=pi_2&redirect_status=processing')).toEqual({

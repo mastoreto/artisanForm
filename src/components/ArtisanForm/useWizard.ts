@@ -1,12 +1,6 @@
-import {
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react';
-import { useFormContext, useFormState, useWatch } from 'react-hook-form';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { type UseFormReturn, useFormState, useWatch } from 'react-hook-form';
+import { useStore } from 'zustand';
 import type { ArtisanLabels } from '../../commons/labels';
 import { fieldNames } from '../../engine/buildSchema';
 import {
@@ -18,10 +12,17 @@ import {
 import { saveDraft, withoutSecrets } from '../../engine/draft';
 import { errorAt } from '../../engine/form/errors';
 import type { FormValues } from '../../engine/form/types';
-import { FormUiContext } from '../../engine/form/validators';
+import type { FormUi } from '../../engine/form/validators';
 import { resolveStep } from '../../engine/navigation';
-import { useArtisanStore } from '../../engine/store/useArtisanStore';
+import type { ArtisanStore } from '../../engine/store/useArtisanStore';
+import {
+  canJumpTo,
+  resolveBack,
+  resolveNext,
+  usesFlow,
+} from '../../engine/transitions';
 import type { StorageMap } from '../../integrations/storage/types';
+import type { DraftStorage } from '../../persistence';
 import type { FormUIConfig } from '../../schema/contract/types';
 import type { BeforeNextResult, FormSchema } from '../../schema/legacy/types';
 import type { FieldRegistry } from '../fields/registry';
@@ -33,6 +34,12 @@ import {
 } from '../steps/registry';
 
 export interface WizardProps {
+  /** The single form instance (React Hook Form) the wizard drives. */
+  methods: UseFormReturn<FormValues>;
+  /** This wizard's step state. */
+  store: ArtisanStore;
+  /** Validators and the "attempted" flag shared with the field bindings. */
+  uiState: FormUi;
   scheme: FormSchema;
   snapshotMeta: { formId: string; revision?: number };
   /** Changes only when the schema's content changes. */
@@ -51,6 +58,11 @@ export interface WizardProps {
   onStepChange?: (step: number) => void;
   step?: number;
   persistKey?: string;
+  /** Steps already left, restored from a draft (forms with transitions). */
+  initialHistory?: string[];
+  draftStorage?: DraftStorage;
+  /** Wait this long after the last change before writing the draft (default: write at once). */
+  draftDebounceMs?: number;
 }
 
 /**
@@ -60,16 +72,20 @@ export interface WizardProps {
  * `Wizard` only renders what this returns; a headless API would expose this.
  */
 export const useWizard = ({
+  initialHistory,
+  draftStorage,
+  draftDebounceMs = 0,
+  methods,
+  store,
+  uiState,
   scheme,
   snapshotMeta,
   schemeKey,
-  ui: formUi,
   pluginsMap,
   storageMap,
   registry,
   stepRegistry,
   labels,
-  className,
   onChange,
   onSubmitValues,
   onStepChange,
@@ -81,7 +97,7 @@ export const useWizard = ({
   // (stable identity => same result) and would cache a stale snapshot.
   'use no memo';
   const { control, trigger, setValue, handleSubmit, watch, getValues } =
-    useFormContext<FormValues>();
+    methods;
   const { errors: formErrors } = useFormState({ control });
   // Re-render only when a value a condition reads changes; typing in any
   // other field re-renders just that field.
@@ -90,7 +106,7 @@ export const useWizard = ({
   const visibility = Object.fromEntries(
     watchedNames.map((n, i) => [n, watched[i]]),
   );
-  const ui = useContext(FormUiContext);
+  const ui = uiState;
   const submitForm = () => handleSubmit(onSubmitValues)();
 
   useEffect(() => {
@@ -98,12 +114,12 @@ export const useWizard = ({
     const subscription = watch((all) => onChange(all as FormValues));
     return () => subscription.unsubscribe();
   }, [watch, onChange]);
-  const step = useArtisanStore((s) => s.step);
-  const setStep = useArtisanStore((s) => s.setStep);
-  const setProcessStep = useArtisanStore((s) => s.setProcessStep);
-  const setIsFinalStep = useArtisanStore((s) => s.setIsFinalStep);
-  const submitState = useArtisanStore((s) => s.submitState);
-  const submitError = useArtisanStore((s) => s.submitError);
+  const step = useStore(store, (s) => s.step);
+  const setStep = useStore(store, (s) => s.setStep);
+  const setProcessStep = useStore(store, (s) => s.setProcessStep);
+  const setIsFinalStep = useStore(store, (s) => s.setIsFinalStep);
+  const submitState = useStore(store, (s) => s.submitState);
+  const submitError = useStore(store, (s) => s.submitError);
 
   const steps = visibleSteps(scheme, visibility);
   const current = steps[step];
@@ -134,13 +150,40 @@ export const useWizard = ({
   // the user already moved must not move them again.
   const navigation = useRef(0);
   const busy = useRef(false);
-  const goTo = (index: number) => {
+  const moveTo = (index: number) => {
     navigation.current += 1;
     ui?.setAttempted(false);
     setStepError(null);
     setStep(index);
     setProcessStep(index);
   };
+
+  // Transitions, loops and revisit rules only apply when the schema uses them;
+  // otherwise navigation is the plain linear one it always was.
+  const flow = useMemo(() => usesFlow(scheme), [scheme]);
+  const [history, setHistory] = useState<string[]>(initialHistory ?? []);
+  // Any jump to a step already left rewinds the history to before it.
+  const goTo = (index: number) => {
+    const id = steps[index]?.id;
+    if (flow && id && history.includes(id))
+      setHistory(history.slice(0, history.lastIndexOf(id)));
+    moveTo(index);
+  };
+  // For the user (stepper, `goToStep`): refused when a finished `revisit: 'deny'` step is in the way.
+  const jumpTo = (index: number) => {
+    const id = steps[index]?.id;
+    if (flow && id && !canJumpTo(steps, history, id)) return false;
+    goTo(index);
+    return true;
+  };
+  const back = () => {
+    if (!flow) return goTo(Math.max(0, step - 1));
+    const previous = resolveBack(steps, history);
+    if (!previous) return;
+    setHistory(previous.history);
+    moveTo(previous.index);
+  };
+  const canGoBack = flow ? resolveBack(steps, history) !== null : step > 0;
 
   useEffect(() => {
     setStep(stepProp ?? 0);
@@ -190,17 +233,46 @@ export const useWizard = ({
   const lastSaved = useRef('');
   useEffect(() => {
     if (!persistKey) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const save = () => {
+      timer = undefined;
+      // A submitted form cleared its draft: nothing may write it back.
+      if (store.getState().submitState === 'success') return;
       const safe = withoutSecrets(scheme, getValues(), registry);
-      const fingerprint = JSON.stringify([steps[step]?.id, safe]);
+      const left = flow ? history : undefined;
+      const fingerprint = JSON.stringify([steps[step]?.id, safe, left]);
       if (fingerprint === lastSaved.current) return;
       lastSaved.current = fingerprint;
-      saveDraft({ persistKey, ...snapshotMeta }, steps[step]?.id, safe);
+      saveDraft(
+        { persistKey, storage: draftStorage, ...snapshotMeta },
+        steps[step]?.id,
+        safe,
+        left,
+      );
+    };
+    // Typing can write on every keystroke; `draftDebounceMs` batches that.
+    const schedule = () => {
+      if (draftDebounceMs <= 0) return save();
+      clearTimeout(timer);
+      timer = setTimeout(save, draftDebounceMs);
     };
     save();
-    const subscription = watch(save);
-    return () => subscription.unsubscribe();
-  }, [step, persistKey, steps.map((s) => s.id).join('|')]);
+    const subscription = watch(schedule);
+    return () => {
+      subscription.unsubscribe();
+      // Leaving the step or the form must not lose what was typed.
+      if (timer !== undefined) {
+        clearTimeout(timer);
+        save();
+      }
+    };
+  }, [
+    step,
+    persistKey,
+    steps.map((s) => s.id).join('|'),
+    history.join('|'),
+    draftDebounceMs,
+  ]);
 
   // After a blocked "Next", move focus to the first invalid field.
   useEffect(() => {
@@ -250,7 +322,12 @@ export const useWizard = ({
       await submitForm();
       return;
     }
-    goTo(step + 1);
+    if (flow) {
+      setHistory([...history, current.id ?? String(step)]);
+      moveTo(resolveNext(steps, step, getValues(), history));
+      return;
+    }
+    moveTo(step + 1);
   };
 
   const ownedNames = new Set([
@@ -281,7 +358,11 @@ export const useWizard = ({
     },
     errors: stepErrors,
     next,
-    back: () => goTo(Math.max(0, step - 1)),
+    back,
+    goToStep: (id) => {
+      const index = steps.findIndex((s) => s.id === id);
+      return index < 0 ? false : jumpTo(index);
+    },
     submitState,
     submitError,
     error: stepError,
@@ -303,7 +384,7 @@ export const useWizard = ({
     plugins: pluginsMap,
     fields,
     next,
-    back: () => goTo(Math.max(0, step - 1)),
+    back,
     goTo,
     submit: submitForm,
     submitState,
@@ -317,9 +398,16 @@ export const useWizard = ({
     current,
     definition,
     context,
-    formRef,
+    bindForm: (element: HTMLFormElement | null) => {
+      formRef.current = element;
+    },
     next,
     goTo,
+    jumpTo,
+    back,
+    canGoBack,
+    history,
+    flow,
     finalIndex,
     stepError,
     submitError,

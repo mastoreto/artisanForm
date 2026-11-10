@@ -3,6 +3,14 @@ import './styles/artisanform.css';
 export { cn } from './commons/cn';
 export { type ArtisanLabels, defaultLabels } from './commons/labels';
 export { default as ArtisanForm } from './components/ArtisanForm/ArtisanForm';
+export {
+  type ArtisanWizard,
+  type ArtisanWizardCurrent,
+  type ArtisanWizardOptions,
+  ArtisanWizardProvider,
+  type ArtisanWizardStep,
+  useArtisanWizard,
+} from './components/ArtisanForm/useArtisanWizard';
 export { default as Controls } from './components/Controls/Controls';
 export {
   defaultFieldRegistry,
@@ -39,6 +47,7 @@ export type {
   ArtisanFormErrorProps,
   ArtisanInputComponents,
   ArtisanInputProps,
+  ArtisanStatusPanelProps,
   ArtisanStepHeaderProps,
   ArtisanStepperProps,
   InputValueByType,
@@ -50,6 +59,8 @@ export {
   SLOTS as ARTISAN_SLOTS,
 } from './components/ui/UiContext';
 export type { ArtisanExtensions } from './engine/extensions';
+export type { FormValues } from './engine/form/types';
+export { useArtisanField } from './engine/form/useArtisanField';
 export {
   ArtisanStoreProvider,
   useArtisanStore,

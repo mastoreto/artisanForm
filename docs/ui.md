@@ -13,7 +13,7 @@ The schema says **what** the form is, the engine decides **how** it behaves, and
 | Renderer (`Wizard`, step and field registries) | which component shows what, grid, errors, progress | validation, navigation |
 | UI components (`src/components/inputs`, `ui`, `Controls`, `Stepper`…) | markup and styles | form state |
 
-`useWizard` (internal, `src/components/ArtisanForm/useWizard.ts`) holds all the wizard behavior and `Wizard` only renders what it returns. A public headless API (`useArtisanForm`) is **not** published yet; see [Pending](#pending).
+`useArtisanWizard` (public, see [headless](headless.md)) holds all the wizard behavior and `Wizard` only renders what it returns.
 
 ## Three levels of customization
 
@@ -72,6 +72,7 @@ Specificity: the library's selectors are single classes, so they beat element re
     Controls: MyControls,
     StepHeader: MyStepHeader,                      // optional
     FormError: MyFormError,                        // optional
+    StatusPanel: MyStatusPanel,                    // payment / waiting / result screens
   }}
 />
 ```
@@ -100,9 +101,10 @@ Not replaceable through `components.inputs` (several values or their own state):
 #### Component props
 
 - `FieldWrapper`: `{ id, label, description?, error?, invalid, className?, children }`. When you provide it, the default inputs skip their own label/description/error, and a replacement input should render only the control.
-- `Stepper`: `{ steps: { id, title, state: 'done' | 'current' | 'upcoming' }[], current, labels }`. Navigation is driven by the engine: a stepper displays progress, it does not jump between steps.
+- `Stepper`: `{ steps: { id, title, state: 'done' | 'current' | 'upcoming' }[], current, onSelect?, labels }`. It displays progress; `onSelect(index)` is only passed when `<ArtisanForm stepperNavigation>` is on, and only `done` steps are selectable (going back never needs validation).
 - `Controls`: `{ onNext, onPrevious, isFirst, isLast, isSubmitting, nextDisabled?, hidePrevious?, hideNext?, error, labels }`. `onNext` validates, runs `beforeNext` and moves on (or submits on the last step).
 - `StepHeader`: `{ title, index, total }`. `FormError`: `{ message }`.
+- `StatusPanel`: `{ tone: 'success' | 'error' | 'pending', message, children?, className? }`, the screen of the `payment`, `pending` and `result` steps. `children` are its actions (retry, back, links).
 
 #### Accessibility responsibilities
 
@@ -207,8 +209,15 @@ The default look stays plain CSS with no tooling (`artisanform/style.css`); Tail
 - The default stylesheet is now plain CSS (no Tailwind classes and no global reset). If you relied on `artisanform/style.css` shipping Tailwind's preflight, add your own reset.
 - `cn()` is now a thin `clsx` wrapper (no `tailwind-merge`).
 
+## Themes, motion and focus
+
+- **Dark theme (opt-in):** `<ArtisanForm theme="dark">` (or `"auto"` to follow `prefers-color-scheme`) sets `data-theme` on the form and redefines the tokens `--artisan-text`, `--artisan-text-color`, `--artisan-strong`, `--artisan-soft`, `--artisan-muted`, `--artisan-line`, `--artisan-border`, `--artisan-surface` and `--artisan-subtle`. Without `theme` nothing changes. Callouts and a few accents keep fixed colors; override the tokens (or add your own CSS) for a full brand dark mode.
+- **Reduced motion:** with `prefers-reduced-motion: reduce` the transitions are off and the spinner slows down.
+- **Focus:** checkboxes, switches, choices, small buttons, actions, stars, OTP boxes, the dropzone and the stepper buttons show a visible outline for keyboard focus.
+
 ## Pending
 
-- **Headless API.** `useWizard` already contains all the behavior; what is missing is a stable public shape. Proposal for the next phase: `useArtisanForm({ scheme, onSubmit, ... })` returning `{ steps, step, fields, values, errors, next, back, submitState }`, with `fields` carrying the same `ArtisanInputProps` used by `components.inputs`. It is not exported because it would freeze the engine's choices (React Hook Form, Zustand, drafts) one phase after they changed.
+- ~~Headless API~~ Done: see [headless](headless.md) (`useArtisanWizard`).
 - `layout: 'horizontal'` has no built-in styling (only the `data-layout` hook).
-- A stepper cannot navigate to earlier steps; that needs a "visited and valid" notion in the engine.
+- A stepper only goes back to finished steps (`stepperNavigation`); jumping forward needs a "visited and valid" notion in the engine.
+- Inputs that are not replaceable through `components` (`array`, `file`/`image`, `dynamicSelect`, `daterange`, content fields) still need a uniform multi-value contract.

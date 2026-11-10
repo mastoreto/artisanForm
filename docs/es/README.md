@@ -12,6 +12,7 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 | --- | --- |
 | [Schema v1](schema-v1.md) | El contrato de esquema serializable y versionado |
 | [Extensión de UI y kits](ui.md) | Estilos, `components`, `classNames` y los kits oficiales |
+| [API headless](headless.md) | `useArtisanWizard`: el comportamiento sin markup, para tu propia UI |
 | [Pagos](payments.md) | Plugins, el principio de seguridad y una checklist de producción |
 | [Archivos y storage](files.md) | Campos `file`/`image` y adaptadores de storage |
 | [Accesibilidad y entornos probados](accessibility.md) | Qué viene incluido, qué se verifica, navegadores y versiones |
@@ -443,7 +444,7 @@ Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y
 - **Release:** pasar la publicación en npm de un token a Trusted Publishing, y sacar una versión estable tras el feedback de la beta ([docs/es/releasing.md](releasing.md)).
 - **Proveedores reales:** los plugins se verifican con mocks de sus SDK; falta probarlos contra sandbox con credenciales de prueba.
 - **Navegador:** los tests de componentes corren en happy-dom; Playwright cubre los flujos del playground (wizard, archivos, espera, pagos mock, campos) en Chromium, Firefox y WebKit. Las pasadas con lector de pantalla, las preferencias de movimiento y los dispositivos táctiles todavía no se verifican ([docs/es/accessibility.md](accessibility.md)).
-- **UI:** la API headless pública (`useArtisanForm`) todavía no se publica (el comportamiento ya vive en un `useWizard` interno), `layout: 'horizontal'` no tiene estilo propio y los steppers no pueden saltar entre pasos. Detalle en [docs/es/ui.md](ui.md#pendiente).
+- **UI:** `layout: 'horizontal'` no tiene estilo propio y los steppers no pueden saltar entre pasos. Detalle en [docs/es/ui.md](ui.md#pendiente).
 - Los textos por defecto están solo en inglés; para otro idioma pasá `labels` (y escribí tus propias etiquetas de campo).
 
 ### Historial

@@ -6,6 +6,7 @@ import { useCx } from '../ui/UiContext';
 const Stepper = ({
   steps,
   current,
+  onSelect,
   labels = defaultLabels,
 }: Omit<ArtisanStepperProps, 'labels'> & {
   labels?: ArtisanStepperProps['labels'];
@@ -27,7 +28,17 @@ const Stepper = ({
             data-state={step.state}
           >
             <span className={cx('srOnly')}>{labels.stepItem(i + 1)}</span>
-            {step.title}
+            {onSelect && step.state === 'done' ? (
+              <button
+                type="button"
+                className={cx('stepperButton')}
+                onClick={() => onSelect(i)}
+              >
+                {step.title}
+              </button>
+            ) : (
+              step.title
+            )}
           </li>
         ))}
       </ol>

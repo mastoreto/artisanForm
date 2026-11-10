@@ -4,6 +4,7 @@ import type {
   ArtisanSnapshotV1,
   ConflictReason,
   SnapshotConflict,
+  SnapshotMigrations,
 } from './types';
 
 export const SNAPSHOT_VERSION = 1;
@@ -32,6 +33,9 @@ export const isSnapshotV1 = (v: unknown): v is ArtisanSnapshotV1 =>
   v.formId !== '' &&
   (v.formRevision === undefined || Number.isInteger(v.formRevision)) &&
   typeof v.currentStepId === 'string' &&
+  (v.history === undefined ||
+    (Array.isArray(v.history) &&
+      v.history.every((id) => typeof id === 'string'))) &&
   isObj(v.values) &&
   isJSONValue(v.values);
 
@@ -93,6 +97,7 @@ export const createSnapshot = (args: {
   formId: string;
   formRevision?: number;
   currentStepId: string;
+  history?: string[];
   /** Secrets must already be removed by the caller (it knows the field types). */
   values: Record<string, unknown>;
 }): ArtisanSnapshotV1 => ({
@@ -102,6 +107,7 @@ export const createSnapshot = (args: {
     ? { formRevision: args.formRevision }
     : {}),
   currentStepId: args.currentStepId,
+  ...(args.history && args.history.length > 0 ? { history: args.history } : {}),
   values: toJSONValues(args.values),
 });
 
@@ -146,7 +152,10 @@ export const checkSnapshot = (
 
 // ---- storage (best effort: storage can be missing, full or blocked) ----
 
-const store = (s?: Storage): Storage | null => {
+/** What the draft needs from a storage: `localStorage`, `sessionStorage` or your own (synchronous). */
+export type DraftStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+
+const store = (s?: DraftStorage): DraftStorage | null => {
   try {
     return s ?? globalThis.localStorage ?? null;
   } catch {
@@ -154,7 +163,7 @@ const store = (s?: Storage): Storage | null => {
   }
 };
 
-export const readRaw = (key: string, s?: Storage): string | null => {
+export const readRaw = (key: string, s?: DraftStorage): string | null => {
   try {
     return store(s)?.getItem(storageKey(key)) ?? null;
   } catch {
@@ -165,7 +174,7 @@ export const readRaw = (key: string, s?: Storage): string | null => {
 export const writeSnapshot = (
   key: string,
   snapshot: ArtisanSnapshotV1,
-  s?: Storage,
+  s?: DraftStorage,
 ) => {
   try {
     store(s)?.setItem(storageKey(key), JSON.stringify(snapshot));
@@ -174,7 +183,7 @@ export const writeSnapshot = (
   }
 };
 
-export const clearSnapshot = (key: string, s?: Storage) => {
+export const clearSnapshot = (key: string, s?: DraftStorage) => {
   try {
     store(s)?.removeItem(storageKey(key));
   } catch {
@@ -183,7 +192,7 @@ export const clearSnapshot = (key: string, s?: Storage) => {
 };
 
 /** Moves the stored draft aside (one slot) so the form can start clean without destroying it. */
-export const backupStored = (key: string, raw: string, s?: Storage) => {
+export const backupStored = (key: string, raw: string, s?: DraftStorage) => {
   try {
     const st = store(s);
     st?.setItem(backupKey(key), raw);
@@ -191,4 +200,54 @@ export const backupStored = (key: string, raw: string, s?: Storage) => {
   } catch {
     // best effort
   }
+};
+
+/** The stored record for `key`, parsed (never throws); `null` when nothing is stored. */
+export const readSnapshot = (
+  key: string,
+  s?: DraftStorage,
+): StoredRecord | null => {
+  const raw = readRaw(key, s);
+  return raw === null ? null : parseStored(raw);
+};
+
+export type MigrationResult =
+  | { ok: true; snapshot: ArtisanSnapshotV1 }
+  | {
+      ok: false;
+      reason: 'no-migration' | 'threw' | 'invalid' | 'not-forward' | 'newer';
+    };
+
+/**
+ * Brings a snapshot saved against an older `formRevision` up to `target` by
+ * chaining your migrations: `migrations[n]` receives a copy of a snapshot at
+ * revision `n` and returns it at a higher revision (set `formRevision`). Never
+ * mutates its input; any failure is reported, not thrown, so the caller can
+ * keep the old draft.
+ */
+export const migrateSnapshot = (
+  snapshot: ArtisanSnapshotV1,
+  target: number,
+  migrations: SnapshotMigrations,
+): MigrationResult => {
+  let current = snapshot;
+  // The loop is bounded: every accepted step raises the revision.
+  for (let i = 0; i < 1000; i++) {
+    const at = current.formRevision;
+    if (at === target) return { ok: true, snapshot: current };
+    if (at === undefined || at > target) return { ok: false, reason: 'newer' };
+    const migrate = migrations[at];
+    if (!migrate) return { ok: false, reason: 'no-migration' };
+    let next: unknown;
+    try {
+      next = migrate(JSON.parse(JSON.stringify(current)));
+    } catch {
+      return { ok: false, reason: 'threw' };
+    }
+    if (!isSnapshotV1(next)) return { ok: false, reason: 'invalid' };
+    if (next.formRevision === undefined || next.formRevision <= at)
+      return { ok: false, reason: 'not-forward' };
+    current = next;
+  }
+  return { ok: false, reason: 'not-forward' };
 };

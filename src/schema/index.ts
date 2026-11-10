@@ -7,6 +7,7 @@ export {
 export { type ArtisanSchemaV1, defineForm } from './contract/define';
 export { ArtisanSchemaError } from './contract/errors';
 export type * from './contract/fields';
+export type { InferredPayment, InferValues } from './contract/infer';
 export { isJSONValue } from './contract/json';
 export {
   FIELD_KEYS,

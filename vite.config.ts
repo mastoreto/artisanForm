@@ -26,6 +26,8 @@ export default defineConfig({
       // Provider plugins are separate entries so their SDKs stay optional.
       entry: {
         index: 'src/index.ts',
+        // No stylesheet: for UIs built from scratch (see docs/headless.md).
+        headless: 'src/headless.ts',
         'payments/stripe': 'src/integrations/payments/providers/stripe.tsx',
         'payments/lemonsqueezy':
           'src/integrations/payments/providers/lemonsqueezy.tsx',
