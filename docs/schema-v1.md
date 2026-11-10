@@ -251,7 +251,7 @@ There are no two engines and no compatibility branches in the components. `FormS
 
 **Derived step ids.** `slug(title)` (accents folded), `-2`, `-3`… on collisions, `<type>-<position>` if the title yields nothing. They are deterministic (no randomness, no dates) but **change if steps are reordered or renamed**: that is exactly why v1 requires an explicit `id`.
 
-**Deliberate differences.** `failTo` (an index in 0.2.0) is converted to an id and back to an index over the **full** list of steps (as before, ignoring hidden steps). In v1 a duplicate `name` is an error; in 0.2.0 it is still allowed and only warns. A `terms` step with its own `fields` is not representable in v1 (they are dropped with a warning; the default checkbox applies). `showIf` conditions inside `array` rows never applied and are dropped with a warning.
+**Deliberate differences.** `failTo` (an index in 0.2.0) is converted to an id and stays an id: the wizard resolves it against the **visible** steps when the wait fails (if that step is hidden, the button goes back one step). In v1 a duplicate `name` is an error; in 0.2.0 it is still allowed and only warns. A `terms` step with its own `fields` is not representable in v1 (they are dropped with a warning; the default checkbox applies). `showIf` conditions inside `array` rows never applied and are dropped with a warning.
 
 ## 13. Current limitations
 

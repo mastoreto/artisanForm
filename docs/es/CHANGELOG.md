@@ -2,6 +2,10 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Correcciones)
+
+- **`failTo` con pasos ocultos (AF85):** el `failTo` de un paso `wait` se proyectaba a un índice de la lista completa pero se usaba como índice entre los pasos visibles, así que un paso oculto antes del destino llevaba al usuario al paso equivocado. Ahora sigue siendo un id de paso y se resuelve contra los pasos visibles cuando la espera falla (si el destino está oculto, retrocede un paso).
+
 ## Sin publicar (Tests)
 
 - **Tests de caracterización (AF84):** la proyección (`engine/project.ts`), el store de pasos y el borrador (`engine/draft.ts`) tienen tests propios, y el test de aislamiento de capas también rechaza imports relativos de `engine/`, `components/`, `integrations/` y `styles/` desde `schema/` y `persistence/`, además de `import()`, `require()` e imports de efecto de React, React Hook Form, Yup y Zustand. Los tres warnings de lint desaparecieron y el fallback de paso desconocido pasa por `cx` (así `unstyled` y `classNames` aplican).

@@ -56,7 +56,7 @@ test('the key changes with the content, not with the identity', () => {
   expect(project(other).key).not.toBe(project(base).key);
 });
 
-test('a wait strategy id resolves through extensions and failTo becomes an index', () => {
+test('a wait strategy id resolves through extensions and failTo stays a step id', () => {
   const strategy = { subscribe: () => () => {} };
   const p = project(
     {
@@ -70,7 +70,7 @@ test('a wait strategy id resolves through extensions and failTo becomes an index
   );
   const wait = p.scheme.steps[1] as unknown as Record<string, unknown>;
   expect(wait.wait).toBe(strategy);
-  expect(wait.failTo).toBe(0);
+  expect(wait.failTo).toBe('a');
 });
 
 test('an unregistered extension id fails with unresolved-reference', () => {

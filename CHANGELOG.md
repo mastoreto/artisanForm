@@ -2,6 +2,10 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Fixes)
+
+- **`failTo` with hidden steps (AF85):** a `wait` step's `failTo` was projected to an index in the full step list but used as an index among the visible steps, so a hidden step before the target sent the user to the wrong step. It stays a step id now and is resolved against the visible steps when the wait fails (a hidden target falls back to going back one step).
+
 ## Unreleased (Tests)
 
 - **Characterization tests (AF84):** the projection (`engine/project.ts`), the step store and the draft (`engine/draft.ts`) now have their own tests, and the layer-isolation test also rejects relative imports of `engine/`, `components/`, `integrations/` and `styles/` from `schema/` and `persistence/`, plus `import()`, `require()` and side-effect imports of React, React Hook Form, Yup and Zustand. The three lint warnings are gone and the unknown-step fallback goes through `cx` (so `unstyled` and `classNames` apply).

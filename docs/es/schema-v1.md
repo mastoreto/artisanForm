@@ -251,7 +251,7 @@ No hay dos motores ni ramas de compatibilidad en los componentes. `FormSchema`, 
 
 **Ids de paso derivados.** `slug(title)` (con tildes plegadas), `-2`, `-3`… ante colisiones, `<type>-<posición>` si el título no da nada. Son deterministas (sin aleatorios ni fechas) pero **cambian si se reordenan o renombran pasos**: en v1 el `id` explícito es obligatorio justamente por eso.
 
-**Diferencias deliberadas.** `failTo` (índice en 0.2.0) se convierte a id y vuelve a índice sobre la lista **completa** de pasos (igual que antes, sin tener en cuenta pasos ocultos). En v1 un `name` duplicado es un error; en 0.2.0 sigue permitido y solo avisa. Un `terms` con `fields` propios no es representable en v1 (se descartan con aviso; rige el checkbox por defecto). Las condiciones `showIf` dentro de filas de `array` nunca se aplicaron y se descartan con aviso.
+**Diferencias deliberadas.** `failTo` (índice en 0.2.0) se convierte a id y se queda como id: el wizard lo resuelve contra los pasos **visibles** cuando la espera falla (si ese paso está oculto, el botón retrocede un paso). En v1 un `name` duplicado es un error; en 0.2.0 sigue permitido y solo avisa. Un `terms` con `fields` propios no es representable en v1 (se descartan con aviso; rige el checkbox por defecto). Las condiciones `showIf` dentro de filas de `array` nunca se aplicaron y se descartan con aviso.
 
 ## 13. Limitaciones actuales
 

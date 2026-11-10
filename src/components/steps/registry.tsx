@@ -383,7 +383,10 @@ const PendingStep = (ctx: StepContext) => {
   }, [resolved, values]);
 
   if (status.status === 'failed') {
-    const target = step.failTo as number | undefined;
+    // `failTo` is a step id; it only counts if that step is currently visible.
+    const failId = typeof step.failTo === 'string' ? step.failTo : undefined;
+    const found = failId ? ctx.steps.findIndex((s) => s.id === failId) : -1;
+    const target = found >= 0 ? found : undefined;
     return (
       <StatusPanel tone="error" message={status.message ?? labels.waitFailed}>
         <ActionButton onClick={() => setAttempt((n) => n + 1)}>

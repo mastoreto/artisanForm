@@ -149,3 +149,58 @@ test('sse strategy reads JSON statuses from an EventSource', async () => {
     globalThis.EventSource = real;
   }
 });
+
+test('failTo is a step id and survives a hidden step before it', async () => {
+  const user = userEvent.setup();
+  render(
+    <ArtisanForm
+      onSubmit={() => {}}
+      extensions={{
+        waits: {
+          rejected: polling(async () => ({ status: 'failed' }), {
+            interval: 10,
+          }),
+        },
+      }}
+      scheme={{
+        schemaVersion: 1,
+        id: 'f',
+        steps: [
+          {
+            id: 'a',
+            type: 'form',
+            title: 'First',
+            fields: [{ type: 'text', name: 'a', label: 'A' }],
+          },
+          {
+            // Never visible: shifts the full-list indexes by one.
+            id: 'hidden',
+            type: 'form',
+            title: 'Hidden',
+            visibleWhen: { field: 'a', operator: 'eq', value: 'never-typed' },
+            fields: [{ type: 'text', name: 'h', label: 'H' }],
+          },
+          {
+            id: 'details',
+            type: 'form',
+            title: 'Details',
+            fields: [{ type: 'text', name: 'd', label: 'D' }],
+          },
+          {
+            id: 'wait',
+            type: 'wait',
+            title: 'Waiting',
+            strategy: 'rejected',
+            failTo: 'details',
+          },
+        ],
+      }}
+    />,
+  );
+  await user.click(screen.getByText('Next'));
+  await user.click(await screen.findByText('Next'));
+  await screen.findByRole('heading', { name: 'Waiting' });
+  await user.click(await screen.findByText('Back to the form'));
+  // "details" is index 2 in the full list but 1 among the visible steps.
+  expect(await screen.findByRole('heading', { name: 'Details' })).toBeTruthy();
+});
