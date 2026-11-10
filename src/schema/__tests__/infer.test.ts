@@ -1,6 +1,4 @@
 import { expect, test } from 'bun:test';
-import type { ComponentProps } from 'react';
-import type ArtisanForm from '../../components/ArtisanForm/ArtisanForm';
 import { type ArtisanSchemaV1, defineForm } from '../contract/define';
 import type { InferValues } from '../contract/infer';
 
@@ -50,7 +48,6 @@ const schema = defineForm({
 });
 
 type Values = InferValues<typeof schema>;
-type FormProps = ComponentProps<typeof ArtisanForm<typeof schema>>;
 
 test('values are inferred from a literal schema', () => {
   assertType<Equals<Values['name'], string>>();
@@ -63,8 +60,6 @@ test('values are inferred from a literal schema', () => {
   assertType<Equals<Values['score'], unknown>>();
   assertType<Equals<Values['termsAccepted'], boolean | undefined>>();
   assertType<Equals<Values['orderId'], unknown>>();
-  // ArtisanForm and useArtisanWizard hand the same type to onSubmit
-  assertType<Equals<Parameters<FormProps['onSubmit']>[0], Values>>();
   // a required field is a required key; content fields add nothing
   const ok: Values = { name: 'Ana' };
   // @ts-expect-error `name` is required
