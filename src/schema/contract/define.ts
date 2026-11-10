@@ -17,6 +17,8 @@ export interface ArtisanSchemaV1 {
 /**
  * Identity helper for the TypeScript mode: gives autocompletion and checks
  * the literal against the contract, and returns it untouched, so what you
- * write is exactly what can be serialized.
+ * write is exactly what can be serialized. The literal type is kept, so
+ * `InferValues<typeof schema>` gives the submitted values.
  */
-export const defineForm = (schema: ArtisanSchemaV1): ArtisanSchemaV1 => schema;
+export const defineForm = <const S extends ArtisanSchemaV1>(schema: S): S =>
+  schema;

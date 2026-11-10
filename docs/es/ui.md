@@ -13,7 +13,7 @@ El esquema dice **qué** es el formulario, el motor decide **cómo se comporta**
 | Renderer (`Wizard`, registros de pasos y campos) | qué componente muestra qué, grilla, errores, progreso | validación, navegación |
 | Componentes de UI (`src/components/inputs`, `ui`, `Controls`, `Stepper`…) | markup y estilos | estado del formulario |
 
-`useWizard` (interno, `src/components/ArtisanForm/useWizard.ts`) contiene todo el comportamiento del wizard y `Wizard` solo dibuja lo que devuelve. Todavía **no** se publica una API headless (`useArtisanForm`); ver [Pendiente](#pendiente).
+`useArtisanWizard` (público, ver [headless](headless.md)) contiene todo el comportamiento del wizard y `Wizard` solo dibuja lo que devuelve.
 
 ## Tres niveles de personalización
 
@@ -72,6 +72,7 @@ Especificidad: los selectores de la librería son clases simples, así que ganan
     Controls: MyControls,
     StepHeader: MyStepHeader,                      // opcional
     FormError: MyFormError,                        // opcional
+    StatusPanel: MyStatusPanel,                    // pantallas de pago / espera / resultado
   }}
 />
 ```
@@ -100,9 +101,10 @@ No se reemplazan con `components.inputs` (varios valores o estado propio): `arra
 #### Props de los componentes
 
 - `FieldWrapper`: `{ id, label, description?, error?, invalid, className?, children }`. Al proveerlo, los inputs por defecto omiten su propio label/descripción/error, y un input de reemplazo debería dibujar solo el control.
-- `Stepper`: `{ steps: { id, title, state: 'done' | 'current' | 'upcoming' }[], current, labels }`. La navegación la maneja el motor: un stepper muestra el progreso, no salta entre pasos.
+- `Stepper`: `{ steps: { id, title, state: 'done' | 'current' | 'upcoming' }[], current, onSelect?, labels }`. Muestra el progreso; `onSelect(index)` solo se pasa cuando `<ArtisanForm stepperNavigation>` está activo y solo los pasos `done` son seleccionables (volver nunca necesita validar).
 - `Controls`: `{ onNext, onPrevious, isFirst, isLast, isSubmitting, nextDisabled?, hidePrevious?, hideNext?, error, labels }`. `onNext` valida, corre `beforeNext` y avanza (o envía en el último paso).
 - `StepHeader`: `{ title, index, total }`. `FormError`: `{ message }`.
+- `StatusPanel`: `{ tone: 'success' | 'error' | 'pending', message, children?, className? }`, la pantalla de los pasos `payment`, `pending` y `result`. `children` son sus acciones (reintentar, volver, enlaces).
 
 #### Responsabilidades de accesibilidad
 
@@ -205,8 +207,15 @@ El aspecto por defecto sigue siendo CSS plano sin herramientas (`artisanform/sty
 - La hoja de estilos por defecto ahora es CSS plano (sin clases de Tailwind ni reset global). Si dependías de que `artisanform/style.css` trajera el preflight de Tailwind, agregá tu propio reset.
 - `cn()` ahora es un wrapper fino de `clsx` (sin `tailwind-merge`).
 
+## Temas, movimiento y foco
+
+- **Tema oscuro (opt-in):** `<ArtisanForm theme="dark">` (o `"auto"` para seguir `prefers-color-scheme`) pone `data-theme` en el formulario y redefine los tokens `--artisan-text`, `--artisan-text-color`, `--artisan-strong`, `--artisan-soft`, `--artisan-muted`, `--artisan-line`, `--artisan-border`, `--artisan-surface` y `--artisan-subtle`. Sin `theme` nada cambia. Los callouts y algunos acentos conservan colores fijos; sobrescribí los tokens (o agregá tu CSS) para un modo oscuro de marca completo.
+- **Movimiento reducido:** con `prefers-reduced-motion: reduce` las transiciones se apagan y el spinner se vuelve más lento.
+- **Foco:** checkboxes, switches, opciones, botones pequeños, acciones, estrellas, cajas OTP, la zona de arrastre y los botones del stepper muestran un contorno visible con el foco de teclado.
+
 ## Pendiente
 
-- **API headless.** `useWizard` ya contiene todo el comportamiento; falta una forma pública estable. Propuesta para la próxima fase: `useArtisanForm({ scheme, onSubmit, ... })` que devuelva `{ steps, step, fields, values, errors, next, back, submitState }`, con `fields` portando los mismos `ArtisanInputProps` de `components.inputs`. No se exporta porque congelaría decisiones del motor (React Hook Form, Zustand, borradores) una fase después de que cambiaron.
+- ~~API headless~~ Hecho: ver [headless](headless.md) (`useArtisanWizard`).
 - `layout: 'horizontal'` no tiene estilo propio (solo el gancho `data-layout`).
-- Un stepper no puede navegar a pasos anteriores; eso requiere una noción de "visitado y válido" en el motor.
+- Un stepper solo vuelve a pasos terminados (`stepperNavigation`); saltar hacia adelante requiere una noción de "visitado y válido" en el motor.
+- Los inputs que no se reemplazan con `components` (`array`, `file`/`image`, `dynamicSelect`, `daterange`, campos de contenido) todavía necesitan un contrato uniforme multivalor.

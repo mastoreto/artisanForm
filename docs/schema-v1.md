@@ -45,7 +45,7 @@ Every step has an `id` (required, unique), a `title` and a `type`. Common option
 | --- | --- | --- |
 | `form` | `fields` | `kind` absent or `form` |
 | `payment` | `providers` (ids), `resultName?`, `summary?` (text) | `provider`/`providers` |
-| `wait` | `strategy` (id), `message?`, `resultName?`, `failTo?` (step id) | `kind: 'pending'` |
+| `wait` | `strategy` (id), `message?`, `resultName?`, `failTo?` (step id), `timeoutMs?`, `retry?: { max, backoffMs? }`, `cancellable?` | `kind: 'pending'` (the same three options) |
 | `terms` | `content?` (text), `href?`, `accept?: { name?, label? }` | `acceptName`/`acceptLabel` |
 | `review` | — | same |
 | `result` | `message?`, `errorMessage?`, `actions?: { label, href?, action? }[]` | `actions[].onClick` → `action` (id) |
@@ -71,6 +71,27 @@ Fields share `FieldBase` (`name`, `id?`, `label?`, `description?`, `required?`, 
 | Custom | `x-…` | `config` (JSON) |
 
 A field with a property its type does not accept is a parser **error** (`unknown-property`); it is not ignored.
+
+### Waiting: timeout, retry and cancel ✅
+
+On a `wait` step (or a 0.2.0 `pending` step): `timeoutMs` fails the step if it is still pending after that long (message `labels.waitTimeout`); `retry: { max, backoffMs? }` retries by itself after a failure (delay `backoffMs × n`, default 1000 ms, `max` from 1 to 10) before the user sees it, and the user's own Retry starts the count again; `cancellable: true` shows a Cancel button (`labels.cancel`) that aborts the wait and goes where `failTo` goes. They apply to every strategy, on top of whatever the strategy does itself (`polling` has its own `timeout`).
+
+### Transitions, loops and revisit ✅
+
+Optional on every step; a schema that uses none of them navigates exactly as before (next visible step, Back goes one step back).
+
+```jsonc
+{ "id": "plan", "type": "form", "title": "Plan", "fields": [ … ],
+  "next": [ { "when": { "field": "plan", "operator": "eq", "value": "pro" }, "to": "pay" },
+            { "to": "review" } ] }
+```
+
+- **`next: { when?, to }[]`**: after the step validates, the first edge whose `when` holds (always, if omitted) decides where to go; `to` is a step id. No match, a hidden target or a `result` target falls back to the next visible step.
+- **`loop: { max }`**: required on the target of an edge that goes back (or to itself). It is how many times the step can be **entered again** (the first visit does not count); once used up, the edge is skipped.
+- **`revisit: 'allow' | 'deny'`** (default `allow`): `deny` means that once the step is finished the user cannot come back to it, and Back stops right after it (a paid step cannot be undone). The stepper and `goToStep` refuse jumps across it.
+- **Back** follows the path actually taken (a history of finished steps, saved in the draft as `history?` in the snapshot; `snapshotVersion` stays 1), not the step order.
+- **Parser:** an edge to an unknown id is `unknown-step-reference`; going back to a step without `loop` is `unbounded-loop` (error); a step no path reaches is `unreachable-step` (warning); `loop.max` must be an integer from 1 to 1000.
+- **Limits:** the last visible non-`result` step still submits (branches should reconverge, or hide steps with `visibleWhen`); no parallel branches or sub-flows.
 
 ## 4. Declarative conditions ✅
 
@@ -196,7 +217,7 @@ A reference nobody registered **fails explicitly** (`ArtisanSchemaError`, `unres
 
 - `schemaVersion: 1` identifies the format. A higher number is rejected (`unsupported-version`) rather than misinterpreted. A schema **without** `schemaVersion` is treated as 0.2.0 by `normalizeArtisanSchema`.
 - `id` identifies the form and `revision` a concrete definition; both are recorded in drafts.
-- Automatic data migrations are ⏳ out of scope: an incompatibility is detected and the consumer decides (§11).
+- Data migrations are opt-in (`snapshotMigrations`, §11): without them an incompatibility is detected and the consumer decides.
 
 ## 11. Persistence ✅
 
@@ -218,6 +239,9 @@ interface ArtisanSnapshotV1 {
 - **Incompatibilities** (`form-id`, `revision`, `step-missing`, `unsupported-version`, `corrupt`): the draft is **never deleted silently**. `onSnapshotConflict(conflict) → 'backup' | 'restore' | 'discard'`; the default is `backup`: it is moved to `artisanform:<key>:incompatible` (a single slot) and the form starts clean. `restore` applies the values anyway (starting at the first step if the step no longer exists); `discard` deletes it. If the revision is missing on either side it is not a conflict.
 - **Careful with 0.2.0 forms:** their step ids are derived from the title, so **renaming or reordering titles makes an already saved draft miss its step** (`step-missing`) and, with the default policy, it is backed up and the form starts clean. In 0.2.0 the draft was restored by index and survived a title change. Move to `ArtisanSchemaV1` with explicit ids, or use `onSnapshotConflict={() => 'restore'}` to keep the values (it starts at the first step).
 - If the saved step exists but is currently hidden, the values are restored and it starts at the first visible step.
+- **Where and when it is written:** `draftStorage` (anything with `getItem`/`setItem`/`removeItem`, synchronous: `sessionStorage`, an in-memory or your own store; default `localStorage`) and `draftDebounceMs` (default 0 = on every change; with a delay it also writes when the step changes or the form unmounts, and never after a successful submit).
+- **Migrations:** `snapshotMigrations={{ 1: (s) => ({ ...s, formRevision: 2, values: { ...s.values, fullName: s.values.name } }) }}` brings a draft saved against revision 1 up to the form's `revision`. Each migration receives a copy of the snapshot at revision *n* and returns it at a higher revision; the chain runs until the revision matches. If a migration is missing, throws, returns something that is not a snapshot or does not raise the revision, the draft goes through `onSnapshotConflict` as before. After a successful migration the original is kept in the backup slot. `migrateSnapshot` is exported to test them.
+- **IO helpers** (exported): `readSnapshot`, `writeSnapshot`, `clearSnapshot`, `readRaw`, `backupStored`, `createSnapshot`, `parseStored`, `checkSnapshot`, `migrateSnapshot`.
 
 ## 12. Compatibility with 0.2.0 🔁
 
@@ -251,7 +275,7 @@ There are no two engines and no compatibility branches in the components. `FormS
 
 **Derived step ids.** `slug(title)` (accents folded), `-2`, `-3`… on collisions, `<type>-<position>` if the title yields nothing. They are deterministic (no randomness, no dates) but **change if steps are reordered or renamed**: that is exactly why v1 requires an explicit `id`.
 
-**Deliberate differences.** `failTo` (an index in 0.2.0) is converted to an id and back to an index over the **full** list of steps (as before, ignoring hidden steps). In v1 a duplicate `name` is an error; in 0.2.0 it is still allowed and only warns. A `terms` step with its own `fields` is not representable in v1 (they are dropped with a warning; the default checkbox applies). `showIf` conditions inside `array` rows never applied and are dropped with a warning.
+**Deliberate differences.** `failTo` (an index in 0.2.0) is converted to an id and stays an id: the wizard resolves it against the **visible** steps when the wait fails (if that step is hidden, the button goes back one step). In v1 a duplicate `name` is an error; in 0.2.0 it is still allowed and only warns. A `terms` step with its own `fields` is not representable in v1 (they are dropped with a warning; the default checkbox applies). `showIf` conditions inside `array` rows never applied and are dropped with a warning.
 
 ## 13. Current limitations
 
@@ -260,7 +284,7 @@ There are no two engines and no compatibility branches in the components. `FormS
 - `optionsSource` only on `combobox`/`multiselect`.
 - `hooks` and `onSnapshotConflict` of a 0.2.0 schema are still TypeScript code, not data.
 - Validation messages and interface texts still come from `labels` (not from the schema).
-- Snapshots have no automatic migrations; a single backup per key.
+- A single backup slot per key; storage must be synchronous (no async drafts yet).
 
 ## 14. Reserved for future phases ⏳
 

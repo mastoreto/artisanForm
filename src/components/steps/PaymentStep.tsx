@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { fromReturnUrl } from '../../integrations/payments/resume';
 import type {
   PaymentPlugin,
   PaymentResult,
@@ -55,12 +56,22 @@ const PaymentStep = (ctx: StepContext) => {
   const [key, setKey] = useState(newKey);
   const advanced = useRef(false);
 
+  // Aborted when the step unmounts (the user left, or the wizard moved on), so
+  // an in-flight `start()` can stop. A fresh controller after StrictMode's
+  // simulated unmount.
+  const [controller, setController] = useState(() => new AbortController());
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- replaces a controller aborted by the simulated unmount
+    if (controller.signal.aborted) setController(new AbortController());
+    return () => controller.abort();
+  }, [controller]);
+
   const request = () => ({
     values,
     idempotencyKey: key,
     returnUrl: baseUrl(),
     cancelUrl: baseUrl(),
-    signal: new AbortController().signal,
+    signal: controller.signal,
   });
 
   const finish = (plugin: PaymentPlugin, result: PaymentResult) => {
@@ -82,8 +93,11 @@ const PaymentStep = (ctx: StepContext) => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     for (const plugin of available) {
-      const result = plugin.resume?.(params);
-      if (!result) continue;
+      const reported = plugin.resume?.(params);
+      if (!reported) continue;
+      // The return URL is forgeable: whatever a plugin reports from it, the
+      // core never records it as `succeeded` (a `pending` step confirms it).
+      const result = fromReturnUrl(reported);
       const url = new URL(window.location.href);
       for (const k of plugin.resumeKeys ?? []) url.searchParams.delete(k);
       window.history.replaceState(null, '', url);

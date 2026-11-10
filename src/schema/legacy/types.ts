@@ -3,6 +3,7 @@ export interface FieldOption {
   label: string;
 }
 
+import type { StepLoopV1, StepTransitionV1 } from '../contract/steps';
 import type { ConditionV1 } from '../contract/types';
 
 /**
@@ -176,6 +177,10 @@ export interface StepSchema {
   /** Runs every time the step becomes the current one. */
   onEnter?: (values: Record<string, unknown>) => void;
   controls?: StepControls;
+  /** v1 transitions, loop bound and revisit rule (see `StepBaseV1`). Set by the projection. */
+  next?: StepTransitionV1[];
+  loop?: StepLoopV1;
+  revisit?: 'allow' | 'deny';
   /** Extra properties read by custom step kinds (e.g. `render` for `custom`). */
   [extra: string]: unknown;
 }

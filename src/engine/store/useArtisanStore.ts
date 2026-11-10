@@ -16,7 +16,7 @@ interface ArtisanFormState {
   setSubmitState: (state: SubmitState, error?: string | null) => void;
 }
 
-const createArtisanStore = () =>
+export const createArtisanStore = () =>
   createStore<ArtisanFormState>((set) => ({
     step: 0,
     processStep: 0,
@@ -33,7 +33,8 @@ const createArtisanStore = () =>
 // Fallback for components rendered outside an ArtisanStoreProvider
 // (e.g. a lone <Controls /> in a story).
 const defaultStore = createArtisanStore();
-const ArtisanStoreContext = createContext(defaultStore);
+export type ArtisanStore = ReturnType<typeof createArtisanStore>;
+export const ArtisanStoreContext = createContext(defaultStore);
 
 /** Gives its children their own step state, isolated from other forms. */
 export const ArtisanStoreProvider = ({ children }: { children: ReactNode }) => {

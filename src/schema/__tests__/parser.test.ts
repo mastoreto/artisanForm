@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { parseArtisanSchema, type SchemaPolicy } from '../parser';
 
 const valid = () => ({
@@ -450,4 +450,153 @@ test('rejects field names that are prototype keys or path syntax', () => {
     (s.steps[0].fields?.[1] as Record<string, unknown>).name = name;
     expect(errors(s)).toContain('invalid-name @ steps[0].fields[1].name');
   }
+});
+
+describe('payment without confirmation', () => {
+  const schema = (steps: unknown[]) => ({
+    schemaVersion: 1,
+    id: 'p',
+    steps,
+  });
+  const pay = { id: 'p', type: 'payment', title: 'P', providers: ['stripe'] };
+  const warns = (steps: unknown[]) =>
+    parseArtisanSchema(schema(steps)).issues.filter(
+      (i) => i.code === 'payment-without-confirmation',
+    );
+
+  test('a payment step not followed by a wait step is a warning, never an error', () => {
+    const r = parseArtisanSchema(
+      schema([pay, { id: 'r', type: 'result', title: 'R' }]),
+    );
+    expect(r.success).toBe(true);
+    expect(warns([pay, { id: 'r', type: 'result', title: 'R' }])).toHaveLength(
+      1,
+    );
+    expect(warns([pay])).toHaveLength(1);
+  });
+
+  test('followed by a wait step: no warning', () => {
+    expect(
+      warns([pay, { id: 'w', type: 'wait', title: 'W', strategy: 's' }]),
+    ).toEqual([]);
+  });
+});
+
+describe('transitions', () => {
+  const step = (id: string, extra: Record<string, unknown> = {}) => ({
+    id,
+    type: 'form',
+    title: id,
+    fields: [],
+    ...extra,
+  });
+  const parse = (steps: unknown[]) =>
+    parseArtisanSchema({ schemaVersion: 1, id: 't', steps });
+  const codes = (steps: unknown[], severity: 'error' | 'warning') =>
+    parse(steps)
+      .issues.filter((i) => i.severity === severity)
+      .map((i) => i.code);
+
+  test('a forward transition and a bounded way back are valid', () => {
+    const r = parse([
+      step('a', {
+        next: [{ when: { field: 'x', operator: 'filled' }, to: 'c' }],
+      }),
+      step('b'),
+      step('c', { next: [{ to: 'b' }] }),
+      step('d'),
+    ]);
+    // c → b goes back, and b has no loop
+    expect(r.success).toBe(false);
+    expect(
+      codes(
+        [
+          step('a'),
+          step('b', { loop: { max: 2 } }),
+          step('c', { next: [{ to: 'b' }] }),
+        ],
+        'error',
+      ),
+    ).toEqual([]);
+  });
+
+  test('a way back to a step without loop.max is rejected', () => {
+    expect(
+      codes([step('a'), step('b', { next: [{ to: 'a' }] })], 'error'),
+    ).toEqual(['unbounded-loop']);
+    expect(codes([step('a', { next: [{ to: 'a' }] })], 'error')).toEqual([
+      'unbounded-loop',
+    ]);
+  });
+
+  test('an unknown target and malformed properties are errors', () => {
+    expect(codes([step('a', { next: [{ to: 'nope' }] })], 'error')).toEqual([
+      'unknown-step-reference',
+    ]);
+    expect(codes([step('a', { loop: { max: 0 } })], 'error')).toEqual([
+      'invalid-type',
+    ]);
+    expect(codes([step('a', { revisit: 'sometimes' })], 'error')).toHaveLength(
+      1,
+    );
+    expect(
+      codes([step('a', { next: [{ to: 'a', x: 1 }] })], 'error').length,
+    ).toBeGreaterThan(0);
+  });
+
+  test('a step no path reaches is a warning', () => {
+    // a always goes to c, so b is skipped
+    expect(
+      codes(
+        [step('a', { next: [{ to: 'c' }] }), step('b'), step('c')],
+        'warning',
+      ),
+    ).toEqual(['unreachable-step']);
+    expect(
+      codes(
+        [
+          step('a', {
+            next: [{ when: { field: 'x', operator: 'filled' }, to: 'c' }],
+          }),
+          step('b'),
+          step('c'),
+        ],
+        'warning',
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe('wait step options', () => {
+  const wait = (extra: Record<string, unknown>) =>
+    parseArtisanSchema({
+      schemaVersion: 1,
+      id: 'w',
+      steps: [{ id: 'w', type: 'wait', title: 'W', strategy: 's', ...extra }],
+    });
+  const errorCodes = (extra: Record<string, unknown>) =>
+    wait(extra)
+      .issues.filter((i) => i.severity === 'error')
+      .map((i) => i.path);
+
+  test('valid timeoutMs, retry and cancellable are accepted', () => {
+    expect(
+      wait({
+        timeoutMs: 5000,
+        retry: { max: 3, backoffMs: 200 },
+        cancellable: true,
+      }).success,
+    ).toBe(true);
+  });
+
+  test('out-of-range or malformed values are errors', () => {
+    expect(errorCodes({ timeoutMs: 0 })).toEqual(['steps[0].timeoutMs']);
+    expect(errorCodes({ retry: { max: 11 } })).toEqual(['steps[0].retry.max']);
+    expect(errorCodes({ retry: { max: 1, backoffMs: -1 } })).toEqual([
+      'steps[0].retry.backoffMs',
+    ]);
+    expect(errorCodes({ cancellable: 'yes' })).toEqual([
+      'steps[0].cancellable',
+    ]);
+  });
 });

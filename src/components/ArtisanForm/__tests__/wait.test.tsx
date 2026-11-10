@@ -149,3 +149,121 @@ test('sse strategy reads JSON statuses from an EventSource', async () => {
     globalThis.EventSource = real;
   }
 });
+
+test('failTo is a step id and survives a hidden step before it', async () => {
+  const user = userEvent.setup();
+  render(
+    <ArtisanForm
+      onSubmit={() => {}}
+      extensions={{
+        waits: {
+          rejected: polling(async () => ({ status: 'failed' }), {
+            interval: 10,
+          }),
+        },
+      }}
+      scheme={{
+        schemaVersion: 1,
+        id: 'f',
+        steps: [
+          {
+            id: 'a',
+            type: 'form',
+            title: 'First',
+            fields: [{ type: 'text', name: 'a', label: 'A' }],
+          },
+          {
+            // Never visible: shifts the full-list indexes by one.
+            id: 'hidden',
+            type: 'form',
+            title: 'Hidden',
+            visibleWhen: { field: 'a', operator: 'eq', value: 'never-typed' },
+            fields: [{ type: 'text', name: 'h', label: 'H' }],
+          },
+          {
+            id: 'details',
+            type: 'form',
+            title: 'Details',
+            fields: [{ type: 'text', name: 'd', label: 'D' }],
+          },
+          {
+            id: 'wait',
+            type: 'wait',
+            title: 'Waiting',
+            strategy: 'rejected',
+            failTo: 'details',
+          },
+        ],
+      }}
+    />,
+  );
+  await user.click(screen.getByText('Next'));
+  await user.click(await screen.findByText('Next'));
+  await screen.findByRole('heading', { name: 'Waiting' });
+  await user.click(await screen.findByText('Back to the form'));
+  // "details" is index 2 in the full list but 1 among the visible steps.
+  expect(await screen.findByRole('heading', { name: 'Details' })).toBeTruthy();
+});
+
+test('timeoutMs fails a wait that never settles', async () => {
+  await toWaiting({ subscribe: () => () => {} }, { timeoutMs: 40 });
+  expect(
+    await screen.findByText('The confirmation took too long'),
+  ).toBeTruthy();
+});
+
+test('retry tries again by itself before the user sees the failure', async () => {
+  let calls = 0;
+  await toWaiting(
+    {
+      subscribe: (onStatus) => {
+        calls++;
+        onStatus(
+          calls < 3
+            ? { status: 'failed', message: 'flaky' }
+            : { status: 'success' },
+        );
+        return () => {};
+      },
+    },
+    { retry: { max: 2, backoffMs: 1 } },
+  );
+  expect(await screen.findByText('fin')).toBeTruthy();
+  expect(calls).toBe(3);
+  expect(screen.queryByText('flaky')).toBeNull();
+});
+
+test('retry gives up after max and shows the failure; the manual Retry starts over', async () => {
+  let calls = 0;
+  const user = await toWaiting(
+    {
+      subscribe: (onStatus) => {
+        calls++;
+        onStatus({ status: 'failed', message: 'down' });
+        return () => {};
+      },
+    },
+    { retry: { max: 1, backoffMs: 1 } },
+  );
+  expect(await screen.findByText('down')).toBeTruthy();
+  expect(calls).toBe(2); // first try + 1 automatic retry
+  await user.click(screen.getByText('Retry'));
+  await waitFor(() => expect(calls).toBe(4)); // manual retry + its automatic retry
+});
+
+test('cancellable shows Cancel, aborts the wait and goes back', async () => {
+  let signal: AbortSignal | undefined;
+  const user = await toWaiting(
+    {
+      subscribe: (_on, ctx) => {
+        signal = ctx.signal;
+        return () => {};
+      },
+    },
+    { cancellable: true },
+  );
+  expect(signal?.aborted).toBe(false);
+  await user.click(screen.getByText('Cancel'));
+  expect(await screen.findByRole('heading', { name: 'Form' })).toBeTruthy();
+  expect(signal?.aborted).toBe(true);
+});

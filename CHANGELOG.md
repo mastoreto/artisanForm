@@ -2,6 +2,50 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Persistence)
+
+- **Pluggable drafts, debounce and migrations (AF92):** `draftStorage` (any synchronous `getItem`/`setItem`/`removeItem` store), `draftDebounceMs` (writes also happen on step change and unmount, never after a successful submit) and `snapshotMigrations` (a chain of functions that bring a draft saved against an older `revision` up to the current one; failures fall back to `onSnapshotConflict`, and the original is kept in the backup slot). The IO helpers (`readSnapshot`, `writeSnapshot`, `clearSnapshot`, `readRaw`, `backupStored`) and `migrateSnapshot` are exported. Not included: asynchronous storage.
+
+## Unreleased (Waiting)
+
+- **`wait` options (AF91, decision: no separate `action` step):** `timeoutMs`, `retry: { max, backoffMs? }` and `cancellable` on `wait` steps (and on 0.2.0 `pending` steps). New default labels `waitTimeout` and `cancel`. The parser validates them (`timeoutMs` 1–3 600 000, `retry.max` 1–10, `backoffMs` 0–60 000).
+
+## Unreleased (Workflows)
+
+- **Transitions (AF90):** steps accept `next: { when?, to }[]` (first matching edge decides the next step), `loop: { max }` (bounds re-entries; required on the target of a way back) and `revisit: 'allow' | 'deny'` (a finished `deny` step cannot be returned to). Back follows the path taken; the path is saved in the draft (`history?` in the snapshot, still `snapshotVersion` 1) so a reload resumes on the branch. The parser reports `unbounded-loop` (error) and `unreachable-step` (warning). Schemas without these properties behave exactly as before. `useArtisanWizard` adds `canGoBack` and guards `goTo`/`goToStep` with the revisit rule. See [schema v1](docs/schema-v1.md#transitions-loops-and-revisit-).
+
+## Unreleased (Personalization)
+
+- **`components.StatusPanel` (AF89):** the screen of the payment, waiting and result steps can be replaced (`ArtisanStatusPanelProps`).
+- **Stepper navigation:** `<ArtisanForm stepperNavigation>` makes finished steps clickable (`ArtisanStepperProps.onSelect`; off by default).
+- **Theme, motion, focus:** `theme="dark" | "auto"` redefines the color tokens (opt-in; nothing changes without it), `prefers-reduced-motion` turns transitions off, and more interactive parts show a `:focus-visible` outline. New `stepperButton` class slot.
+- **Not in this change:** `layout: 'horizontal'` styling and a uniform contract for multi-value inputs (`array`, `file`, `dynamicSelect`, `daterange`) are still pending.
+
+## Unreleased (Typed values and navigation by id)
+
+- **`InferValues` and typed `onSubmit` (AF88):** `defineForm` now keeps the literal type of the schema (a `const` generic; the same object comes back), and `InferValues<typeof schema>` computes the submitted values from it. `ArtisanForm` and `useArtisanWizard` are generic over the schema and type `onSubmit` with it; a schema that is not a literal (or a 0.2.0 `FormSchema`) still gets `Record<string, unknown>`.
+- **Navigation by id:** `wizard.goToStep(id)`, the `stepId` / `onStepIdChange` options and `ArtisanStepApi.goToStep(id)`. The index API is unchanged. Typed props for custom step types (`StepDefinition<P>`) are not part of this change.
+
+## Unreleased (Headless)
+
+- **`useArtisanWizard` (AF87):** the wizard's behavior is now a public hook (see [docs/headless.md](docs/headless.md)), exported from `artisanform` and from the new `artisanform/headless` entry (no stylesheet). It returns the React Hook Form instance, the visible steps, the current step, `next/back/goTo/submit`, the submit state and what the default renderer needs; `ArtisanWizardProvider` and `useArtisanField` bind your inputs. `ArtisanForm` is now a thin consumer of this hook, and `Wizard` only renders what it returns. The internal `useArtisanForm` was renamed `useFormBinding`. `useWizard` takes the form, the store and the UI state as parameters instead of reading them from context. No behavior change for `ArtisanForm` users.
+
+## Unreleased (Security: payments in the core)
+
+- **Untrusted return URL, enforced in the core (AF86, behavior change for custom plugins):** `PaymentStep` now downgrades any `resume()` result from `succeeded` to `processing`, not only the bundled plugins. `PaymentRequest.signal` is aborted when the payment step unmounts (it never was). `parseArtisanSchema` emits the warning `payment-without-confirmation` when a `payment` step is not followed by a `wait` step. **If a custom plugin read a success from the URL and relied on it, add a `pending` step that confirms the payment on your backend.**
+
+## Unreleased (Fixes)
+
+- **`failTo` with hidden steps (AF85):** a `wait` step's `failTo` was projected to an index in the full step list but used as an index among the visible steps, so a hidden step before the target sent the user to the wrong step. It stays a step id now and is resolved against the visible steps when the wait fails (a hidden target falls back to going back one step).
+
+## Unreleased (Tests)
+
+- **Characterization tests (AF84):** the projection (`engine/project.ts`), the step store and the draft (`engine/draft.ts`) now have their own tests, and the layer-isolation test also rejects relative imports of `engine/`, `components/`, `integrations/` and `styles/` from `schema/` and `persistence/`, plus `import()`, `require()` and side-effect imports of React, React Hook Form, Yup and Zustand. The three lint warnings are gone and the unknown-step fallback goes through `cx` (so `unstyled` and `classNames` apply).
+
+## Unreleased (Planning)
+
+- **Evolution plan (AF83):** [docs/planning/artisanform-evolution.md](docs/planning/artisanform-evolution.md) audits the current state and plans the headless API (`useArtisanWizard`), typed values, workflows and snapshot migrations, with the decisions taken. AGENTS.md lists `apps/docs`, and the docs call the future headless hook `useArtisanWizard`.
+
 ## Unreleased (Robustness)
 
 - **Integrations (AF77):** a `wait` message with an unknown `status` now fails the step instead of waiting for the timeout, and a `websocket()` that closes before a final status fails (closing it ourselves is not a failure). `cloudinary()` throws a clear upload error when the response is not the expected JSON. The payment idempotency key uses `crypto.getRandomValues` when `randomUUID` is unavailable (insecure contexts) instead of `Math.random`, and fails if there is no `crypto` at all. The files guide states that `accept` and `maxSize` are not a security control.

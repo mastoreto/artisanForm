@@ -10,6 +10,7 @@ export const SLOTS = [
   'root',
   'stepper',
   'stepperItem',
+  'stepperButton',
   'stepHeader',
   'fieldGrid',
   'fieldCell',
