@@ -42,7 +42,7 @@ src/
   persistence/           ArtisanSnapshotV1 y storage de borradores (tampoco importa el motor)
   engine/                ejecuta un esquema; acá viven React Hook Form/Yup/Zustand
     project.ts           esquema normalizado → la forma que consume el wizard (la única costura que conoce ambas)
-    form/                useArtisanForm (un solo useForm), useArtisanField (binding de inputs), errors, validators
+    form/                useFormBinding (un solo useForm), useArtisanField (binding de inputs), errors, validators
     buildSchema.ts · conditions.ts · draft.ts · extensions.ts · navigation.ts · store/useArtisanStore.ts
   components/
     ArtisanForm/         ArtisanForm.tsx (público) · Wizard.tsx (render) · useWizard.ts (comportamiento) · Stepper.tsx · __tests__/ (integración)

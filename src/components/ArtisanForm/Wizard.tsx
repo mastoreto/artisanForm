@@ -2,7 +2,7 @@ import Controls from '../Controls/Controls';
 import type { ArtisanControlsProps } from '../ui/types';
 import { useComponents, useCx } from '../ui/UiContext';
 import Stepper from './Stepper';
-import { useWizard, type WizardProps } from './useWizard';
+import type { ArtisanWizard } from './useArtisanWizard';
 
 const DefaultStepHeader = ({ title }: { title: string }) => {
   const cx = useCx();
@@ -23,21 +23,28 @@ const DefaultControls = ({ error: _error, ...props }: ArtisanControlsProps) => (
   <Controls {...props} />
 );
 
-export type { WizardProps };
-
-/** Renders the current step; lives inside the form provider to read live values. */
-export const Wizard = (props: WizardProps) => {
+/** Renders what `useArtisanWizard` returns; lives inside `ArtisanWizardProvider`. */
+export const Wizard = ({
+  wizard,
+  className,
+}: {
+  wizard: ArtisanWizard;
+  className?: string;
+}) => {
   const cx = useCx();
   const custom = useComponents();
-  const wizard = useWizard(props);
-  if (!wizard) return null;
-  const { steps, step, current, definition, context, formRef, next, goTo } =
-    wizard;
-  const { labels, className, ui: formUi } = props;
-  const { finalIndex, stepError, submitError, submitState } = wizard;
-  const controls = { ...definition.controls, ...current.controls };
+  const {
+    current,
+    steps,
+    step,
+    controls,
+    labels,
+    bindForm,
+    ui: formUi,
+  } = wizard;
+  if (!current) return null;
   const formError =
-    stepError ?? (current.kind !== 'result' ? submitError : null);
+    wizard.stepError ?? (current.kind !== 'result' ? wizard.submitError : null);
   const controlLabels = {
     ...labels,
     ...(controls.nextLabel && {
@@ -54,38 +61,30 @@ export const Wizard = (props: WizardProps) => {
   return (
     <form
       noValidate
-      ref={formRef}
+      ref={bindForm}
       className={cx('root', className)}
-      data-layout={formUi?.layout}
-      data-density={formUi?.density}
-      data-label-position={formUi?.labelPosition}
+      data-layout={formUi.layout}
+      data-density={formUi.density}
+      data-label-position={formUi.labelPosition}
       onSubmit={(e) => {
         e.preventDefault();
-        void next();
+        void wizard.next();
       }}
     >
-      <StepperSlot
-        steps={steps.map((s, i) => ({
-          id: s.id ?? String(i),
-          title: s.title,
-          state: i < step ? 'done' : i === step ? 'current' : 'upcoming',
-        }))}
-        current={step}
-        labels={labels}
-      />
+      <StepperSlot steps={steps} current={step} labels={labels} />
       <StepHeaderSlot title={current.title} index={step} total={steps.length} />
-      {definition.render(context)}
+      {wizard.renderStep()}
       {formError && <FormErrorSlot message={formError} />}
       {!controls.hidden && (
         <ControlsSlot
-          onNext={() => void next()}
-          onPrevious={() => goTo(Math.max(0, step - 1))}
-          isFirst={step <= 0}
-          isLast={step >= finalIndex}
+          onNext={() => void wizard.next()}
+          onPrevious={wizard.back}
+          isFirst={wizard.isFirst}
+          isLast={wizard.isLast}
           hidePrevious={controls.hidePrevious}
           hideNext={controls.hideNext}
           nextDisabled={controls.nextDisabled}
-          isSubmitting={submitState === 'submitting'}
+          isSubmitting={wizard.submitState === 'submitting'}
           error={formError}
           labels={controlLabels}
         />

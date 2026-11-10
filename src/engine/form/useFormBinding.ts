@@ -9,7 +9,7 @@ import { type FieldValidators, withFieldValidators } from './validators';
  * The single form instance of a wizard: values live here (not in Zustand),
  * validation is the Yup schema plus the registered field validators.
  */
-export const useArtisanForm = (
+export const useFormBinding = (
   defaultValues: FormValues,
   validationSchema: AnyObjectSchema,
 ) => {

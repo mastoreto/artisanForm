@@ -2,6 +2,10 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Headless)
+
+- **`useArtisanWizard` (AF87):** the wizard's behavior is now a public hook (see [docs/headless.md](docs/headless.md)), exported from `artisanform` and from the new `artisanform/headless` entry (no stylesheet). It returns the React Hook Form instance, the visible steps, the current step, `next/back/goTo/submit`, the submit state and what the default renderer needs; `ArtisanWizardProvider` and `useArtisanField` bind your inputs. `ArtisanForm` is now a thin consumer of this hook, and `Wizard` only renders what it returns. The internal `useArtisanForm` was renamed `useFormBinding`. `useWizard` takes the form, the store and the UI state as parameters instead of reading them from context. No behavior change for `ArtisanForm` users.
+
 ## Unreleased (Security: payments in the core)
 
 - **Untrusted return URL, enforced in the core (AF86, behavior change for custom plugins):** `PaymentStep` now downgrades any `resume()` result from `succeeded` to `processing`, not only the bundled plugins. `PaymentRequest.signal` is aborted when the payment step unmounts (it never was). `parseArtisanSchema` emits the warning `payment-without-confirmation` when a `payment` step is not followed by a `wait` step. **If a custom plugin read a success from the URL and relied on it, add a `pending` step that confirms the payment on your backend.**

@@ -124,6 +124,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./headless": {
+      "types": "./dist/headless.d.ts",
+      "import": "./dist/headless.js"
+    },
     "./style.css": "./dist/style.css",
     "./payments/stripe": {
       "types": "./dist/integrations/payments/providers/stripe.d.ts",

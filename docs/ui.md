@@ -13,7 +13,7 @@ The schema says **what** the form is, the engine decides **how** it behaves, and
 | Renderer (`Wizard`, step and field registries) | which component shows what, grid, errors, progress | validation, navigation |
 | UI components (`src/components/inputs`, `ui`, `Controls`, `Stepper`…) | markup and styles | form state |
 
-`useWizard` (internal, `src/components/ArtisanForm/useWizard.ts`) holds all the wizard behavior and `Wizard` only renders what it returns. A public headless API (`useArtisanWizard`) is **not** published yet; see [Pending](#pending).
+`useArtisanWizard` (public, see [headless](headless.md)) holds all the wizard behavior and `Wizard` only renders what it returns.
 
 ## Three levels of customization
 
@@ -209,6 +209,6 @@ The default look stays plain CSS with no tooling (`artisanform/style.css`); Tail
 
 ## Pending
 
-- **Headless API.** `useWizard` already contains all the behavior; what is missing is a stable public shape. Proposal for the next phase: `useArtisanWizard({ schema, onSubmit, ... })` returning `{ steps, step, fields, values, errors, next, back, submitState }`, with `fields` carrying the same `ArtisanInputProps` used by `components.inputs`. It is not exported because it would freeze the engine's choices (React Hook Form, Zustand, drafts) one phase after they changed.
+- ~~Headless API~~ Done: see [headless](headless.md) (`useArtisanWizard`).
 - `layout: 'horizontal'` has no built-in styling (only the `data-layout` hook).
 - A stepper cannot navigate to earlier steps; that needs a "visited and valid" notion in the engine.

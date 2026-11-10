@@ -1,12 +1,6 @@
-import {
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react';
-import { useFormContext, useFormState, useWatch } from 'react-hook-form';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { type UseFormReturn, useFormState, useWatch } from 'react-hook-form';
+import { useStore } from 'zustand';
 import type { ArtisanLabels } from '../../commons/labels';
 import { fieldNames } from '../../engine/buildSchema';
 import {
@@ -18,9 +12,9 @@ import {
 import { saveDraft, withoutSecrets } from '../../engine/draft';
 import { errorAt } from '../../engine/form/errors';
 import type { FormValues } from '../../engine/form/types';
-import { FormUiContext } from '../../engine/form/validators';
+import type { FormUi } from '../../engine/form/validators';
 import { resolveStep } from '../../engine/navigation';
-import { useArtisanStore } from '../../engine/store/useArtisanStore';
+import type { ArtisanStore } from '../../engine/store/useArtisanStore';
 import type { StorageMap } from '../../integrations/storage/types';
 import type { FormUIConfig } from '../../schema/contract/types';
 import type { BeforeNextResult, FormSchema } from '../../schema/legacy/types';
@@ -33,6 +27,12 @@ import {
 } from '../steps/registry';
 
 export interface WizardProps {
+  /** The single form instance (React Hook Form) the wizard drives. */
+  methods: UseFormReturn<FormValues>;
+  /** This wizard's step state. */
+  store: ArtisanStore;
+  /** Validators and the "attempted" flag shared with the field bindings. */
+  uiState: FormUi;
   scheme: FormSchema;
   snapshotMeta: { formId: string; revision?: number };
   /** Changes only when the schema's content changes. */
@@ -60,6 +60,9 @@ export interface WizardProps {
  * `Wizard` only renders what this returns; a headless API would expose this.
  */
 export const useWizard = ({
+  methods,
+  store,
+  uiState,
   scheme,
   snapshotMeta,
   schemeKey,
@@ -79,7 +82,7 @@ export const useWizard = ({
   // (stable identity => same result) and would cache a stale snapshot.
   'use no memo';
   const { control, trigger, setValue, handleSubmit, watch, getValues } =
-    useFormContext<FormValues>();
+    methods;
   const { errors: formErrors } = useFormState({ control });
   // Re-render only when a value a condition reads changes; typing in any
   // other field re-renders just that field.
@@ -88,7 +91,7 @@ export const useWizard = ({
   const visibility = Object.fromEntries(
     watchedNames.map((n, i) => [n, watched[i]]),
   );
-  const ui = useContext(FormUiContext);
+  const ui = uiState;
   const submitForm = () => handleSubmit(onSubmitValues)();
 
   useEffect(() => {
@@ -96,12 +99,12 @@ export const useWizard = ({
     const subscription = watch((all) => onChange(all as FormValues));
     return () => subscription.unsubscribe();
   }, [watch, onChange]);
-  const step = useArtisanStore((s) => s.step);
-  const setStep = useArtisanStore((s) => s.setStep);
-  const setProcessStep = useArtisanStore((s) => s.setProcessStep);
-  const setIsFinalStep = useArtisanStore((s) => s.setIsFinalStep);
-  const submitState = useArtisanStore((s) => s.submitState);
-  const submitError = useArtisanStore((s) => s.submitError);
+  const step = useStore(store, (s) => s.step);
+  const setStep = useStore(store, (s) => s.setStep);
+  const setProcessStep = useStore(store, (s) => s.setProcessStep);
+  const setIsFinalStep = useStore(store, (s) => s.setIsFinalStep);
+  const submitState = useStore(store, (s) => s.submitState);
+  const submitError = useStore(store, (s) => s.submitError);
 
   const steps = visibleSteps(scheme, visibility);
   const current = steps[step];
@@ -315,7 +318,9 @@ export const useWizard = ({
     current,
     definition,
     context,
-    formRef,
+    bindForm: (element: HTMLFormElement | null) => {
+      formRef.current = element;
+    },
     next,
     goTo,
     finalIndex,

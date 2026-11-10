@@ -40,7 +40,7 @@ src/
   persistence/           ArtisanSnapshotV1 and draft storage (does not import the engine either)
   engine/                runs a schema; React Hook Form/Yup/Zustand live here
     project.ts           normalized schema → the shape the wizard consumes (the only seam that knows both)
-    form/                useArtisanForm (single useForm), useArtisanField (input binding), errors, validators
+    form/                useFormBinding (single useForm), useArtisanField (input binding), errors, validators
     buildSchema.ts · conditions.ts · draft.ts · extensions.ts · navigation.ts · store/useArtisanStore.ts
   components/
     ArtisanForm/         ArtisanForm.tsx (public) · Wizard.tsx (render) · useWizard.ts (behavior) · Stepper.tsx · __tests__/ (integration)

@@ -12,6 +12,7 @@ React library for building multi-step forms (wizards) from a declarative definit
 | --- | --- |
 | [Schema v1](docs/schema-v1.md) | The serializable, versioned schema contract |
 | [UI extension and kits](docs/ui.md) | Styles, `components`, `classNames` and the official kits |
+| [Headless API](docs/headless.md) | `useArtisanWizard`: the behavior without markup, for your own UI |
 | [Payments](docs/payments.md) | Plugins, the security principle and a production checklist |
 | [Files and storage](docs/files.md) | `file`/`image` fields and storage adapters |
 | [Accessibility and tested environments](docs/accessibility.md) | What is built in, what is checked, browsers and versions |
@@ -442,7 +443,7 @@ Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must
 
 - **Release:** move npm publishing from a token to Trusted Publishing, and cut a stable version after the beta feedback ([docs/releasing.md](docs/releasing.md)).
 - **Real providers:** the plugins are verified against mocks of their SDKs; they still need a pass against sandboxes with test credentials.
-- **UI:** the public headless API (`useArtisanWizard`) is not published yet (the behavior already lives in an internal `useWizard`), `layout: 'horizontal'` has no styling of its own and steppers cannot jump between steps. Details in [docs/ui.md](docs/ui.md#pending).
+- **UI:** `layout: 'horizontal'` has no styling of its own and steppers cannot jump between steps. Details in [docs/ui.md](docs/ui.md#pending).
 - **Browser:** component tests run in happy-dom; Playwright covers the playground flows (wizard, files, waiting, mock payments, fields) on Chromium, Firefox and WebKit. Screen-reader passes, motion preferences and touch devices are not verified yet ([docs/accessibility.md](docs/accessibility.md)).
 - Default texts are English only; for another language pass `labels` (and write your own field labels).
 
