@@ -35,6 +35,7 @@ export const es: LandingCopy = {
       copy: 'Copiar',
       copied: '¡Copiado!',
       label: 'Comando de instalación',
+      managersLabel: 'Gestor de paquetes',
     },
     primary: { label: 'Empezar ahora', href: '/es/docs/' },
     secondary: { label: 'Ver en GitHub', href: project.repo },

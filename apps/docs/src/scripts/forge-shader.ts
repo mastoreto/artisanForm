@@ -2,6 +2,8 @@
 // reduced resolution, 30 fps cap, adaptive quality, paused when hidden/off screen,
 // a single static frame under prefers-reduced-motion, CSS poster on any failure.
 const VS = `attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`;
+// GLSL leaves smoothstep undefined when edge0 >= edge1 (mobile GPUs return
+// garbage, e.g. a white screen): always keep edge0 < edge1.
 const FS = `#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -17,7 +19,7 @@ void main(){
   if(u_mouse.x>0.&&u_mouse.y>0.){c=mix(c,(u_mouse-.5*u_res)/min(u_res.x,u_res.y),.25);}
   float d=length(uv-c);
   float flash=t<.6?exp(-t/.6*5.):0.;
-  float wave=smoothstep(.12,0.,abs(d-t*1.4))*exp(-t*2.2);
+  float wave=(1.-smoothstep(0.,.12,abs(d-t*1.4)))*exp(-t*2.2);
   float core=(.07/(d+.18))*(.8+.4*sin(u_time*2.));
   float sparks=0.;
   for(float i=1.;i<=6.;i++){
@@ -30,8 +32,8 @@ void main(){
   col+=mix(ember,white,flash*.5)*(flash*.5/(d+.22));
   col+=ember*wave*.6;
   col+=mix(fire,white,.5)*sparks*.35;
-  col*=smoothstep(1.3,.35,length(uv));
-  gl_FragColor=vec4(col,1.);
+  col*=1.-smoothstep(.35,1.3,length(uv));
+  gl_FragColor=vec4(clamp(col,0.,1.),1.);
 }`;
 
 const FRAME_MS = 1000 / 30;

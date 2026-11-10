@@ -56,3 +56,32 @@ if (menu) {
     if (!menu.contains(e.target as Node)) close();
   });
 }
+
+// Install command: package manager picker (remembered per browser).
+const pmButtons = document.querySelectorAll<HTMLButtonElement>('[data-pm]');
+if (pmButtons.length) {
+  const cmd = document.querySelector<HTMLElement>('[data-install-cmd]');
+  const copy = document.querySelector<HTMLElement>('[data-install-copy]');
+  const pick = (id: string) => {
+    for (const b of pmButtons) {
+      const on = b.dataset.pm === id;
+      b.setAttribute('aria-pressed', String(on));
+      if (on && cmd && copy) {
+        cmd.textContent = b.dataset.cmd ?? '';
+        copy.dataset.copy = b.dataset.cmd ?? '';
+      }
+    }
+  };
+  for (const b of pmButtons) {
+    b.addEventListener('click', () => {
+      pick(b.dataset.pm ?? 'npm');
+      try {
+        localStorage.setItem('artisanform-pm', b.dataset.pm ?? 'npm');
+      } catch {}
+    });
+  }
+  try {
+    const saved = localStorage.getItem('artisanform-pm');
+    if (saved) pick(saved);
+  } catch {}
+}

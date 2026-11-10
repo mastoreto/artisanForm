@@ -193,7 +193,7 @@ const myProvider: PaymentPlugin = {
 
 Each one lives in its own subpath and its SDKs are **optional** `peerDependencies` (install only what you use). All follow the principle above: your backend defines amounts and creates orders/sessions; confirm the real payment through a webhook.
 
-**Stripe** — `import { stripe } from 'artisanform/payments/stripe'` (embedded: `npm install @stripe/stripe-js @stripe/react-stripe-js`; hosted Checkout: no SDK).
+**Stripe** — `import { stripe } from 'artisanform/payments/stripe'` (embedded, install `@stripe/stripe-js` and `@stripe/react-stripe-js`; hosted Checkout: no SDK).
 
 ```tsx
 stripe({
@@ -215,7 +215,7 @@ lemonSqueezy({
 })
 ```
 
-**Mercado Pago** — `import { mercadoPago } from 'artisanform/payments/mercadopago'` (embedded: `npm install @mercadopago/sdk-react`; Checkout Pro: no SDK).
+**Mercado Pago** — `import { mercadoPago } from 'artisanform/payments/mercadopago'` (embedded, install `@mercadopago/sdk-react`; Checkout Pro: no SDK).
 
 ```tsx
 mercadoPago({
@@ -228,7 +228,7 @@ mercadoPago({
 })
 ```
 
-**PayPal** — `import { paypal } from 'artisanform/payments/paypal'` (`npm install @paypal/react-paypal-js`).
+**PayPal** — `import { paypal } from 'artisanform/payments/paypal'` (install `@paypal/react-paypal-js`).
 
 ```tsx
 paypal({
@@ -349,16 +349,23 @@ The schema's semantic `ui` settings (`columns`, `span`, `density`, `labelPositio
 
 ## Installation
 
-`react`, `react-dom`, `react-hook-form`, `yup` and `zustand` are `peerDependencies`. While the library is in beta, install it with the `beta` tag:
+`react-hook-form`, `yup` and `zustand` are `peerDependencies` (next to `react` and `react-dom`, which you already have); use npm, pnpm, yarn or bun. While the library is in beta, install it with the `beta` tag:
 
 ```bash
-npm install artisanform@beta react react-dom react-hook-form yup zustand
+npm install artisanform@beta react-hook-form yup zustand
+pnpm add artisanform@beta react-hook-form yup zustand
+yarn add artisanform@beta react-hook-form yup zustand
+bun add artisanform@beta react-hook-form yup zustand
 ```
 
 The official UI kits are separate, optional packages under the `@beardartisans` scope; they peer on `artisanform`, which never depends on them:
 
 ```bash
-npm install @beardartisans/ui-bootstrap@beta   # or ui-mui, ui-tailwind, ui-scss
+npm install @beardartisans/ui-bootstrap@beta
+pnpm add @beardartisans/ui-bootstrap@beta
+yarn add @beardartisans/ui-bootstrap@beta
+bun add @beardartisans/ui-bootstrap@beta
+# or ui-mui, ui-tailwind, ui-scss
 ```
 
 Usage of each kit, and the shadcn/ui registry item, is in [docs/ui.md](docs/ui.md#ui-kits).

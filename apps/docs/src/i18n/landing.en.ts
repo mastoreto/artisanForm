@@ -1,8 +1,8 @@
 // Landing copy (English). `landing.es.ts` must keep the exact same shape.
 import { project } from '../data/project';
 
-const pm =
-  'npm install artisanform@beta react react-dom react-hook-form yup zustand';
+// react and react-dom are implied for a React library.
+const installPackages = 'artisanform@beta react-hook-form yup zustand';
 
 export const en = {
   lang: 'en' as 'en' | 'es',
@@ -33,10 +33,11 @@ export const en = {
     titleB: 'Launch the wizard.',
     lead: 'The declarative TypeScript library for complex multi-step flows, onboarding and checkouts, without tying you to any UI.',
     install: {
-      command: pm,
+      packages: installPackages,
       copy: 'Copy',
       copied: 'Copied!',
       label: 'Install command',
+      managersLabel: 'Package manager',
     },
     primary: { label: 'Get started', href: '/docs/' },
     secondary: { label: 'View on GitHub', href: project.repo },
@@ -180,7 +181,7 @@ export const checkoutForge = defineForm({
         text: 'Utility classes on top of unstyled markup.',
         pkg: '@beardartisans/ui-tailwind',
         title: 'Tailwind CSS',
-        code: `// npm install @beardartisans/ui-tailwind
+        code: `// install @beardartisans/ui-tailwind
 import { ArtisanForm } from 'artisanform';
 import { tailwindKit } from '@beardartisans/ui-tailwind';
 
@@ -210,7 +211,7 @@ export default function App() {
         text: 'MUI controls inside FormControl.',
         pkg: '@beardartisans/ui-mui',
         title: 'Material UI',
-        code: `// npm install @beardartisans/ui-mui @mui/material @emotion/react @emotion/styled
+        code: `// install @beardartisans/ui-mui @mui/material @emotion/react @emotion/styled
 import { ArtisanForm } from 'artisanform';
 import { muiKit } from '@beardartisans/ui-mui';
 
@@ -225,7 +226,7 @@ export default function App() {
         text: 'Classes only, no react-bootstrap.',
         pkg: '@beardartisans/ui-bootstrap',
         title: 'Bootstrap 5',
-        code: `// npm install @beardartisans/ui-bootstrap
+        code: `// install @beardartisans/ui-bootstrap
 import { ArtisanForm } from 'artisanform';
 import { bootstrapKit } from '@beardartisans/ui-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -242,7 +243,7 @@ export default function App() {
         text: 'Emit the --artisan-* tokens from your theme.',
         pkg: '@beardartisans/ui-scss',
         title: 'Sass',
-        code: `// npm install @beardartisans/ui-scss sass
+        code: `// install @beardartisans/ui-scss sass
 @use '@beardartisans/ui-scss' as af;
 
 :root {

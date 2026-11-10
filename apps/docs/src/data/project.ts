@@ -22,3 +22,11 @@ export const project = {
 } as const;
 
 export const SITE = (import.meta.env.SITE ?? '').replace(/\/$/, '');
+
+/** Package managers offered next to every install command. */
+export const managers = [
+  { id: 'npm', add: 'npm install' },
+  { id: 'pnpm', add: 'pnpm add' },
+  { id: 'yarn', add: 'yarn add' },
+  { id: 'bun', add: 'bun add' },
+] as const;
