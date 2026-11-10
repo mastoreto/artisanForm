@@ -167,7 +167,9 @@ A remote schema is **not trusted just because it is valid JSON**: with a `policy
 
 `parseArtisanSchema(input: unknown, { policy? })` → `{ success: true, schema, issues }` | `{ success: false, issues }`. It is **hand-written and dependency-free** (it does not use AJV: AJV compiles validators with `new Function`, which clashes with the principle of never running dynamic code and with strict CSPs). It checks: a valid, serializable JSON object, `schemaVersion`, required properties, discriminators, unknown properties, duplicate step ids and names, conditions and their references, `failTo`, patterns (valid `RegExp`, ≤ 500 characters) and the policy. Each `SchemaIssue` carries a stable `code` and a readable `path` (`steps[1].fields[0].type`). It returns **the same object** it received (it neither copies nor mutates it).
 
-Frequent codes: `missing-version`, `unsupported-version` (future versions), `unknown-type`, `unknown-property`, `duplicate-id`, `duplicate-name`, `unknown-field-reference`, `unknown-step-reference`, `not-serializable`, `policy-violation`, `invalid-pattern`, `unsupported-in-array`.
+Frequent codes: `missing-version`, `unsupported-version` (future versions), `unknown-type`, `unknown-property`, `duplicate-id`, `duplicate-name`, `unknown-field-reference`, `unknown-step-reference`, `not-serializable`, `policy-violation`, `invalid-pattern`, `unsupported-in-array`, `unsafe-url`, `invalid-name`.
+
+Two rules protect schemas that come from an untrusted source (a CMS, a backend): a `href` (terms step, result `actions`) must be `http:`, `https:`, `mailto:` or a relative reference, otherwise `unsafe-url`; and a field name cannot be `__proto__`, `constructor` or `prototype`, nor contain `.`, `[` or `]`, otherwise `invalid-name`. The renderer also skips an unsafe `href`, which covers 0.2.0 schemas.
 
 This validates **the definition**. Validating **the values** a user types is still Yup (unchanged).
 

@@ -414,3 +414,31 @@ test('a new `extensions`/`scheme` identity with the same content does not reset 
   rerender(make());
   expect(screen.getByRole('heading', { name: 'Tax details' })).toBeTruthy();
 });
+
+describe('unsafe links in a schema', () => {
+  const termsWith = (href: string) =>
+    render(
+      <ArtisanForm
+        onSubmit={() => {}}
+        scheme={{
+          steps: [
+            { title: 'Terms', kind: 'terms', content: 'Read this', href },
+          ],
+        }}
+      />,
+    );
+
+  test('a terms step does not render a javascript: link', () => {
+    termsWith('javascript:alert(1)');
+    expect(screen.getByText('Read this')).toBeTruthy();
+    expect(document.querySelector('a[href^="javascript:"]')).toBeNull();
+    expect(screen.queryByRole('link')).toBeNull();
+  });
+
+  test('a terms step still renders an https: link', () => {
+    termsWith('https://example.com/terms');
+    expect(screen.getByRole('link').getAttribute('href')).toBe(
+      'https://example.com/terms',
+    );
+  });
+});

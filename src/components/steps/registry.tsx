@@ -7,6 +7,7 @@ import type { SubmitState } from '../../engine/store/useArtisanStore';
 import type { PaymentPlugin } from '../../integrations/payments/types';
 import type { StorageMap } from '../../integrations/storage/types';
 import type { WaitStatus, WaitStrategy } from '../../integrations/wait';
+import { isSafeUrl } from '../../schema/contract/url';
 import type {
   FieldOption,
   FieldSchema,
@@ -281,17 +282,19 @@ const ResultStep = ({
         tone="success"
         message={(step.message as string | undefined) ?? labels.successMessage}
       >
-        {actions.map((a) =>
-          a.href ? (
-            <ActionLink key={a.label} href={a.href}>
-              {a.label}
-            </ActionLink>
-          ) : (
-            <ActionButton key={a.label} onClick={a.onClick}>
-              {a.label}
-            </ActionButton>
-          ),
-        )}
+        {actions
+          .filter((a) => !a.href || isSafeUrl(a.href))
+          .map((a) =>
+            a.href ? (
+              <ActionLink key={a.label} href={a.href}>
+                {a.label}
+              </ActionLink>
+            ) : (
+              <ActionButton key={a.label} onClick={a.onClick}>
+                {a.label}
+              </ActionButton>
+            ),
+          )}
       </StatusPanel>
     );
   }
@@ -311,7 +314,7 @@ const TermsStep = (ctx: StepContext) => {
           {content}
         </section>
       )}
-      {href && (
+      {href && isSafeUrl(href) && (
         <p className={cx('text')}>
           <a
             href={href}
