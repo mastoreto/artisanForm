@@ -31,6 +31,8 @@ export interface ArtisanLabels {
   noPaymentPlugin: string;
   waiting: string;
   waitFailed: string;
+  waitTimeout: string;
+  cancel: string;
   dropFiles: string;
   chooseFiles: string;
   fileUploading: string;
@@ -97,6 +99,8 @@ export const defaultLabels: ArtisanLabels = {
   noPaymentPlugin: 'No payment method is configured for this step',
   waiting: 'Waiting for confirmation…',
   waitFailed: 'We could not confirm the operation',
+  waitTimeout: 'The confirmation took too long',
+  cancel: 'Cancel',
   dropFiles: 'Drag files here or',
   chooseFiles: 'choose from your device',
   fileUploading: 'Wait for the files to finish uploading',

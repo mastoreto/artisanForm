@@ -45,7 +45,7 @@ Every step has an `id` (required, unique), a `title` and a `type`. Common option
 | --- | --- | --- |
 | `form` | `fields` | `kind` absent or `form` |
 | `payment` | `providers` (ids), `resultName?`, `summary?` (text) | `provider`/`providers` |
-| `wait` | `strategy` (id), `message?`, `resultName?`, `failTo?` (step id) | `kind: 'pending'` |
+| `wait` | `strategy` (id), `message?`, `resultName?`, `failTo?` (step id), `timeoutMs?`, `retry?: { max, backoffMs? }`, `cancellable?` | `kind: 'pending'` (the same three options) |
 | `terms` | `content?` (text), `href?`, `accept?: { name?, label? }` | `acceptName`/`acceptLabel` |
 | `review` | — | same |
 | `result` | `message?`, `errorMessage?`, `actions?: { label, href?, action? }[]` | `actions[].onClick` → `action` (id) |
@@ -71,6 +71,10 @@ Fields share `FieldBase` (`name`, `id?`, `label?`, `description?`, `required?`, 
 | Custom | `x-…` | `config` (JSON) |
 
 A field with a property its type does not accept is a parser **error** (`unknown-property`); it is not ignored.
+
+### Waiting: timeout, retry and cancel ✅
+
+On a `wait` step (or a 0.2.0 `pending` step): `timeoutMs` fails the step if it is still pending after that long (message `labels.waitTimeout`); `retry: { max, backoffMs? }` retries by itself after a failure (delay `backoffMs × n`, default 1000 ms, `max` from 1 to 10) before the user sees it, and the user's own Retry starts the count again; `cancellable: true` shows a Cancel button (`labels.cancel`) that aborts the wait and goes where `failTo` goes. They apply to every strategy, on top of whatever the strategy does itself (`polling` has its own `timeout`).
 
 ### Transitions, loops and revisit ✅
 

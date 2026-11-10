@@ -223,6 +223,8 @@ export const projectToRuntime = (
       out.wait = resolve('waits', String(step.strategy), `${path}.strategy`);
       if (step.message !== undefined) out.message = step.message;
       if (step.resultName !== undefined) out.resultName = step.resultName;
+      for (const key of ['timeoutMs', 'retry', 'cancellable'])
+        if (step[key] !== undefined) out[key] = step[key];
       // A step id: the wizard resolves it against the visible steps at
       // navigation time (an index in the full list would drift when a step is hidden).
       if (typeof step.failTo === 'string' && stepIds.includes(step.failTo))

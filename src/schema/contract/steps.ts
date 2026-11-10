@@ -74,8 +74,21 @@ export interface WaitStepV1 extends StepBaseV1 {
   strategy: string;
   message?: string;
   resultName?: string;
-  /** Step id to return to when waiting fails (default: the previous step). */
+  /** Step id to return to when waiting fails or is cancelled (default: the previous step). */
   failTo?: string;
+  /** Fail the step if it is still pending after this many milliseconds. */
+  timeoutMs?: number;
+  /** Try again by itself before showing the failure. */
+  retry?: WaitRetryV1;
+  /** Show a Cancel button while waiting (goes where `failTo` goes). */
+  cancellable?: boolean;
+}
+
+export interface WaitRetryV1 {
+  /** Automatic retries after a failure (1 to 10). */
+  max: number;
+  /** Delay before retry n is `backoffMs × n` (default 1000). */
+  backoffMs?: number;
 }
 
 export interface TermsStepV1 extends StepBaseV1 {

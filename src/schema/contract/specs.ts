@@ -114,7 +114,16 @@ const stepBase = [
 export const STEP_KEYS = {
   form: [...stepBase, 'fields'],
   payment: [...stepBase, 'providers', 'resultName', 'summary'],
-  wait: [...stepBase, 'strategy', 'message', 'resultName', 'failTo'],
+  wait: [
+    ...stepBase,
+    'strategy',
+    'message',
+    'resultName',
+    'failTo',
+    'timeoutMs',
+    'retry',
+    'cancellable',
+  ],
   terms: [...stepBase, 'content', 'href', 'accept'],
   review: stepBase,
   result: [...stepBase, 'message', 'errorMessage', 'actions'],

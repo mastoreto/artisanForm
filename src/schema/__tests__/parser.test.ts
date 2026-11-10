@@ -566,3 +566,37 @@ describe('transitions', () => {
     ).toEqual([]);
   });
 });
+
+describe('wait step options', () => {
+  const wait = (extra: Record<string, unknown>) =>
+    parseArtisanSchema({
+      schemaVersion: 1,
+      id: 'w',
+      steps: [{ id: 'w', type: 'wait', title: 'W', strategy: 's', ...extra }],
+    });
+  const errorCodes = (extra: Record<string, unknown>) =>
+    wait(extra)
+      .issues.filter((i) => i.severity === 'error')
+      .map((i) => i.path);
+
+  test('valid timeoutMs, retry and cancellable are accepted', () => {
+    expect(
+      wait({
+        timeoutMs: 5000,
+        retry: { max: 3, backoffMs: 200 },
+        cancellable: true,
+      }).success,
+    ).toBe(true);
+  });
+
+  test('out-of-range or malformed values are errors', () => {
+    expect(errorCodes({ timeoutMs: 0 })).toEqual(['steps[0].timeoutMs']);
+    expect(errorCodes({ retry: { max: 11 } })).toEqual(['steps[0].retry.max']);
+    expect(errorCodes({ retry: { max: 1, backoffMs: -1 } })).toEqual([
+      'steps[0].retry.backoffMs',
+    ]);
+    expect(errorCodes({ cancellable: 'yes' })).toEqual([
+      'steps[0].cancellable',
+    ]);
+  });
+});

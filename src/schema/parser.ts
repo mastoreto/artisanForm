@@ -733,7 +733,41 @@ export const parseArtisanSchema = (
       } else if (k === 'strategy')
         reference(v, pol.waitStrategies, p, 'wait strategy');
       else if (k === 'renderer') reference(v, pol.renderers, p, 'renderer');
-      else if (k === 'failTo') {
+      else if (k === 'timeoutMs') {
+        if (
+          !Number.isInteger(v) ||
+          (v as number) < 1 ||
+          (v as number) > 3_600_000
+        )
+          c.error('invalid-type', p, 'must be an integer from 1 to 3600000');
+      } else if (k === 'cancellable') need.bool(v, p, c);
+      else if (k === 'retry') {
+        if (!isObj(v)) c.error('invalid-type', p, 'must be an object');
+        else {
+          checkKeys(v, ['max', 'backoffMs'], p, c);
+          if (
+            !Number.isInteger(v.max) ||
+            (v.max as number) < 1 ||
+            (v.max as number) > 10
+          )
+            c.error(
+              'invalid-type',
+              `${p}.max`,
+              'must be an integer from 1 to 10',
+            );
+          if (
+            v.backoffMs !== undefined &&
+            (!Number.isInteger(v.backoffMs) ||
+              (v.backoffMs as number) < 0 ||
+              (v.backoffMs as number) > 60_000)
+          )
+            c.error(
+              'invalid-type',
+              `${p}.backoffMs`,
+              'must be an integer from 0 to 60000',
+            );
+        }
+      } else if (k === 'failTo') {
         need.string(v, p, c);
         if (typeof v === 'string') refs.stepRefs.push({ id: v, path: p });
       } else if (k === 'resultName') {

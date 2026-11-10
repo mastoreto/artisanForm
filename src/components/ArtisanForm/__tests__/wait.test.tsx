@@ -204,3 +204,66 @@ test('failTo is a step id and survives a hidden step before it', async () => {
   // "details" is index 2 in the full list but 1 among the visible steps.
   expect(await screen.findByRole('heading', { name: 'Details' })).toBeTruthy();
 });
+
+test('timeoutMs fails a wait that never settles', async () => {
+  await toWaiting({ subscribe: () => () => {} }, { timeoutMs: 40 });
+  expect(
+    await screen.findByText('The confirmation took too long'),
+  ).toBeTruthy();
+});
+
+test('retry tries again by itself before the user sees the failure', async () => {
+  let calls = 0;
+  await toWaiting(
+    {
+      subscribe: (onStatus) => {
+        calls++;
+        onStatus(
+          calls < 3
+            ? { status: 'failed', message: 'flaky' }
+            : { status: 'success' },
+        );
+        return () => {};
+      },
+    },
+    { retry: { max: 2, backoffMs: 1 } },
+  );
+  expect(await screen.findByText('fin')).toBeTruthy();
+  expect(calls).toBe(3);
+  expect(screen.queryByText('flaky')).toBeNull();
+});
+
+test('retry gives up after max and shows the failure; the manual Retry starts over', async () => {
+  let calls = 0;
+  const user = await toWaiting(
+    {
+      subscribe: (onStatus) => {
+        calls++;
+        onStatus({ status: 'failed', message: 'down' });
+        return () => {};
+      },
+    },
+    { retry: { max: 1, backoffMs: 1 } },
+  );
+  expect(await screen.findByText('down')).toBeTruthy();
+  expect(calls).toBe(2); // first try + 1 automatic retry
+  await user.click(screen.getByText('Retry'));
+  await waitFor(() => expect(calls).toBe(4)); // manual retry + its automatic retry
+});
+
+test('cancellable shows Cancel, aborts the wait and goes back', async () => {
+  let signal: AbortSignal | undefined;
+  const user = await toWaiting(
+    {
+      subscribe: (_on, ctx) => {
+        signal = ctx.signal;
+        return () => {};
+      },
+    },
+    { cancellable: true },
+  );
+  expect(signal?.aborted).toBe(false);
+  await user.click(screen.getByText('Cancel'));
+  expect(await screen.findByRole('heading', { name: 'Form' })).toBeTruthy();
+  expect(signal?.aborted).toBe(true);
+});

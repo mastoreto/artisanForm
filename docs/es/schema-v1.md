@@ -45,7 +45,7 @@ Todo paso tiene `id` (obligatorio, único), `title` y `type`. Opcionales comunes
 | --- | --- | --- |
 | `form` | `fields` | `kind` ausente o `form` |
 | `payment` | `providers` (ids), `resultName?`, `summary?` (texto) | `provider`/`providers` |
-| `wait` | `strategy` (id), `message?`, `resultName?`, `failTo?` (id de paso) | `kind: 'pending'` |
+| `wait` | `strategy` (id), `message?`, `resultName?`, `failTo?` (id de paso), `timeoutMs?`, `retry?: { max, backoffMs? }`, `cancellable?` | `kind: 'pending'` (las mismas tres opciones) |
 | `terms` | `content?` (texto), `href?`, `accept?: { name?, label? }` | `acceptName`/`acceptLabel` |
 | `review` | — | igual |
 | `result` | `message?`, `errorMessage?`, `actions?: { label, href?, action? }[]` | `actions[].onClick` → `action` (id) |
@@ -71,6 +71,10 @@ Los campos comparten `FieldBase` (`name`, `id?`, `label?`, `description?`, `requ
 | Propio | `x-…` | `config` (JSON) |
 
 Un campo con una propiedad que su tipo no admite es un **error** del parser (`unknown-property`), no se ignora.
+
+### Espera: timeout, reintento y cancelar ✅
+
+En un paso `wait` (o un paso `pending` 0.2.0): `timeoutMs` hace fallar el paso si sigue pendiente pasado ese tiempo (mensaje `labels.waitTimeout`); `retry: { max, backoffMs? }` reintenta solo después de un fallo (demora `backoffMs × n`, 1000 ms por defecto, `max` de 1 a 10) antes de que el usuario lo vea, y el Reintentar del usuario reinicia la cuenta; `cancellable: true` muestra un botón Cancelar (`labels.cancel`) que aborta la espera y va adonde va `failTo`. Valen para cualquier estrategia, además de lo que la estrategia haga por su cuenta (`polling` tiene su propio `timeout`).
 
 ### Transiciones, bucles y revisitar ✅
 
