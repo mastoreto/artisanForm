@@ -1,4 +1,5 @@
 import { createElement } from 'react';
+import { fromReturnUrl } from './resume';
 import type { PaymentPlugin, PaymentResult } from './types';
 
 /** Fake provider for demos and tests; nothing is charged. */
@@ -47,12 +48,14 @@ export const mockPayment = ({
     resume: (params) => {
       const status = params.get(`mock_payment_${id}`);
       if (!status) return null;
-      return status === 'failed'
-        ? { status, message: params.get(`mock_message_${id}`) ?? undefined }
-        : {
-            status: status as 'succeeded' | 'processing',
-            reference: 'mock_ref_1',
-          };
+      return fromReturnUrl(
+        status === 'failed'
+          ? { status, message: params.get(`mock_message_${id}`) ?? undefined }
+          : {
+              status: status as 'succeeded' | 'processing',
+              reference: 'mock_ref_1',
+            },
+      );
     },
   };
 };

@@ -33,11 +33,11 @@ La librería **nunca toca datos de tarjeta** (los recoge la UI alojada del prove
 Props del paso: `provider` (el id de un plugin) o `providers` (elige el usuario), `summary` (texto o JSX que ve el usuario) y `resultName` (por defecto `payment`). El resultado `{ provider, status, reference }` se guarda en los valores del formulario y viaja en `onSubmit`.
 
 - **Embebido** (`mode: 'embedded'`): el plugin monta la UI alojada del proveedor (`render({ request, onResult })`).
-- **Redirección** (`mode: 'redirect'`): `start(request)` crea el checkout a través de tu backend y devuelve su URL; el usuario paga en el proveedor y vuelve a tu página, donde `resume(params)` lee el resultado. Con `persistKey` el wizard vuelve al paso de pago. `plugins.navigate` reemplaza a `location.assign` si necesitás controlar la navegación.
+- **Redirección** (`mode: 'redirect'`): `start(request)` crea el checkout a través de tu backend y devuelve su URL; el usuario paga en el proveedor y vuelve a tu página, donde `resume(params)` lee el resultado. **La URL de retorno se puede falsificar** (cualquiera puede escribir `?stripe_status=success`), así que un éxito leído de ella se informa como `processing`, nunca `succeeded`: poné un paso `pending` después del de pago para que tu backend confirme el estado real. Con `persistKey` el wizard vuelve al paso de pago. `plugins.navigate` reemplaza a `location.assign` si necesitás controlar la navegación.
 
 | Resultado | Qué pasa |
 | --- | --- |
-| `succeeded` | El wizard avanza. |
+| `succeeded` | El wizard avanza. Solo lo informan los plugins embebidos (el resultado viene de tu backend o del SDK del proveedor, no de la URL). |
 | `processing` | El wizard avanza para que un paso `pending` espere el webhook. |
 | `failed` | Se muestra el error con **Reintentar** (un `idempotencyKey` nuevo), **Elegir otro medio de pago** (cuando hay varios) y **Volver**. |
 
@@ -47,7 +47,7 @@ Combiná un paso de pago con un [paso `pending`](https://github.com/mastoreto/ar
 
 - [ ] El monto, la moneda y los ítems se calculan en el servidor; el formulario no envía nada sensible.
 - [ ] Cada endpoint que crea pagos respeta `Idempotency-Key`.
-- [ ] Un webhook marca la orden como pagada; el resultado del navegador es solo una pista para la UI.
+- [ ] Un webhook marca la orden como pagada; el resultado del navegador es solo una pista para la UI (el valor `payment` del payload del formulario, y todo lo que se lee de una URL de retorno, se puede falsificar: nunca lo uses como prueba de pago).
 - [ ] `persistKey` está definido en todo checkout con redirección, para que el usuario vuelva al paso de pago.
 - [ ] Cada plugin se probó contra el sandbox de su proveedor, incluidos los caminos de fallo y cancelación.
 - [ ] Las claves de prueba y las reales están separadas (`pk_test_…` / `TEST-…` en desarrollo).

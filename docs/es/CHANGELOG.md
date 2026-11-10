@@ -10,6 +10,10 @@
 
 - **Endurecimiento del schema (AF76):** `parseArtisanSchema` rechaza un `href` que no sea `http:`, `https:`, `mailto:` o relativo (`unsafe-url`, así que los enlaces `javascript:` se rechazan) y los nombres de campo que sean claves de prototipo o usen sintaxis de ruta (`invalid-name`). El render también omite un `href` inseguro, lo que cubre los schemas 0.2.0. Los schemas que usaban esos valores ahora fallan la validación.
 
+## Sin publicar (Seguridad: cambio de comportamiento)
+
+- **La URL de retorno del pago ya no es de confianza (AF78):** `resume()` de los plugins de redirección (Stripe, Mercado Pago, Lemon Squeezy y el mock) ahora informa `processing` donde antes informaba `succeeded`, porque cualquiera podía falsificar `?stripe_status=success` y hacer que el wizard registre un paso pagado. Los flujos embebidos (`render` → `onResult`) no cambian. **Si usás un checkout por redirección, agregá un paso `pending` después del de pago** para que tu backend confirme el pago; el valor `payment` del payload enviado nunca debe tratarse como prueba de pago.
+
 ## Sin publicar (Documentación)
 
 - **Guías nuevas** (inglés en `docs/`, español en `docs/es/`): [pagos](payments.md) (el principio de seguridad, flujos, una checklist de producción), [archivos y storage](files.md), [accesibilidad y entornos probados](accessibility.md) (qué viene incluido, qué verifica axe, qué todavía no está verificado, navegadores/React/Node cubiertos por el CI) y [release](releasing.md) (los cinco paquetes, el workflow `Release`, publicar a mano, Trusted Publishing y una tabla de resolución de problemas con los errores de npm vistos en el primer release).

@@ -124,8 +124,9 @@ test('redirect: start passes marked back_urls; resume maps the real MP status', 
   expect(urls.pendingUrl).toBe('https://app.test/co?mp_status=pending');
 
   const read = (q: string) => plugin.resume?.(new URLSearchParams(q));
+  // the URL is forgeable: an approval there is only "processing"
   expect(read('mp_status=success&status=approved&payment_id=7')).toEqual({
-    status: 'succeeded',
+    status: 'processing',
     reference: '7',
   });
   expect(read('mp_status=pending&status=in_process&payment_id=8')).toEqual({

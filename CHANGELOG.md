@@ -10,6 +10,10 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
 - **Schema hardening (AF76):** `parseArtisanSchema` rejects a `href` that is not `http:`, `https:`, `mailto:` or relative (`unsafe-url`, so `javascript:` links are refused) and field names that are prototype keys or use path syntax (`invalid-name`). The renderer also skips an unsafe `href`, which covers 0.2.0 schemas. Schemas that used those values now fail validation.
 
+## Unreleased (Security: behavior change)
+
+- **Payment return URL is no longer trusted (AF78):** `resume()` of the redirect plugins (Stripe, Mercado Pago, Lemon Squeezy and the mock) now reports `processing` where it used to report `succeeded`, because anyone could forge `?stripe_status=success` and make the wizard record a paid step. Embedded flows (`render` → `onResult`) are unchanged. **If you rely on a redirect checkout, add a `pending` step after the payment step so your backend confirms the payment**; the `payment` value in the submitted payload must never be treated as proof of payment.
+
 ## Unreleased (Documentation)
 
 - **New guides** (English in `docs/`, Spanish in `docs/es/`): [payments](docs/payments.md) (the security principle, flows, a production checklist), [files and storage](docs/files.md), [accessibility and tested environments](docs/accessibility.md) (what is built in, what axe checks, what is not verified yet, browsers/React/Node covered by CI) and [releasing](docs/releasing.md) (the five packages, the `Release` workflow, publishing by hand, Trusted Publishing and a troubleshooting table with the npm errors seen in the first release).
