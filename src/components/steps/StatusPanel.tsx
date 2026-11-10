@@ -20,7 +20,6 @@ export const ActionLink = ({
   ...rest
 }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
   const cx = useCx();
-  // biome-ignore lint/a11y/useAnchorContent: children come through `rest`
   return <a {...rest} className={cx('action', className)} />;
 };
 

@@ -2,6 +2,10 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Tests)
+
+- **Characterization tests (AF84):** the projection (`engine/project.ts`), the step store and the draft (`engine/draft.ts`) now have their own tests, and the layer-isolation test also rejects relative imports of `engine/`, `components/`, `integrations/` and `styles/` from `schema/` and `persistence/`, plus `import()`, `require()` and side-effect imports of React, React Hook Form, Yup and Zustand. The three lint warnings are gone and the unknown-step fallback goes through `cx` (so `unstyled` and `classNames` apply).
+
 ## Unreleased (Planning)
 
 - **Evolution plan (AF83):** [docs/planning/artisanform-evolution.md](docs/planning/artisanform-evolution.md) audits the current state and plans the headless API (`useArtisanWizard`), typed values, workflows and snapshot migrations, with the decisions taken. AGENTS.md lists `apps/docs`, and the docs call the future headless hook `useArtisanWizard`.

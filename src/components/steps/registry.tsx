@@ -439,14 +439,19 @@ export const defaultStepRegistry: StepRegistry = {
   },
 };
 
+const UnknownStep = ({ kind }: { kind: string }) => {
+  const cx = useCx();
+  return (
+    <p role="alert" className={cx('error')}>
+      {`Unknown step kind "${kind}"`}
+    </p>
+  );
+};
+
 export const stepDefinitionOf = (
   registry: StepRegistry,
   step: StepSchema,
 ): StepDefinition =>
   registry[step.kind ?? 'form'] ?? {
-    render: () => (
-      <p role="alert" className="af-error">
-        {`Unknown step kind "${step.kind}"`}
-      </p>
-    ),
+    render: () => <UnknownStep kind={String(step.kind)} />,
   };
