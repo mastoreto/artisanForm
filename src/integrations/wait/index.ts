@@ -71,10 +71,14 @@ export const polling = (
   },
 });
 
+const STATUSES = new Set<string>(['pending', 'success', 'failed']);
+
 const toStatus = (raw: string): WaitStatus => {
   try {
     const parsed = JSON.parse(raw) as WaitStatus;
-    if (parsed && typeof parsed.status === 'string') return parsed;
+    if (parsed && typeof parsed.status === 'string')
+      // An unknown status would leave the step waiting until the timeout.
+      return STATUSES.has(parsed.status) ? parsed : { status: 'failed' };
   } catch {
     // fall through: plain text is treated as a progress message
   }
@@ -139,20 +143,31 @@ export const websocket = (
 ): WaitStrategy => ({
   subscribe: (onStatus, { values }) => {
     const socket = new WebSocket(resolveUrl(url, values));
-    const stopTimer = withTimeout(onStatus, timeout, () => socket.close());
+    // Closing it ourselves (final status, timeout, unsubscribe) is not a failure.
+    let finished = false;
+    const stopTimer = withTimeout(onStatus, timeout, () => {
+      finished = true;
+      socket.close();
+    });
+    const fail = () => {
+      if (finished) return;
+      finished = true;
+      stopTimer();
+      onStatus({ status: 'failed' });
+    };
     socket.onmessage = (e) => {
       const status = parse(String(e.data));
       onStatus(status);
       if (status.status !== 'pending') {
+        finished = true;
         stopTimer();
         socket.close();
       }
     };
-    socket.onerror = () => {
-      stopTimer();
-      onStatus({ status: 'failed' });
-    };
+    socket.onerror = fail;
+    socket.onclose = fail;
     return () => {
+      finished = true;
       stopTimer();
       socket.close();
     };
