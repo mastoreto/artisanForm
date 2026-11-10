@@ -443,7 +443,7 @@ Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y
 - **Release:** pasar la publicación en npm de un token a Trusted Publishing, y sacar una versión estable tras el feedback de la beta ([docs/es/releasing.md](releasing.md)).
 - **Proveedores reales:** los plugins se verifican con mocks de sus SDK; falta probarlos contra sandbox con credenciales de prueba.
 - **Navegador:** los tests de componentes corren en happy-dom; Playwright cubre los flujos del playground (wizard, archivos, espera, pagos mock, campos) en Chromium, Firefox y WebKit. Las pasadas con lector de pantalla, las preferencias de movimiento y los dispositivos táctiles todavía no se verifican ([docs/es/accessibility.md](accessibility.md)).
-- **UI:** la API headless pública (`useArtisanForm`) todavía no se publica (el comportamiento ya vive en un `useWizard` interno), `layout: 'horizontal'` no tiene estilo propio y los steppers no pueden saltar entre pasos. Detalle en [docs/es/ui.md](ui.md#pendiente).
+- **UI:** la API headless pública (`useArtisanWizard`) todavía no se publica (el comportamiento ya vive en un `useWizard` interno), `layout: 'horizontal'` no tiene estilo propio y los steppers no pueden saltar entre pasos. Detalle en [docs/es/ui.md](ui.md#pendiente).
 - Los textos por defecto están solo en inglés; para otro idioma pasá `labels` (y escribí tus propias etiquetas de campo).
 
 ### Historial

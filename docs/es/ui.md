@@ -13,7 +13,7 @@ El esquema dice **qué** es el formulario, el motor decide **cómo se comporta**
 | Renderer (`Wizard`, registros de pasos y campos) | qué componente muestra qué, grilla, errores, progreso | validación, navegación |
 | Componentes de UI (`src/components/inputs`, `ui`, `Controls`, `Stepper`…) | markup y estilos | estado del formulario |
 
-`useWizard` (interno, `src/components/ArtisanForm/useWizard.ts`) contiene todo el comportamiento del wizard y `Wizard` solo dibuja lo que devuelve. Todavía **no** se publica una API headless (`useArtisanForm`); ver [Pendiente](#pendiente).
+`useWizard` (interno, `src/components/ArtisanForm/useWizard.ts`) contiene todo el comportamiento del wizard y `Wizard` solo dibuja lo que devuelve. Todavía **no** se publica una API headless (`useArtisanWizard`); ver [Pendiente](#pendiente).
 
 ## Tres niveles de personalización
 
@@ -207,6 +207,6 @@ El aspecto por defecto sigue siendo CSS plano sin herramientas (`artisanform/sty
 
 ## Pendiente
 
-- **API headless.** `useWizard` ya contiene todo el comportamiento; falta una forma pública estable. Propuesta para la próxima fase: `useArtisanForm({ scheme, onSubmit, ... })` que devuelva `{ steps, step, fields, values, errors, next, back, submitState }`, con `fields` portando los mismos `ArtisanInputProps` de `components.inputs`. No se exporta porque congelaría decisiones del motor (React Hook Form, Zustand, borradores) una fase después de que cambiaron.
+- **API headless.** `useWizard` ya contiene todo el comportamiento; falta una forma pública estable. Propuesta para la próxima fase: `useArtisanWizard({ schema, onSubmit, ... })` que devuelva `{ steps, step, fields, values, errors, next, back, submitState }`, con `fields` portando los mismos `ArtisanInputProps` de `components.inputs`. No se exporta porque congelaría decisiones del motor (React Hook Form, Zustand, borradores) una fase después de que cambiaron.
 - `layout: 'horizontal'` no tiene estilo propio (solo el gancho `data-layout`).
 - Un stepper no puede navegar a pasos anteriores; eso requiere una noción de "visitado y válido" en el motor.

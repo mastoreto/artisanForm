@@ -442,7 +442,7 @@ Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must
 
 - **Release:** move npm publishing from a token to Trusted Publishing, and cut a stable version after the beta feedback ([docs/releasing.md](docs/releasing.md)).
 - **Real providers:** the plugins are verified against mocks of their SDKs; they still need a pass against sandboxes with test credentials.
-- **UI:** the public headless API (`useArtisanForm`) is not published yet (the behavior already lives in an internal `useWizard`), `layout: 'horizontal'` has no styling of its own and steppers cannot jump between steps. Details in [docs/ui.md](docs/ui.md#pending).
+- **UI:** the public headless API (`useArtisanWizard`) is not published yet (the behavior already lives in an internal `useWizard`), `layout: 'horizontal'` has no styling of its own and steppers cannot jump between steps. Details in [docs/ui.md](docs/ui.md#pending).
 - **Browser:** component tests run in happy-dom; Playwright covers the playground flows (wizard, files, waiting, mock payments, fields) on Chromium, Firefox and WebKit. Screen-reader passes, motion preferences and touch devices are not verified yet ([docs/accessibility.md](docs/accessibility.md)).
 - Default texts are English only; for another language pass `labels` (and write your own field labels).
 

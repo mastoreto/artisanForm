@@ -2,6 +2,10 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Planning)
+
+- **Evolution plan (AF83):** [docs/planning/artisanform-evolution.md](docs/planning/artisanform-evolution.md) audits the current state and plans the headless API (`useArtisanWizard`), typed values, workflows and snapshot migrations, with the decisions taken. AGENTS.md lists `apps/docs`, and the docs call the future headless hook `useArtisanWizard`.
+
 ## Unreleased (Robustness)
 
 - **Integrations (AF77):** a `wait` message with an unknown `status` now fails the step instead of waiting for the timeout, and a `websocket()` that closes before a final status fails (closing it ourselves is not a failure). `cloudinary()` throws a clear upload error when the response is not the expected JSON. The payment idempotency key uses `crypto.getRandomValues` when `randomUUID` is unavailable (insecure contexts) instead of `Math.random`, and fails if there is no `crypto` at all. The files guide states that `accept` and `maxSize` are not a security control.
