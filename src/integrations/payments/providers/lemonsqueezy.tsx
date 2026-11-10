@@ -128,6 +128,8 @@ export const lemonSqueezy = ({
   render: (props) => <Overlay {...props} options={{ ...options, mode }} />,
   start: (request) =>
     options.createCheckout(request, { redirectUrl: redirectUrl(request) }),
+  // The return URL is forgeable: a success there is only "processing" until
+  // your backend confirms it (see ../resume.ts).
   resume: (params): PaymentResult | null =>
-    params.get('lemon_status') === 'success' ? { status: 'succeeded' } : null,
+    params.get('lemon_status') === 'success' ? { status: 'processing' } : null,
 });

@@ -166,7 +166,8 @@ test('redirect plugin: resumes on return, cleans the URL and advances', async ()
   expect(window.location.search).toBe('?keep=1');
   expect(onSubmit.mock.calls[0][0]).toMatchObject({
     plan: 'pro',
-    payment: { status: 'succeeded' },
+    // the return URL is forgeable, so it never produces "succeeded"
+    payment: { status: 'processing' },
   });
 });
 
