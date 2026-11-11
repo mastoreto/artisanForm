@@ -41,6 +41,7 @@ const pay = async (
     id?: number;
     message?: string;
   }>,
+  brick: Record<string, unknown> = {},
 ) => {
   const user = userEvent.setup();
   const onSubmit = mock((_: unknown) => {});
@@ -53,7 +54,7 @@ const pay = async (
           mercadoPago({
             publicKey: 'TEST-1',
             createPayment,
-            brick: { amount: (v) => (v.plan === 'pro' ? 100 : 10) },
+            brick: { amount: (v) => (v.plan === 'pro' ? 100 : 10), ...brick },
           }),
         ],
       }}
@@ -77,6 +78,16 @@ test('embedded: the Payment Brick posts formData to your backend; approved succe
   expect(createPayment.mock.calls[0][1]).toEqual({ token: 'tok_1' });
   expect(onSubmit.mock.calls[0][0]).toMatchObject({
     payment: { provider: 'mercadopago', status: 'succeeded', reference: '99' },
+  });
+});
+
+test('embedded: preferenceId can be created by your backend (wallet login)', async () => {
+  const preferenceId = mock(async (_r: unknown, _u: unknown) => 'pref-1');
+  await pay(async () => ({ status: 'approved', id: 1 }), { preferenceId });
+  expect(await screen.findByText('Paid')).toBeTruthy();
+  expect(initialization).toMatchObject({ amount: 100, preferenceId: 'pref-1' });
+  expect(preferenceId.mock.calls[0][1]).toMatchObject({
+    successUrl: expect.stringContaining('mp_status=success'),
   });
 });
 
