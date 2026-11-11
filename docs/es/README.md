@@ -226,6 +226,7 @@ mercadoPago({
   brick: { amount: (values) => 1000 },                                         // monto que muestra el brick (el servidor es la autoridad)
   // o mode: 'redirect' (Checkout Pro): tu backend crea la preferencia con estas back_urls
   // createPreference: (req, { successUrl, failureUrl, pendingUrl }) => api('/mp/preference', …), // → { url }
+  // brick.preferenceId: (req, urls) => api('/mp/preference', …).id, // enables the Mercado Pago account login in the Brick
 })
 ```
 
