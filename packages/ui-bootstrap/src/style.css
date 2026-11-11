@@ -11,3 +11,29 @@
 .form-check-input[aria-invalid="true"] {
   border-color: var(--bs-form-invalid-border-color);
 }
+
+/* Stepper: the wizard reports progress with data-state, Bootstrap styles .active. */
+.nav-link[data-state="current"] {
+  background-color: var(--bs-primary);
+  color: #fff;
+  font-weight: 600;
+}
+.nav-link[data-state="done"] {
+  background-color: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
+}
+.nav-link[data-state="upcoming"] {
+  color: var(--bs-secondary-color);
+}
+
+/* Rating: empty stars are muted, filled ones gold. */
+.btn[data-filled],
+.btn[role="radio"] {
+  color: var(--bs-secondary-color);
+}
+.btn[role="radio"][data-filled] {
+  color: #f5a623;
+}
+.btn[role="radio"]:focus-visible {
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}

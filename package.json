@@ -107,6 +107,8 @@
     "lint": "biome check .",
     "lint:react": "eslint .",
     "playground": "vite --config playground/vite.config.ts",
+    "payments-test": "bun run --filter @artisanform/payments-test dev",
+    "payments-test:all": "bun run --filter @artisanform/payments-test dev:all",
     "e2e": "playwright test",
     "build:kits": "bun run --filter './packages/*' build",
     "typecheck:kits": "bun run --filter './packages/*' typecheck",

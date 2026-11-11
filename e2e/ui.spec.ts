@@ -101,12 +101,12 @@ test('the Tailwind kit styles the wizard with utilities only', async ({
   page,
 }) => {
   await page.goto('/?demo=tailwind');
-  await expect(page.getByLabel('Name')).toHaveClass(/rounded-md/);
+  await expect(page.getByLabel('Name')).toHaveClass(/rounded-xl/);
   await page.getByRole('button', { name: 'Finish' }).click();
   await expect(page.getByLabel('Name')).toHaveAttribute('aria-invalid', 'true');
   await expect(page.getByLabel('Name')).toHaveCSS(
     'border-top-color',
-    'rgb(239, 68, 68)',
+    'rgb(244, 63, 94)',
   );
   await page.getByLabel('Name').fill('Ana');
   await page.getByLabel('Email').fill('ana@example.com');

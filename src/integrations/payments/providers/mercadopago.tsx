@@ -35,7 +35,17 @@ export interface MercadoPagoOptions {
   /** Payment Brick settings. `amount` is only what the brick displays. */
   brick?: {
     amount: number | ((values: Record<string, unknown>) => number);
-    preferenceId?: string;
+    /**
+     * Enables the "Mercado Pago account" login inside the brick. Either an
+     * existing preference id or a function that asks YOUR backend to create
+     * one (same `back_urls` as `createPreference`) and returns its `id`.
+     */
+    preferenceId?:
+      | string
+      | ((
+          request: PaymentRequest,
+          urls: { successUrl: string; failureUrl: string; pendingUrl: string },
+        ) => Promise<string>);
     locale?: string;
     customization?: Record<string, unknown>;
   };
@@ -54,8 +64,20 @@ const toResult = (
   return { status: 'failed', message };
 };
 
+// The Payment Brick renders only the methods listed in
+// `customization.paymentMethods`: without any it shows nothing.
+const DEFAULT_CUSTOMIZATION = {
+  paymentMethods: { creditCard: 'all', debitCard: 'all' },
+};
+
 const withParam = (url: string, param: string) =>
   `${url}${url.includes('?') ? '&' : '?'}${param}`;
+
+const backUrls = (request: PaymentRequest) => ({
+  successUrl: withParam(request.returnUrl, 'mp_status=success'),
+  failureUrl: withParam(request.cancelUrl, 'mp_status=failure'),
+  pendingUrl: withParam(request.returnUrl, 'mp_status=pending'),
+});
 
 const Brick = ({
   options,
@@ -66,15 +88,30 @@ const Brick = ({
   const [ui, setUi] = useState<typeof import('@mercadopago/sdk-react') | null>(
     null,
   );
+  const wanted = options.brick?.preferenceId;
+  const [preferenceId, setPreferenceId] = useState<string | undefined>(
+    typeof wanted === 'string' ? wanted : undefined,
+  );
 
   useEffect(() => {
     let cancelled = false;
-    import('@mercadopago/sdk-react')
-      .then((mod) => {
-        mod.initMercadoPago(options.publicKey, {
-          locale: options.brick?.locale as never,
-        });
-        if (!cancelled) setUi(mod);
+    Promise.all([
+      import('@mercadopago/sdk-react'),
+      typeof wanted === 'function'
+        ? wanted(request, backUrls(request))
+        : wanted,
+    ])
+      .then(([mod, id]) => {
+        // An explicit `locale: undefined` makes the Brick fail silently.
+        mod.initMercadoPago(
+          options.publicKey,
+          options.brick?.locale
+            ? { locale: options.brick.locale as never }
+            : {},
+        );
+        if (cancelled) return;
+        setPreferenceId(id);
+        setUi(mod);
       })
       .catch((e) =>
         onResult({
@@ -90,7 +127,7 @@ const Brick = ({
   if (!ui) {
     return <Loading message={labels.loadingPayment} />;
   }
-  const { amount, preferenceId, customization } = options.brick ?? {
+  const { amount, customization } = options.brick ?? {
     amount: 0,
   };
   const Payment = ui.Payment as unknown as React.ComponentType<
@@ -102,7 +139,7 @@ const Brick = ({
         amount: typeof amount === 'function' ? amount(request.values) : amount,
         preferenceId,
       }}
-      customization={customization ?? {}}
+      customization={customization ?? DEFAULT_CUSTOMIZATION}
       onSubmit={async ({ formData }: { formData: unknown }) => {
         try {
           if (!options.createPayment)
@@ -160,11 +197,7 @@ export const mercadoPago = ({
   start: async (request) => {
     if (!options.createPreference)
       throw new Error('mercadoPago(): createPreference is required');
-    return options.createPreference(request, {
-      successUrl: withParam(request.returnUrl, 'mp_status=success'),
-      failureUrl: withParam(request.cancelUrl, 'mp_status=failure'),
-      pendingUrl: withParam(request.returnUrl, 'mp_status=pending'),
-    });
+    return options.createPreference(request, backUrls(request));
   },
   resume: (params): PaymentResult | null => {
     const marker = params.get('mp_status');

@@ -2,6 +2,17 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Correcciones y kits de UI)
+
+### Correcciones
+
+- **Etiqueta duplicada con un `FieldWrapper`:** un `select`, `radio` o `check` reemplazado dentro de un `FieldWrapper` mostraba su etiqueta dos veces (el paso agregaba una etiqueta de grupo encima de la del wrapper). Ahora el wrapper es dueño de la etiqueta y la ayuda de los inputs que el kit reemplaza.
+
+### Kits de UI
+
+- **`@beardartisans/ui-tailwind`:** el kit ahora estiliza todas las partes (switch, estrellas del rating, OTP, archivos, pantalla de estado, revisión, términos…), que antes quedaban sin estilo; nuevo aspecto esmeralda/pizarra con pestañas subrayadas para los pasos.
+- **`@beardartisans/ui-bootstrap`:** el stepper muestra el paso actual y los terminados (`data-state`) y las estrellas del rating tienen estilo.
+
 ## 0.3.0-beta.1 (2026-11-10)
 
 Segunda beta. Destacados: la API headless pública (`useArtisanWizard`, `artisanform/headless`), valores de formulario tipados (`InferValues`), transiciones declarativas con bucles acotados y reglas de revisita, timeout/reintento/cancelación en `wait`, borradores conectables y migrables, un tema oscuro y un slot `StatusPanel`, y la URL de retorno de pagos como no confiable en el núcleo. **Cambios de comportamiento a leer antes de actualizar:** los pagos por redirección informan `processing`, nunca `succeeded` (AF78, AF86), y `parseArtisanSchema` rechaza valores `href` inseguros y nombres de campo peligrosos (AF76).

@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "types": ["bun", "vite/client", "node"],
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "strict": true,
+    "erasableSyntaxOnly": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@beardartisans/ui-shadcn/kit": ["../../packages/ui-shadcn/kit.tsx"],
+      "@beardartisans/ui-bootstrap": [
+        "../../packages/ui-bootstrap/src/index.ts"
+      ],
+      "@beardartisans/ui-mui": ["../../packages/ui-mui/src/index.tsx"],
+      "@beardartisans/ui-tailwind": ["../../packages/ui-tailwind/src/index.ts"],
+      "@/components/ui/*": ["./src/shadcn/*"],
+      "artisanform": ["../../src/index.ts"],
+      "artisanform/payments/*": [
+        "../../src/integrations/payments/providers/*.tsx"
+      ]
+    }
+  },
+  "include": ["src", "server", "vite.config.ts"]
+}
