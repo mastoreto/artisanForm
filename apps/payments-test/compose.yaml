@@ -1,0 +1,55 @@
+# Backend + webhook helpers for the sandboxes. Run with the secrets file:
+#
+#   docker compose --env-file .env.local up --build                 # API only
+#   docker compose --env-file .env.local --profile stripe up        # + Stripe CLI
+#   docker compose --env-file .env.local --profile lemon up         # + public tunnel
+#
+# The web app still runs on the host (`bun run dev:web`, :5174) and reaches the
+# API on localhost:8787.
+name: payments-test
+
+services:
+  api:
+    build: .
+    command: ["node", "--watch", "server/dev.ts"]
+    ports:
+      - "8787:8787"
+    env_file:
+      - path: .env.local
+        required: false
+    volumes:
+      - ./server:/app/server:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8787/api/config"]
+      interval: 5s
+      retries: 10
+
+  # Forwards Stripe's test events to the API, signed with the CLI's own secret.
+  # Print that secret once and put it in .env.local as STRIPE_WEBHOOK_SECRET:
+  #   docker compose --env-file .env.local --profile stripe run --rm \
+  #     stripe-cli listen --print-secret
+  stripe-cli:
+    profiles: ["stripe"]
+    image: stripe/stripe-cli:latest
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      STRIPE_API_KEY: ${STRIPE_SECRET_KEY:-}
+    command:
+      - listen
+      - --forward-to
+      - http://api:8787/api/stripe/webhook
+
+  # Quick Cloudflare tunnel (no account): a public https URL for the API.
+  # Read it with:  docker compose logs tunnel | grep trycloudflare.com
+  # It changes on every start; then register <url>/api/lemonsqueezy/webhook in
+  # Lemon Squeezy (Settings → Webhooks) with the secret in
+  # LEMONSQUEEZY_WEBHOOK_SECRET and the `order_created` event.
+  tunnel:
+    profiles: ["lemon"]
+    image: cloudflare/cloudflared:latest
+    depends_on:
+      api:
+        condition: service_healthy
+    command: tunnel --no-autoupdate --url http://api:8787

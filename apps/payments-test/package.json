@@ -1,0 +1,23 @@
+{
+  "name": "@artisanform/payments-test",
+  "private": true,
+  "type": "module",
+  "description": "Test app: real payment plugins against provider sandboxes, with a small TypeScript backend.",
+  "scripts": {
+    "dev": "bun run --parallel dev:server dev:web",
+    "dev:server": "node --watch --env-file-if-exists=.env.local server/dev.ts",
+    "dev:web": "vite --port 5858",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test server",
+    "docker": "docker compose --env-file .env.local up --build",
+    "dev:all": "docker compose --env-file .env.local --profile stripe --profile lemon up -d --build && vite --port 5858"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.0",
+    "hono": "^4.9.0"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}
