@@ -2,6 +2,17 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Correcciones y kits de UI)
+
+### Correcciones
+
+- **Etiqueta duplicada con un `FieldWrapper`:** un `select`, `radio` o `check` reemplazado dentro de un `FieldWrapper` mostraba su etiqueta dos veces (el paso agregaba una etiqueta de grupo encima de la del wrapper). Ahora el wrapper es dueño de la etiqueta y la ayuda de los inputs que el kit reemplaza.
+
+### Kits de UI
+
+- **`@beardartisans/ui-tailwind`:** el kit ahora estiliza todas las partes (switch, estrellas del rating, OTP, archivos, pantalla de estado, revisión, términos…), que antes quedaban sin estilo; nuevo aspecto esmeralda/pizarra con pestañas subrayadas para los pasos.
+- **`@beardartisans/ui-bootstrap`:** el stepper muestra el paso actual y los terminados (`data-state`) y las estrellas del rating tienen estilo.
+
 ## Sin publicar (Persistencia)
 
 - **Borradores conectables, debounce y migraciones (AF92):** `draftStorage` (cualquier store síncrono con `getItem`/`setItem`/`removeItem`), `draftDebounceMs` (también se escribe al cambiar de paso y al desmontar, nunca después de un envío exitoso) y `snapshotMigrations` (una cadena de funciones que llevan un borrador guardado con una `revision` anterior a la actual; los fallos caen en `onSnapshotConflict` y el original queda en el slot de respaldo). Los helpers de IO (`readSnapshot`, `writeSnapshot`, `clearSnapshot`, `readRaw`, `backupStored`) y `migrateSnapshot` se exportan. No incluido: storage asíncrono.

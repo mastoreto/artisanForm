@@ -2,6 +2,17 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Fixes and UI kits)
+
+### Fixes
+
+- **Duplicate label with a `FieldWrapper`:** a replaced `select`, `radio` or `check` inside a `FieldWrapper` printed its label twice (the step added a group label on top of the wrapper's). The wrapper now owns the label and help of the inputs the kit replaces.
+
+### UI kits
+
+- **`@beardartisans/ui-tailwind`:** the kit now styles every part (switch, rating stars, OTP, files, status screen, review, terms…), which were unstyled before; new emerald/slate look with underlined step tabs.
+- **`@beardartisans/ui-bootstrap`:** the stepper shows the current and finished steps (`data-state`) and the rating stars are styled.
+
 ## Unreleased (Persistence)
 
 - **Pluggable drafts, debounce and migrations (AF92):** `draftStorage` (any synchronous `getItem`/`setItem`/`removeItem` store), `draftDebounceMs` (writes also happen on step change and unmount, never after a successful submit) and `snapshotMigrations` (a chain of functions that bring a draft saved against an older `revision` up to the current one; failures fall back to `onSnapshotConflict`, and the original is kept in the backup slot). The IO helpers (`readSnapshot`, `writeSnapshot`, `clearSnapshot`, `readRaw`, `backupStored`) and `migrateSnapshot` are exported. Not included: asynchronous storage.
