@@ -85,6 +85,17 @@ export const renderField = (
   );
 };
 
+/**
+ * A replaced input inside a `FieldWrapper` already gets its label, help and
+ * error from the wrapper: the step must not print a group label as well.
+ */
+export const wrapperOwnsLabel = (
+  components: FieldContext['components'],
+  f: FieldSchema,
+): boolean =>
+  !!components?.FieldWrapper &&
+  !!components.inputs?.[f.type as OverridableInputType];
+
 const textProps = (f: FieldSchema) => ({
   id: f.name,
   name: f.name,
@@ -281,6 +292,7 @@ const arrayDefinition: FieldDefinition = {
             return (
               <div key={path} className={ctx.cx('arrayRow')}>
                 {def.groupLabel &&
+                  !wrapperOwnsLabel(ctx.components, s) &&
                   (def.labelFor ? (
                     <label htmlFor={path} className={ctx.cx('groupLabel')}>
                       {s.label}

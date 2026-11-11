@@ -62,6 +62,7 @@ playground/              React test app (scenarios in src/scenarios)
 e2e/                     Playwright tests
 docs/                    English guides; docs/es/ has the Spanish versions
 apps/docs/               Astro/Starlight docs site (en/es), deployed with Vercel
+apps/payments-test/       test app: real payment plugins against sandboxes (Hono backend + Vite)
 ```
 
 Tests live in a `__tests__/` folder next to the code they cover (stories stay beside their component). Root config files (`vite`, `tailwind`, `postcss`, `biome`, `tsconfig`, `bunfig`, `playwright`) stay at the root because the tools look for them there.

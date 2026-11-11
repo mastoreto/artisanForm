@@ -32,7 +32,10 @@
     {
       // Stand-ins that mimic Radix/shadcn markup (role="checkbox" on a button…)
       // only to type-check and test the shadcn kit; never published.
-      "includes": ["packages/ui-shadcn/stubs/**"],
+      "includes": [
+        "packages/ui-shadcn/stubs/**",
+        "apps/payments-test/src/shadcn/**"
+      ],
       "linter": {
         "rules": {
           "a11y": {
@@ -102,7 +105,11 @@
     },
     {
       // Tailwind v3 `@tailwind` directives.
-      "includes": ["playground/src/playground.css", ".storybook/storybook.css"],
+      "includes": [
+        "playground/src/playground.css",
+        ".storybook/storybook.css",
+        "apps/payments-test/src/tailwind.css"
+      ],
       "linter": { "rules": { "suspicious": { "noUnknownAtRules": "off" } } }
     },
     {
