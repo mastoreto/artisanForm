@@ -19,6 +19,7 @@ import {
   type FieldRegistry,
   isSecretField,
   renderField,
+  wrapperOwnsLabel,
 } from '../fields/registry';
 import { useComponents, useCx } from '../ui/UiContext';
 import PaymentStep from './PaymentStep';
@@ -124,6 +125,7 @@ const FormStep = ({ fields, fieldRegistry, labels, storage }: StepContext) => {
             data-span={f.width === 'half' ? 1 : 2}
           >
             {def.groupLabel &&
+              !wrapperOwnsLabel(components, f) &&
               (def.labelFor ? (
                 <label htmlFor={f.name} className={cx('groupLabel')}>
                   {f.label}
@@ -138,9 +140,11 @@ const FormStep = ({ fields, fieldRegistry, labels, storage }: StepContext) => {
               cx,
               components,
             })}
-            {def.groupLabel && f.helperText && (
-              <p className={cx('description')}>{f.helperText}</p>
-            )}
+            {def.groupLabel &&
+              f.helperText &&
+              !wrapperOwnsLabel(components, f) && (
+                <p className={cx('description')}>{f.helperText}</p>
+              )}
           </div>
         );
       })}

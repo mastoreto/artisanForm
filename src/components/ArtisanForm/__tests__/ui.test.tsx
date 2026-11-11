@@ -475,3 +475,43 @@ test('custom steps use a stable API: owned writes, errors, next; other writes th
   await user.click(screen.getByText('Finish'));
   await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ code: 'ok' }));
 });
+
+test('a replaced select inside a FieldWrapper shows its label once', () => {
+  const Wrapper = (p: ArtisanFieldWrapperProps) => (
+    <div>
+      <b>{p.label}</b>
+      {p.children}
+    </div>
+  );
+  const Select = ({ id, value, onChange }: ArtisanInputProps<string>) => (
+    <select
+      id={id}
+      value={value ?? ''}
+      onChange={(e) => onChange(e.target.value)}
+    >
+      <option value="a">A</option>
+    </select>
+  );
+  render(
+    <ArtisanForm
+      onSubmit={() => {}}
+      components={{ FieldWrapper: Wrapper, inputs: { select: Select } }}
+      scheme={{
+        steps: [
+          {
+            title: 'S',
+            fields: [
+              {
+                type: 'select',
+                name: 's',
+                label: 'Zone',
+                options: [{ value: 'a', label: 'A' }],
+              },
+            ],
+          },
+        ],
+      }}
+    />,
+  );
+  expect(screen.getAllByText('Zone')).toHaveLength(1);
+});
