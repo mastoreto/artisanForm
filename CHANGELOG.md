@@ -2,17 +2,6 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
-## Unreleased (Fixes and UI kits)
-
-### Fixes
-
-- **Duplicate label with a `FieldWrapper`:** a replaced `select`, `radio` or `check` inside a `FieldWrapper` printed its label twice (the step added a group label on top of the wrapper's). The wrapper now owns the label and help of the inputs the kit replaces.
-
-### UI kits
-
-- **`@beardartisans/ui-tailwind`:** the kit now styles every part (switch, rating stars, OTP, files, status screen, review, terms…), which were unstyled before; new emerald/slate look with underlined step tabs.
-- **`@beardartisans/ui-bootstrap`:** the stepper shows the current and finished steps (`data-state`) and the rating stars are styled.
-
 ## 0.3.0-beta.1 (2026-11-10)
 
 Second beta. Highlights: the public headless API (`useArtisanWizard`, `artisanform/headless`), typed form values (`InferValues`), declarative transitions with bounded loops and revisit rules, `wait` timeout/retry/cancel, pluggable and migratable drafts, a dark theme and a `StatusPanel` slot, and the payment return URL being untrusted in the core. **Behavior changes to read before upgrading:** redirect payments report `processing`, never `succeeded` (AF78, AF86), and `parseArtisanSchema` rejects unsafe `href` values and dangerous field names (AF76).
@@ -52,6 +41,16 @@ Second beta. Highlights: the public headless API (`useArtisanWizard`, `artisanfo
 ### Fixes
 
 - **`failTo` with hidden steps (AF85):** a `wait` step's `failTo` was projected to an index in the full step list but used as an index among the visible steps, so a hidden step before the target sent the user to the wrong step. It stays a step id now and is resolved against the visible steps when the wait fails (a hidden target falls back to going back one step).
+- **Duplicate label with a `FieldWrapper`:** a replaced `select`, `radio` or `check` inside a `FieldWrapper` printed its label twice (the step added a group label on top of the wrapper's). The wrapper now owns the label and help of the inputs the kit replaces.
+
+### UI kits
+
+- **`@beardartisans/ui-tailwind`:** the kit now styles every part (switch, rating stars, OTP, files, status screen, review, terms…), which were unstyled before; new emerald/slate look with underlined step tabs.
+- **`@beardartisans/ui-bootstrap`:** the stepper shows the current and finished steps (`data-state`) and the rating stars are styled.
+
+### Payments
+
+- **Mercado Pago brick:** `brick.preferenceId` can be a function that asks your backend to create the preference (same `back_urls` as `createPreference`) and returns its `id`, which enables the Mercado Pago account login inside the Brick.
 
 ### Tests
 
