@@ -1,0 +1,51 @@
+@use '../../../packages/ui-scss/scss' as af;
+
+// "Editorial violet": the kit is the token mixin; the rest is plain Sass on top
+// of the stable af-* classes, so it reads very differently from the other kits.
+.kit-scss {
+  @include af.theme((
+    primary: #6d28d9,
+    primary-dark: #5b21b6,
+    border: #a78bfa,
+    muted: #5b5670,
+    subtle: #f5f3ff,
+    radius: 0.9rem,
+    font: (Georgia, 'Times New Roman', serif),
+  ));
+
+  .af-step-header {
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .af-stepper-item {
+    border-top-width: 3px;
+    font-variant: small-caps;
+    letter-spacing: 0.04em;
+  }
+  .af-input,
+  .af-select {
+    background: #fff;
+    box-shadow: inset 0 1px 2px rgb(76 29 149 / 0.08);
+  }
+  .af-controls {
+    height: auto;
+    margin-top: 1.5rem;
+    padding: 1.25rem 0 0;
+    border-top: 1px solid #ddd6fe;
+    background: none;
+  }
+  .af-button {
+    padding: 0.65rem 1.6rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: 0 6px 16px rgb(91 33 182 / 0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgb(91 33 182 / 0.35);
+    }
+  }
+}
