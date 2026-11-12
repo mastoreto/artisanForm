@@ -1,0 +1,352 @@
+{
+  "description": "number, range, rating, otp, date, time, month, daterange",
+  "schema": {
+    "schemaVersion": 1,
+    "id": "numbers",
+    "steps": [
+      {
+        "id": "main",
+        "type": "form",
+        "title": "Main",
+        "fields": [
+          {
+            "type": "number",
+            "name": "qty",
+            "required": true,
+            "validation": {
+              "min": 1,
+              "max": 10
+            }
+          },
+          {
+            "type": "range",
+            "name": "vol",
+            "validation": {
+              "min": 0,
+              "max": 100
+            }
+          },
+          {
+            "type": "rating",
+            "name": "stars",
+            "required": true,
+            "length": 5
+          },
+          {
+            "type": "otp",
+            "name": "code",
+            "length": 4
+          },
+          {
+            "type": "date",
+            "name": "day",
+            "validation": {
+              "min": "2026-01-01",
+              "max": "2026-12-31"
+            }
+          },
+          {
+            "type": "time",
+            "name": "at"
+          },
+          {
+            "type": "month",
+            "name": "m"
+          },
+          {
+            "type": "daterange",
+            "name": "from",
+            "endName": "to",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "done",
+        "type": "result",
+        "title": "Done"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "all valid",
+      "values": {
+        "qty": 3,
+        "vol": 50,
+        "stars": 4,
+        "code": "1234",
+        "day": "2026-06-01",
+        "at": "09:30",
+        "m": "2026-06",
+        "from": "2026-06-01",
+        "to": "2026-06-10"
+      },
+      "expect": []
+    },
+    {
+      "name": "required missing",
+      "values": {},
+      "expect": [
+        {
+          "path": "qty",
+          "code": "required"
+        },
+        {
+          "path": "stars",
+          "code": "required"
+        },
+        {
+          "path": "from",
+          "code": "required"
+        },
+        {
+          "path": "to",
+          "code": "required"
+        }
+      ]
+    },
+    {
+      "name": "number out of range",
+      "values": {
+        "qty": 0,
+        "stars": 1,
+        "from": "2026-01-01",
+        "to": "2026-01-02"
+      },
+      "expect": [
+        {
+          "path": "qty",
+          "code": "minValue"
+        }
+      ]
+    },
+    {
+      "name": "number too big",
+      "values": {
+        "qty": 11,
+        "stars": 1,
+        "from": "2026-01-01",
+        "to": "2026-01-02"
+      },
+      "expect": [
+        {
+          "path": "qty",
+          "code": "maxValue"
+        }
+      ]
+    },
+    {
+      "name": "range out of bounds",
+      "values": {
+        "qty": 1,
+        "vol": 101,
+        "stars": 1,
+        "from": "2026-01-01",
+        "to": "2026-01-02"
+      },
+      "expect": [
+        {
+          "path": "vol",
+          "code": "maxValue"
+        }
+      ]
+    },
+    {
+      "name": "date before min",
+      "values": {
+        "qty": 1,
+        "stars": 1,
+        "day": "2025-12-31",
+        "from": "2026-01-01",
+        "to": "2026-01-02"
+      },
+      "expect": [
+        {
+          "path": "day",
+          "code": "minDate"
+        }
+      ]
+    },
+    {
+      "name": "date after max",
+      "values": {
+        "qty": 1,
+        "stars": 1,
+        "day": "2027-01-01",
+        "from": "2026-01-01",
+        "to": "2026-01-02"
+      },
+      "expect": [
+        {
+          "path": "day",
+          "code": "maxDate"
+        }
+      ]
+    },
+    {
+      "name": "end before start",
+      "values": {
+        "qty": 1,
+        "stars": 1,
+        "from": "2026-02-01",
+        "to": "2026-01-01"
+      },
+      "expect": [
+        {
+          "path": "to",
+          "code": "endBeforeStart"
+        }
+      ]
+    },
+    {
+      "name": "otp wrong length",
+      "values": {
+        "qty": 1,
+        "stars": 1,
+        "code": "12",
+        "from": "2026-01-01",
+        "to": "2026-01-02"
+      },
+      "expect": [
+        {
+          "path": "code",
+          "code": "invalidLength"
+        }
+      ],
+      "note": "both sides reject it"
+    },
+    {
+      "name": "otp not numeric",
+      "values": {
+        "qty": 1,
+        "stars": 1,
+        "code": "12ab",
+        "from": "2026-01-01",
+        "to": "2026-01-02"
+      },
+      "expect": [
+        {
+          "path": "code",
+          "code": "invalidCharset"
+        }
+      ],
+      "serverOnly": true
+    },
+    {
+      "name": "rating out of range",
+      "values": {
+        "qty": 1,
+        "stars": 9,
+        "from": "2026-01-01",
+        "to": "2026-01-02"
+      },
+      "expect": [
+        {
+          "path": "stars",
+          "code": "outOfRange"
+        }
+      ],
+      "serverOnly": true
+    },
+    {
+      "name": "numeric string for a number",
+      "values": {
+        "qty": "3",
+        "stars": 1,
+        "from": "2026-01-01",
+        "to": "2026-01-02"
+      },
+      "expect": [
+        {
+          "path": "qty",
+          "code": "invalidNumber"
+        }
+      ],
+      "serverOnly": true,
+      "note": "Yup casts '3' to 3"
+    },
+    {
+      "name": "impossible date",
+      "values": {
+        "qty": 1,
+        "stars": 1,
+        "day": "2026-02-31",
+        "from": "2026-01-01",
+        "to": "2026-01-02"
+      },
+      "expect": [
+        {
+          "path": "day",
+          "code": "invalidDate"
+        }
+      ],
+      "serverOnly": true,
+      "note": "Yup compares strings only: 2026-02-31 is inside the bounds"
+    },
+    {
+      "name": "numbers at the minimum and maximum are valid",
+      "values": {
+        "stars": 1,
+        "from": "2026-01-01",
+        "to": "2026-01-02",
+        "qty": 1,
+        "vol": 0
+      },
+      "expect": []
+    },
+    {
+      "name": "the maximum number is valid",
+      "values": {
+        "stars": 1,
+        "from": "2026-01-01",
+        "to": "2026-01-02",
+        "qty": 10,
+        "vol": 100
+      },
+      "expect": []
+    },
+    {
+      "name": "dates exactly at the bounds are valid",
+      "values": {
+        "stars": 1,
+        "from": "2026-01-01",
+        "to": "2026-01-02",
+        "qty": 1,
+        "day": "2026-01-01"
+      },
+      "expect": []
+    },
+    {
+      "name": "the upper date bound is valid",
+      "values": {
+        "stars": 1,
+        "from": "2026-01-01",
+        "to": "2026-01-02",
+        "qty": 1,
+        "day": "2026-12-31"
+      },
+      "expect": []
+    },
+    {
+      "name": "a one-day range is valid",
+      "values": {
+        "stars": 1,
+        "from": "2026-03-03",
+        "to": "2026-03-03",
+        "qty": 1
+      },
+      "expect": []
+    },
+    {
+      "name": "the highest rating is valid",
+      "values": {
+        "stars": 5,
+        "from": "2026-01-01",
+        "to": "2026-01-02",
+        "qty": 1
+      },
+      "expect": []
+    }
+  ]
+}

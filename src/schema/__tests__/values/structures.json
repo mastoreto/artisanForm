@@ -1,0 +1,424 @@
+{
+  "description": "array rows, files, visibility, terms step",
+  "schema": {
+    "schemaVersion": 1,
+    "id": "structures",
+    "steps": [
+      {
+        "id": "main",
+        "type": "form",
+        "title": "Main",
+        "fields": [
+          {
+            "type": "select",
+            "name": "kind",
+            "options": [
+              {
+                "value": "person",
+                "label": "Person"
+              },
+              {
+                "value": "company",
+                "label": "Company"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "name": "company",
+            "required": true,
+            "visibleWhen": {
+              "field": "kind",
+              "operator": "eq",
+              "value": "company"
+            }
+          },
+          {
+            "type": "array",
+            "name": "jobs",
+            "validation": {
+              "minItems": 1,
+              "maxItems": 2
+            },
+            "itemFields": [
+              {
+                "type": "text",
+                "name": "role",
+                "required": true
+              },
+              {
+                "type": "number",
+                "name": "years",
+                "validation": {
+                  "min": 0
+                }
+              }
+            ]
+          },
+          {
+            "type": "file",
+            "name": "cv",
+            "required": true,
+            "accept": ".pdf",
+            "validation": {
+              "maxFiles": 1,
+              "maxSize": 1000
+            }
+          }
+        ]
+      },
+      {
+        "id": "terms",
+        "type": "terms",
+        "title": "Terms",
+        "content": "x"
+      },
+      {
+        "id": "done",
+        "type": "result",
+        "title": "Done"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "valid, company hidden",
+      "values": {
+        "kind": "person",
+        "jobs": [
+          {
+            "role": "dev",
+            "years": 2
+          }
+        ],
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 500,
+            "type": "application/pdf"
+          }
+        ],
+        "termsAccepted": true
+      },
+      "expect": []
+    },
+    {
+      "name": "company required when visible",
+      "values": {
+        "kind": "company",
+        "jobs": [
+          {
+            "role": "dev"
+          }
+        ],
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 5
+          }
+        ],
+        "termsAccepted": true
+      },
+      "expect": [
+        {
+          "path": "company",
+          "code": "required"
+        }
+      ]
+    },
+    {
+      "name": "hidden field is not validated",
+      "values": {
+        "kind": "person",
+        "company": "",
+        "jobs": [
+          {
+            "role": "dev"
+          }
+        ],
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 5
+          }
+        ],
+        "termsAccepted": true
+      },
+      "expect": []
+    },
+    {
+      "name": "row field required",
+      "values": {
+        "kind": "person",
+        "jobs": [
+          {
+            "role": ""
+          }
+        ],
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 5
+          }
+        ],
+        "termsAccepted": true
+      },
+      "expect": [
+        {
+          "path": "jobs[0].role",
+          "code": "required"
+        }
+      ]
+    },
+    {
+      "name": "too few rows",
+      "values": {
+        "kind": "person",
+        "jobs": [],
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 5
+          }
+        ],
+        "termsAccepted": true
+      },
+      "expect": [
+        {
+          "path": "jobs",
+          "code": "minItems"
+        }
+      ]
+    },
+    {
+      "name": "too many rows",
+      "values": {
+        "kind": "person",
+        "jobs": [
+          {
+            "role": "a"
+          },
+          {
+            "role": "b"
+          },
+          {
+            "role": "c"
+          }
+        ],
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 5
+          }
+        ],
+        "termsAccepted": true
+      },
+      "expect": [
+        {
+          "path": "jobs",
+          "code": "maxItems"
+        }
+      ]
+    },
+    {
+      "name": "file required",
+      "values": {
+        "kind": "person",
+        "jobs": [
+          {
+            "role": "a"
+          }
+        ],
+        "cv": [],
+        "termsAccepted": true
+      },
+      "expect": [
+        {
+          "path": "cv",
+          "code": "required"
+        }
+      ]
+    },
+    {
+      "name": "too many files",
+      "values": {
+        "kind": "person",
+        "jobs": [
+          {
+            "role": "a"
+          }
+        ],
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 5
+          },
+          {
+            "id": "2",
+            "name": "b.pdf",
+            "size": 5
+          }
+        ],
+        "termsAccepted": true
+      },
+      "expect": [
+        {
+          "path": "cv",
+          "code": "maxFiles"
+        }
+      ]
+    },
+    {
+      "name": "terms not accepted",
+      "values": {
+        "kind": "person",
+        "jobs": [
+          {
+            "role": "a"
+          }
+        ],
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 5
+          }
+        ]
+      },
+      "expect": [
+        {
+          "path": "termsAccepted",
+          "code": "required"
+        }
+      ]
+    },
+    {
+      "name": "file too large",
+      "values": {
+        "kind": "person",
+        "jobs": [
+          {
+            "role": "a"
+          }
+        ],
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 5000
+          }
+        ],
+        "termsAccepted": true
+      },
+      "expect": [
+        {
+          "path": "cv[0]",
+          "code": "fileTooLarge"
+        }
+      ],
+      "serverOnly": true,
+      "note": "maxSize is only enforced by the upload UI"
+    },
+    {
+      "name": "file of the wrong type",
+      "values": {
+        "kind": "person",
+        "jobs": [
+          {
+            "role": "a"
+          }
+        ],
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.exe",
+            "size": 5
+          }
+        ],
+        "termsAccepted": true
+      },
+      "expect": [
+        {
+          "path": "cv[0]",
+          "code": "fileType"
+        }
+      ],
+      "serverOnly": true
+    },
+    {
+      "name": "file descriptor without an id",
+      "values": {
+        "kind": "person",
+        "jobs": [
+          {
+            "role": "a"
+          }
+        ],
+        "cv": [
+          {
+            "name": "a.pdf",
+            "size": 5
+          }
+        ],
+        "termsAccepted": true
+      },
+      "expect": [
+        {
+          "path": "cv[0]",
+          "code": "invalidFile"
+        }
+      ],
+      "serverOnly": true
+    },
+    {
+      "name": "the maximum number of rows is valid",
+      "values": {
+        "kind": "person",
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 5
+          }
+        ],
+        "termsAccepted": true,
+        "jobs": [
+          {
+            "role": "a"
+          },
+          {
+            "role": "b"
+          }
+        ]
+      },
+      "expect": []
+    },
+    {
+      "name": "a file exactly at the size limit is valid",
+      "values": {
+        "kind": "person",
+        "cv": [
+          {
+            "id": "1",
+            "name": "a.pdf",
+            "size": 1000
+          }
+        ],
+        "termsAccepted": true,
+        "jobs": [
+          {
+            "role": "a"
+          }
+        ]
+      },
+      "expect": []
+    }
+  ]
+}
