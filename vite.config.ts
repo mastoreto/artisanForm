@@ -28,6 +28,9 @@ export default defineConfig({
         index: 'src/index.ts',
         // No stylesheet: for UIs built from scratch (see docs/headless.md).
         headless: 'src/headless.ts',
+        // The schema layer alone: parser, normalizer, conditions and the values
+        // validator. No React, Yup, React Hook Form or Zustand (check:dist asserts it).
+        schema: 'src/schema/index.ts',
         'payments/stripe': 'src/integrations/payments/providers/stripe.tsx',
         'payments/lemonsqueezy':
           'src/integrations/payments/providers/lemonsqueezy.tsx',

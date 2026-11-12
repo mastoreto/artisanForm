@@ -118,7 +118,8 @@
     "prepublishOnly": "bun run build && bun run build:kits && bun run check:dist && bun run check:package && bun run check:pack && bun test",
     "check:pack": "node scripts/check-pack.mjs",
     "check:publish": "node scripts/prepublish-check.mjs",
-    "bench:parse": "bun run scripts/bench-parse.mjs"
+    "bench:parse": "bun run scripts/bench-parse.mjs",
+    "check:schema": "node scripts/consumer-schema.mjs"
   },
   "sideEffects": [
     "**/*.css"
@@ -131,6 +132,10 @@
     "./headless": {
       "types": "./dist/headless.d.ts",
       "import": "./dist/headless.js"
+    },
+    "./schema": {
+      "types": "./dist/schema/index.d.ts",
+      "import": "./dist/schema.js"
     },
     "./style.css": "./dist/style.css",
     "./payments/stripe": {

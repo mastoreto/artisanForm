@@ -16,6 +16,7 @@
     "moduleResolution": "bundler",
     "paths": {
       "artisanform": ["./src/index.ts"],
+      "artisanform/schema": ["./src/schema/index.ts"],
       "@/components/ui/*": ["./packages/ui-shadcn/stubs/*"]
     },
     "allowImportingTsExtensions": true,
