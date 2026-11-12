@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { ArtisanLabels } from '../../commons/labels';
-import type { ArtisanExtensions } from '../../engine/extensions';
+import type { ArtisanExtensions, OnUnresolved } from '../../engine/extensions';
 import type { FormValues } from '../../engine/form/types';
 import type { PluginsConfig } from '../../integrations/payments/types';
 import type {
@@ -37,6 +37,8 @@ interface ArtisanFormProps<
   scheme: S;
   /** Local functions and components a v1 schema refers to by id. */
   extensions?: ArtisanExtensions;
+  /** What to do with a name the schema uses that `extensions` does not provide: return `'ignore'` to render without it. By default the form fails with `unresolved-reference`. */
+  onUnresolved?: OnUnresolved;
   /** Return a promise to keep "Finish" disabled until it settles. */
   /** The values are typed when `scheme` comes from `defineForm` (see `InferValues`). */
   onSubmit: (values: ValuesOf<S>) => unknown;
