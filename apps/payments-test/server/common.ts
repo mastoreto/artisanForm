@@ -52,11 +52,16 @@ export const readBody = async (c: Context): Promise<PayBody> => {
   return body as PayBody;
 };
 
+/** Where the web app runs (vite.config.ts `server.port`); the default allowed origin. */
+export const DEFAULT_ORIGIN = 'http://localhost:5858';
+
+/** The front-end origins this backend talks to and may send users back to. */
+export const allowedOrigins = (): string[] =>
+  (env('ALLOWED_ORIGINS') ?? DEFAULT_ORIGIN).split(',').map((o) => o.trim());
+
 /** Hosted checkouts redirect here: only accept our own front-end origins. */
 export const allowedUrl = (raw: unknown): string => {
-  const allowed = (env('ALLOWED_ORIGINS') ?? 'http://localhost:5174')
-    .split(',')
-    .map((o) => o.trim());
+  const allowed = allowedOrigins();
   try {
     const url = new URL(String(raw));
     if (allowed.includes(url.origin)) return url.toString();

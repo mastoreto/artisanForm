@@ -316,6 +316,7 @@ Cada tipo es una `FieldDefinition` (`render`, `initialValues`, `rules`, y opcion
 | `fields?`             | Registro de tipos de campo propios (ver arriba)                                                                                           |
 | `stepTypes?`          | Registro de tipos de paso propios (`StepDefinition`)                                                                                      |
 | `extensions?`         | Funciones y componentes locales a los que un esquema v1 hace referencia por id (`options`, `waits`, `hooks`, `renderers`, `actions`)      |
+| `onUnresolved?`       | Se llama por cada nombre que el esquema usa y que `extensions` no provee; devuelve `'ignore'` para renderizar sin él (por defecto: falla con `unresolved-reference`) |
 | `storage?`            | Adapter(s) de almacenamiento para campos `file`/`image` (ver arriba)                                                                      |
 | `plugins?`            | `{ payments: PaymentPlugin[], navigate? }` para los pasos de pago                                                                         |
 

@@ -3,20 +3,59 @@ import { lemonSqueezy } from 'artisanform/payments/lemonsqueezy';
 import { mercadoPago } from 'artisanform/payments/mercadopago';
 import { paypal } from 'artisanform/payments/paypal';
 import { stripe } from 'artisanform/payments/stripe';
+import { createElement, type ReactNode, useEffect } from 'react';
 import { api, type Config } from './api';
 
-// Test credentials to use in each sandbox.
-export const hints: Record<string, string> = {
-  stripe:
-    'Card 4242 4242 4242 4242, any future date and CVC (3DS: 4000 0027 6000 3184)',
-  paypal: 'A sandbox personal account from the PayPal developer dashboard',
-  mercadopago:
-    'Test card 5031 7557 3453 0604, 11/30, CVV 123, name APRO, CI 1.234.567-2, e-mail like buyer1@example.com (not @testuser.com, not your own MP account)',
-  lemonsqueezy:
-    'Test mode card 4242 4242 4242 4242; needs a webhook to the public URL',
+/**
+ * Tells the page which method the user picked, so the test-data panel can show
+ * only that one: an embedded method reports while its UI is mounted, a redirect
+ * one when its checkout is requested (and forgets it if that fails).
+ */
+type OnActive = (id: string | null) => void;
+
+const Active = ({
+  id,
+  onActive,
+  children,
+}: {
+  id: string;
+  onActive: OnActive;
+  children?: ReactNode;
+}) => {
+  useEffect(() => {
+    onActive(id);
+    return () => onActive(null);
+  }, [id, onActive]);
+  return children;
 };
 
-export const buildPlugins = (cfg: Config): PaymentPlugin[] => {
+const track = (plugin: PaymentPlugin, onActive?: OnActive): PaymentPlugin => {
+  if (!onActive) return plugin;
+  const { render, start } = plugin;
+  return {
+    ...plugin,
+    render:
+      render &&
+      ((props) =>
+        createElement(Active, { id: plugin.id, onActive }, render(props))),
+    start:
+      start &&
+      (async (request) => {
+        onActive(plugin.id);
+        try {
+          return await start(request);
+        } catch (e) {
+          onActive(null);
+          throw e;
+        }
+      }),
+  };
+};
+
+export const buildPlugins = (
+  cfg: Config,
+  onActive?: OnActive,
+): PaymentPlugin[] => {
   const out: PaymentPlugin[] = [];
   if (cfg.stripe) {
     const { publishableKey } = cfg.stripe;
@@ -87,7 +126,7 @@ export const buildPlugins = (cfg: Config): PaymentPlugin[] => {
           api('/lemonsqueezy/checkout', { ...r, ...urls }),
       }),
     );
-  return out;
+  return out.map((p) => track(p, onActive));
 };
 
 // Asks OUR backend, which asks the provider: the return URL proves nothing.

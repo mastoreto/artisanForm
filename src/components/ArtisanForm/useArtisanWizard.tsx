@@ -12,7 +12,7 @@ import {
   visibleSteps,
 } from '../../engine/conditions';
 import { clearDraft, restoreDraft } from '../../engine/draft';
-import type { ArtisanExtensions } from '../../engine/extensions';
+import type { ArtisanExtensions, OnUnresolved } from '../../engine/extensions';
 import type { FormValues } from '../../engine/form/types';
 import { useFormBinding } from '../../engine/form/useFormBinding';
 import { type FormUi, FormUiContext } from '../../engine/form/validators';
@@ -71,6 +71,8 @@ export interface ArtisanWizardOptions<
   schema: S;
   /** Local functions and components a v1 schema refers to by id. */
   extensions?: ArtisanExtensions;
+  /** What to do with a name the schema uses that `extensions` and the plugins do not provide (default: fail). */
+  onUnresolved?: OnUnresolved;
   /** Return a promise to keep the last step's action disabled until it settles. */
   onSubmit: (values: ValuesOf<S>) => unknown;
   /** What to do with a saved draft that does not fit this form (default: `backup`). */
@@ -198,6 +200,7 @@ export const useArtisanWizard = <
 >({
   schema: input,
   extensions,
+  onUnresolved,
   onSubmit,
   initialValues: initialOverrides,
   labels: labelOverrides,
@@ -250,8 +253,9 @@ export const useArtisanWizard = <
           fieldTypes: Object.keys(registry),
           stepKinds: Object.keys(stepRegistry),
         },
+        onUnresolved,
       ),
-    [input, extensions, registry, stepRegistry, persistKey],
+    [input, extensions, onUnresolved, registry, stepRegistry, persistKey],
   );
   const scheme = projection.scheme;
   // Read once on mount; the draft wins over defaults and `initialValues`.

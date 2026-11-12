@@ -2,6 +2,26 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Capacidades y enrutamiento del retorno de pagos)
+
+### Back end y front end
+
+- **Contrato de capacidades (AF115):** `collectReferences`, `describeCapabilities` y `checkCapabilities` en `artisanform/schema` (puras, sin React). Un front describe lo que registró como un manifiesto JSON (`artisanform.capabilities/1`); una API revisa un schema contra él al publicar una revisión y obtiene `missing-reference` (kind, id, ruta en el schema), `unsupported-field-type`, `unsupported-step-kind`, `missing-feature` o `unsupported-contract`, en vez de un `unresolved-reference` al renderizar. Los requisitos se derivan del schema (`collectReferences`), así que el contrato del schema no cambió. Ver [schema v1](schema-v1.md#capacidades-qué-puede-ejecutar-un-front-).
+- **`onUnresolved` (AF115):** `<ArtisanForm onUnresolved>` se llama por cada nombre que el schema usa y que ningún registro provee; devolver `'ignore'` renderiza sin él. Cualquier otro valor mantiene el fallo, así que el comportamiento por defecto no cambia.
+
+### Personalización
+
+- **Selector de métodos de pago (AF115):** cada método es una tarjeta con su logo, su nombre y una línea que dice si el usuario se queda en la página o es redirigido. `PaymentPlugin` y cada plugin incluido aceptan `icon` y `description`; Stripe, PayPal, Mercado Pago y Lemon Squeezy traen su marca (Simple Icons, CC0). Nuevos labels `payHintEmbedded` y `payHintRedirect`, nuevos slots de clases (`paymentOptions`, `paymentOption`, `paymentOptionIcon`, `paymentOptionText`, `paymentOptionName`, `paymentOptionHint`) y clases en los kits de Bootstrap y Tailwind.
+
+### Correcciones
+
+- **Un retorno de redirección iba al primer plugin que podía leerlo (AF115):** dos plugins de un mismo proveedor que comparten parámetros de retorno (el formulario embebido de Stripe y Checkout, el Brick de Mercado Pago y Checkout Pro) podían registrar el pago bajo el proveedor equivocado. El paso de pago ahora recuerda, por pestaña, qué plugin envió al usuario fuera y le pregunta primero a ese. Sin cambios en el contrato de los plugins ni en las URL de retorno.
+
+### Documentación
+
+- Una checklist del sandbox de Mercado Pago (vendedor y comprador de prueba, moneda, `auto_return` solo con https) en la guía de pagos. `apps/payments-test` ahora usa un solo puerto (5858) y tiene tests de servidor que fijan el cuerpo de la preferencia de Checkout Pro.
+- **`apps/payments-test`: causa de "Una de las partes con la que intentas hacer el pago es de prueba" en Checkout Pro (AF115):** el backend de la demo enviaba `MP_PAYER_EMAIL` (una dirección común que necesita el Payment Brick) como `payer` de la preferencia, así que un vendedor de prueba quedaba emparejado con un pagador que no es comprador de prueba. Checkout Pro ahora envía un pagador solo desde la nueva `MP_CHECKOUT_PAYER_EMAIL` (el correo del propio comprador de prueba), y la variante H de `mp-diagnose.ts` reproduce la petición anterior.
+
 ## Sin publicar (Validación en servidor)
 
 ### Validación y empaquetado

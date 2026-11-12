@@ -24,7 +24,11 @@ export {
   type StepDefinition,
   type StepRegistry,
 } from './components/steps/registry';
-export type { ArtisanExtensions } from './engine/extensions';
+export type {
+  ArtisanExtensions,
+  OnUnresolved,
+  UnresolvedReference,
+} from './engine/extensions';
 export type { FormValues } from './engine/form/types';
 export { useArtisanField } from './engine/form/useArtisanField';
 export * from './persistence';

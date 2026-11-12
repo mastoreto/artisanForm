@@ -26,3 +26,24 @@ export interface ArtisanExtensions {
   /** `result` step action ids. */
   actions?: Record<string, () => void>;
 }
+
+/** A name the schema uses that no registry of the app provides. */
+export interface UnresolvedReference {
+  /** Which extension group should have had it (`hooks`, `waits`, `options`…). */
+  group: keyof ArtisanExtensions;
+  id: string;
+  /** Where in the schema, in the parser's path format (`steps[0].hooks.beforeNext`). */
+  path: string;
+}
+
+/**
+ * Called for each reference the app cannot resolve. Return `'ignore'` to
+ * render without it (the hook does not run, the options stay empty…); return
+ * anything else and the form fails with `unresolved-reference`, as without it.
+ * Only ignore what is optional: a missing wait strategy or renderer leaves its
+ * step with nothing to do. Memoize it like `extensions`.
+ */
+export type OnUnresolved = (
+  ref: UnresolvedReference,
+  // biome-ignore lint/suspicious/noConfusingVoidType: a callback that returns nothing must be accepted
+) => 'ignore' | undefined | void;
