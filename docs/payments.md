@@ -44,6 +44,10 @@ Step props: `provider` (one plugin id) or `providers` (the user chooses), `summa
 Pair a payment step with a [`pending` step](https://github.com/mastoreto/artisanForm#waiting-for-confirmation) when the provider confirms asynchronously: it polls or listens until your backend says the payment is real.
 
 
+### The method selector
+
+With several `providers`, the step shows each method as a card: its logo, its name and a line saying whether the user stays on the page (*Pay on this page*) or is redirected (*You will be redirected*). The built-in Stripe, PayPal, Mercado Pago and Lemon Squeezy plugins ship their brand mark (from [Simple Icons](https://simpleicons.org), CC0; the logos are trademarks of their owners, shown only to identify each method). Every plugin accepts `icon` (any React node; `null` shows no logo) and `description` (replaces the default line); a custom `PaymentPlugin` can set both too. The logo is decorative: the button is named by the method (*Pay with Stripe*) and the line is its description, so a plugin without a logo works the same. Change the default lines with the `payHintEmbedded` and `payHintRedirect` labels, and the style with the `paymentOptions`, `paymentOption`, `paymentOptionIcon`, `paymentOptionText`, `paymentOptionName` and `paymentOptionHint` class slots.
+
 ### Coming back from a redirect
 
 With several redirect plugins of one provider (for example Stripe's embedded form and Stripe Checkout, or the Mercado Pago Brick and Checkout Pro), their return parameters can overlap. The step remembers, for the tab, which plugin sent the user away (`sessionStorage`) and asks that one first on return; if the storage is unavailable, plugins are asked in their registered order. A plugin never needs to mark its own return URLs for this.

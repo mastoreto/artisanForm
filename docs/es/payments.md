@@ -44,6 +44,10 @@ Props del paso: `provider` (el id de un plugin) o `providers` (elige el usuario)
 Combiná un paso de pago con un [paso `pending`](https://github.com/mastoreto/artisanForm/blob/main/docs/es/README.md#espera-de-confirmación) cuando el proveedor confirma de forma asíncrona: hace polling o escucha hasta que tu backend diga que el pago es real.
 
 
+### El selector de métodos
+
+Con varios `providers`, el paso muestra cada método como una tarjeta: su logo, su nombre y una línea que dice si el usuario se queda en la página (*Pay on this page*) o es redirigido (*You will be redirected*). Los plugins incluidos de Stripe, PayPal, Mercado Pago y Lemon Squeezy traen su marca (de [Simple Icons](https://simpleicons.org), CC0; los logos son marcas de sus dueños, mostrados solo para identificar cada método). Todo plugin acepta `icon` (cualquier nodo de React; `null` no muestra logo) y `description` (reemplaza la línea por defecto); un `PaymentPlugin` propio puede definir ambos también. El logo es decorativo: el botón se nombra con el método (*Pay with Stripe*) y la línea es su descripción, así que un plugin sin logo funciona igual. Cambia las líneas por defecto con los labels `payHintEmbedded` y `payHintRedirect`, y el estilo con los slots de clases `paymentOptions`, `paymentOption`, `paymentOptionIcon`, `paymentOptionText`, `paymentOptionName` y `paymentOptionHint`.
+
 ### Volver de una redirección
 
 Con varios plugins de redirección de un mismo proveedor (por ejemplo el formulario embebido de Stripe y Stripe Checkout, o el Brick de Mercado Pago y Checkout Pro), sus parámetros de retorno pueden solaparse. El paso recuerda, para la pestaña, qué plugin envió al usuario fuera (`sessionStorage`) y le pregunta primero a ese al volver; si el storage no está disponible, se les pregunta en el orden registrado. Un plugin no necesita marcar sus propias URLs de retorno para esto.

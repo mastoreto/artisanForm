@@ -9,6 +9,10 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 - **Capabilities contract (AF115):** `collectReferences`, `describeCapabilities` and `checkCapabilities` in `artisanform/schema` (pure, no React). A front end describes what it registered as a JSON manifest (`artisanform.capabilities/1`); an API checks a schema against it when a revision is published and gets `missing-reference` (kind, id, schema path), `unsupported-field-type`, `unsupported-step-kind`, `missing-feature` or `unsupported-contract`, instead of a render-time `unresolved-reference`. The requirements are derived from the schema (`collectReferences`), so the schema contract did not change. See [schema v1](docs/schema-v1.md#capabilities-what-a-front-end-can-run-).
 - **`onUnresolved` (AF115):** `<ArtisanForm onUnresolved>` is called for each name the schema uses that no registry provides; returning `'ignore'` renders without it. Anything else keeps the failure, so the default is unchanged.
 
+### Personalization
+
+- **Payment method selector (AF115):** each method is a card with its logo, its name and a line saying whether the user stays on the page or is redirected. `PaymentPlugin` and every built-in plugin accept `icon` and `description`; Stripe, PayPal, Mercado Pago and Lemon Squeezy ship their brand mark (Simple Icons, CC0). New labels `payHintEmbedded` and `payHintRedirect`, new class slots (`paymentOptions`, `paymentOption`, `paymentOptionIcon`, `paymentOptionText`, `paymentOptionName`, `paymentOptionHint`) and classes in the Bootstrap and Tailwind kits.
+
 ### Fixes
 
 - **A redirect return went to the first plugin that could read it (AF115):** two plugins of one provider that share return parameters (Stripe's embedded form and Checkout, the Mercado Pago Brick and Checkout Pro) could record the payment under the wrong provider. The payment step now remembers, per tab, which plugin sent the user away and asks it first. No change to the plugin contract or to the return URLs.
