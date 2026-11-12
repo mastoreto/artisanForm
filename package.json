@@ -116,7 +116,8 @@
     "docs": "bun run --filter @artisanform/docs dev",
     "build:docs": "bun run --filter @artisanform/docs build",
     "prepublishOnly": "bun run build && bun run build:kits && bun run check:dist && bun run check:package && bun run check:pack && bun test",
-    "check:pack": "node scripts/check-pack.mjs"
+    "check:pack": "node scripts/check-pack.mjs",
+    "check:publish": "node scripts/prepublish-check.mjs"
   },
   "sideEffects": [
     "**/*.css"

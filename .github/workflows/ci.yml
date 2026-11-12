@@ -33,6 +33,8 @@ jobs:
       - run: bun run typecheck:kits
       - run: bun run check:kits
       - run: bun run check:pack
+      - run: node scripts/prepublish-check.mjs --self-test
+      - run: node scripts/prepublish-check.mjs --skip-consumer
       - run: bun run build:docs
       - run: bun run build-storybook
       - run: bun test
