@@ -8,7 +8,14 @@ import type { ReactNode } from 'react';
  * option (`icon: null` shows no logo).
  */
 const Mark = ({ path, color }: { path: string; color: string }) => (
-  <svg viewBox="0 0 24 24" fill={color} aria-hidden="true" focusable="false">
+  <svg
+    viewBox="0 0 24 24"
+    width="24"
+    height="24"
+    fill={color}
+    aria-hidden="true"
+    focusable="false"
+  >
     <path d={path} />
   </svg>
 );

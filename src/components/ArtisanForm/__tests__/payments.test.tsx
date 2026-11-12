@@ -344,3 +344,149 @@ test('the request signal is aborted when the payment step unmounts', async () =>
   view.unmount();
   expect(signal?.aborted).toBe(true);
 });
+
+// ---- the method selector: logo, name and a hint per method ----
+
+const method = (over: Partial<PaymentPlugin> = {}): PaymentPlugin => ({
+  id: 'm',
+  name: 'Method',
+  mode: 'embedded',
+  render: () => null,
+  ...over,
+});
+
+const choose = async (plugins: PaymentPlugin[], labels = {}) => {
+  const user = userEvent.setup();
+  render(
+    <ArtisanForm
+      scheme={scheme({ providers: plugins.map((p) => p.id) })}
+      onSubmit={() => {}}
+      labels={labels}
+      plugins={{ payments: plugins }}
+    />,
+  );
+  await user.click(screen.getByText('Next'));
+};
+
+test('each method is a button named after the method, with its hint as the description', async () => {
+  await choose([
+    method({ id: 'a', name: 'A' }),
+    method({
+      id: 'b',
+      name: 'B',
+      mode: 'redirect',
+      start: async () => ({ url: 'x' }),
+    }),
+  ]);
+  const a = await screen.findByRole('button', { name: 'Pay with A' });
+  expect(a.getAttribute('aria-describedby')).toBeTruthy();
+  expect(a.textContent).toContain('Pay on this page');
+  expect(
+    screen.getByRole('button', { name: 'Pay with B' }).textContent,
+  ).toContain('You will be redirected');
+});
+
+test('a plugin can set its own description, and labels can change the default hints', async () => {
+  await choose(
+    [
+      method({ id: 'a', name: 'A', description: 'Cards and wallets' }),
+      method({ id: 'b', name: 'B' }),
+    ],
+    { payHintEmbedded: 'Pagá acá' },
+  );
+  expect(
+    (await screen.findByRole('button', { name: 'Pay with A' })).textContent,
+  ).toContain('Cards and wallets');
+  expect(
+    screen.getByRole('button', { name: 'Pay with B' }).textContent,
+  ).toContain('Pagá acá');
+});
+
+test('the logo is decorative and only rendered when the plugin has one', async () => {
+  await choose([
+    method({ id: 'a', name: 'A', icon: <svg data-testid="logo" /> }),
+    method({ id: 'b', name: 'B' }),
+  ]);
+  const a = await screen.findByRole('button', { name: 'Pay with A' });
+  const logo = screen.getByTestId('logo');
+  expect(a.contains(logo)).toBe(true);
+  expect(logo.closest('[aria-hidden="true"]')).toBeTruthy();
+  const b = screen.getByRole('button', { name: 'Pay with B' });
+  expect(b.querySelector('svg')).toBeNull();
+  // no empty logo box either (it would leave a gap)
+  expect(b.querySelector('[aria-hidden="true"]')).toBeNull();
+});
+
+test('the built-in plugins ship their logo and icon: null hides it', async () => {
+  const { stripe } = await import(
+    '../../../integrations/payments/providers/stripe'
+  );
+  const { paypal } = await import(
+    '../../../integrations/payments/providers/paypal'
+  );
+  const { mercadoPago } = await import(
+    '../../../integrations/payments/providers/mercadopago'
+  );
+  const { lemonSqueezy } = await import(
+    '../../../integrations/payments/providers/lemonsqueezy'
+  );
+  const make = [
+    stripe({
+      publishableKey: 'k',
+      createPaymentIntent: async () => ({ clientSecret: 's' }),
+    }),
+    paypal({
+      clientId: 'c',
+      createOrder: async () => ({ orderId: 'o' }),
+      captureOrder: async () => ({ status: 'COMPLETED' }),
+    }),
+    mercadoPago({
+      publicKey: 'k',
+      mode: 'redirect',
+      createPreference: async () => ({ url: 'u' }),
+    }),
+    lemonSqueezy({ createCheckout: async () => ({ url: 'u' }) }),
+  ];
+  for (const p of make) expect(p.icon).toBeTruthy();
+  expect(
+    stripe({
+      publishableKey: 'k',
+      icon: null,
+      createPaymentIntent: async () => ({ clientSecret: 's' }),
+    }).icon,
+  ).toBeUndefined();
+  const custom = <b />;
+  expect(
+    stripe({
+      publishableKey: 'k',
+      icon: custom,
+      createPaymentIntent: async () => ({ clientSecret: 's' }),
+    }).icon,
+  ).toBe(custom);
+});
+
+test('choosing a method still works from the card (embedded and redirect)', async () => {
+  const user = userEvent.setup();
+  const navigate = mock((_: string) => {});
+  const hosted: PaymentPlugin = {
+    id: 'h',
+    name: 'Hosted',
+    mode: 'redirect',
+    icon: <svg />,
+    start: async () => ({ url: 'https://pay.example/h' }),
+  };
+  render(
+    <ArtisanForm
+      scheme={scheme({ providers: ['h'] })}
+      onSubmit={() => {}}
+      plugins={{ payments: [hosted], navigate }}
+    />,
+  );
+  await user.click(screen.getByText('Next'));
+  await user.click(
+    await screen.findByRole('button', { name: 'Pay with Hosted' }),
+  );
+  await waitFor(() =>
+    expect(navigate).toHaveBeenCalledWith('https://pay.example/h'),
+  );
+});

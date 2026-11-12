@@ -49,9 +49,9 @@ export const bootstrapKit = {
     smallButton: 'btn btn-sm btn-outline-secondary',
     paymentOptions: 'row row-cols-1 row-cols-md-2 g-3',
     paymentOption:
-      'col btn btn-outline-secondary d-flex align-items-center gap-3 p-3 text-start',
+      'col btn border bg-body d-flex align-items-center gap-3 p-3 text-start',
     paymentOptionIcon:
-      'd-inline-flex align-items-center justify-content-center bg-body-secondary rounded flex-shrink-0',
+      'd-inline-flex align-items-center justify-content-center bg-body-secondary rounded flex-shrink-0 p-2',
     paymentOptionText: 'd-flex flex-column',
     paymentOptionName: 'fw-semibold text-body',
     paymentOptionHint: 'small text-body-secondary',
