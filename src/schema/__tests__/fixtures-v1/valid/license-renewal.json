@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "id": "license-renewal",
+  "steps": [
+    {
+      "id": "holder",
+      "type": "form",
+      "title": "License holder",
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "Full name",
+          "required": true
+        },
+        {
+          "type": "text",
+          "name": "license",
+          "label": "License number",
+          "required": true,
+          "validation": {
+            "pattern": "^[A-Z]{2}[0-9]{6}$"
+          },
+          "description": "Two letters and six digits, e.g. AB123456"
+        },
+        {
+          "type": "date",
+          "name": "expires",
+          "label": "Expiry date",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "medical",
+      "type": "form",
+      "title": "Medical certificate",
+      "fields": [
+        {
+          "type": "image",
+          "name": "certificate",
+          "label": "Photo of the certificate",
+          "required": true
+        },
+        {
+          "type": "switch",
+          "name": "glasses",
+          "label": "I need glasses to drive"
+        }
+      ]
+    },
+    {
+      "id": "slot",
+      "type": "form",
+      "title": "Appointment",
+      "fields": [
+        {
+          "type": "dynamicSelect",
+          "name": "office",
+          "label": "Office",
+          "dependentName": "time",
+          "options": [
+            {
+              "value": "downtown",
+              "label": "Downtown"
+            },
+            {
+              "value": "airport",
+              "label": "Airport"
+            },
+            {
+              "value": "north-station",
+              "label": "North station"
+            }
+          ],
+          "dependentOptions": {
+            "downtown": [
+              {
+                "value": "mon-09-00",
+                "label": "Mon 09:00"
+              },
+              {
+                "value": "mon-11-30",
+                "label": "Mon 11:30"
+              },
+              {
+                "value": "tue-10-00",
+                "label": "Tue 10:00"
+              }
+            ],
+            "airport": [
+              {
+                "value": "wed-08-30",
+                "label": "Wed 08:30"
+              },
+              {
+                "value": "thu-14-00",
+                "label": "Thu 14:00"
+              }
+            ],
+            "north-station": [
+              {
+                "value": "fri-09-00",
+                "label": "Fri 09:00"
+              },
+              {
+                "value": "fri-12-00",
+                "label": "Fri 12:00"
+              },
+              {
+                "value": "sat-10-30",
+                "label": "Sat 10:30"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "confirm",
+      "type": "review",
+      "title": "Confirm",
+      "revisit": "deny"
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "Appointment booked. Bring your current license and the certificate.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ]
+}

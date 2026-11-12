@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "id": "crm-lead",
+  "steps": [
+    {
+      "id": "lead",
+      "type": "form",
+      "title": "Contact",
+      "hooks": {
+        "beforeNext": "dedupe"
+      },
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "Full name",
+          "required": true
+        },
+        {
+          "type": "email",
+          "name": "email",
+          "label": "Email",
+          "required": true,
+          "description": "Try ana@existing.com to see the duplicate check"
+        },
+        {
+          "type": "text",
+          "name": "company",
+          "label": "Company",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "qualify",
+      "type": "form",
+      "title": "Qualification",
+      "fields": [
+        {
+          "type": "radio",
+          "name": "size",
+          "label": "Company size",
+          "required": true,
+          "options": [
+            {
+              "value": "small",
+              "label": "1-10 people"
+            },
+            {
+              "value": "mid",
+              "label": "11-200 people"
+            },
+            {
+              "value": "large",
+              "label": "200+ people"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "name": "budget",
+          "label": "Yearly budget",
+          "options": [
+            {
+              "value": "under-5k",
+              "label": "Under 5k"
+            },
+            {
+              "value": "5k-50k",
+              "label": "5k-50k"
+            },
+            {
+              "value": "over-50k",
+              "label": "Over 50k"
+            }
+          ]
+        }
+      ],
+      "next": [
+        {
+          "when": {
+            "field": "size",
+            "operator": "eq",
+            "value": "large"
+          },
+          "to": "enterprise"
+        },
+        {
+          "when": {
+            "field": "size",
+            "operator": "eq",
+            "value": "small"
+          },
+          "to": "selfserve"
+        },
+        {
+          "to": "demo"
+        }
+      ]
+    },
+    {
+      "id": "enterprise",
+      "type": "form",
+      "title": "Enterprise desk",
+      "visibleWhen": {
+        "field": "size",
+        "operator": "eq",
+        "value": "large"
+      },
+      "fields": [
+        {
+          "type": "select",
+          "name": "region",
+          "label": "Region",
+          "options": [
+            {
+              "value": "americas",
+              "label": "Americas"
+            },
+            {
+              "value": "europe",
+              "label": "Europe"
+            },
+            {
+              "value": "asia-pacific",
+              "label": "Asia-Pacific"
+            }
+          ]
+        },
+        {
+          "type": "textarea",
+          "name": "requirements",
+          "label": "Security or compliance requirements"
+        }
+      ]
+    },
+    {
+      "id": "selfserve",
+      "type": "form",
+      "title": "Start on your own",
+      "visibleWhen": {
+        "field": "size",
+        "operator": "eq",
+        "value": "small"
+      },
+      "fields": [
+        {
+          "type": "callout",
+          "name": "note",
+          "text": "A 14-day trial is enough for a team your size.",
+          "variant": "info"
+        },
+        {
+          "type": "checkbox",
+          "name": "trial",
+          "label": "Send me the trial link"
+        }
+      ]
+    },
+    {
+      "id": "demo",
+      "type": "form",
+      "title": "Book a demo",
+      "visibleWhen": {
+        "field": "size",
+        "operator": "neq",
+        "value": "small"
+      },
+      "fields": [
+        {
+          "type": "date",
+          "name": "demoDate",
+          "label": "Day",
+          "required": true,
+          "validation": {
+            "min": "2026-11-12"
+          }
+        },
+        {
+          "type": "select",
+          "name": "demoTime",
+          "label": "Time",
+          "options": [
+            {
+              "value": "09-00",
+              "label": "09:00"
+            },
+            {
+              "value": "11-00",
+              "label": "11:00"
+            },
+            {
+              "value": "15-00",
+              "label": "15:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "A sales rep will contact you shortly.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ]
+}

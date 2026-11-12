@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "id": "signup",
+  "steps": [
+    {
+      "id": "account",
+      "type": "form",
+      "title": "Create your account",
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "Full name",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "email",
+          "name": "email",
+          "label": "Email",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "password",
+          "name": "password",
+          "label": "Password",
+          "required": true,
+          "validation": {
+            "minLength": 8
+          },
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "password",
+          "name": "confirm",
+          "label": "Repeat the password",
+          "required": true,
+          "validation": {
+            "sameAs": "password"
+          },
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "terms",
+      "type": "terms",
+      "title": "Terms",
+      "content": "By continuing you agree to the terms of service. This is demo text: nothing is sent anywhere.",
+      "accept": {
+        "label": "I accept"
+      }
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "Welcome aboard! Check your inbox to verify the address.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "layout": "vertical",
+    "density": "comfortable",
+    "labelPosition": "top"
+  }
+}

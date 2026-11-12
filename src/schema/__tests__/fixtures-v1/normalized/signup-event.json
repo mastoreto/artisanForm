@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "id": "signup-event",
+  "steps": [
+    {
+      "id": "account",
+      "type": "form",
+      "title": "You",
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "Full name",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "email",
+          "name": "email",
+          "label": "Email",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "event",
+      "type": "form",
+      "title": "The event",
+      "fields": [
+        {
+          "type": "radio",
+          "name": "session",
+          "label": "Session",
+          "required": true,
+          "options": [
+            {
+              "value": "morning-workshop",
+              "label": "Morning workshop"
+            },
+            {
+              "value": "afternoon-talks",
+              "label": "Afternoon talks"
+            },
+            {
+              "value": "full-day",
+              "label": "Full day"
+            }
+          ],
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "switch",
+          "name": "guest",
+          "label": "I bring a guest",
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "text",
+          "name": "guestName",
+          "label": "Guest name",
+          "required": true,
+          "visibleWhen": {
+            "field": "guest",
+            "operator": "eq",
+            "value": true
+          },
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "check",
+          "name": "diet",
+          "label": "Dietary needs",
+          "options": [
+            {
+              "value": "vegetarian",
+              "label": "Vegetarian"
+            },
+            {
+              "value": "vegan",
+              "label": "Vegan"
+            },
+            {
+              "value": "gluten-free",
+              "label": "Gluten free"
+            }
+          ],
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "title": "Review"
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "You are registered. A calendar invite is on its way.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "layout": "vertical",
+    "density": "comfortable",
+    "labelPosition": "top"
+  }
+}
