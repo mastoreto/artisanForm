@@ -21,6 +21,7 @@ beforeEach(() => {
   process.env.MP_PUBLIC_KEY = 'TEST-public';
   process.env.MP_CURRENCY = 'ARS';
   delete process.env.MP_PAYER_EMAIL;
+  delete process.env.MP_CHECKOUT_PAYER_EMAIL;
   process.env.ALLOWED_ORIGINS =
     'http://localhost:5858,https://demo.trycloudflare.com';
   sent = [];
@@ -115,14 +116,16 @@ test("the price and the currency are the backend's, never the browser's", async 
   );
 });
 
-test('MP_PAYER_EMAIL sets the payer, and is absent otherwise', async () => {
-  await preference({ success: 'http://localhost:5858/' });
-  expect(body()).not.toHaveProperty('payer');
+test("Checkout Pro never sends the Brick's MP_PAYER_EMAIL: a payer that is not a test buyer on a test seller ends in 'una de las partes ... es de prueba'", async () => {
   process.env.MP_PAYER_EMAIL = 'buyer1@example.com';
   await preference({ success: 'http://localhost:5858/' });
-  expect(JSON.parse(String(sent[1].init.body)).payer).toEqual({
-    email: 'buyer1@example.com',
-  });
+  expect(body()).not.toHaveProperty('payer');
+});
+
+test('a payer is sent only when MP_CHECKOUT_PAYER_EMAIL names the test buyer', async () => {
+  process.env.MP_CHECKOUT_PAYER_EMAIL = 'test_user_123@testuser.com';
+  await preference({ success: 'http://localhost:5858/' });
+  expect(body().payer).toEqual({ email: 'test_user_123@testuser.com' });
 });
 
 test('the request is authenticated and idempotent', async () => {

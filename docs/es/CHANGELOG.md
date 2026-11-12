@@ -16,6 +16,7 @@
 ### Documentación
 
 - Una checklist del sandbox de Mercado Pago (vendedor y comprador de prueba, moneda, `auto_return` solo con https) en la guía de pagos. `apps/payments-test` ahora usa un solo puerto (5858) y tiene tests de servidor que fijan el cuerpo de la preferencia de Checkout Pro.
+- **`apps/payments-test`: causa de "Una de las partes con la que intentas hacer el pago es de prueba" en Checkout Pro (AF115):** el backend de la demo enviaba `MP_PAYER_EMAIL` (una dirección común que necesita el Payment Brick) como `payer` de la preferencia, así que un vendedor de prueba quedaba emparejado con un pagador que no es comprador de prueba. Checkout Pro ahora envía un pagador solo desde la nueva `MP_CHECKOUT_PAYER_EMAIL` (el correo del propio comprador de prueba), y la variante H de `mp-diagnose.ts` reproduce la petición anterior.
 
 ## Sin publicar (Validación en servidor)
 

@@ -16,6 +16,7 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 ### Documentation
 
 - A Mercado Pago sandbox checklist (test seller and buyer, currency, `auto_return` only over https) in the payments guide. `apps/payments-test` now uses one port (5858) and has server tests that pin the Checkout Pro preference body.
+- **`apps/payments-test`: cause of "Una de las partes con la que intentas hacer el pago es de prueba" in Checkout Pro (AF115):** the demo backend sent `MP_PAYER_EMAIL` (an ordinary address that the Payment Brick needs) as the preference's `payer`, so a test seller was paired with a payer that is not a test buyer. Checkout Pro now sends a payer only from the new `MP_CHECKOUT_PAYER_EMAIL` (the test buyer's own e-mail), and variant H of `mp-diagnose.ts` reproduces the old request.
 
 ## Unreleased (Server-side validation)
 

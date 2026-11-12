@@ -20,6 +20,8 @@ Providers without credentials show as "not configured" and are left out of the p
 
 ## Diagnosing Mercado Pago Checkout Pro
 
+**Known cause of "Una de las partes con la que intentas hacer el pago es de prueba":** a TEST seller with a payer that is not a test buyer. Checkout Pro no longer sends `MP_PAYER_EMAIL` (the Brick's workaround, an ordinary address); it sends a payer only if you set `MP_CHECKOUT_PAYER_EMAIL` to the test buyer's own e-mail. Pay logged in as that test buyer, in a private window.
+
 If the redirect flow ends on Mercado Pago's page with "algo salió mal", isolate the cause with evidence instead of guessing. `scripts/mp-diagnose.ts` creates preferences in variants that each change one thing, and prints the URL to open for each:
 
 | Variant | What it changes |
@@ -28,9 +30,10 @@ If the redirect flow ends on Mercado Pago's page with "algo salió mal", isolate
 | B | A + `back_urls` (plain http) |
 | C | B + `auto_return` (Mercado Pago should reject it over http) |
 | D | C over an https tunnel (`DIAG_HTTPS_URL`) |
-| E | B + `payer.email` (`MP_PAYER_EMAIL`) |
+| E | B + `payer.email` = the **test buyer's** own e-mail (`MP_CHECKOUT_PAYER_EMAIL`) |
 | F | B, opening `sandbox_init_point` instead of `init_point` |
 | G | B with the query string the app really sends |
+| H | B + `MP_PAYER_EMAIL` (the Brick's ordinary address): what the app used to send to Checkout Pro |
 
 ```bash
 cd apps/payments-test
@@ -38,7 +41,7 @@ node --env-file-if-exists=.env.local scripts/mp-diagnose.ts          # all varia
 node --env-file-if-exists=.env.local scripts/mp-diagnose.ts --user   # only check the seller account
 ```
 
-It first prints the seller site (country) and warns if `MP_CURRENCY` does not match it or if `MP_PAYER_EMAIL` is the seller's own e-mail. Then open each printed URL in a **private window logged in as the test buyer** (a different user from the seller, same country) and pay with an official test card. Note for each variant whether it paid, showed the error, or returned to the app: the first variant that behaves differently points at the cause. It creates real preferences in the account of `MP_ACCESS_TOKEN`, so use the test seller; the token is never printed.
+It first prints the seller site (country) and warns if `MP_CURRENCY` does not match it or if `MP_CHECKOUT_PAYER_EMAIL` is the seller's own e-mail. Then open each printed URL in a **private window logged in as the test buyer** (a different user from the seller, same country) and pay with an official test card. Note for each variant whether it paid, showed the error, or returned to the app: the first variant that behaves differently points at the cause. It creates real preferences in the account of `MP_ACCESS_TOKEN`, so use the test seller; the token is never printed.
 
 ## Webhooks with Docker
 

@@ -62,8 +62,12 @@ mercadopagoRoutes.post('/preference', async (c) => {
         },
         // MP rejects auto_return with non-https back_urls (e.g. localhost).
         ...(success.startsWith('https:') ? { auto_return: 'approved' } : {}),
-        ...(env('MP_PAYER_EMAIL')
-          ? { payer: { email: env('MP_PAYER_EMAIL') } }
+        // Optional, and NOT MP_PAYER_EMAIL (that one is the Brick's workaround
+        // and is an ordinary address): on a test seller, Checkout Pro treats a
+        // payer that is not a test buyer as a real person and stops with "una
+        // de las partes ... es de prueba". Send only the test buyer's own e-mail.
+        ...(env('MP_CHECKOUT_PAYER_EMAIL')
+          ? { payer: { email: env('MP_CHECKOUT_PAYER_EMAIL') } }
           : {}),
         external_reference: body.idempotencyKey,
       }),

@@ -84,7 +84,7 @@ The full option list of every provider, with an example each, is in the [README]
 
 ### Mercado Pago in the sandbox
 
-If Checkout Pro ends on Mercado Pago's page with "algo salió mal" after paying: use the credentials of a **test seller**; pay as a **test buyer** (a different user, same country) in a private window, never with the seller's account or a real one; use the **currency of the seller's country** (`MP_CURRENCY`); and remember that `auto_return` is only sent over https, so over plain `http://localhost` Mercado Pago may show a "back to the site" button instead of redirecting. To isolate the cause with evidence, `apps/payments-test/scripts/mp-diagnose.ts` creates the preference in variants that each change one thing (see that app's README).
+If Checkout Pro ends on Mercado Pago's page with "algo salió mal" after paying: use the credentials of a **test seller**; pay as a **test buyer** (a different user, same country) in a private window, never with the seller's account or a real one, and do not send any other e-mail as the `payer` (a payer that is not a test buyer on a test seller ends in "Una de las partes con la que intentas hacer el pago es de prueba"); use the **currency of the seller's country** (`MP_CURRENCY`); and remember that `auto_return` is only sent over https, so over plain `http://localhost` Mercado Pago may show a "back to the site" button instead of redirecting. To isolate the cause with evidence, `apps/payments-test/scripts/mp-diagnose.ts` creates the preference in variants that each change one thing (see that app's README).
 
 ## Your own plugin
 

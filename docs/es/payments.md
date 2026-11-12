@@ -84,7 +84,7 @@ La lista completa de opciones de cada proveedor, con un ejemplo cada uno, está 
 
 ### Mercado Pago en el sandbox
 
-Si Checkout Pro termina en la página de Mercado Pago con "algo salió mal" después de pagar: usa las credenciales de un **vendedor de prueba**; paga como un **comprador de prueba** (otro usuario, del mismo país) en una ventana privada, nunca con la cuenta del vendedor ni con una real; usa la **moneda del país del vendedor** (`MP_CURRENCY`); y recuerda que `auto_return` solo se envía con https, así que con `http://localhost` plano Mercado Pago puede mostrar un botón de "volver al sitio" en vez de redirigir. Para aislar la causa con evidencia, `apps/payments-test/scripts/mp-diagnose.ts` crea la preferencia en variantes que cambian una cosa cada una (ver el README de esa app).
+Si Checkout Pro termina en la página de Mercado Pago con "algo salió mal" después de pagar: usa las credenciales de un **vendedor de prueba**; paga como un **comprador de prueba** (otro usuario, del mismo país) en una ventana privada, nunca con la cuenta del vendedor ni con una real, y no envíes otro correo como `payer` (un pagador que no es comprador de prueba con un vendedor de prueba termina en "Una de las partes con la que intentas hacer el pago es de prueba"); usa la **moneda del país del vendedor** (`MP_CURRENCY`); y recuerda que `auto_return` solo se envía con https, así que con `http://localhost` plano Mercado Pago puede mostrar un botón de "volver al sitio" en vez de redirigir. Para aislar la causa con evidencia, `apps/payments-test/scripts/mp-diagnose.ts` crea la preferencia en variantes que cambian una cosa cada una (ver el README de esa app).
 
 ## Tu propio plugin
 

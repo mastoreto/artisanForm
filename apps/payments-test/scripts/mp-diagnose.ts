@@ -6,7 +6,8 @@
 //   node --env-file-if-exists=.env.local scripts/mp-diagnose.ts B E F      # some of them
 //   node --env-file-if-exists=.env.local scripts/mp-diagnose.ts --user     # only check the seller account
 //
-// Env: MP_ACCESS_TOKEN (required), MP_CURRENCY, MP_PAYER_EMAIL,
+// Env: MP_ACCESS_TOKEN (required), MP_CURRENCY, MP_CHECKOUT_PAYER_EMAIL (the TEST BUYER's e-mail),
+// MP_PAYER_EMAIL (the Brick's, only for variant H),
 // DIAG_HTTP_URL (default http://localhost:5858), DIAG_HTTPS_URL (tunnel, for D),
 // DIAG_AMOUNT (default 100).
 //
@@ -49,7 +50,8 @@ const cfg = {
     '',
   ),
   httpsBase: process.env.DIAG_HTTPS_URL?.replace(/\/$/, ''),
-  payerEmail: process.env.MP_PAYER_EMAIL,
+  payerEmail: process.env.MP_CHECKOUT_PAYER_EMAIL,
+  brickPayerEmail: process.env.MP_PAYER_EMAIL,
 };
 
 // The account behind the token: its site decides the currency it accepts.
@@ -66,12 +68,24 @@ if (SITE_CURRENCY[site] && SITE_CURRENCY[site] !== cfg.currency)
   );
 if (cfg.payerEmail && cfg.payerEmail === seller.email)
   console.log(
-    "!! MP_PAYER_EMAIL is the seller's own e-mail: the buyer must be a different test user",
+    "!! MP_CHECKOUT_PAYER_EMAIL is the seller's own e-mail: the buyer must be a different test user",
+  );
+if (cfg.brickPayerEmail)
+  console.log(
+    'note: MP_PAYER_EMAIL (the Brick workaround) is set; Checkout Pro no longer sends it. Variant H sends it on purpose.',
+  );
+if (
+  token.startsWith('TEST-') &&
+  cfg.brickPayerEmail &&
+  !/@testuser\.com$/i.test(cfg.brickPayerEmail)
+)
+  console.log(
+    '!! a TEST seller with a payer that is not a test buyer (variant H) is what ends in "una de las partes ... es de prueba"',
   );
 
 const wanted = process.argv
   .slice(2)
-  .filter((a) => /^[A-G]$/.test(a)) as VariantId[];
+  .filter((a) => /^[A-H]$/.test(a)) as VariantId[];
 if (process.argv.includes('--user')) process.exit(0);
 
 const reference = `diag-${Date.now()}`;
