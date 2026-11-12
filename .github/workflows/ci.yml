@@ -33,6 +33,7 @@ jobs:
       - run: bun run typecheck:kits
       - run: bun run check:kits
       - run: bun run check:pack
+      - run: bun run check:size
       - run: node scripts/prepublish-check.mjs --self-test
       - run: node scripts/prepublish-check.mjs --skip-consumer
       - run: node scripts/consumer-schema.mjs
@@ -75,6 +76,32 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: npx playwright install --with-deps ${{ matrix.browser }}
       - run: bun run e2e
+
+  # Web Vitals budgets (ready, interaction, long tasks, CLS) on the production
+  # build, one browser at a time and serially so nothing competes for the CPU.
+  # Chromium also runs the mobile profile (CPU 4x). See e2e/perf.spec.ts.
+  perf:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      ARTISAN_BROWSERS: ${{ matrix.browser }}
+      PERF_OUT: perf-results
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: bun run perf
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-${{ matrix.browser }}
+          path: perf-results.*.json
 
   # The packed tarball installed in clean Vite apps (React 18 and 19).
   consumers:
