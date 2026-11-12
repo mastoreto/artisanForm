@@ -15,6 +15,7 @@ import Password from '../inputs/Password/Password';
 import Radio from '../inputs/Radio/Radio';
 import Range from '../inputs/Range/Range';
 import Rating from '../inputs/Rating/Rating';
+import RemoteOptions from '../inputs/RemoteOptions/RemoteOptions';
 import Select from '../inputs/Select/Select';
 import Text from '../inputs/Text/Text';
 import Textarea from '../inputs/Textarea/Textarea';
@@ -77,6 +78,15 @@ export const renderField = (
   f: FieldSchema,
   ctx: FieldContext,
 ): ReactNode => {
+  // A select or radio fed by a registered source: load, then render as static.
+  if (f.loadOptions && (f.type === 'select' || f.type === 'radio'))
+    return (
+      <RemoteOptions
+        field={f}
+        labels={ctx.labels}
+        render={(resolved) => renderField(def, resolved, ctx)}
+      />
+    );
   const Override = ctx.components?.inputs?.[f.type as OverridableInputType];
   return Override ? (
     <InputBridge Component={Override} field={f} />
