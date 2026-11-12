@@ -23,6 +23,7 @@ import {
   createArtisanStore,
   type SubmitState,
 } from '../../engine/store/useArtisanStore';
+import { type LoadMessages, useCatalogs } from '../../engine/useCatalogs';
 import type { PluginsConfig } from '../../integrations/payments/types';
 import {
   normalizeStorage,
@@ -35,6 +36,7 @@ import type {
   SnapshotConflict,
   SnapshotMigrations,
 } from '../../persistence';
+import { applyCatalog, type Catalog } from '../../schema';
 import type { ArtisanSchemaV1 } from '../../schema/contract/define';
 import type { InferValues } from '../../schema/contract/infer';
 import type { FormUIConfig } from '../../schema/contract/types';
@@ -89,6 +91,12 @@ export interface ArtisanWizardOptions<
   stepId?: string;
   /** Called with the new step id whenever the wizard moves. */
   onStepIdChange?: (stepId: string) => void;
+  /** Language of the texts (`es`, `es-AR`): the catalogs for it are applied over the schema's source texts. */
+  locale?: string;
+  /** Catalogs by locale, same format as the schema's `i18n.messages`. They win over `loadMessages` and the schema. */
+  messages?: Record<string, Catalog>;
+  /** Fetches the catalog of a locale on demand (e.g. `(l) => import(`./${l}.json`)`). The source text shows until it arrives. */
+  loadMessages?: LoadMessages;
   /** Overrides any text or validation message (default: English). */
   labels?: Partial<ArtisanLabels>;
   /** Saves values and step to localStorage under this key and restores them on mount. */
@@ -204,6 +212,9 @@ export const useArtisanWizard = <
   onSubmit,
   initialValues: initialOverrides,
   labels: labelOverrides,
+  locale,
+  messages,
+  loadMessages,
   fields,
   stepTypes,
   storage,
@@ -242,20 +253,36 @@ export const useArtisanWizard = <
   );
   // One internal representation: normalize (v1 or 0.2.0) → project to the
   // shape the engine runs. Memoized; `key` only changes with the content.
+  const normalized = useMemo(
+    () =>
+      normalizeArtisanSchema(input, {
+        id: persistKey ? `legacy:${persistKey}` : undefined,
+      }),
+    [input, persistKey],
+  );
+  const catalogs = useCatalogs(
+    locale,
+    messages,
+    loadMessages,
+    normalized.schema.i18n,
+  );
+  // The content key comes from the untranslated schema: changing language
+  // must not look like a new form and reset what the user typed.
   const projection = useMemo(
     () =>
       projectToRuntime(
-        normalizeArtisanSchema(input, {
-          id: persistKey ? `legacy:${persistKey}` : undefined,
-        }),
+        catalogs.length
+          ? { ...normalized, schema: applyCatalog(normalized.schema, catalogs) }
+          : normalized,
         extensions,
         {
           fieldTypes: Object.keys(registry),
           stepKinds: Object.keys(stepRegistry),
         },
         onUnresolved,
+        JSON.stringify(normalized.schema),
       ),
-    [input, extensions, onUnresolved, registry, stepRegistry, persistKey],
+    [normalized, catalogs, extensions, onUnresolved, registry, stepRegistry],
   );
   const scheme = projection.scheme;
   // Read once on mount; the draft wins over defaults and `initialValues`.
