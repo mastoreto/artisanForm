@@ -171,6 +171,84 @@ test('redirect plugin: resumes on return, cleans the URL and advances', async ()
   });
 });
 
+// Two plugins of one provider that read the same return parameters.
+const sharing = (id: string): PaymentPlugin => ({
+  id,
+  name: id.toUpperCase(),
+  mode: 'redirect',
+  resumeKeys: ['ret'],
+  start: async () => ({ url: `https://pay.example/${id}` }),
+  resume: (params) =>
+    params.get('ret') === 'ok' ? { status: 'processing', reference: id } : null,
+});
+
+const draft = () => {
+  localStorage.clear();
+  localStorage.setItem(
+    'artisanform:pay',
+    JSON.stringify({ values: { plan: 'pro' }, step: 1 }),
+  );
+};
+
+test('on return, the plugin the user left with answers, not the first one that can', async () => {
+  sessionStorage.clear();
+  draft();
+  const user = userEvent.setup();
+  const navigate = mock((_: string) => {});
+  const plugins = { payments: [sharing('a'), sharing('b')], navigate };
+  // 1) the user picks the SECOND plugin and is sent away
+  setUrl('/');
+  const first = render(
+    <ArtisanForm
+      scheme={scheme({ providers: ['a', 'b'] })}
+      onSubmit={() => {}}
+      persistKey="pay"
+      plugins={plugins}
+    />,
+  );
+  await user.click(await screen.findByText('Pay with B'));
+  await waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
+  first.unmount();
+
+  // 2) they come back: both plugins can read `?ret=ok`
+  setUrl('/?ret=ok');
+  const onSubmit = mock((_: unknown) => {});
+  render(
+    <ArtisanForm
+      scheme={scheme({ providers: ['a', 'b'] })}
+      onSubmit={onSubmit}
+      persistKey="pay"
+      plugins={plugins}
+    />,
+  );
+  expect(await screen.findByText('Paid')).toBeTruthy();
+  expect(onSubmit.mock.calls[0][0]).toMatchObject({
+    payment: { provider: 'b', reference: 'b' },
+  });
+  expect(
+    sessionStorage.getItem('artisanform:payment-plugin:payment'),
+  ).toBeNull();
+});
+
+test('without that memory the first registered plugin answers (the old behavior)', async () => {
+  sessionStorage.clear();
+  draft();
+  setUrl('/?ret=ok');
+  const onSubmit = mock((_: unknown) => {});
+  render(
+    <ArtisanForm
+      scheme={scheme({ providers: ['a', 'b'] })}
+      onSubmit={onSubmit}
+      persistKey="pay"
+      plugins={{ payments: [sharing('a'), sharing('b')] }}
+    />,
+  );
+  expect(await screen.findByText('Paid')).toBeTruthy();
+  expect(onSubmit.mock.calls[0][0]).toMatchObject({
+    payment: { provider: 'a' },
+  });
+});
+
 test('a "processing" result moves on so a pending step can confirm it', async () => {
   const user = userEvent.setup();
   render(

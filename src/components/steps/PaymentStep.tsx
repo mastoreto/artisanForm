@@ -26,6 +26,38 @@ const baseUrl = () => {
   return url.toString();
 };
 
+// Two plugins of one provider can share their return parameters (Stripe's
+// embedded form and Checkout, Mercado Pago's Brick and Checkout Pro). Which
+// one sent the user away is remembered for the trip so, on return, it is the
+// one asked first. sessionStorage is per tab and survives the redirect; when
+// it is unavailable the plugins are asked in their registered order.
+const sentWith = (resultName: string) => {
+  const key = `artisanform:payment-plugin:${resultName}`;
+  return {
+    remember: (id: string) => {
+      try {
+        sessionStorage.setItem(key, id);
+      } catch {
+        // storage blocked: fall back to the registered order
+      }
+    },
+    recall: () => {
+      try {
+        return sessionStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    },
+    forget: () => {
+      try {
+        sessionStorage.removeItem(key);
+      } catch {
+        // nothing to clean
+      }
+    },
+  };
+};
+
 /**
  * Payment step. `provider` (or `providers` to let the user choose) names
  * plugins registered through the `plugins` prop. Embedded plugins render their
@@ -92,9 +124,16 @@ const PaymentStep = (ctx: StepContext) => {
   // Coming back from a hosted checkout.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    for (const plugin of available) {
+    const used = sentWith(resultName).recall();
+    // The plugin the user left with first; the rest keep their order.
+    const ordered = [
+      ...available.filter((p) => p.id === used),
+      ...available.filter((p) => p.id !== used),
+    ];
+    for (const plugin of ordered) {
       const reported = plugin.resume?.(params);
       if (!reported) continue;
+      sentWith(resultName).forget();
       // The return URL is forgeable: whatever a plugin reports from it, the
       // core never records it as `succeeded` (a `pending` step confirms it).
       const result = fromReturnUrl(reported);
@@ -130,6 +169,7 @@ const PaymentStep = (ctx: StepContext) => {
       const { url } = await (plugin.start as NonNullable<typeof plugin.start>)(
         request(),
       );
+      sentWith(resultName).remember(plugin.id);
       plugins.navigate(url);
     } catch (e) {
       setFailure(e instanceof Error ? e.message : labels.paymentFailed);
