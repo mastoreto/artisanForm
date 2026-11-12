@@ -6,12 +6,12 @@
   "scripts": {
     "dev": "bun run --parallel dev:server dev:web",
     "dev:server": "node --watch --env-file-if-exists=.env.local server/dev.ts",
-    "dev:web": "vite --port 5858",
+    "dev:web": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "bun test server",
     "docker": "docker compose --env-file .env.local up --build",
-    "dev:all": "docker compose --env-file .env.local --profile stripe --profile lemon up -d --build && vite --port 5858"
+    "dev:all": "docker compose --env-file .env.local --profile stripe --profile lemon up -d --build && vite"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.0",

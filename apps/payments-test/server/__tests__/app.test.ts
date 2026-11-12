@@ -23,7 +23,7 @@ test('the browser names a plan, never a price', () => {
 
 test('return URLs are limited to ALLOWED_ORIGINS', () => {
   expect(() => allowedUrl('https://evil.example/x')).toThrow('not allowed');
-  expect(allowedUrl('http://localhost:5174/?a=1')).toContain('localhost:5174');
+  expect(allowedUrl('http://localhost:5858/?a=1')).toContain('localhost:5858');
 });
 
 test('a provider without credentials answers 503, bad bodies 400', async () => {

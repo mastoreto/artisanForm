@@ -4,7 +4,7 @@ import { type DiagConfig, variants } from '../../scripts/mp-variants.ts';
 const cfg: DiagConfig = {
   currency: 'ARS',
   amount: 100,
-  httpBase: 'http://localhost:5174',
+  httpBase: 'http://localhost:5858',
   httpsBase: 'https://demo.trycloudflare.com',
   payerEmail: 'buyer1@example.com',
 };
@@ -32,7 +32,7 @@ test('every body carries the currency, amount and external_reference', () => {
 test('D uses the https tunnel, the others the http origin', () => {
   const v = byId();
   expect(JSON.stringify(v.D.body)).toContain('https://demo.trycloudflare.com');
-  expect(JSON.stringify(v.B.body)).toContain('http://localhost:5174');
+  expect(JSON.stringify(v.B.body)).toContain('http://localhost:5858');
 });
 
 test('F opens sandbox_init_point and G keeps the real query string', () => {

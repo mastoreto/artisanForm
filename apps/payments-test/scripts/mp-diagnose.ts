@@ -7,7 +7,7 @@
 //   node --env-file-if-exists=.env.local scripts/mp-diagnose.ts --user     # only check the seller account
 //
 // Env: MP_ACCESS_TOKEN (required), MP_CURRENCY, MP_PAYER_EMAIL,
-// DIAG_HTTP_URL (default http://localhost:5174), DIAG_HTTPS_URL (tunnel, for D),
+// DIAG_HTTP_URL (default http://localhost:5858), DIAG_HTTPS_URL (tunnel, for D),
 // DIAG_AMOUNT (default 100).
 //
 // It creates real preferences in the account of the token: use the TEST
@@ -44,7 +44,7 @@ const call = async (path: string, init: RequestInit = {}) => {
 const cfg = {
   currency: process.env.MP_CURRENCY ?? 'USD',
   amount: Number(process.env.DIAG_AMOUNT ?? 100),
-  httpBase: (process.env.DIAG_HTTP_URL ?? 'http://localhost:5174').replace(
+  httpBase: (process.env.DIAG_HTTP_URL ?? 'http://localhost:5858').replace(
     /\/$/,
     '',
   ),

@@ -7,7 +7,7 @@ export type VariantId = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
 export interface DiagConfig {
   currency: string;
   amount: number;
-  /** Origin of the app over plain http (where the app really runs), e.g. http://localhost:5174 */
+  /** Origin of the app over plain http (where the app really runs), e.g. http://localhost:5858 */
   httpBase: string;
   /** https tunnel to the app (e.g. cloudflared). Needed for variant D. */
   httpsBase?: string;

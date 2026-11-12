@@ -13,7 +13,7 @@ Tries the real payment plugins (Stripe, PayPal, Mercado Pago, Lemon Squeezy) aga
 
 ```bash
 cp apps/payments-test/.env.example apps/payments-test/.env.local   # fill in only what you want to test
-cd apps/payments-test && bun run dev                                # API :8787, app http://localhost:5174
+cd apps/payments-test && bun run dev                                # API :8787, app http://localhost:5858
 ```
 
 Providers without credentials show as "not configured" and are left out of the payment step. Keys go in `.env.local` (git-ignored), never in the chat or the code. Only public keys reach the browser, through `GET /api/config`.

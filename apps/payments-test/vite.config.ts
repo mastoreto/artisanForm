@@ -37,7 +37,7 @@ export default defineConfig({
   },
   server: {
     fs: { allow: [repo] },
-    port: 5174,
+    port: 5858,
     strictPort: true,
     proxy: { '/api': `http://localhost:${process.env.PORT ?? 8787}` },
   },
