@@ -129,11 +129,12 @@ const ArtisanForm = <S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1>({
     () => ({ components, classNames, unstyled }),
     [components, classNames, unstyled],
   );
-  const labels = useMemo(
-    () => ({ ...kitLabels, ...labelOverrides }),
-    [kitLabels, labelOverrides],
-  );
-  const wizard = useArtisanWizard<S>({ schema: scheme, labels, ...options });
+  const wizard = useArtisanWizard<S>({
+    schema: scheme,
+    kitLabels,
+    labels: labelOverrides,
+    ...options,
+  });
   return (
     <ArtisanWizardProvider wizard={wizard}>
       <UiContext.Provider value={uiConfig}>

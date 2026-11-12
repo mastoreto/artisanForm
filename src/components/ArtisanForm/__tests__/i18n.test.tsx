@@ -110,3 +110,20 @@ test('a failing loader leaves the source text', async () => {
   await waitFor(() => expect(load).toHaveBeenCalled());
   expect(screen.getByLabelText('Name')).toBeTruthy();
 });
+
+test('library labels: defaults < kit < catalog < labels prop', () => {
+  const kit = {
+    name: 'k',
+    labels: { submit: 'Kit send', previous: 'Kit prev' },
+  };
+  const messages = { es: { 'labels.submit': 'Enviar' } };
+  const props = { scheme, locale: 'es', messages, kit, onSubmit: () => {} };
+  const { unmount } = render(<ArtisanForm {...props} />);
+  expect(screen.getByRole('button', { name: 'Enviar' })).toBeTruthy(); // catalog beats kit
+  unmount();
+  render(<ArtisanForm {...props} labels={{ submit: 'Mine' }} />);
+  expect(screen.getByRole('button', { name: 'Mine' })).toBeTruthy(); // prop beats catalog
+  cleanup();
+  render(<ArtisanForm {...props} locale="en" />);
+  expect(screen.getByRole('button', { name: 'Kit send' })).toBeTruthy(); // kit beats default
+});

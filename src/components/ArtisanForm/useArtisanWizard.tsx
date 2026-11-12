@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { FormProvider, type UseFormReturn } from 'react-hook-form';
+import { labelsFromCatalogs } from '../../commons/i18n';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import {
   buildInitialValues,
@@ -97,7 +98,9 @@ export interface ArtisanWizardOptions<
   messages?: Record<string, Catalog>;
   /** Fetches the catalog of a locale on demand (e.g. `(l) => import(`./${l}.json`)`). The source text shows until it arrives. */
   loadMessages?: LoadMessages;
-  /** Overrides any text or validation message (default: English). */
+  /** Texts a UI kit supplies: above the defaults, below the catalogs' `labels.*` entries and `labels`. */
+  kitLabels?: Partial<ArtisanLabels>;
+  /** Overrides any text or validation message (default: English). Wins over everything else. */
   labels?: Partial<ArtisanLabels>;
   /** Saves values and step to localStorage under this key and restores them on mount. */
   persistKey?: string;
@@ -212,6 +215,7 @@ export const useArtisanWizard = <
   onSubmit,
   initialValues: initialOverrides,
   labels: labelOverrides,
+  kitLabels,
   locale,
   messages,
   loadMessages,
@@ -307,9 +311,15 @@ export const useArtisanWizard = <
     }),
     [scheme, draft, registry, initialOverrides],
   );
+  // defaults < kit < catalogs (`labels.*`) < the `labels` prop
   const labels = useMemo(
-    () => ({ ...defaultLabels, ...labelOverrides }),
-    [labelOverrides],
+    () => ({
+      ...defaultLabels,
+      ...kitLabels,
+      ...labelsFromCatalogs(catalogs, locale ?? 'en'),
+      ...labelOverrides,
+    }),
+    [kitLabels, catalogs, locale, labelOverrides],
   );
   const validationSchema = useMemo(
     () => buildValidationSchema(scheme, labels, registry),
