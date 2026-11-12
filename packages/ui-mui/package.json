@@ -1,6 +1,6 @@
 {
   "name": "@beardartisans/ui-mui",
-  "version": "0.3.0-beta.1",
+  "version": "0.3.0-beta.2",
   "description": "Material UI kit for ArtisanForm",
   "license": "MIT",
   "author": "ArtisanForm contributors",
@@ -42,7 +42,7 @@
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
     "@mui/material": "^9.0.0",
-    "artisanform": "^0.3.0-beta.1",
+    "artisanform": "^0.3.0-beta.2",
     "react": "^18.3.1 || ^19.0.0"
   },
   "devDependencies": {
