@@ -2,6 +2,16 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## 0.3.0-beta.2 (2026-11-12)
+
+Republicación de 0.3.0-beta.1 con el empaquetado corregido. **No uses los kits de 0.3.0-beta.1; usá esta versión.** La librería núcleo no tiene cambios de código.
+
+### Correcciones
+
+- **Tipos de los kits (`@beardartisans/ui-bootstrap`, `ui-mui`, `ui-tailwind`):** el `.d.ts` publicado en 0.3.0-beta.1 exportaba `ArtisanUiKit` sin importarlo, así que `tsc` fallaba en cualquier proyecto que instalara los kits (`Cannot find name 'ArtisanUiKit'`). Los kits se construyeron en una máquina donde `artisanform` no se resolvía dentro de `packages/*`; los builds de CI estaban bien. Ver la nota en [releasing](releasing.md).
+- **`@beardartisans/ui-tailwind`:** 0.3.0-beta.1 incluía el código de 0.3.0-beta.0; este es el primer release con las novedades de los kits listadas en 0.3.0-beta.1 (todas las partes con estilo, nuevo aspecto).
+- **`@beardartisans/ui-bootstrap`:** 0.3.0-beta.1 no traía `dist/style.css`, así que `@beardartisans/ui-bootstrap/style.css` no se resolvía; restaurado.
+
 ## 0.3.0-beta.1 (2026-11-10)
 
 Segunda beta. Destacados: la API headless pública (`useArtisanWizard`, `artisanform/headless`), valores de formulario tipados (`InferValues`), transiciones declarativas con bucles acotados y reglas de revisita, timeout/reintento/cancelación en `wait`, borradores conectables y migrables, un tema oscuro y un slot `StatusPanel`, y la URL de retorno de pagos como no confiable en el núcleo. **Cambios de comportamiento a leer antes de actualizar:** los pagos por redirección informan `processing`, nunca `succeeded` (AF78, AF86), y `parseArtisanSchema` rechaza valores `href` inseguros y nombres de campo peligrosos (AF76).

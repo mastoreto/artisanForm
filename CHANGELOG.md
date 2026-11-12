@@ -2,6 +2,16 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## 0.3.0-beta.2 (2026-11-12)
+
+Republish of 0.3.0-beta.1 with the packaging fixed. **Do not use the kits of 0.3.0-beta.1; use this version.** The core library has no code changes.
+
+### Fixes
+
+- **Kit typings (`@beardartisans/ui-bootstrap`, `ui-mui`, `ui-tailwind`):** the `.d.ts` published in 0.3.0-beta.1 exported `ArtisanUiKit` without importing it, so `tsc` failed in any project that installed the kits (`Cannot find name 'ArtisanUiKit'`). The kits were built on a machine where `artisanform` did not resolve inside `packages/*`; CI builds were fine. See the note in [releasing](docs/releasing.md).
+- **`@beardartisans/ui-tailwind`:** 0.3.0-beta.1 shipped the 0.3.0-beta.0 code; this is the first release with the kit updates listed under 0.3.0-beta.1 (every part styled, new look).
+- **`@beardartisans/ui-bootstrap`:** 0.3.0-beta.1 had no `dist/style.css`, so `@beardartisans/ui-bootstrap/style.css` did not resolve; restored.
+
 ## 0.3.0-beta.1 (2026-11-10)
 
 Second beta. Highlights: the public headless API (`useArtisanWizard`, `artisanform/headless`), typed form values (`InferValues`), declarative transitions with bounded loops and revisit rules, `wait` timeout/retry/cancel, pluggable and migratable drafts, a dark theme and a `StatusPanel` slot, and the payment return URL being untrusted in the core. **Behavior changes to read before upgrading:** redirect payments report `processing`, never `succeeded` (AF78, AF86), and `parseArtisanSchema` rejects unsafe `href` values and dangerous field names (AF76).
