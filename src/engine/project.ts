@@ -43,6 +43,8 @@ export const projectToRuntime = (
   ext: ArtisanExtensions | undefined,
   registries: ProjectionRegistries,
   onUnresolved?: OnUnresolved,
+  /** Identity of the content when it differs from `schema` (e.g. a translated copy). */
+  contentKey?: string,
 ): RuntimeProjection => {
   const { schema, bindings } = normalized;
   const issues: SchemaIssue[] = [];
@@ -280,6 +282,6 @@ export const projectToRuntime = (
     revision: schema.revision,
     ui: schema.ui ?? {},
     stepIds,
-    key: JSON.stringify(schema),
+    key: contentKey ?? JSON.stringify(schema),
   };
 };

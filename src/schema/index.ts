@@ -36,6 +36,19 @@ export {
 } from './contract/specs';
 export type * from './contract/steps';
 export type * from './contract/types';
+export {
+  applyCatalog,
+  type Catalog,
+  type CatalogReport,
+  type CatalogValue,
+  extractMessages,
+  format,
+  type PluralForms,
+  placeholdersOf,
+  resolveLocaleChain,
+  textOf,
+  validateCatalog,
+} from './i18n';
 export type { LegacyFormSchema } from './legacy/adapter';
 export {
   type NormalizedArtisanSchema,

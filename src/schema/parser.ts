@@ -121,6 +121,40 @@ const need = {
   },
 };
 
+const LOCALE = /^[A-Za-z]{2,3}([-_][A-Za-z0-9]{1,8})*$/;
+
+/** The optional `i18n` block: `{ sourceLocale?, messages?: { <locale>: { <path>: text | plural forms } } }`. */
+const checkI18n = (v: unknown, c: Collector) => {
+  if (!isObj(v)) return c.error('invalid-type', 'i18n', 'must be an object');
+  checkKeys(v, ['sourceLocale', 'messages'], 'i18n', c);
+  if (v.sourceLocale !== undefined && !LOCALE.test(String(v.sourceLocale)))
+    c.error('invalid-value', 'i18n.sourceLocale', 'must be a language tag');
+  if (v.messages === undefined) return;
+  if (!isObj(v.messages))
+    return c.error('invalid-type', 'i18n.messages', 'must be an object');
+  for (const [locale, catalog] of Object.entries(v.messages)) {
+    const at = `i18n.messages.${locale}`;
+    if (!LOCALE.test(locale))
+      c.error('invalid-value', at, 'the key must be a language tag');
+    if (!isObj(catalog)) {
+      c.error('invalid-type', at, 'must be an object');
+      continue;
+    }
+    for (const [path, entry] of Object.entries(catalog)) {
+      const e = `${at}.${path}`;
+      if (typeof entry === 'string') continue;
+      if (!isObj(entry) || typeof entry.other !== 'string')
+        c.error(
+          'invalid-type',
+          e,
+          'must be a string or plural forms with "other"',
+        );
+      else if (Object.values(entry).some((x) => typeof x !== 'string'))
+        c.error('invalid-type', e, 'plural forms must be strings');
+    }
+  }
+};
+
 const checkKeys = (
   o: Obj,
   allowed: readonly string[],
@@ -203,7 +237,16 @@ export const parseArtisanSchema = (
 
   checkKeys(
     input,
-    ['schemaVersion', 'id', 'revision', 'title', 'description', 'ui', 'steps'],
+    [
+      'schemaVersion',
+      'id',
+      'revision',
+      'title',
+      'description',
+      'ui',
+      'i18n',
+      'steps',
+    ],
     '$',
     c,
   );
@@ -212,6 +255,7 @@ export const parseArtisanSchema = (
   if (input.title !== undefined) need.string(input.title, 'title', c, true);
   if (input.description !== undefined)
     need.string(input.description, 'description', c, true);
+  if (input.i18n !== undefined) checkI18n(input.i18n, c);
   if (input.ui !== undefined) {
     if (!isObj(input.ui)) c.error('invalid-type', 'ui', 'must be an object');
     else {

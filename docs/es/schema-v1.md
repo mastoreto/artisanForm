@@ -269,6 +269,42 @@ const requires = collectReferences(schema);           // guárdalo con la revisi
 
 Para que un formulario siga funcionando cuando falta un nombre opcional, pasa `onUnresolved` a `<ArtisanForm>`: se llama por cada referencia que ningún registro provee, y devolver `'ignore'` renderiza sin ella (un hook opcional no corre, las opciones de una fuente quedan vacías). Cualquier otro valor mantiene el fallo, así que el comportamiento por defecto no cambia. Ignora solo lo opcional: una estrategia de espera o un renderer ausentes dejan a su paso sin nada que hacer.
 
+### Traducciones ✅
+
+El schema se escribe en un **idioma fuente** (inglés por defecto) y no se toca. Un **catálogo** asocia rutas de texto estables con el texto traducido; el formulario lo aplica sobre el texto fuente, así que los valores escritos, los nombres de campo y todos los ids son los mismos en cualquier idioma.
+
+```text
+title · description
+steps.<stepId>.title | summary | message | errorMessage | content
+steps.<stepId>.controls.nextLabel | previousLabel
+steps.<stepId>.accept.label · steps.<stepId>.actions.<índice>.label
+steps.<stepId>.fields.<name>.label | description | placeholder | prefix | suffix | endLabel | addLabel | text
+steps.<stepId>.fields.<name>.options.<value>
+steps.<stepId>.fields.<name>.dependentOptions.<padre>.<value>
+steps.<stepId>.fields.<name>.fields.<hijo>.label   (filas de un array)
+labels.<clave>                                      (los textos propios de la librería, ver `ArtisanLabels`)
+```
+
+Un valor es un string o formas plurales `{ one, other, … }` (`other` es obligatoria; en las funciones de `labels.*` la forma sigue al primer argumento numérico mediante `Intl.PluralRules`). La librería rellena los `{nombre}` (`labels.step`: `"Paso {n} de {total}: {title}"`). Renombrar un id deja huérfanas sus traducciones: `validateCatalog` lo informa.
+
+Tres formas de aportar catálogos, con el mismo formato; por cada etiqueta de la cadena (`es-AR` → `es`) gana el primero que la tenga:
+
+```tsx
+<ArtisanForm scheme={scheme} locale="es-AR"
+  messages={{ es }}                                      // 1. una prop
+  loadMessages={(l) => import(`./catalogs/${l}.json`)}   // 2. bajo demanda, por idioma
+/>
+// 3. dentro del schema: { "i18n": { "sourceLocale": "en", "messages": { "es": { ... } } } }
+```
+
+Los formularios pequeños pueden llevar sus catálogos en el bloque opcional `i18n`; los grandes cargan solo el idioma en uso con `loadMessages` (devuelve el catálogo o un módulo con `default`). Mientras un catálogo carga, o si falla, se ve el texto fuente: una traducción ausente nunca rompe un formulario y cambiar `locale` no reinicia lo que el usuario escribió. La librería solo trae inglés; el resto lo aportas tú.
+
+Los textos propios de la librería siguen **valores por defecto < `labels` del kit < `labels.*` del catálogo < la prop `labels`**. Las incidencias de `validateValues` en el servidor se convierten en mensajes del mismo idioma con `formatIssue(issue, labels)`.
+
+Utilidades puras en `artisanform/schema` (sin React) para el flujo de publicación de una API: `extractMessages(schema)` (la plantilla en inglés a traducir), `validateCatalog(schema, catalog)` → `{ missing, orphan, badPlaceholders }`, `applyCatalog(schema, [catálogos])` (una copia traducida, p. ej. para servir un idioma), `resolveLocaleChain('es-AR')` → `['es-AR', 'es']`, `format` y `placeholdersOf`.
+
+Fuera de alcance: diseños de derecha a izquierda, el formato de `<input type="date">` (lo decide el navegador) y los textos `ReactNode` del 0.2.0.
+
 ## 10. Versionado ✅
 
 - `schemaVersion: 1` identifica el formato. Un número mayor se rechaza (`unsupported-version`) en lugar de interpretarse mal. Un esquema **sin** `schemaVersion` se trata como 0.2.0 en `normalizeArtisanSchema`.

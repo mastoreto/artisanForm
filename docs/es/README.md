@@ -311,6 +311,7 @@ Cada tipo es una `FieldDefinition` (`render`, `initialValues`, `rules`, y opcion
 | `step?`               | Lleva el wizard a ese paso cuando cambia (combinar con `onStepChange`)                                                                    |
 | `persistKey?`         | Guarda valores y paso en `localStorage` y los restaura al montar. Las contraseñas nunca se guardan; el borrador se borra al enviar        |
 | `onSnapshotConflict?` | Qué hacer con un borrador que no corresponde a este formulario: `'backup'` (por defecto), `'restore'` o `'discard'`                       |
+| `locale?` / `messages?` / `loadMessages?` | Traduce el formulario: catálogos por idioma, aplicados sobre los textos fuente del schema (ver [schema v1](schema-v1.md#traducciones-)) |
 | `labels?`             | Sobrescribe cualquier texto o mensaje de validación (ver `defaultLabels`; por defecto inglés)                                            |
 | `className?`          | Clases extra para el `<form>`                                                                                                             |
 | `fields?`             | Registro de tipos de campo propios (ver arriba)                                                                                           |
@@ -447,7 +448,7 @@ Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y
 - **Proveedores reales:** Stripe, PayPal, Lemon Squeezy y el Payment Brick de Mercado Pago funcionan en sus sandboxes (pruebas manuales con `apps/payments-test`). Mercado Pago Checkout Pro (redirección) muestra un error en la propia página de Mercado Pago tras pagar; se está investigando y no hay pruebas automáticas contra el servicio real.
 - **Navegador:** los tests de componentes corren en happy-dom; Playwright cubre los flujos del playground (wizard, archivos, espera, pagos mock, campos) en Chromium, Firefox y WebKit. Las pasadas con lector de pantalla, las preferencias de movimiento y los dispositivos táctiles todavía no se verifican ([docs/es/accessibility.md](accessibility.md)).
 - **UI:** `layout: 'horizontal'` no tiene estilo propio y los steppers no pueden saltar entre pasos. Detalle en [docs/es/ui.md](ui.md#pendiente).
-- Los textos por defecto están solo en inglés; para otro idioma pasá `labels` (y escribí tus propias etiquetas de campo).
+- Solo se incluye inglés. Otros idiomas salen de tus propios catálogos (`locale`, `messages`, `loadMessages`; los textos de la librería mediante `labels.*`), o solo de `labels`.
 
 ### Historial
 

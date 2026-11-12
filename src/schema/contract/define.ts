@@ -1,5 +1,14 @@
+import type { Catalog } from '../i18n';
 import type { ArtisanStepV1 } from './steps';
 import type { FormUIConfig } from './types';
+
+/** Translations carried inside the schema (small forms); see `artisanform/schema` i18n helpers. */
+export interface I18nBlockV1 {
+  /** The language the schema's own texts are written in (default `en`). */
+  sourceLocale?: string;
+  /** Catalogs by locale: stable text path to translated text. */
+  messages?: Record<string, Catalog>;
+}
 
 export interface ArtisanSchemaV1 {
   /** Format version. Unknown (e.g. future) versions are rejected by the parser. */
@@ -11,6 +20,7 @@ export interface ArtisanSchemaV1 {
   title?: string;
   description?: string;
   ui?: FormUIConfig;
+  i18n?: I18nBlockV1;
   steps: ArtisanStepV1[];
 }
 
