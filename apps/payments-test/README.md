@@ -16,7 +16,7 @@ cp apps/payments-test/.env.example apps/payments-test/.env.local   # fill in onl
 cd apps/payments-test && bun run dev                                # API :8787, app http://localhost:5858
 ```
 
-Providers without credentials show as "not configured" and are left out of the payment step. Keys go in `.env.local` (git-ignored), never in the chat or the code. Only public keys reach the browser, through `GET /api/config`.
+Providers without credentials show as "not configured" and are left out of the payment step. On the paid-event example, a **Test data** panel beside the form lists the sandbox data (cards, test account) of the configured providers that are paid on the page (Stripe, PayPal, the Mercado Pago Brick), with a copy button on each value. When a method is chosen, only its data is shown; a method that sends the user to the provider (Stripe Checkout, Checkout Pro, Lemon Squeezy) shows no data and says to use the provider's own sandbox data there. The data lives in `src/testData.ts`. Keys go in `.env.local` (git-ignored), never in the chat or the code. Only public keys reach the browser, through `GET /api/config`.
 
 ## Diagnosing Mercado Pago Checkout Pro
 
