@@ -18,6 +18,28 @@ cd apps/payments-test && bun run dev                                # API :8787,
 
 Providers without credentials show as "not configured" and are left out of the payment step. Keys go in `.env.local` (git-ignored), never in the chat or the code. Only public keys reach the browser, through `GET /api/config`.
 
+## Diagnosing Mercado Pago Checkout Pro
+
+If the redirect flow ends on Mercado Pago's page with "algo salió mal", isolate the cause with evidence instead of guessing. `scripts/mp-diagnose.ts` creates preferences in variants that each change one thing, and prints the URL to open for each:
+
+| Variant | What it changes |
+| --- | --- |
+| A | minimal: items, currency, `external_reference` |
+| B | A + `back_urls` (plain http) |
+| C | B + `auto_return` (Mercado Pago should reject it over http) |
+| D | C over an https tunnel (`DIAG_HTTPS_URL`) |
+| E | B + `payer.email` (`MP_PAYER_EMAIL`) |
+| F | B, opening `sandbox_init_point` instead of `init_point` |
+| G | B with the query string the app really sends |
+
+```bash
+cd apps/payments-test
+node --env-file-if-exists=.env.local scripts/mp-diagnose.ts          # all variants
+node --env-file-if-exists=.env.local scripts/mp-diagnose.ts --user   # only check the seller account
+```
+
+It first prints the seller site (country) and warns if `MP_CURRENCY` does not match it or if `MP_PAYER_EMAIL` is the seller's own e-mail. Then open each printed URL in a **private window logged in as the test buyer** (a different user from the seller, same country) and pay with an official test card. Note for each variant whether it paid, showed the error, or returned to the app: the first variant that behaves differently points at the cause. It creates real preferences in the account of `MP_ACCESS_TOKEN`, so use the test seller; the token is never printed.
+
 ## Webhooks with Docker
 
 Stripe and Lemon Squeezy call back to your backend, so it needs to be reachable. `compose.yaml` runs the API plus two optional helpers (the web app stays on the host, `bun run dev:web`):
