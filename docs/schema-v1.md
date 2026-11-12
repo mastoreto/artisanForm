@@ -269,6 +269,42 @@ const requires = collectReferences(schema);           // store it with the revis
 
 To keep a form running when an optional name is missing, pass `onUnresolved` to `<ArtisanForm>`: it is called for each reference no registry provides, and returning `'ignore'` renders without it (an optional hook does not run, a source's options stay empty). Anything else keeps the failure, so the default is unchanged. Only ignore what is optional: a missing wait strategy or renderer leaves its step with nothing to do.
 
+### Translations ✅
+
+The schema is written in one **source language** (English by default) and stays untouched. A **catalog** maps stable text paths to the translated text; the form applies it over the source text, so the typed values, the field names and every id are the same in all languages.
+
+```text
+title · description
+steps.<stepId>.title | summary | message | errorMessage | content
+steps.<stepId>.controls.nextLabel | previousLabel
+steps.<stepId>.accept.label · steps.<stepId>.actions.<index>.label
+steps.<stepId>.fields.<name>.label | description | placeholder | prefix | suffix | endLabel | addLabel | text
+steps.<stepId>.fields.<name>.options.<value>
+steps.<stepId>.fields.<name>.dependentOptions.<parent>.<value>
+steps.<stepId>.fields.<name>.fields.<child>.label   (rows of an array)
+labels.<key>                                         (the library's own texts, see `ArtisanLabels`)
+```
+
+A value is a string, or plural forms `{ one, other, … }` (`other` is required; for `labels.*` functions the form follows the first numeric argument through `Intl.PluralRules`). `{name}` placeholders are filled by the library (`labels.step`: `"Paso {n} de {total}: {title}"`). Renaming an id orphans its translations: `validateCatalog` reports it.
+
+Three ways to supply catalogs, same format; for each tag of the chain (`es-AR` → `es`) the first that has one wins:
+
+```tsx
+<ArtisanForm scheme={scheme} locale="es-AR"
+  messages={{ es }}                                      // 1. a prop
+  loadMessages={(l) => import(`./catalogs/${l}.json`)}   // 2. on demand, per locale
+/>
+// 3. inside the schema: { "i18n": { "sourceLocale": "en", "messages": { "es": { ... } } } }
+```
+
+Small forms can carry their catalogs in the optional `i18n` block; large ones load only the language in use with `loadMessages` (its result may be the catalog or a module with a `default`). While a catalog loads, or if it fails, the source text shows: a missing translation never breaks a form, and changing `locale` does not reset what the user typed. Only English ships with the library; the rest come from you.
+
+The library's own texts follow **defaults < kit `labels` < the catalog's `labels.*` < the `labels` prop**. Server-side `validateValues` issues can be turned into messages in the same language with `formatIssue(issue, labels)`.
+
+Pure helpers in `artisanform/schema` (no React) for the publishing flow of an API: `extractMessages(schema)` (the English template to translate), `validateCatalog(schema, catalog)` → `{ missing, orphan, badPlaceholders }`, `applyCatalog(schema, [catalogs])` (a translated copy, e.g. to serve one language), `resolveLocaleChain('es-AR')` → `['es-AR', 'es']`, `format` and `placeholdersOf`.
+
+Out of scope: right-to-left layouts, the format of `<input type="date">` (follows the browser) and legacy 0.2.0 `ReactNode` texts.
+
 ## 10. Versioning ✅
 
 - `schemaVersion: 1` identifies the format. A higher number is rejected (`unsupported-version`) rather than misinterpreted. A schema **without** `schemaVersion` is treated as 0.2.0 by `normalizeArtisanSchema`.

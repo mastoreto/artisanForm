@@ -2,6 +2,14 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Translations)
+
+### Back end and front end
+
+- **Translation catalogs (AF117):** the schema stays in its source language and a catalog maps stable text paths (`steps.<id>.fields.<name>.label`, `…options.<value>`, …) to translated text, with plural forms and `{placeholders}`. `<ArtisanForm locale messages loadMessages>` applies it (`es-AR` falls back to `es`, then to the source text); a schema can also carry small catalogs in an optional `i18n` block. Changing `locale` does not reset the typed values, a missing or failing catalog never breaks the form, and `loadMessages` loads only the language in use. Only English ships. `artisanform/schema` gains the pure helpers `extractMessages`, `validateCatalog`, `applyCatalog`, `resolveLocaleChain`, `format` and `placeholdersOf`. See [schema v1](docs/schema-v1.md#translations-).
+- **The library's own texts are translatable (AF117):** `labels.<key>` entries of a catalog translate `ArtisanLabels`, including the function labels (`{n}`, plural forms). Precedence: defaults < kit labels < catalog < the `labels` prop. `ArtisanForm` now hands the kit's labels to the wizard separately (`useArtisanWizard` option `kitLabels`), so a catalog is not overridden by an English kit. With no `locale` the output is unchanged.
+- **`formatIssue(issue, labels)` (AF117):** turns a `validateValues` issue into the same message the browser shows, in the language of `labels`.
+
 ## Unreleased (Capabilities and payment return routing)
 
 ### Back end and front end

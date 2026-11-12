@@ -2,6 +2,14 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Traducciones)
+
+### Back end y front end
+
+- **Catálogos de traducción (AF117):** el schema se queda en su idioma fuente y un catálogo asocia rutas de texto estables (`steps.<id>.fields.<name>.label`, `…options.<value>`, …) con el texto traducido, con formas plurales y `{placeholders}`. `<ArtisanForm locale messages loadMessages>` lo aplica (`es-AR` cae a `es` y luego al texto fuente); un schema también puede llevar catálogos pequeños en un bloque opcional `i18n`. Cambiar `locale` no reinicia los valores escritos, un catálogo ausente o que falla nunca rompe el formulario y `loadMessages` carga solo el idioma en uso. Solo se incluye inglés. `artisanform/schema` suma las utilidades puras `extractMessages`, `validateCatalog`, `applyCatalog`, `resolveLocaleChain`, `format` y `placeholdersOf`. Ver [schema v1](schema-v1.md#traducciones-).
+- **Los textos propios de la librería son traducibles (AF117):** las entradas `labels.<clave>` de un catálogo traducen `ArtisanLabels`, incluidas las etiquetas función (`{n}`, formas plurales). Precedencia: valores por defecto < labels del kit < catálogo < la prop `labels`. `ArtisanForm` ahora pasa los labels del kit al wizard por separado (opción `kitLabels` de `useArtisanWizard`), de modo que un kit en inglés no pisa un catálogo. Sin `locale` el resultado no cambia.
+- **`formatIssue(issue, labels)` (AF117):** convierte una incidencia de `validateValues` en el mismo mensaje que muestra el navegador, en el idioma de `labels`.
+
 ## Sin publicar (Capacidades y enrutamiento del retorno de pagos)
 
 ### Back end y front end

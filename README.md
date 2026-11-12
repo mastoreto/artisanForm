@@ -310,6 +310,7 @@ Each type is a `FieldDefinition` (`render`, `initialValues`, `rules`, and option
 | `step?`                       | Moves the wizard to that step when it changes (pair with `onStepChange`)                                                                         |
 | `persistKey?`                 | Saves values and step to `localStorage` and restores them on mount. Passwords are never saved; the draft is deleted on submit                    |
 | `onSnapshotConflict?`         | What to do with a saved draft that does not fit this form: `'backup'` (default), `'restore'` or `'discard'`                                       |
+| `locale?` / `messages?` / `loadMessages?` | Translate the form: catalogs by locale, applied over the schema's source texts (see [schema v1](docs/schema-v1.md#translations-)) |
 | `labels?`                     | Overrides any text or validation message (see `defaultLabels`; English by default)                                                               |
 | `className?`                  | Extra classes for the `<form>` element                                                                                                           |
 | `fields?`                     | Registry of custom field types (see above)                                                                                                       |
@@ -446,7 +447,7 @@ Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must
 - **Real providers:** Stripe, PayPal, Lemon Squeezy and the Mercado Pago Payment Brick work in their sandboxes (manual checks with `apps/payments-test`). Mercado Pago Checkout Pro (redirect) shows an error on Mercado Pago's own page after paying; it is under investigation and is not covered by automated tests against the real service.
 - **UI:** `layout: 'horizontal'` has no styling of its own and steppers cannot jump between steps. Details in [docs/ui.md](docs/ui.md#pending).
 - **Browser:** component tests run in happy-dom; Playwright covers the playground flows (wizard, files, waiting, mock payments, fields) on Chromium, Firefox and WebKit. Screen-reader passes, motion preferences and touch devices are not verified yet ([docs/accessibility.md](docs/accessibility.md)).
-- Default texts are English only; for another language pass `labels` (and write your own field labels).
+- Only English ships. Other languages come from your own catalogs (`locale`, `messages`, `loadMessages`; the library's texts through `labels.*`), or from `labels` alone.
 
 ### History
 
