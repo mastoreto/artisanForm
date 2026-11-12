@@ -10,7 +10,7 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 
 | Guía | Qué cubre |
 | --- | --- |
-| [Schema v1](schema-v1.md) | El contrato de esquema serializable y versionado |
+| [Schema v1](schema-v1.md) | El contrato de esquema serializable y versionado, y `artisanform/schema` para validar valores en un servidor |
 | [Extensión de UI y kits](ui.md) | Estilos, `components`, `classNames` y los kits oficiales |
 | [API headless](headless.md) | `useArtisanWizard`: el comportamiento sin markup, para tu propia UI |
 | [Pagos](payments.md) | Plugins, el principio de seguridad y una checklist de producción |

@@ -61,7 +61,8 @@ Los campos comparten `FieldBase` (`name`, `id?`, `label?`, `description?`, `requ
 | | `range` / `rating` / `otp` | `step` + `validation` / `length` / `length`, `charset` |
 | Fecha | `date` `time` `datetime` `month` | `placeholder`, `validation: { min, max }` (cadenas ISO) |
 | | `daterange` | + `endName`, `endLabel` (**produce dos valores**) |
-| Elección | `select` `radio` `check` | `options` (obligatorio) |
+| Elección | `select` `radio` | `options` u `optionsSource` (id), no ambos |
+| | `check` | `options` (obligatorio) |
 | | `combobox` `multiselect` | `placeholder`, `options` y/o `optionsSource` (id) |
 | | `dynamicSelect` | `options`, `dependentName`, `dependentOptions` o `dependentOptionsSource` (id) (**dos valores**) |
 | Booleano | `checkbox` `switch` | — |
@@ -188,11 +189,42 @@ Un esquema remoto **no es de confianza solo por ser JSON válido**: con `policy`
 
 `parseArtisanSchema(input: unknown, { policy? })` → `{ success: true, schema, issues }` | `{ success: false, issues }`. Es **manual y sin dependencias** (no usa AJV: AJV compila validadores con `new Function`, lo que choca con el principio de no ejecutar código dinámico y con CSP estrictas). Comprueba: objeto JSON válido y serializable, `schemaVersion`, obligatorios, discriminadores, propiedades desconocidas, ids de paso y nombres duplicados, condiciones y sus referencias, `failTo`, patrones (`RegExp` válidos, ≤ 500 caracteres) y la política. Cada `SchemaIssue` trae `code` estable y una `path` legible (`steps[1].fields[0].type`). Devuelve **el mismo objeto** que recibió (no lo copia ni lo muta).
 
-Códigos frecuentes: `missing-version`, `unsupported-version` (versiones futuras), `unknown-type`, `unknown-property`, `duplicate-id`, `duplicate-name`, `unknown-field-reference`, `unknown-step-reference`, `not-serializable`, `policy-violation`, `invalid-pattern`, `unsupported-in-array`, `unsafe-url`, `invalid-name`.
+Códigos frecuentes: `missing-version`, `unsupported-version` (versiones futuras), `unknown-type`, `unknown-property`, `duplicate-id`, `duplicate-name`, `unknown-field-reference`, `unknown-step-reference`, `not-serializable`, `policy-violation`, `invalid-pattern`, `unsupported-in-array`, `unsafe-url`, `invalid-name`, `conflicting-properties`.
 
 Dos reglas protegen los schemas que vienen de una fuente no confiable (un CMS, un backend): un `href` (paso `terms`, `actions` del resultado) debe ser `http:`, `https:`, `mailto:` o una referencia relativa, o da `unsafe-url`; y un nombre de campo no puede ser `__proto__`, `constructor` ni `prototype`, ni contener `.`, `[` o `]`, o da `invalid-name`. El render también omite un `href` inseguro, lo que cubre los schemas 0.2.0.
 
-Esto valida **la definición**. La validación de **los valores** que escribe el usuario sigue siendo Yup (sin cambios).
+Esto valida **la definición**. En el navegador, los **valores** que escribe el usuario los valida Yup (sin cambios); en un servidor, usa `validateValues` (abajo).
+
+### Validar los valores en un servidor ✅
+
+`validateValues` revisa los **valores** que envió un cliente contra el mismo schema, sin React, Yup ni el motor del formulario. Se exporta desde `artisanform/schema`, una entrada que no importa ninguno de ellos (un chequeo del build falla si alguna vez lo hace), así que corre en Node, en un worker o en cualquier runtime de JS.
+
+```ts
+import { parseArtisanSchema, validateValues } from 'artisanform/schema';
+
+const parsed = parseArtisanSchema(storedJson, { policy });          // una vez, al recibirlo o guardarlo
+const result = validateValues(parsed.schema, submitted, {
+  prune: true,                                   // devuelve además los valores sin campos ocultos ni claves desconocidas
+  dynamicOptions: { countries: ['ar', 'uy'] },   // las opciones de cada optionsSource que quieras comprobar
+});
+if (!result.ok) return reply(400, result.issues); // [{ path: 'jobs[0].role', code: 'required', params? }]
+save(result.values);
+```
+
+Los problemas llevan un `code` y `params`, nunca un mensaje: los formatea la UI. Códigos: `required`, `type`, `tooLong`, `minLength`, `maxLength`, `pattern`, `unsafePattern`, `mustMatch`, `invalidEmail`, `invalidUrl`, `invalidPhone`, `invalidNumber`, `minValue`, `maxValue`, `invalidDate`, `minDate`, `maxDate`, `endBeforeStart`, `invalidOption`, `invalidLength`, `invalidCharset`, `outOfRange`, `minItems`, `maxItems`, `minFiles`, `maxFiles`, `invalidFile`, `fileTooLarge`, `fileType`, `custom`.
+
+Sigue las mismas reglas que el formulario: un campo o paso oculto no se valida ni se devuelve, el paso `terms` necesita su checkbox, y las reglas compartidas (longitudes, `pattern`, `sameAs`, límites de números y fechas, cantidades de filas y archivos) dan el mismo resultado. **Es deliberadamente más estricto que el navegador**, porque un servidor no debe confiar en el cliente. Las diferencias, cada una fijada por un test:
+
+- **Tipos.** Un número debe ser número (`"5"` es `invalidNumber`), un texto un string, un checkbox un booleano, una lista un array.
+- **Valores ausentes.** Una clave que falta se informa. El navegador siempre parte de valores iniciales (la primera opción de un select, `false`, `[]`), así que nunca los ve ausentes.
+- **Opciones.** Los valores de `select`, `radio`, `check`, `multiselect`, `combobox` y `dynamicSelect` deben estar entre las opciones (`invalidOption`). Para un `optionsSource` solo se comprueba si pasas sus opciones en `dynamicOptions`.
+- **OTP y rating.** Un OTP debe tener exactamente `length` caracteres de su `charset`; un rating debe ser un entero de 1 a `length`.
+- **Fechas** deben ser días reales del calendario (`2026-02-31` es `invalidDate`).
+- **Archivos.** Cada entrada debe ser un descriptor (`id`, `name`, `size`); se aplican `maxSize` y `accept`.
+- **Límites.** Un texto más largo que `maxStringLength` (10 000 por defecto) es `tooLong`, y un `pattern` con cuantificadores anidados (`(a+)+`) es `unsafePattern`: el patrón de un schema es entrada no confiable en un servidor y no se ejecuta si puede explotar. Los patrones compilados se cachean.
+- **URLs** necesitan esquema (`http`, `https` o `ftp`).
+
+Los tipos de campo personalizados `x-*` no se validan salvo que pases una regla para ellos en `customTypes`.
 
 ## 9. Extensibilidad ✅
 
@@ -211,7 +243,7 @@ El esquema solo nombra; lo ejecutable vive en registros locales:
 
 Una referencia sin registrar **falla de forma explícita** (`ArtisanSchemaError`, `unresolved-reference`), no se ignora. Los nombres propios deben empezar con `x-` para no chocar nunca con un tipo nativo futuro; un tipo 0.2.0 sin prefijo (`stars`) y su equivalente v1 (`x-stars`) resuelven a la misma entrada del registro.
 
-⏳ **Limitación:** `optionsSource` solo existe en `combobox`/`multiselect` (y `dependentOptionsSource` en `dynamicSelect`): es donde el motor sabe cargar opciones asíncronas. `select`/`radio`/`check` requieren `options` inline.
+`optionsSource` existe en `combobox`, `multiselect`, `select` y `radio` (y `dependentOptionsSource` en `dynamicSelect`). En `select` y `radio` reemplaza a `options` (no ambos) y la fuente se llama con una consulta vacía para obtener todas las opciones; el campo muestra un estado de carga y uno de error como `dynamicSelect`. ⏳ **Limitación:** `check` sigue requiriendo `options` en línea.
 
 ## 10. Versionado ✅
 
@@ -281,7 +313,7 @@ No hay dos motores ni ramas de compatibilidad en los componentes. `FormSchema`, 
 
 - La UI por defecto no aplica estilo propio a `layout: 'horizontal'` (solo el gancho `data-layout`) ni usa `variant` (⏳).
 - Sin anidamiento arbitrario: las filas de `array` son planas (sin `array` anidado, contenido, tipos `x-…` ni `visibleWhen`).
-- `optionsSource` solo en `combobox`/`multiselect`.
+- `optionsSource` no en `check`.
 - Los `hooks` y `onSnapshotConflict` de un esquema 0.2.0 siguen siendo código TypeScript, no datos.
 - Los mensajes de validación y textos de interfaz siguen saliendo de `labels` (no del esquema).
 - Un único respaldo por clave; el storage debe ser síncrono (todavía no hay borradores asíncronos).
