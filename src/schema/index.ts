@@ -1,4 +1,20 @@
 export {
+  CAPABILITIES_CONTRACT,
+  type CapabilitiesManifest,
+  type CapabilityIssue,
+  type CapabilitySources,
+  checkCapabilities,
+  collectReferences,
+  describeCapabilities,
+  FEATURES,
+  type Feature,
+  listReferences,
+  REF_KINDS,
+  type Reference,
+  type RefKind,
+  type Requirements,
+} from './capabilities';
+export {
   conditionFields,
   evaluateCondition,
   fromLegacyCondition,
