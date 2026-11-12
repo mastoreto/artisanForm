@@ -47,6 +47,14 @@ export const bootstrapKit = {
     progressBar: 'progress-bar',
     link: 'link-primary',
     smallButton: 'btn btn-sm btn-outline-secondary',
+    paymentOptions: 'row row-cols-1 row-cols-md-2 g-3',
+    paymentOption:
+      'col btn btn-outline-secondary d-flex align-items-center gap-3 p-3 text-start',
+    paymentOptionIcon:
+      'd-inline-flex align-items-center justify-content-center bg-body-secondary rounded flex-shrink-0',
+    paymentOptionText: 'd-flex flex-column',
+    paymentOptionName: 'fw-semibold text-body',
+    paymentOptionHint: 'small text-body-secondary',
     arrayList: 'd-flex flex-column gap-3',
     arrayItem: 'card card-body',
     arrayItemHeader: 'd-flex justify-content-between mb-2',

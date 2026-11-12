@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { iconOr, MercadoPagoIcon } from '../brands';
 import Loading from '../Loading';
 import { fromReturnUrl } from '../resume';
 import type {
   EmbeddedRenderProps,
+  PaymentDisplayOptions,
   PaymentPlugin,
   PaymentRequest,
   PaymentResult,
@@ -10,7 +12,7 @@ import type {
 
 type MpStatus = 'approved' | 'pending' | 'in_process' | 'rejected' | string;
 
-export interface MercadoPagoOptions {
+export interface MercadoPagoOptions extends PaymentDisplayOptions {
   /** Public key (`APP_USR-…` / `TEST-…`): safe for the browser. */
   publicKey: string;
   /** `embedded` (Payment Brick, default) or `redirect` (Checkout Pro). */
@@ -174,10 +176,14 @@ export const mercadoPago = ({
   mode = 'embedded',
   id = 'mercadopago',
   name = 'Mercado Pago',
+  icon,
+  description,
   ...options
 }: MercadoPagoOptions): PaymentPlugin => ({
   id,
   name,
+  icon: iconOr(icon, <MercadoPagoIcon />),
+  description,
   mode,
   resumeKeys: [
     'mp_status',

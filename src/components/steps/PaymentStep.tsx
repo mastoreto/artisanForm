@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { fromReturnUrl } from '../../integrations/payments/resume';
 import type {
   PaymentPlugin,
@@ -56,6 +56,50 @@ const sentWith = (resultName: string) => {
       }
     },
   };
+};
+
+/**
+ * One payment method in the selector: its logo, its name and a line saying
+ * whether the user stays here or is redirected. The logo is decorative (the
+ * name is the label), so a plugin without one still reads and works the same.
+ */
+const PaymentOption = ({
+  plugin,
+  name,
+  hint,
+  onChoose,
+}: {
+  plugin: PaymentPlugin;
+  name: string;
+  hint: string;
+  onChoose: () => void;
+}) => {
+  const cx = useCx();
+  const id = useId();
+  return (
+    <button
+      type="button"
+      className={cx('paymentOption')}
+      data-mode={plugin.mode}
+      aria-labelledby={`${id}-name`}
+      aria-describedby={`${id}-hint`}
+      onClick={onChoose}
+    >
+      {plugin.icon ? (
+        <span className={cx('paymentOptionIcon')} aria-hidden="true">
+          {plugin.icon}
+        </span>
+      ) : null}
+      <span className={cx('paymentOptionText')}>
+        <span id={`${id}-name`} className={cx('paymentOptionName')}>
+          {name}
+        </span>
+        <span id={`${id}-hint`} className={cx('paymentOptionHint')}>
+          {hint}
+        </span>
+      </span>
+    </button>
+  );
 };
 
 /**
@@ -194,19 +238,25 @@ const PaymentStep = (ctx: StepContext) => {
         <div
           role="group"
           aria-label={labels.choosePayment}
-          className={cx('choiceGroup')}
+          className={cx('paymentOptions')}
         >
           {available.map((p) => (
-            <ActionButton
+            <PaymentOption
               key={p.id}
-              onClick={() => {
+              plugin={p}
+              hint={
+                p.description ??
+                (p.mode === 'redirect'
+                  ? labels.payHintRedirect
+                  : labels.payHintEmbedded)
+              }
+              name={labels.payWith(p.name)}
+              onChoose={() => {
                 setChosen(p);
                 // A hosted checkout needs no further input: go straight there.
                 if (p.mode === 'redirect') void redirect(p);
               }}
-            >
-              {labels.payWith(p.name)}
-            </ActionButton>
+            />
           ))}
         </div>
       )}

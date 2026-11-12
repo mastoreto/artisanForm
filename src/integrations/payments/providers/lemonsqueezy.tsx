@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { ActionButton } from '../../../components/steps/StatusPanel';
+import { iconOr, LemonSqueezyIcon } from '../brands';
 import Loading from '../Loading';
 import type {
   EmbeddedRenderProps,
+  PaymentDisplayOptions,
   PaymentPlugin,
   PaymentRequest,
   PaymentResult,
 } from '../types';
 
-export interface LemonSqueezyOptions {
+export interface LemonSqueezyOptions extends PaymentDisplayOptions {
   /**
    * YOUR backend calls the Lemon Squeezy API (`POST /v1/checkouts`) with your
    * API key, product/variant and `product_options.redirect_url = redirectUrl`,
@@ -119,10 +121,14 @@ export const lemonSqueezy = ({
   mode = 'redirect',
   id = 'lemonsqueezy',
   name = 'Lemon Squeezy',
+  icon,
+  description,
   ...options
 }: LemonSqueezyOptions): PaymentPlugin => ({
   id,
   name,
+  icon: iconOr(icon, <LemonSqueezyIcon />),
+  description,
   mode: mode === 'overlay' ? 'embedded' : 'redirect',
   resumeKeys: ['lemon_status'],
   render: (props) => <Overlay {...props} options={{ ...options, mode }} />,

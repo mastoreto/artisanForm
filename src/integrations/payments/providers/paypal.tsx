@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
+import { iconOr, PayPalIcon } from '../brands';
 import Loading from '../Loading';
 import type {
   EmbeddedRenderProps,
+  PaymentDisplayOptions,
   PaymentPlugin,
   PaymentRequest,
 } from '../types';
 
-export interface PayPalOptions {
+export interface PayPalOptions extends PaymentDisplayOptions {
   /** Client ID (public). */
   clientId: string;
   /** Currency of the JS SDK (the amount itself comes from your backend). */
@@ -103,10 +105,14 @@ const Buttons = ({
 export const paypal = ({
   id = 'paypal',
   name = 'PayPal',
+  icon,
+  description,
   ...options
 }: PayPalOptions): PaymentPlugin => ({
   id,
   name,
+  icon: iconOr(icon, <PayPalIcon />),
+  description,
   mode: 'embedded',
   render: (props) => <Buttons {...props} options={options} />,
 });
