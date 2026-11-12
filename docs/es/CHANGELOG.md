@@ -2,6 +2,21 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Capacidades y enrutamiento del retorno de pagos)
+
+### Back end y front end
+
+- **Contrato de capacidades (AF115):** `collectReferences`, `describeCapabilities` y `checkCapabilities` en `artisanform/schema` (puras, sin React). Un front describe lo que registró como un manifiesto JSON (`artisanform.capabilities/1`); una API revisa un schema contra él al publicar una revisión y obtiene `missing-reference` (kind, id, ruta en el schema), `unsupported-field-type`, `unsupported-step-kind`, `missing-feature` o `unsupported-contract`, en vez de un `unresolved-reference` al renderizar. Los requisitos se derivan del schema (`collectReferences`), así que el contrato del schema no cambió. Ver [schema v1](schema-v1.md#capacidades-qué-puede-ejecutar-un-front-).
+- **`onUnresolved` (AF115):** `<ArtisanForm onUnresolved>` se llama por cada nombre que el schema usa y que ningún registro provee; devolver `'ignore'` renderiza sin él. Cualquier otro valor mantiene el fallo, así que el comportamiento por defecto no cambia.
+
+### Correcciones
+
+- **Un retorno de redirección iba al primer plugin que podía leerlo (AF115):** dos plugins de un mismo proveedor que comparten parámetros de retorno (el formulario embebido de Stripe y Checkout, el Brick de Mercado Pago y Checkout Pro) podían registrar el pago bajo el proveedor equivocado. El paso de pago ahora recuerda, por pestaña, qué plugin envió al usuario fuera y le pregunta primero a ese. Sin cambios en el contrato de los plugins ni en las URL de retorno.
+
+### Documentación
+
+- Una checklist del sandbox de Mercado Pago (vendedor y comprador de prueba, moneda, `auto_return` solo con https) en la guía de pagos. `apps/payments-test` ahora usa un solo puerto (5858) y tiene tests de servidor que fijan el cuerpo de la preferencia de Checkout Pro.
+
 ## Sin publicar (Validación en servidor)
 
 ### Validación y empaquetado

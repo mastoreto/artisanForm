@@ -315,6 +315,7 @@ Each type is a `FieldDefinition` (`render`, `initialValues`, `rules`, and option
 | `fields?`                     | Registry of custom field types (see above)                                                                                                       |
 | `stepTypes?`                  | Registry of custom step types (`StepDefinition`)                                                                                                 |
 | `extensions?`                 | Local functions and components a v1 schema refers to by id (`options`, `waits`, `hooks`, `renderers`, `actions`)                                 |
+| `onUnresolved?`               | Called for each name the schema uses that `extensions` does not provide; return `'ignore'` to render without it (default: fail with `unresolved-reference`) |
 | `storage?`                    | Storage adapter(s) for `file`/`image` fields (see above)                                                                                         |
 | `plugins?`                    | `{ payments: PaymentPlugin[], navigate? }` for payment steps                                                                                     |
 

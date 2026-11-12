@@ -43,6 +43,11 @@ Props del paso: `provider` (el id de un plugin) o `providers` (elige el usuario)
 
 Combiná un paso de pago con un [paso `pending`](https://github.com/mastoreto/artisanForm/blob/main/docs/es/README.md#espera-de-confirmación) cuando el proveedor confirma de forma asíncrona: hace polling o escucha hasta que tu backend diga que el pago es real.
 
+
+### Volver de una redirección
+
+Con varios plugins de redirección de un mismo proveedor (por ejemplo el formulario embebido de Stripe y Stripe Checkout, o el Brick de Mercado Pago y Checkout Pro), sus parámetros de retorno pueden solaparse. El paso recuerda, para la pestaña, qué plugin envió al usuario fuera (`sessionStorage`) y le pregunta primero a ese al volver; si el storage no está disponible, se les pregunta en el orden registrado. Un plugin no necesita marcar sus propias URLs de retorno para esto.
+
 ## Checklist para salir a producción
 
 - [ ] El monto, la moneda y los ítems se calculan en el servidor; el formulario no envía nada sensible.
@@ -76,6 +81,10 @@ stripe({
 ```
 
 La lista completa de opciones de cada proveedor, con un ejemplo cada uno, está en el [README](https://github.com/mastoreto/artisanForm/blob/main/docs/es/README.md#proveedores-incluidos).
+
+### Mercado Pago en el sandbox
+
+Si Checkout Pro termina en la página de Mercado Pago con "algo salió mal" después de pagar: usa las credenciales de un **vendedor de prueba**; paga como un **comprador de prueba** (otro usuario, del mismo país) en una ventana privada, nunca con la cuenta del vendedor ni con una real; usa la **moneda del país del vendedor** (`MP_CURRENCY`); y recuerda que `auto_return` solo se envía con https, así que con `http://localhost` plano Mercado Pago puede mostrar un botón de "volver al sitio" en vez de redirigir. Para aislar la causa con evidencia, `apps/payments-test/scripts/mp-diagnose.ts` crea la preferencia en variantes que cambian una cosa cada una (ver el README de esa app).
 
 ## Tu propio plugin
 

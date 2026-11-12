@@ -245,6 +245,30 @@ Una referencia sin registrar **falla de forma explícita** (`ArtisanSchemaError`
 
 `optionsSource` existe en `combobox`, `multiselect`, `select` y `radio` (y `dependentOptionsSource` en `dynamicSelect`). En `select` y `radio` reemplaza a `options` (no ambos) y la fuente se llama con una consulta vacía para obtener todas las opciones; el campo muestra un estado de carga y uno de error como `dynamicSelect`. ⏳ **Limitación:** `check` sigue requiriendo `options` en línea.
 
+### Capacidades: qué puede ejecutar un front ✅
+
+Un schema solo nombra hooks, estrategias de espera, renderers, acciones, fuentes de opciones, proveedores de pago, adaptadores de storage y tipos personalizados; el código vive en la app que lo renderiza. Cuando los schemas vienen de una API, la API necesita saber **al publicar un schema** si el front desplegado puede ejecutarlo, en vez de enterarse como un `unresolved-reference` al renderizar. Tres funciones puras en `artisanform/schema` (sin React, así que una API Node las puede usar) lo cubren:
+
+```ts
+import { checkCapabilities, collectReferences, describeCapabilities } from 'artisanform/schema';
+
+// En el build o el CI del front: qué puede ejecutar esta app. Un manifiesto JSON plano.
+const manifest = describeCapabilities({
+  extensions,                              // el objeto que pasas a <ArtisanForm extensions>
+  paymentProviders: ['stripe', 'mp'],      // ids de plugins.payments
+  storage: ['docs'],                       // claves de los adaptadores de storage
+  fieldTypes: ['x-stars'],                 // tipos de campo personalizados (la prop `fields`)
+});                                        // súbelo a tu API
+
+// En la API, al publicar una revisión (o en el front, antes de renderizar un schema recién pedido):
+const issues = checkCapabilities(schema, manifest);   // [] significa "puede ejecutarlo"
+const requires = collectReferences(schema);           // guárdalo con la revisión
+```
+
+`checkCapabilities` devuelve `missing-reference` (con el `kind`, el `id` y el `path` del schema), `unsupported-field-type`, `unsupported-step-kind`, `missing-feature` y `unsupported-contract`. Los **features** son comportamientos opcionales de los que puede depender un schema (`transitions`, `wait-options`, `options-source-choice`): un front construido con una librería más vieja no los tiene, así que un schema escrito para una más nueva se rechaza en vez de comportarse mal. El manifiesto lleva un id de `contract` (`artisanform.capabilities/1`) y es JSON plano, así que se puede guardar y comparar después. Los requisitos se derivan del schema, por lo que el contrato en sí no cambió.
+
+Para que un formulario siga funcionando cuando falta un nombre opcional, pasa `onUnresolved` a `<ArtisanForm>`: se llama por cada referencia que ningún registro provee, y devolver `'ignore'` renderiza sin ella (un hook opcional no corre, las opciones de una fuente quedan vacías). Cualquier otro valor mantiene el fallo, así que el comportamiento por defecto no cambia. Ignora solo lo opcional: una estrategia de espera o un renderer ausentes dejan a su paso sin nada que hacer.
+
 ## 10. Versionado ✅
 
 - `schemaVersion: 1` identifica el formato. Un número mayor se rechaza (`unsupported-version`) en lugar de interpretarse mal. Un esquema **sin** `schemaVersion` se trata como 0.2.0 en `normalizeArtisanSchema`.
