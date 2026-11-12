@@ -2,6 +2,14 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Validación en servidor)
+
+### Validación y empaquetado
+
+- **`validateValues` y `artisanform/schema` (AF112):** un validador de **los valores enviados** que no necesita React, Yup ni el motor del formulario, para backends que guardan o actúan sobre los envíos. Devuelve los problemas como `{ path, code, params }` (sin mensajes), sigue las reglas de visibilidad del motor y da el mismo resultado que el navegador en las reglas compartidas, y es **más estricto donde un servidor no debe confiar en el cliente** (tipos, pertenencia a opciones, valores ausentes, límites de OTP y rating, fechas reales, metadatos de archivos, esquema de las URL, un tope de longitud y una guarda contra `pattern` catastróficos). Las diferencias están listadas en [schema v1](schema-v1.md#validar-los-valores-en-un-servidor-) y cada una está fijada por un test; fixtures JSON compartidos corren contra este validador y contra Yup. Se exporta desde la nueva entrada **`artisanform/schema`**, que no importa React, Yup, React Hook Form ni Zustand: `check:dist` sigue sus imports y falla ante cualquier especificador suelto, y un consumidor de CI sin ninguno de ellos instalados la importa y compila los tipos con `NodeNext`. La entrada raíz sigue reexportando todo.
+- **`optionsSource` en `select` y `radio` (AF112):** sus opciones pueden venir de una fuente registrada en `extensions.options` (llamada con una consulta vacía), exclusiva con `options` en línea (`conflicting-properties`). El campo muestra un estado de carga y uno de error, y un select arranca en su primera opción una vez cargado, como uno estático. Los kits reciben las opciones ya resueltas. `check` sigue necesitando opciones en línea.
+- **Notas de comportamiento:** la validación propia del formulario en el navegador no cambia. `SourcedChoiceFieldV1` es un miembro nuevo de `NativeFieldV1`; el código que reducía `select`/`radio` a `ChoiceFieldV1` ahora ve `options` como posiblemente ausente.
+
 ## 0.3.0-beta.2 (2026-11-12)
 
 Republicación de 0.3.0-beta.1 con el empaquetado corregido. **No uses los kits de 0.3.0-beta.1; usá esta versión.** La librería núcleo no tiene cambios de código.

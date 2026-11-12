@@ -16,7 +16,13 @@ const targets = [
   {
     dir: '.',
     out: 'dist/',
-    required: ['dist/index.js', 'dist/index.d.ts', 'dist/style.css'],
+    required: [
+      'dist/index.js',
+      'dist/index.d.ts',
+      'dist/style.css',
+      'dist/schema.js',
+      'dist/schema/index.d.ts',
+    ],
   },
   ...kits,
 ];

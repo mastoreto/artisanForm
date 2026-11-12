@@ -10,6 +10,9 @@ export type FieldOf<K extends NativeFieldType> = NativeFieldV1 extends infer F
     : never
   : never;
 
+/** Every key of every variant: `keyof` of a union would keep only the shared ones. */
+type AnyKey<T> = T extends unknown ? keyof T : never;
+
 export type StepOf<K extends NativeStepType> = Extract<
   NativeStepV1,
   { type: K }
@@ -73,8 +76,8 @@ export const FIELD_KEYS = {
   datetime: dated,
   month: dated,
   daterange: [...dated, 'endName', 'endLabel'],
-  select: [...base, 'options'],
-  radio: [...base, 'options'],
+  select: [...base, 'options', 'optionsSource'],
+  radio: [...base, 'options', 'optionsSource'],
   check: [...base, 'options'],
   combobox: [...base, 'placeholder', 'options', 'optionsSource'],
   multiselect: [...base, 'placeholder', 'options', 'optionsSource'],
@@ -95,7 +98,7 @@ export const FIELD_KEYS = {
   callout: content,
   divider: content,
 } as const satisfies {
-  [K in NativeFieldType]: readonly (keyof FieldOf<K>)[];
+  [K in NativeFieldType]: readonly AnyKey<FieldOf<K>>[];
 };
 
 const stepBase = [
@@ -135,7 +138,7 @@ export const STEP_KEYS = {
 // Completeness: every property of every variant must be listed above.
 type MissingField = {
   [K in NativeFieldType]: Exclude<
-    keyof FieldOf<K>,
+    AnyKey<FieldOf<K>>,
     (typeof FIELD_KEYS)[K][number]
   >;
 }[NativeFieldType];

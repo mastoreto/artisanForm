@@ -2,6 +2,14 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Server-side validation)
+
+### Validation and packaging
+
+- **`validateValues` and `artisanform/schema` (AF112):** a validator of **submitted values** that needs no React, Yup or form engine, for backends that store or act on submissions. It returns issues as `{ path, code, params }` (no messages), follows the engine's visibility rules and gives the same result as the browser for the shared rules, and is **stricter where a server must not trust the client** (types, option membership, missing values, OTP and rating limits, real calendar dates, file metadata, URL scheme, a length cap and a guard against catastrophic `pattern`s). The differences are listed in [schema v1](docs/schema-v1.md#validating-values-on-a-server-) and each is pinned by a test; shared JSON fixtures run against both this validator and Yup. It is exported from the new **`artisanform/schema`** entry, which imports no React, Yup, React Hook Form or Zustand: `check:dist` follows its imports and fails on any bare specifier, and a CI consumer with none of them installed imports it and type-checks with `NodeNext`. The root entry still re-exports everything.
+- **`optionsSource` on `select` and `radio` (AF112):** their options can come from a source registered in `extensions.options` (called with an empty query), exclusive with inline `options` (`conflicting-properties`). The field shows a loading state and an error state, and a select starts on its first option once loaded, like a static one. Kits receive the resolved options. `check` still needs inline options.
+- **Behavior notes:** the form's own validation in the browser is unchanged. `SourcedChoiceFieldV1` is a new member of `NativeFieldV1`; code that narrowed `select`/`radio` to `ChoiceFieldV1` now sees `options` as possibly absent.
+
 ## 0.3.0-beta.2 (2026-11-12)
 
 Republish of 0.3.0-beta.1 with the packaging fixed. **Do not use the kits of 0.3.0-beta.1; use this version.** The core library has no code changes.

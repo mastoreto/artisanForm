@@ -600,3 +600,56 @@ describe('wait step options', () => {
     ]);
   });
 });
+
+describe('optionsSource on select and radio', () => {
+  const withField = (field: Record<string, unknown>) => ({
+    schemaVersion: 1,
+    id: 'f',
+    steps: [{ id: 's', type: 'form', title: 'S', fields: [field] }],
+  });
+  const codes = (field: Record<string, unknown>) => {
+    const r = parseArtisanSchema(withField(field));
+    return r.issues.map((i) => `${i.code} @ ${i.path}`);
+  };
+
+  for (const type of ['select', 'radio']) {
+    test(`${type} accepts a source instead of options`, () => {
+      expect(
+        parseArtisanSchema(
+          withField({ type, name: 'x', optionsSource: 'plans' }),
+        ).success,
+      ).toBe(true);
+    });
+    test(`${type} rejects options and a source together`, () => {
+      expect(
+        codes({
+          type,
+          name: 'x',
+          options: [{ value: 'a', label: 'A' }],
+          optionsSource: 'plans',
+        }),
+      ).toEqual(['conflicting-properties @ steps[0].fields[0].optionsSource']);
+    });
+    test(`${type} needs one of the two`, () => {
+      expect(codes({ type, name: 'x' })).toEqual([
+        'missing-property @ steps[0].fields[0].options',
+      ]);
+    });
+  }
+
+  test('check still needs inline options and does not accept a source', () => {
+    expect(
+      codes({ type: 'check', name: 'x', optionsSource: 'plans' }),
+    ).toContain('unknown-property @ steps[0].fields[0].optionsSource');
+  });
+
+  test('the policy applies to a select source like to a combobox', () => {
+    const r = parseArtisanSchema(
+      withField({ type: 'select', name: 'x', optionsSource: 'secret' }),
+      {
+        policy: { optionsSources: ['plans'] },
+      },
+    );
+    expect(r.issues.map((i) => i.code)).toContain('policy-violation');
+  });
+});

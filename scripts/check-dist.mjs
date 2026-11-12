@@ -2,7 +2,7 @@
 // import is a declared dependency, and React itself is not bundled.
 // Usage: node scripts/check-dist.mjs   (after `bun run build`)
 import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
 const declared = new Set([
@@ -38,6 +38,32 @@ for (const file of files('dist')) {
   if (/__CLIENT_INTERNALS_DO_NOT_USE|react\.transitional\.element/.test(src))
     errors.push(`${file}: contains React internals (bundled React?)`);
 }
+// The `artisanform/schema` entry must run anywhere (a Node API with no React
+// installed). React, Yup and the others are declared peers, so the check above
+// would let an accidental import through: follow the entry's relative imports
+// and require that none of the files reaches a bare specifier.
+// Also matches a side-effect import (`import "react"`), which has no `from`.
+const bareSpecs = (src) =>
+  [
+    ...src.matchAll(
+      /(?:from\s*|import\s*\(?\s*|require\(\s*)["']([^"'.][^"']*)["']/g,
+    ),
+  ].map((m) => m[1]);
+const localSpecs = (src) =>
+  [...src.matchAll(/(?:from\s*|import\s*\(?\s*)["'](\.[^"']*)["']/g)].map(
+    (m) => m[1],
+  );
+const seen = new Set();
+const walk = (file) => {
+  if (seen.has(file)) return;
+  seen.add(file);
+  const src = readFileSync(file, 'utf8');
+  for (const s of new Set(bareSpecs(src)))
+    errors.push(`${file}: artisanform/schema must not import "${s}"`);
+  for (const rel of localSpecs(src)) walk(join(dirname(file), rel));
+};
+walk(join('dist', 'schema.js'));
+
 if (!declared.has('react-compiler-runtime'))
   errors.push('react-compiler-runtime must be a dependency');
 if (compiled === 0) errors.push('no compiled output found (compiler off?)');
@@ -46,4 +72,6 @@ if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
 }
-console.log(`dist OK: ${compiled} compiled file(s), all imports declared`);
+console.log(
+  `dist OK: ${compiled} compiled file(s), all imports declared, schema entry has ${seen.size} file(s) and no bare imports`,
+);

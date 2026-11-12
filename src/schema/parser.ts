@@ -554,11 +554,22 @@ export const parseArtisanSchema = (
     }
 
     // required companions
-    if (
-      ['select', 'radio', 'check', 'dynamicSelect'].includes(type) &&
-      f.options === undefined
-    )
+    if (['check', 'dynamicSelect'].includes(type) && f.options === undefined)
       c.error('missing-property', `${path}.options`, `"${type}" needs options`);
+    if (['select', 'radio'].includes(type)) {
+      if (f.options === undefined && f.optionsSource === undefined)
+        c.error(
+          'missing-property',
+          `${path}.options`,
+          `"${type}" needs options or an optionsSource`,
+        );
+      else if (f.options !== undefined && f.optionsSource !== undefined)
+        c.error(
+          'conflicting-properties',
+          `${path}.optionsSource`,
+          `"${type}" takes options or an optionsSource, not both`,
+        );
+    }
     if (
       ['combobox', 'multiselect'].includes(type) &&
       f.options === undefined &&

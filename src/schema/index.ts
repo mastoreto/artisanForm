@@ -32,3 +32,10 @@ export {
   parseArtisanSchema,
   type SchemaPolicy,
 } from './parser';
+export {
+  type IssueCode,
+  type ValidateOptions,
+  type ValidationIssue,
+  type ValidationResult,
+  validateValues,
+} from './validate';
