@@ -1,0 +1,219 @@
+ARTISAN_SLOTS: SLOTS: readonly ["root", "stepper", "stepperItem", "stepperButton", "stepHeader", "fieldGrid", "fieldCell", "field", "label", "groupLabel", "description", "error", "input", "inputWrap", "adornment", "select", "selectWrap", "selectIcon", "choiceGroup", "choice", "switch", "switchThumb", "checkbox", "chipList", "chip", "comboWrap", "listbox", "option", "optionHint", "otpGroup", "otpBox", "rating", "star", "range", "rangeValue", "dropzone", "fileList", "fileItem", "fileName", "fileThumb", "progress", "progressBar", "link", "smallButton", "arrayList", "arrayItem", "arrayItemHeader", "arrayItemTitle", "controls", "button", "formError", "status", "statusIcon", "statusTitle", "statusMessage", "statusActions", "spinner", "callout", "stack", "review", "terms", "text", "muted", "action", "paymentOptions", "paymentOption", "paymentOptionIcon", "paymentOptionText", "paymentOptionName", "paymentOptionHint", "reviewList", "reviewRow", "arrayRow", "dependent", "dateRange", "heading", "paragraph", "divider", "srOnly", "stepperList"]
+ArrayFieldV1: export interface ArrayFieldV1 extends FieldBaseV1 { type: 'array'; itemFields: ArrayItemFieldV1[]; addLabel?: string; validation?: ArrayValidationV1; }
+ArrayItemFieldV1: export type ArrayItemFieldV1 = Exclude<NativeFieldV1, ArrayFieldV1 | ContentFieldV1>;
+ArrayValidationV1: export interface ArrayValidationV1 { minItems?: number; maxItems?: number; }
+ArtisanClassNames: export type ArtisanClassNames = Partial<Record<ArtisanSlot, string>>;
+ArtisanComponents: export interface ArtisanComponents { Stepper?: ComponentType<ArtisanStepperProps>; Controls?: ComponentType<ArtisanControlsProps>; FieldWrapper?: ComponentType<ArtisanFieldWrapperProps>; StepHeader?: ComponentType<ArtisanStepHeaderProps>; FormError?: ComponentType<ArtisanFormErrorProps>; StatusPanel?: ComponentType<ArtisanStatusPanelProps>; inputs?: ArtisanInputComponents; }
+ArtisanControlsProps: export interface ArtisanControlsProps { onNext(): void; onPrevious(): void; isFirst: boolean; isLast: boolean; isSubmitting: boolean; nextDisabled?: boolean; hidePrevious?: boolean; hideNext?: boolean; error: string | null; labels: Pick<ArtisanLabels, 'previous' | 'next' | 'submit'>; }
+ArtisanExtensions: export interface ArtisanExtensions { options?: Record<string, (query: string) => Promise<FieldOption[]>>; dependentOptions?: Record<string, (parent: string) => Promise<FieldOption[]>>; waits?: Record<string, WaitStrategy>; hooks?: Record<string, (values: Record<string, unknown>) => unknown>; renderers?: Record<string, (ctx: StepContext) => ReactNode>; actions?: Record<string, () => void>; }
+ArtisanFieldError: export interface ArtisanFieldError { code: string; message: string; }
+ArtisanFieldV1: export type ArtisanFieldV1 = NativeFieldV1 | CustomFieldV1;
+ArtisanFieldWrapperProps: export interface ArtisanFieldWrapperProps { id: string; label: string; description?: string; error?: ArtisanFieldError; invalid: boolean; className?: string; children: ReactNode; }
+ArtisanForm: ArtisanForm: <S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1>({ scheme, kit, components: componentsProp, classNames: classNamesProp, unstyled: unstyledProp, labels: labelOverrides, className, stepperNavigation, theme, ...options }: ArtisanFormProps<S>) => import('react').JSX.Element
+ArtisanFormErrorProps: export interface ArtisanFormErrorProps { message: string; }
+ArtisanInputComponents: export type ArtisanInputComponents = { [K in OverridableInputType]?: ComponentType<ArtisanInputProps<InputValueByType[K]>>; };
+ArtisanInputProps: export interface ArtisanInputProps<TValue = unknown> { id: string; name: string; value: TValue; onChange(value: TValue): void; onBlur(): void; disabled?: boolean; readOnly?: boolean; required?: boolean; label: string; description?: string; placeholder?: string; options?: { value: string; label: string; }[]; error?: ArtisanFieldError; aria: { 'aria-invalid': boolean; 'aria-describedby'?: string; }; descriptionId?: string; errorId?: string; field: Readonly<FieldSchema>; }
+ArtisanLabels: export interface ArtisanLabels { previous: string; next: string; submit: string; progress: string; step: (n: number, total: number, title: string) => string; stepItem: (n: number) => string; loadingOptions: string; loadOptionsError: string; required: string; submitError: string; edit: string; changeMethod: string; addItem: string; removeItem: (n: number) => string; itemTitle: (n: number) => string; minItems: (n: number) => string; maxItems: (n: number) => string; noResults: string; searching: string; dateTo: string; endBeforeStart: string; pay: string; loadingPayment: string; payWith: (name: string) => string; payHintEmbedded: string; payHintRedirect: string; choosePayment: string; paying: string; paymentFailed: string; paymentProcessing: string; noPaymentPlugin: string; waiting: string; waitFailed: string; waitTimeout: string; cancel: string; dropFiles: string; chooseFiles: string; fileUploading: string; fileTooLarge: (max: string) => string; fileWrongType: string; tooManyFiles: (max: number) => string; minFiles: (min: number) => string; removeFile: (name: string) => string; cancelUpload: (name: string) => string; retryUpload: (name: string) => string; uploadFailed: string; noStorage: string; acceptTerms: string; readFullTerms: string; yes: string; no: string; retry: string; backToForm: string; submitting: string; successMessage: string; invalidEmail: string; invalidNumber: string; invalidPattern: string; invalidUrl: string; invalidPhone: string; minDate: (date: string) => string; maxDate: (date: string) => string; mustMatch: string; minLength: (n: number) => string; maxLength: (n: number) => string; minValue: (n: number) => string; maxValue: (n: number) => string; }
+ArtisanSchemaError: export declare class ArtisanSchemaError extends Error { readonly issues: SchemaIssue[]; constructor(issues: SchemaIssue[]); }
+ArtisanSchemaV1: export interface ArtisanSchemaV1 { schemaVersion: 1; id: string; revision?: number; title?: string; description?: string; ui?: FormUIConfig; i18n?: I18nBlockV1; steps: ArtisanStepV1[]; }
+ArtisanSlot: export type ArtisanSlot = (typeof SLOTS)[number];
+ArtisanSnapshotV1: export interface ArtisanSnapshotV1 { snapshotVersion: 1; formId: string; formRevision?: number; currentStepId: string; history?: string[]; values: Record<string, JSONValue>; }
+ArtisanStatusPanelProps: export interface ArtisanStatusPanelProps { tone: 'success' | 'error' | 'pending'; message: ReactNode; children?: ReactNode; className?: string; }
+ArtisanStepApi: export interface ArtisanStepApi { step: { id: string; title: string; kind: string; index: number; total: number; }; values: Readonly<FormValues>; setValue(name: string, value: unknown): void; errors: Readonly<Record<string, string>>; next(): Promise<void>; back(): void; goToStep(id: string): boolean; submitState: SubmitState; submitError: string | null; error: string | null; labels: ArtisanLabels; }
+ArtisanStepHeaderProps: export interface ArtisanStepHeaderProps { title: string; index: number; total: number; }
+ArtisanStepV1: export type ArtisanStepV1 = NativeStepV1 | ExtensionStepV1;
+ArtisanStepperProps: export interface ArtisanStepperProps { steps: { id: string; title: string; state: 'done' | 'current' | 'upcoming'; }[]; current: number; onSelect?: (index: number) => void; labels: ArtisanLabels; }
+ArtisanStoreProvider: ArtisanStoreProvider: ({ children }: { children: ReactNode; }) => import('react').FunctionComponentElement<import('react').ProviderProps<import('zustand').StoreApi<ArtisanFormState>>>
+ArtisanUiKit: export interface ArtisanUiKit { name: string; components?: ArtisanComponents; classNames?: ArtisanClassNames; unstyled?: boolean; labels?: Partial<ArtisanLabels>; }
+ArtisanWizard: export interface ArtisanWizard { form: UseFormReturn<FormValues>; steps: ArtisanWizardStep[]; step: number; current: ArtisanWizardCurrent | null; next: () => Promise<void>; back: () => void; goTo: (index: number) => void; goToStep: (id: string) => boolean; submit: () => Promise<void>; isFirst: boolean; canGoBack: boolean; isLast: boolean; submitState: SubmitState; submitError: string | null; stepError: string | null; labels: ArtisanLabels; ui: FormUIConfig; renderStep: () => ReactNode; controls: StepControls; bindForm: (element: HTMLFormElement | null) => void; _provider: { form: UseFormReturn<FormValues>; store: ArtisanStore; ui: FormUi; }; }
+ArtisanWizardCurrent: export interface ArtisanWizardCurrent { id: string; index: number; kind: string; title: string; fields: FieldSchema[]; }
+ArtisanWizardOptions: export interface ArtisanWizardOptions<S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1> { schema: S; extensions?: ArtisanExtensions; onUnresolved?: OnUnresolved; onSubmit: (values: ValuesOf<S>) => unknown; onSnapshotConflict?: (conflict: SnapshotConflict) => ConflictDecision; initialValues?: FormValues; onStepChange?: (step: number) => void; onChange?: (values: FormValues) => void; step?: number; stepId?: string; onStepIdChange?: (stepId: string) => void; locale?: string; messages?: Record<string, Catalog>; loadMessages?: LoadMessages; kitLabels?: Partial<ArtisanLabels>; labels?: Partial<ArtisanLabels>; persistKey?: string; draftStorage?: DraftStorage; draftDebounceMs?: number; snapshotMigrations?: SnapshotMigrations; fields?: FieldRegistry; stepTypes?: StepRegistry; storage?: StorageAdapter | StorageMap; plugins?: PluginsConfig; }
+ArtisanWizardProvider: ArtisanWizardProvider: ({ wizard, children, }: { wizard: Pick<ArtisanWizard, "_provider">; children?: ReactNode; }) => import('react').JSX.Element
+ArtisanWizardStep: export interface ArtisanWizardStep { id: string; title: string; kind: string; state: 'done' | 'current' | 'upcoming'; }
+BooleanFieldV1: export interface BooleanFieldV1 extends FieldBaseV1 { type: 'checkbox' | 'switch'; }
+BuiltInFieldType: export type BuiltInFieldType = 'text' | 'email' | 'number' | 'textarea' | 'tel' | 'url' | 'password' | 'date' | 'checkbox' | 'array' | 'time' | 'datetime' | 'month' | 'daterange' | 'range' | 'rating' | 'otp' | 'combobox' | 'multiselect' | 'heading' | 'paragraph' | 'callout' | 'divider' | 'file' | 'image' | 'switch' | 'select' | 'dynamicSelect' | 'check' | 'radio';
+CAPABILITIES_CONTRACT: CAPABILITIES_CONTRACT = "artisanform.capabilities/1"
+CapabilitiesManifest: export interface CapabilitiesManifest { contract: typeof CAPABILITIES_CONTRACT; fieldTypes: string[]; stepKinds: string[]; features: string[]; refs: Record<RefKind, string[]>; }
+CapabilityIssue: export type CapabilityIssue = { code: 'unsupported-contract'; id: string; path: ''; } | { code: 'missing-reference'; kind: RefKind; id: string; path: string; } | { code: 'unsupported-field-type'; id: string; path: string; } | { code: 'unsupported-step-kind'; id: string; path: string; } | { code: 'missing-feature'; id: string; path: ''; };
+CapabilitySources: export interface CapabilitySources { extensions?: { hooks?: object; waits?: object; renderers?: object; actions?: object; options?: object; dependentOptions?: object; }; paymentProviders?: readonly string[]; storage?: readonly string[]; fieldTypes?: readonly string[]; stepKinds?: readonly string[]; }
+Catalog: export type Catalog = Record<string, CatalogValue>;
+CatalogReport: export interface CatalogReport { missing: string[]; orphan: string[]; badPlaceholders: string[]; }
+CatalogValue: export type CatalogValue = string | PluralForms;
+Check: Check: ({ name, options, disabled, label, className }: CheckProps) => import('react').JSX.Element
+ChoiceFieldV1: export interface ChoiceFieldV1 extends FieldBaseV1 { type: 'select' | 'radio' | 'check'; options: OptionV1[]; }
+CloudinaryOptions: export interface CloudinaryOptions { cloudName: string; uploadPreset?: string; getSignature?: (params: Record<string, string>) => Promise<{ signature: string; apiKey: string; timestamp: number; }>; folder?: string; remove?: (file: UploadedFile) => Promise<void>; }
+ComparisonConditionV1: export interface ComparisonConditionV1 { field: string; operator: ComparisonOperator; value: JSONValue; coerce?: 'string'; }
+ComparisonOperator: export type ComparisonOperator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'notIn';
+ConditionV1: export type ConditionV1 = ComparisonConditionV1 | PresenceConditionV1 | { all: ConditionV1[]; } | { any: ConditionV1[]; } | { not: ConditionV1; };
+ConflictDecision: export type ConflictDecision = 'backup' | 'restore' | 'discard';
+ConflictReason: export type ConflictReason = 'form-id' | 'revision' | 'step-missing' | 'unsupported-version' | 'corrupt';
+ContentFieldV1: export interface ContentFieldV1 { type: 'heading' | 'paragraph' | 'callout' | 'divider'; name: string; id?: string; text?: string; variant?: 'info' | 'success' | 'warning' | 'error'; visibleWhen?: ConditionV1; ui?: FieldUIConfig; }
+Controls: Controls: ({ onNext, onPrevious, hidePrevious, hideNext, nextDisabled, isSubmitting, isFirst, isLast, labels, className, buttonClassName, }: ControlsProps) => import('react').JSX.Element
+CustomFieldV1: export interface CustomFieldV1 extends FieldBaseV1 { type: `x-${string}`; config?: JSONObject; }
+CustomStepV1: export interface CustomStepV1 extends StepBaseV1 { type: 'custom'; renderer: string; config?: JSONObject; }
+DateFieldV1: export interface DateFieldV1 extends FieldBaseV1 { type: 'date' | 'time' | 'datetime' | 'month'; placeholder?: string; validation?: DateValidationV1; }
+DateInput: DateInput: import('react').ForwardRefExoticComponent<DateInputProps & import('react').RefAttributes<HTMLInputElement>>
+DateRangeFieldV1: export interface DateRangeFieldV1 extends FieldBaseV1 { type: 'daterange'; placeholder?: string; endName?: string; endLabel?: string; validation?: DateValidationV1; }
+DateValidationV1: export interface DateValidationV1 { min?: string; max?: string; }
+DraftStorage: export type DraftStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+DynamicSelect: DynamicSelect: ({ name, dependentName, options, dependentOptions, loadDependentOptions, disabled, className, loadingText, errorText, }: DynamicSelectProps) => import('react').JSX.Element
+DynamicSelectFieldV1: export interface DynamicSelectFieldV1 extends FieldBaseV1 { type: 'dynamicSelect'; options: OptionV1[]; dependentName?: string; dependentOptions?: Record<string, OptionV1[]>; dependentOptionsSource?: string; }
+EmbeddedRenderProps: export interface EmbeddedRenderProps { request: PaymentRequest; onResult: (result: PaymentResult) => void; labels: ArtisanLabels; }
+ExtensionStepV1: export interface ExtensionStepV1 extends StepBaseV1 { type: `x-${string}`; config?: JSONObject; }
+FEATURES: FEATURES: readonly ["transitions", "wait-options", "options-source-choice"]
+FIELD_KEYS: FIELD_KEYS: { readonly text: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly email: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly tel: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly url: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly password: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly textarea: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly number: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "prefix", "suffix", "step", "validation"]; readonly range: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "step", "validation"]; readonly rating: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "length"]; readonly otp: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "length", "charset"]; readonly date: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "validation"]; readonly time: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "validation"]; readonly datetime: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "validation"]; readonly month: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "validation"]; readonly daterange: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "validation", "endName", "endLabel"]; readonly select: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "options", "optionsSource"]; readonly radio: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "options", "optionsSource"]; readonly check: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "options"]; readonly combobox: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "options", "optionsSource"]; readonly multiselect: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "options", "optionsSource"]; readonly dynamicSelect: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "options", "dependentName", "dependentOptions", "dependentOptionsSource"]; readonly checkbox: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui"]; readonly switch: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui"]; readonly file: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "accept", "storage", "capture", "validation"]; readonly image: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "accept", "storage", "capture", "validation"]; readonly array: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "itemFields", "addLabel", "validation"]; readonly heading: readonly ["type", "name", "id", "text", "variant", "visibleWhen", "ui"]; readonly paragraph: readonly ["type", "name", "id", "text", "variant", "visibleWhen", "ui"]; readonly callout: readonly ["type", "name", "id", "text", "variant", "visibleWhen", "ui"]; readonly divider: readonly ["type", "name", "id", "text", "variant", "visibleWhen", "ui"]; }
+Feature: export type Feature = (typeof FEATURES)[number];
+FieldBaseV1: export interface FieldBaseV1 { id?: string; name: string; label?: string; description?: string; required?: boolean; disabled?: boolean; defaultValue?: JSONValue; visibleWhen?: ConditionV1; ui?: FieldUIConfig; }
+FieldContext: export interface FieldContext { cx: Cx; components?: ArtisanComponents; labels: ArtisanLabels; registry: FieldRegistry; storage: StorageMap; }
+FieldDefinition: export interface FieldDefinition { render: (field: FieldSchema, ctx: FieldContext) => ReactNode; initialValues: (field: FieldSchema) => Record<string, unknown>; rules: (field: FieldSchema, labels: ArtisanLabels, registry?: FieldRegistry) => Record<string, Yup.AnySchema>; groupLabel?: boolean; labelFor?: boolean; secret?: boolean | ((field: FieldSchema, registry: FieldRegistry) => boolean); }
+FieldRegistry: export type FieldRegistry = Record<string, FieldDefinition>;
+FieldSchema: export interface FieldSchema { type: string; name: string; label: string; placeholder?: string; options?: FieldOption[]; dependentName?: string; dependentOptions?: Record<string, FieldOption[]>; loadDependentOptions?: (parentValue: string) => Promise<FieldOption[]>; required?: boolean; min?: number; max?: number; pattern?: string; defaultValue?: string | string[] | boolean; disabled?: boolean; helperText?: string; autoComplete?: string; inputMode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search'; readOnly?: boolean; maxLength?: number; accept?: string; maxSize?: number; maxFiles?: number; minFiles?: number; storage?: string; capture?: 'user' | 'environment'; mask?: string; prefix?: string; suffix?: string; endName?: string; endLabel?: string; length?: number; charset?: 'numeric' | 'alphanumeric'; loadOptions?: (query: string) => Promise<FieldOption[]>; variant?: 'info' | 'success' | 'warning' | 'error'; width?: 'full' | 'half'; itemFields?: FieldSchema[]; minItems?: number; maxItems?: number; addLabel?: string; step?: number | string; minDate?: string; maxDate?: string; sameAs?: string; showIf?: Condition; visibleWhen?: ConditionV1; [extra: string]: unknown; }
+FieldUIConfig: export interface FieldUIConfig { span?: 1 | 2; variant?: string; }
+FileFieldV1: export interface FileFieldV1 extends FieldBaseV1 { type: 'file' | 'image'; accept?: string; storage?: string; capture?: 'user' | 'environment'; validation?: FileValidationV1; }
+FileValidationV1: export interface FileValidationV1 { maxSize?: number; minFiles?: number; maxFiles?: number; }
+FormSchema: export interface FormSchema { steps: StepSchema[]; }
+FormStepV1: export interface FormStepV1 extends StepBaseV1 { type: 'form'; fields: ArtisanFieldV1[]; }
+FormUIConfig: export interface FormUIConfig { layout?: 'vertical' | 'horizontal'; density?: 'compact' | 'comfortable'; labelPosition?: 'top' | 'left'; }
+FormValues: export type FormValues = Record<string, unknown>;
+InferValues: export type InferValues<S extends ArtisanSchemaV1> = ArtisanSchemaV1 extends S ? Obj : S extends { steps: readonly (infer St)[]; } ? Simplify<UnionToIntersection<St extends unknown ? StepEntry<St> : never>> : Obj;
+InferredPayment: export interface InferredPayment { provider: string; status: string; reference?: string; }
+InputValueByType: export interface InputValueByType { text: string; email: string; tel: string; url: string; password: string; textarea: string; date: string; time: string; datetime: string; month: string; select: string; radio: string; combobox: string; otp: string; number: number | string; range: number | string; rating: number | string; checkbox: boolean; switch: boolean; check: string[]; multiselect: string[]; }
+IssueCode: export type IssueCode = 'required' | 'type' | 'tooLong' | 'minLength' | 'maxLength' | 'pattern' | 'unsafePattern' | 'mustMatch' | 'invalidEmail' | 'invalidUrl' | 'invalidPhone' | 'invalidNumber' | 'minValue' | 'maxValue' | 'invalidDate' | 'minDate' | 'maxDate' | 'endBeforeStart' | 'invalidOption' | 'invalidLength' | 'invalidCharset' | 'outOfRange' | 'minItems' | 'maxItems' | 'minFiles' | 'maxFiles' | 'invalidFile' | 'fileTooLarge' | 'fileType' | 'custom';
+JSONObject: export type JSONObject = { [key: string]: JSONValue; };
+JSONPrimitive: export type JSONPrimitive = string | number | boolean | null;
+JSONValue: export type JSONValue = JSONPrimitive | JSONValue[] | { [key: string]: JSONValue; };
+LegacyDraft: export interface LegacyDraft { values: Record<string, unknown>; step: number; }
+LegacyFormSchema: export type LegacyFormSchema = FormSchema;
+MigrationResult: export type MigrationResult = { ok: true; snapshot: ArtisanSnapshotV1; } | { ok: false; reason: 'no-migration' | 'threw' | 'invalid' | 'not-forward' | 'newer'; };
+NATIVE_FIELD_TYPES: NATIVE_FIELD_TYPES: NativeFieldType[]
+NATIVE_STEP_TYPES: NATIVE_STEP_TYPES: NativeStepType[]
+NativeFieldType: export type NativeFieldType = NativeFieldV1['type'];
+NativeFieldV1: export type NativeFieldV1 = TextFieldV1 | NumberFieldV1 | RangeFieldV1 | RatingFieldV1 | OtpFieldV1 | DateFieldV1 | DateRangeFieldV1 | ChoiceFieldV1 | SourcedChoiceFieldV1 | SearchChoiceFieldV1 | DynamicSelectFieldV1 | BooleanFieldV1 | FileFieldV1 | ArrayFieldV1 | ContentFieldV1;
+NativeStepType: export type NativeStepType = NativeStepV1['type'];
+NativeStepV1: export type NativeStepV1 = FormStepV1 | PaymentStepV1 | WaitStepV1 | TermsStepV1 | ReviewStepV1 | ResultStepV1 | CustomStepV1;
+NormalizeOptions: export interface NormalizeOptions { id?: string; revision?: number; }
+NormalizedArtisanSchema: export interface NormalizedArtisanSchema { schema: ArtisanSchemaV1; bindings: Record<string, unknown>; portable: boolean; source: 'v1' | 'legacy'; issues: SchemaIssue[]; }
+NumberFieldV1: export interface NumberFieldV1 extends FieldBaseV1 { type: 'number'; placeholder?: string; prefix?: string; suffix?: string; step?: number; validation?: NumberValidationV1; }
+NumberValidationV1: export interface NumberValidationV1 { min?: number; max?: number; }
+OnUnresolved: export type OnUnresolved = (ref: UnresolvedReference) => 'ignore' | undefined | void;
+OptionV1: export interface OptionV1 { value: string; label: string; }
+OtpFieldV1: export interface OtpFieldV1 extends FieldBaseV1 { type: 'otp'; length?: number; charset?: 'numeric' | 'alphanumeric'; }
+OverridableInputType: export type OverridableInputType = keyof InputValueByType;
+ParseOptions: export interface ParseOptions { policy?: 'trusted' | SchemaPolicy; }
+ParseResult: export type ParseResult<T> = { success: true; schema: T; issues: SchemaIssue[]; } | { success: false; issues: SchemaIssue[]; };
+Password: PasswordInput: import('react').ForwardRefExoticComponent<PasswordInputProps & import('react').RefAttributes<HTMLInputElement>>
+PaymentPlugin: export interface PaymentPlugin { id: string; name: string; icon?: ReactNode; description?: string; mode: 'embedded' | 'redirect'; render?: (props: EmbeddedRenderProps) => ReactNode; start?: (request: PaymentRequest) => Promise<{ url: string; }>; resume?: (params: URLSearchParams) => PaymentResult | null; resumeKeys?: string[]; }
+PaymentRequest: export interface PaymentRequest { values: Record<string, unknown>; idempotencyKey: string; returnUrl: string; cancelUrl: string; signal: AbortSignal; }
+PaymentResult: export type PaymentResult = { status: 'succeeded'; reference?: string; } | { status: 'processing'; reference?: string; } | { status: 'failed'; message?: string; };
+PaymentStepV1: export interface PaymentStepV1 extends StepBaseV1 { type: 'payment'; providers: string[]; resultName?: string; summary?: string; }
+PluginsConfig: export interface PluginsConfig { payments?: PaymentPlugin[]; navigate?: (url: string) => void; }
+PluralForms: export type PluralForms = { other: string; } & Partial<Record<'zero' | 'one' | 'two' | 'few' | 'many', string>>;
+PresenceConditionV1: export interface PresenceConditionV1 { field: string; operator: 'filled' | 'empty'; }
+PresignedOptions: export interface PresignedOptions { getUploadUrl: (file: File) => Promise<PresignedTarget>; remove?: (file: UploadedFile) => Promise<void>; id?: string; }
+PresignedTarget: export interface PresignedTarget { url: string; method?: 'PUT' | 'POST'; headers?: Record<string, string>; fileUrl?: string; id?: string; }
+REF_KINDS: REF_KINDS: readonly ["hooks", "waits", "renderers", "actions", "options", "dependentOptions", "paymentProviders", "storage"]
+Radio: Radio: ({ name, options, disabled, label, className }: RadioProps) => import('react').JSX.Element
+RangeFieldV1: export interface RangeFieldV1 extends FieldBaseV1 { type: 'range'; step?: number; validation?: NumberValidationV1; }
+RatingFieldV1: export interface RatingFieldV1 extends FieldBaseV1 { type: 'rating'; length?: number; }
+RefKind: export type RefKind = (typeof REF_KINDS)[number];
+Reference: export interface Reference { kind: RefKind; id: string; path: string; }
+Requirements: export interface Requirements extends Record<RefKind, string[]> { fieldTypes: string[]; stepKinds: string[]; features: Feature[]; }
+ResultActionV1: export interface ResultActionV1 { label: string; href?: string; action?: string; }
+ResultStepV1: export interface ResultStepV1 extends StepBaseV1 { type: 'result'; message?: string; errorMessage?: string; actions?: ResultActionV1[]; }
+ReviewStepV1: export interface ReviewStepV1 extends StepBaseV1 { type: 'review'; }
+SNAPSHOT_VERSION: SNAPSHOT_VERSION = 1
+STEP_KEYS: STEP_KEYS: { readonly form: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "fields"]; readonly payment: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "providers", "resultName", "summary"]; readonly wait: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "strategy", "message", "resultName", "failTo", "timeoutMs", "retry", "cancellable"]; readonly terms: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "content", "href", "accept"]; readonly review: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit"]; readonly result: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "message", "errorMessage", "actions"]; readonly custom: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "renderer", "config"]; }
+SchemaIssue: export interface SchemaIssue { severity: 'error' | 'warning'; code: string; path: string; message: string; }
+SchemaPolicy: export interface SchemaPolicy { fieldTypes?: readonly string[]; stepTypes?: readonly string[]; optionsSources?: readonly string[]; dependentOptionsSources?: readonly string[]; waitStrategies?: readonly string[]; hooks?: readonly string[]; renderers?: readonly string[]; actions?: readonly string[]; paymentProviders?: readonly string[]; }
+SearchChoiceFieldV1: export interface SearchChoiceFieldV1 extends FieldBaseV1 { type: 'combobox' | 'multiselect'; placeholder?: string; options?: OptionV1[]; optionsSource?: string; }
+Select: Select: import('react').ForwardRefExoticComponent<SelectProps & import('react').RefAttributes<HTMLSelectElement>>
+SnapshotConflict: export interface SnapshotConflict { reason: ConflictReason; snapshot?: ArtisanSnapshotV1; current: { formId: string; revision?: number; stepIds: string[]; }; }
+SnapshotMigration: export type SnapshotMigration = (snapshot: ArtisanSnapshotV1) => ArtisanSnapshotV1;
+SnapshotMigrations: export type SnapshotMigrations = Record<number, SnapshotMigration>;
+SourcedChoiceFieldV1: export interface SourcedChoiceFieldV1 extends FieldBaseV1 { type: 'select' | 'radio'; options?: undefined; optionsSource: string; }
+StandaloneForm: StandaloneForm: ({ classNames, unstyled, ...props }: StandaloneFormProps) => import('react').JSX.Element
+StepBaseV1: export interface StepBaseV1 { id: string; title: string; visibleWhen?: ConditionV1; ui?: StepUIConfig; controls?: StepControlsV1; hooks?: StepHooksV1; next?: StepTransitionV1[]; loop?: StepLoopV1; revisit?: 'allow' | 'deny'; }
+StepContext: export interface StepContext { api: ArtisanStepApi; step: StepSchema; index: number; total: number; values: FormValues; setFieldValue: (name: string, value: unknown) => void; labels: ArtisanLabels; fieldRegistry: FieldRegistry; storage: StorageMap; plugins: { payments: Record<string, PaymentPlugin>; navigate: (url: string) => void; }; steps: StepSchema[]; fields: FieldSchema[]; next: () => Promise<void>; back: () => void; goTo: (index: number) => void; submit: () => Promise<void>; submitState: SubmitState; submitError: string | null; error: string | null; }
+StepControlsV1: export interface StepControlsV1 { hidden?: boolean; hidePrevious?: boolean; hideNext?: boolean; nextDisabled?: boolean; nextLabel?: string; previousLabel?: string; }
+StepDefinition: export interface StepDefinition { render: (ctx: StepContext) => ReactNode; controls?: StepControls; }
+StepHooksV1: export interface StepHooksV1 { beforeNext?: string; onEnter?: string; }
+StepLoopV1: export interface StepLoopV1 { max: number; }
+StepRegistry: export type StepRegistry = Record<string, StepDefinition>;
+StepSchema: export interface StepSchema { id?: string; title: string; kind?: string; fields?: FieldSchema[]; showIf?: Condition; visibleWhen?: ConditionV1; beforeNext?: (values: Record<string, unknown>) => BeforeNextResult | Promise<BeforeNextResult>; onEnter?: (values: Record<string, unknown>) => void; controls?: StepControls; next?: StepTransitionV1[]; loop?: StepLoopV1; revisit?: 'allow' | 'deny'; [extra: string]: unknown; }
+StepTransitionV1: export interface StepTransitionV1 { when?: ConditionV1; to: string; }
+StepUIConfig: export interface StepUIConfig { columns?: 1 | 2; }
+StorageAdapter: export interface StorageAdapter { id: string; upload: (file: File, options: UploadOptions) => Promise<UploadedFile>; remove?: (file: UploadedFile) => Promise<void>; }
+StorageMap: export type StorageMap = Record<string, StorageAdapter>;
+StoredRecord: export type StoredRecord = { kind: 'snapshot'; snapshot: ArtisanSnapshotV1; } | { kind: 'legacy'; draft: LegacyDraft; } | { kind: 'unsupported'; raw: string; } | { kind: 'corrupt'; raw: string; };
+TermsStepV1: export interface TermsStepV1 extends StepBaseV1 { type: 'terms'; content?: string; href?: string; accept?: { name?: string; label?: string; }; }
+TextFieldType: export type TextFieldType = 'text' | 'email' | 'tel' | 'url' | 'password' | 'textarea';
+TextFieldV1: export interface TextFieldV1 extends FieldBaseV1 { type: TextFieldType; placeholder?: string; mask?: string; prefix?: string; suffix?: string; autoComplete?: string; inputMode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search'; readOnly?: boolean; maxLength?: number; validation?: TextValidationV1; }
+TextInput: TextInput: import('react').ForwardRefExoticComponent<TextInputProps & import('react').RefAttributes<HTMLInputElement>>
+TextValidationV1: export interface TextValidationV1 { minLength?: number; maxLength?: number; pattern?: string; sameAs?: string; }
+Textarea: Textarea: import('react').ForwardRefExoticComponent<TextareaProps & import('react').RefAttributes<HTMLTextAreaElement>>
+UnresolvedReference: export interface UnresolvedReference { group: keyof ArtisanExtensions; id: string; path: string; }
+UploadOptions: export interface UploadOptions { onProgress: (percent: number) => void; signal: AbortSignal; }
+UploadedFile: export interface UploadedFile { id: string; name: string; size: number; type?: string; url?: string; }
+ValidateOptions: export interface ValidateOptions { prune?: boolean; dynamicOptions?: Record<string, readonly string[]>; customTypes?: Record<string, (value: unknown, field: ArtisanFieldV1) => ValidationIssue[] | undefined>; maxStringLength?: number; }
+ValidationIssue: export interface ValidationIssue { path: string; code: IssueCode; params?: Record<string, JSONValue>; }
+ValidationResult: export interface ValidationResult { ok: boolean; issues: ValidationIssue[]; values?: Record<string, unknown>; }
+WaitContext: export interface WaitContext { values: Record<string, unknown>; signal: AbortSignal; }
+WaitRetryV1: export interface WaitRetryV1 { max: number; backoffMs?: number; }
+WaitStatus: export type WaitStatus = { status: 'pending'; message?: string; } | { status: 'success'; data?: unknown; } | { status: 'failed'; message?: string; };
+WaitStepV1: export interface WaitStepV1 extends StepBaseV1 { type: 'wait'; strategy: string; message?: string; resultName?: string; failTo?: string; timeoutMs?: number; retry?: WaitRetryV1; cancellable?: boolean; }
+WaitStrategy: export interface WaitStrategy { subscribe: (onStatus: (status: WaitStatus) => void, ctx: WaitContext) => () => void; }
+applyCatalog: applyCatalog: (schema: ArtisanSchemaV1, catalogs: readonly Catalog[]) => ArtisanSchemaV1
+backupKey: backupKey: (key: string) => string
+backupStored: backupStored: (key: string, raw: string, s?: DraftStorage) => void
+callback: callback: () => { strategy: WaitStrategy; update: (message?: string) => void; resolve: (data?: unknown) => void; fail: (message?: string) => void; }
+checkCapabilities: checkCapabilities: (input: ArtisanSchemaV1 | NormalizedArtisanSchema, manifest: CapabilitiesManifest) => CapabilityIssue[]
+checkSnapshot: checkSnapshot: (snapshot: ArtisanSnapshotV1, current: SnapshotConflict["current"]) => ConflictReason | null
+clearSnapshot: clearSnapshot: (key: string, s?: DraftStorage) => void
+cloudinary: cloudinary: ({ cloudName, uploadPreset, getSignature, folder, remove, }: CloudinaryOptions) => StorageAdapter
+cn: cn: (...inputs: Array<ClassValue>) => string
+collectReferences: collectReferences: (input: ArtisanSchemaV1 | NormalizedArtisanSchema) => Requirements
+conditionFields: conditionFields: (cond: ConditionV1) => string[]
+createSnapshot: createSnapshot: (args: { formId: string; formRevision?: number; currentStepId: string; history?: string[]; values: Record<string, unknown>; }) => ArtisanSnapshotV1
+defaultFieldRegistry: defaultFieldRegistry: FieldRegistry
+defaultLabels: defaultLabels: ArtisanLabels
+defaultStepRegistry: defaultStepRegistry: StepRegistry
+defineForm: defineForm: <const S extends ArtisanSchemaV1>(schema: S) => S
+defineUiKit: defineUiKit: <T extends ArtisanUiKit>(kit: T) => T
+describeCapabilities: describeCapabilities: (sources?: CapabilitySources) => CapabilitiesManifest
+evaluateCondition: evaluateCondition: (cond: ConditionV1, values: Values) => boolean
+extractMessages: extractMessages: (schema: ArtisanSchemaV1) => Record<string, string>
+format: format: (template: string, params?: Record<string, string | number>) => string
+formatIssue: formatIssue: (issue: ValidationIssue, labels: ArtisanLabels) => string
+fromLegacyCondition: fromLegacyCondition: (legacy: { field: string; equals?: string | string[]; not?: boolean; }) => ConditionV1
+isExtensionType: isExtensionType: (type: string) => type is `x-${string}`
+isFilled: isFilled: (v: unknown) => boolean
+isJSONValue: isJSONValue: (v: unknown, depth?: number) => v is JSONValue
+isNativeFieldType: isNativeFieldType: (type: string) => type is NativeFieldType
+isNativeStepType: isNativeStepType: (type: string) => type is NativeStepType
+isSnapshotV1: isSnapshotV1: (v: unknown) => v is ArtisanSnapshotV1
+listReferences: listReferences: (input: ArtisanSchemaV1 | NormalizedArtisanSchema) => Reference[]
+mergeUiKits: mergeUiKits: (name: string, ...kits: ArtisanUiKit[]) => ArtisanUiKit
+migrateSnapshot: migrateSnapshot: (snapshot: ArtisanSnapshotV1, target: number, migrations: SnapshotMigrations) => MigrationResult
+mockPayment: mockPayment: ({ mode, outcome, delay, id, name, }?: { mode?: "embedded" | "redirect"; outcome?: PaymentResult["status"] | (() => PaymentResult["status"]); delay?: number; id?: string; name?: string; }) => PaymentPlugin
+mockStorage: mockStorage: ({ delay, fail, }?: { delay?: number; fail?: (file: File) => boolean; }) => StorageAdapter
+normalizeArtisanSchema: normalizeArtisanSchema: (input: ArtisanSchemaV1 | LegacyFormSchema, options?: NormalizeOptions) => NormalizedArtisanSchema
+parseArtisanSchema: parseArtisanSchema: (input: unknown, options?: ParseOptions) => ParseResult<ArtisanSchemaV1>
+parseStored: parseStored: (raw: string) => StoredRecord
+placeholdersOf: placeholdersOf: (template: string) => string[]
+polling: polling: (check: (ctx: WaitContext) => Promise<WaitStatus>, { interval, timeout, backoff, timeoutMessage, }?: { interval?: number; timeout?: number; backoff?: number; timeoutMessage?: string; }) => WaitStrategy
+presignedPut: presignedPut: ({ getUploadUrl, remove, id, }: PresignedOptions) => StorageAdapter
+readRaw: readRaw: (key: string, s?: DraftStorage) => string | null
+readSnapshot: readSnapshot: (key: string, s?: DraftStorage) => StoredRecord | null
+resolveLocaleChain: resolveLocaleChain: (locale: string) => string[]
+sse: sse: (url: Url, { parse, timeout }?: StreamOptions) => WaitStrategy
+storageKey: storageKey: (key: string) => string
+textOf: textOf: (value: CatalogValue | undefined) => string | undefined
+toJSONValues: toJSONValues: (values: Record<string, unknown>) => Record<string, JSONValue>
+upgradeLegacyDraft: upgradeLegacyDraft: (draft: LegacyDraft, ctx: { formId: string; formRevision?: number; visibleStepIds: (values: Record<string, unknown>) => string[]; }) => ArtisanSnapshotV1 | null
+useArtisanField: useArtisanField: <T = unknown>(name: string, options?: { validate?: () => string | undefined; }) => readonly [{ readonly name: string; readonly value: T; readonly onBlur: import('react-hook-form').Noop; readonly onChange: (e: ChangeInput) => void; }, { readonly touched: boolean; readonly error: string | undefined; readonly code: string | undefined; }, { readonly setValue: (value: T) => void; readonly setTouched: () => void; }]
+useArtisanStore: useArtisanStore: <T>(selector: (state: ArtisanFormState) => T) => T
+useArtisanWizard: useArtisanWizard: <S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1>({ schema: input, extensions, onUnresolved, onSubmit, initialValues: initialOverrides, labels: labelOverrides, kitLabels, locale, messages, loadMessages, fields, stepTypes, storage, plugins, onSnapshotConflict, persistKey, draftStorage, draftDebounceMs, snapshotMigrations, step: stepProp, stepId, onStepIdChange, onStepChange, onChange, }: ArtisanWizardOptions<S>) => ArtisanWizard
+validateCatalog: validateCatalog: (schema: ArtisanSchemaV1, catalog: Catalog, options?: { labelKeys?: readonly string[]; }) => CatalogReport
+validateValues: validateValues: (input: ArtisanSchemaV1 | NormalizedArtisanSchema, values: unknown, opts?: ValidateOptions) => ValidationResult
+websocket: websocket: (url: Url, { parse, timeout }?: StreamOptions) => WaitStrategy
+writeSnapshot: writeSnapshot: (key: string, snapshot: ArtisanSnapshotV1, s?: DraftStorage) => void
