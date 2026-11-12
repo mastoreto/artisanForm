@@ -114,6 +114,18 @@ export interface ChoiceFieldV1 extends FieldBaseV1 {
   options: OptionV1[];
 }
 
+/**
+ * `select` and `radio` whose options come from a locally registered source
+ * (`extensions.options`, called with an empty query to get them all) instead
+ * of inline `options`. The two are mutually exclusive.
+ */
+export interface SourcedChoiceFieldV1 extends FieldBaseV1 {
+  type: 'select' | 'radio';
+  options?: undefined;
+  /** Id of a function in `extensions.options`. */
+  optionsSource: string;
+}
+
 /** Searchable choices; may search through a locally registered source. */
 export interface SearchChoiceFieldV1 extends FieldBaseV1 {
   type: 'combobox' | 'multiselect';
@@ -201,6 +213,7 @@ export type NativeFieldV1 =
   | DateFieldV1
   | DateRangeFieldV1
   | ChoiceFieldV1
+  | SourcedChoiceFieldV1
   | SearchChoiceFieldV1
   | DynamicSelectFieldV1
   | BooleanFieldV1

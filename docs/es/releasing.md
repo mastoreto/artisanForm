@@ -54,7 +54,7 @@ Cómo se publica ArtisanForm en npm. Se publican cinco paquetes juntos, todos co
 
 Si el token no puede publicar desde el CI (ver la sección siguiente), publicá las primeras versiones vos mismo desde un clon actualizado de `main`. npm te pide tu código de un solo uso en cada `publish`.
 
-Antes de publicar a mano, asegurate de que cada kit resuelva `artisanform` a la raíz del repo (`ls packages/ui-*/node_modules/artisanform/package.json` debe listar un archivo; corré `bun install` si no) y corré `node scripts/consumer-test.mjs 19`: empaqueta los kits que vas a publicar y los tipa en una app limpia. Un kit construido donde `artisanform` no se resuelve publica tipos rotos (pasó en 0.3.0-beta.1).
+Antes de publicar a mano, corré `bun run check:publish` después de construir. Falla si un kit resuelve `artisanform` en otro lugar que no sea la raíz del repo, si un `dist` es más viejo que sus fuentes o si un `.d.ts` publicado no compila, y luego instala el núcleo y los kits empacados en apps limpias con React 18 y 19. Un kit construido donde `artisanform` no se resuelve publica tipos rotos (pasó en 0.3.0-beta.1). El workflow Release corre el mismo gate antes de publicar; el CI lo corre sin el paso del consumidor.
 
 ```bash
 git checkout main && git pull
@@ -87,6 +87,6 @@ npm puede confiar directamente en un workflow de GitHub (OIDC), así que **no ha
 | `402 Payment Required … You must sign up for private packages` | Los paquetes con scope son privados por defecto, y los privados requieren un plan pago. Cada kit define `publishConfig.access: "public"`; mantenelo, y mantené `--access public`. |
 | `You cannot publish over the previously published versions` | Esa versión ya existe. Subí la versión (también en los kits). Mirá qué paquetes llegaron con `curl https://registry.npmjs.org/<paquete>` antes de reintentar un release parcial. |
 | `check:pack` informa una diferencia de versión | La `version` de un kit difiere de la del núcleo. Publicalos en lockstep. |
-| `Cannot find name 'ArtisanUiKit'` en un proyecto que instaló un kit | El kit se construyó donde `artisanform` no se resolvía, así que su `.d.ts` no tiene el import. Arreglá el enlace (`bun install`), reconstruí, verificá con `node scripts/consumer-test.mjs 19` y publicá una versión nueva: una versión publicada no se puede corregir. |
+| `Cannot find name 'ArtisanUiKit'` en un proyecto que instaló un kit | El kit se construyó donde `artisanform` no se resolvía, así que su `.d.ts` no tiene el import. Arreglá el enlace (`bun install`), reconstruí, verificá con `bun run check:publish` y publicá una versión nueva: una versión publicada no se puede corregir. |
 
 Todo intento que llega a `--provenance`, aunque falle, deja una entrada firmada en el registro público de transparencia de Sigstore. Es inofensiva y no se puede borrar.

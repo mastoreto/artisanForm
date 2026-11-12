@@ -46,6 +46,7 @@ jobs:
       - run: bun run check:package
       - run: bun run check:kits
       - run: bun run check:pack
+      - run: bun run check:publish
       - run: bun test
       - name: Publish the core, then the kits
         env:

@@ -54,7 +54,7 @@ How ArtisanForm is published to npm. Five packages ship together, all at the sam
 
 If the token cannot publish from CI (see the next section), publish the first versions yourself from an up-to-date clone of `main`. npm asks for your one-time code on every `publish`.
 
-Before publishing by hand, make sure each kit resolves `artisanform` to the repo root (`ls packages/ui-*/node_modules/artisanform/package.json` must list a file; run `bun install` if not) and run `node scripts/consumer-test.mjs 19`: it packs the kits you are about to publish and typechecks them in a clean app. A kit built where `artisanform` does not resolve publishes broken typings (this happened in 0.3.0-beta.1).
+Before publishing by hand, run `bun run check:publish` after building. It fails if a kit resolves `artisanform` somewhere other than the repo root, if a `dist` is older than its sources, or if a published `.d.ts` does not type-check, and then installs the packed core and kits in clean React 18 and 19 apps. A kit built where `artisanform` does not resolve publishes broken typings (this happened in 0.3.0-beta.1). The Release workflow runs the same gate before publishing; CI runs it without the consumer step.
 
 ```bash
 git checkout main && git pull
@@ -87,6 +87,6 @@ npm can trust a GitHub workflow directly (OIDC), so **no `NPM_TOKEN` is needed**
 | `402 Payment Required … You must sign up for private packages` | Scoped packages are private by default, and private ones need a paid plan. Every kit sets `publishConfig.access: "public"`; keep it, and keep `--access public`. |
 | `You cannot publish over the previously published versions` | That version already exists. Bump the version (also in the kits). Check which packages made it with `curl https://registry.npmjs.org/<package>` before retrying a partial release. |
 | `check:pack` reports a version mismatch | A kit's `version` differs from the core's. Release them in lockstep. |
-| `Cannot find name 'ArtisanUiKit'` in a project that installed a kit | The kit was built where `artisanform` did not resolve, so its `.d.ts` lacks the import. Fix the link (`bun install`), rebuild, check with `node scripts/consumer-test.mjs 19` and publish a new version: a published version cannot be fixed. |
+| `Cannot find name 'ArtisanUiKit'` in a project that installed a kit | The kit was built where `artisanform` did not resolve, so its `.d.ts` lacks the import. Fix the link (`bun install`), rebuild, check with `bun run check:publish` and publish a new version: a published version cannot be fixed. |
 
 Every attempt that reaches `--provenance`, even a failed one, leaves a signed entry in the public Sigstore transparency log. It is harmless and cannot be deleted.

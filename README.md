@@ -4,13 +4,13 @@ React library for building multi-step forms (wizards) from a declarative definit
 
 > 🌐 Spanish version: [docs/es/README.md](docs/es/README.md)
 
-> **Status:** first public beta, `0.3.0-beta.0` (npm dist-tag `beta`): a `scheme`-driven wizard with 30+ field types, special steps (terms, payment, waiting, review, result), files with pluggable storage, payment plugins (Stripe, Lemon Squeezy, Mercado Pago, PayPal; verified against SDK mocks, not yet live sandboxes) and official UI kits. See [Project status](#project-status).
+> **Status:** beta, `0.3.0-beta.2` (npm dist-tag `beta`): a `scheme`-driven wizard with 30+ field types, special steps (terms, payment, waiting, review, result), files with pluggable storage, payment plugins (Stripe, Lemon Squeezy, Mercado Pago, PayPal; tried by the maintainer against provider sandboxes, except Mercado Pago Checkout Pro, which is being investigated) and official UI kits. See [Project status](#project-status).
 
 ## Documentation
 
 | Guide | What it covers |
 | --- | --- |
-| [Schema v1](docs/schema-v1.md) | The serializable, versioned schema contract |
+| [Schema v1](docs/schema-v1.md) | The serializable, versioned schema contract, and `artisanform/schema` to validate values on a server |
 | [UI extension and kits](docs/ui.md) | Styles, `components`, `classNames` and the official kits |
 | [Headless API](docs/headless.md) | `useArtisanWizard`: the behavior without markup, for your own UI |
 | [Payments](docs/payments.md) | Plugins, the security principle and a production checklist |
@@ -437,12 +437,12 @@ Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must
 - Biome (format + lint), a live playground, unit tests (`bun test`) and e2e tests (Playwright).
 - **UI kits:** `@beardartisans/ui-bootstrap`, `ui-mui`, `ui-tailwind` and `ui-scss` on npm, plus a shadcn/ui registry item ([guide](docs/ui.md#ui-kits)).
 - **Accessibility:** a default theme that meets WCAG AA contrast, and automated axe checks in CI ([guide](docs/accessibility.md)).
-- **Release automation:** a manual `Release` workflow that verifies everything and publishes the five packages with provenance ([guide](docs/releasing.md)).
+- **Release tooling:** a manual `Release` workflow that verifies everything, and a `check:publish` gate that catches broken kit links, stale builds and broken published typings. Publishing is still done by hand with a one-time code until Trusted Publishing works ([guide](docs/releasing.md)).
 
 ### Pending
 
 - **Release:** move npm publishing from a token to Trusted Publishing, and cut a stable version after the beta feedback ([docs/releasing.md](docs/releasing.md)).
-- **Real providers:** the plugins are verified against mocks of their SDKs; they still need a pass against sandboxes with test credentials.
+- **Real providers:** Stripe, PayPal, Lemon Squeezy and the Mercado Pago Payment Brick work in their sandboxes (manual checks with `apps/payments-test`). Mercado Pago Checkout Pro (redirect) shows an error on Mercado Pago's own page after paying; it is under investigation and is not covered by automated tests against the real service.
 - **UI:** `layout: 'horizontal'` has no styling of its own and steppers cannot jump between steps. Details in [docs/ui.md](docs/ui.md#pending).
 - **Browser:** component tests run in happy-dom; Playwright covers the playground flows (wizard, files, waiting, mock payments, fields) on Chromium, Firefox and WebKit. Screen-reader passes, motion preferences and touch devices are not verified yet ([docs/accessibility.md](docs/accessibility.md)).
 - Default texts are English only; for another language pass `labels` (and write your own field labels).
