@@ -307,6 +307,8 @@ Out of scope: right-to-left layouts, the format of `<input type="date">` (follow
 
 ## 10. Versioning ✅
 
+The 1.x guarantees (what may change in a minor, what needs a major, and the guards that enforce it) are in [versioning](versioning.md).
+
 - `schemaVersion: 1` identifies the format. A higher number is rejected (`unsupported-version`) rather than misinterpreted. A schema **without** `schemaVersion` is treated as 0.2.0 by `normalizeArtisanSchema`.
 - `id` identifies the form and `revision` a concrete definition; both are recorded in drafts.
 - Data migrations are opt-in (`snapshotMigrations`, §11): without them an incompatibility is detected and the consumer decides.

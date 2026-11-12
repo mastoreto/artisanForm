@@ -2,6 +2,12 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased (Contract freeze)
+
+### Quality
+
+- **Versioning policy and contract guards (AF119):** [versioning](docs/versioning.md) states what may change in a 1.x minor and what needs a major, over three surfaces (the schema contract, the TypeScript API of `artisanform` and `artisanform/schema`, the capabilities contract and catalog format). Enforced by golden fixtures (`src/schema/__tests__/fixtures-v1/`: the 13 catalog examples must parse clean, normalize to the recorded JSON, be idempotent and portable; invalid cases keep their codes and paths) and by `bun run check:api`, which compares every export and declaration of both entries with `api/*.api.txt` (CI, release and `prepublishOnly`). No behavior change.
+
 ## Unreleased (Translations)
 
 ### Back end and front end
