@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes } from 'react';
 import type { ArtisanStatusPanelProps } from '../ui/types';
 import { useComponents, useCx } from '../ui/UiContext';
 
