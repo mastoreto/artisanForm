@@ -4,7 +4,7 @@
 
 Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con estilos en CSS plano (tematizables y reemplazables), validación con React Hook Form + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
 
-> **Estado:** primera beta pública, `0.3.0-beta.0` (dist-tag de npm `beta`): wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable, plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal; verificados con mocks de sus SDK, todavía no contra sandboxes reales) y kits de UI oficiales. Ver [Estado del proyecto](#estado-del-proyecto).
+> **Estado:** beta, `0.3.0-beta.2` (dist-tag de npm `beta`): wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable, plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal; probados por el mantenedor contra los sandboxes de cada proveedor, salvo Mercado Pago Checkout Pro, que se está investigando) y kits de UI oficiales. Ver [Estado del proyecto](#estado-del-proyecto).
 
 ## Documentación
 
@@ -438,12 +438,12 @@ Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y
 - Biome (formato + lint), playground en vivo, tests unitarios (`bun test`) y e2e (Playwright).
 - **Kits de UI:** `@beardartisans/ui-bootstrap`, `ui-mui`, `ui-tailwind` y `ui-scss` en npm, más un item de registry de shadcn/ui ([guía](ui.md#kits-de-ui)).
 - **Accesibilidad:** un tema por defecto que cumple el contraste WCAG AA y chequeos automáticos de axe en el CI ([guía](accessibility.md)).
-- **Automatización de releases:** un workflow manual `Release` que verifica todo y publica los cinco paquetes con provenance ([guía](releasing.md)).
+- **Herramientas de release:** un workflow manual `Release` que verifica todo, y un gate `check:publish` que detecta enlaces de kits rotos, builds viejos y tipos publicados rotos. La publicación se sigue haciendo a mano con un código de un solo uso hasta que funcione Trusted Publishing ([guía](releasing.md)).
 
 ### Pendiente
 
 - **Release:** pasar la publicación en npm de un token a Trusted Publishing, y sacar una versión estable tras el feedback de la beta ([docs/es/releasing.md](releasing.md)).
-- **Proveedores reales:** los plugins se verifican con mocks de sus SDK; falta probarlos contra sandbox con credenciales de prueba.
+- **Proveedores reales:** Stripe, PayPal, Lemon Squeezy y el Payment Brick de Mercado Pago funcionan en sus sandboxes (pruebas manuales con `apps/payments-test`). Mercado Pago Checkout Pro (redirección) muestra un error en la propia página de Mercado Pago tras pagar; se está investigando y no hay pruebas automáticas contra el servicio real.
 - **Navegador:** los tests de componentes corren en happy-dom; Playwright cubre los flujos del playground (wizard, archivos, espera, pagos mock, campos) en Chromium, Firefox y WebKit. Las pasadas con lector de pantalla, las preferencias de movimiento y los dispositivos táctiles todavía no se verifican ([docs/es/accessibility.md](accessibility.md)).
 - **UI:** `layout: 'horizontal'` no tiene estilo propio y los steppers no pueden saltar entre pasos. Detalle en [docs/es/ui.md](ui.md#pendiente).
 - Los textos por defecto están solo en inglés; para otro idioma pasá `labels` (y escribí tus propias etiquetas de campo).
