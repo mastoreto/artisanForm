@@ -162,3 +162,15 @@ test('a Mercado Pago error becomes a 502 that does not leak the token', async ()
   expect(text).toContain('invalid currency');
   expect(text).not.toContain('TEST-secret-token');
 });
+
+test('notification_url is sent only when MP_NOTIFICATION_URL is public https', async () => {
+  process.env.MP_NOTIFICATION_URL = 'https://demo.trycloudflare.com/hook';
+  await preference({ success: 'http://localhost:5858/' });
+  expect(body().notification_url).toBe('https://demo.trycloudflare.com/hook');
+  process.env.MP_NOTIFICATION_URL = 'http://localhost:8787/hook';
+  await preference({ success: 'http://localhost:5858/' });
+  expect(JSON.parse(String(sent[1].init.body))).not.toHaveProperty(
+    'notification_url',
+  );
+  delete process.env.MP_NOTIFICATION_URL;
+});

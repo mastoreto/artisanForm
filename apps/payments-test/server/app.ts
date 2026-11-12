@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { allowedOrigins, env, HttpError } from './common.ts';
 import * as lemon from './providers/lemonsqueezy.ts';
-import * as mp from './providers/mercadopago.ts';
+import * as mp from './providers/mercadopago/index.ts';
 import * as paypal from './providers/paypal.ts';
 import * as stripe from './providers/stripe.ts';
 

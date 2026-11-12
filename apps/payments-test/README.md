@@ -75,6 +75,6 @@ Everything at once (API + Stripe CLI + tunnel in Docker, web app in the foregrou
 ## Sandbox notes
 
 - **Redirects** (Stripe Checkout, Checkout Pro, Lemon Squeezy) return to the page; the draft (`persistKey`) restores the form and the `pending` step confirms through the backend. `ALLOWED_ORIGINS` limits where a checkout may send the user back to.
-- **Mercado Pago:** use the credentials of a *test seller*, and the currency of its country (`MP_CURRENCY`). `auto_return` is only sent for https return URLs.
+- **Mercado Pago:** optional `MP_NOTIFICATION_URL` (public https) sets the webhook per preference. Use the credentials of a *test seller*, and the currency of its country (`MP_CURRENCY`). `auto_return` is only sent for https return URLs.
 - **Lemon Squeezy:** prices live on the variant. It has no payment reference on return, so confirmation needs the webhook: expose the backend (see [Webhooks with Docker](#webhooks-with-docker)). The paid state is kept in memory.
 - `bun test server` runs the backend checks (no network).
