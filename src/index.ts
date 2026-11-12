@@ -1,6 +1,7 @@
 import './styles/artisanform.css';
 
 export { cn } from './commons/cn';
+export { formatIssue } from './commons/formatIssue';
 export { type ArtisanLabels, defaultLabels } from './commons/labels';
 export { default as ArtisanForm } from './components/ArtisanForm/ArtisanForm';
 export {
