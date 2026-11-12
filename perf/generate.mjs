@@ -60,15 +60,15 @@ const makers = [
   }),
 ];
 
-/** A schema with `fields` fields in steps of 8, ~15% of them conditional. */
-export const generateSchema = (fields, seed = 1) => {
+/** A schema with `fields` fields in steps of `perStep` (default 8), ~15% of them conditional. */
+export const generateSchema = (fields, seed = 1, perStep = 8) => {
   const rand = mulberry32(seed + fields);
   const steps = [];
   const controllers = []; // names of select/radio/checkbox fields seen so far
   let n = 0;
   while (n < fields) {
     const step = [];
-    for (let i = 0; i < 8 && n < fields; i++, n++) {
+    for (let i = 0; i < perStep && n < fields; i++, n++) {
       const field = makers[n % makers.length](n);
       if (controllers.length && rand() < 0.15) {
         const c = controllers[Math.floor(rand() * controllers.length)];
