@@ -79,6 +79,13 @@ export interface ValidateOptions {
    * value is rejected before any `pattern` runs.
    */
   maxStringLength?: number;
+  /**
+   * Most items accepted in any one list: the rows of an `array`, the choices of
+   * a `check`/`multiselect` and the files of an upload (default 1 000). A
+   * ceiling against abuse, not a form rule: a schema's own `maxItems` /
+   * `maxFiles` still apply below it.
+   */
+  maxItems?: number;
 }
 
 export interface ValidationResult {
@@ -172,6 +179,7 @@ interface Ctx {
   opts: ValidateOptions;
   add: Add;
   max: number;
+  maxItems: number;
 }
 
 /** Checks a string value against the shared text rules. Returns false to stop. */
@@ -274,6 +282,10 @@ const fileRules = (
     c.add(path, 'type', { expected: 'array' });
     return;
   }
+  if (v.length > c.maxItems) {
+    c.add(path, 'maxItems', { max: c.maxItems });
+    return;
+  }
   const t = f.validation;
   const accept = f.accept ?? (f.type === 'image' ? 'image/*' : undefined);
   const min = t?.minFiles ?? (f.required ? 1 : 0);
@@ -359,6 +371,10 @@ const validateField = (
         return;
       }
       const rows = (v ?? []) as unknown[];
+      if (rows.length > c.maxItems) {
+        c.add(path, 'maxItems', { max: c.maxItems });
+        return;
+      }
       const t = f.validation;
       if (t?.minItems !== undefined && rows.length < t.minItems)
         c.add(path, 'minItems', { min: t.minItems });
@@ -462,6 +478,8 @@ const validateField = (
     case 'check':
     case 'multiselect': {
       if (!Array.isArray(v)) c.add(path, 'type', { expected: 'array' });
+      else if (v.length > c.maxItems)
+        c.add(path, 'maxItems', { max: c.maxItems });
       else {
         const allowed = optionsFor(f, c);
         v.forEach((item, i) => {
@@ -528,7 +546,13 @@ export const validateValues = (
     return { ok: false, issues };
   }
 
-  const c: Ctx = { values, opts, add, max: opts.maxStringLength ?? 10_000 };
+  const c: Ctx = {
+    values,
+    opts,
+    add,
+    max: opts.maxStringLength ?? 10_000,
+    maxItems: opts.maxItems ?? 1_000,
+  };
   const out: Values | undefined = opts.prune ? {} : undefined;
 
   for (const step of schema.steps) {

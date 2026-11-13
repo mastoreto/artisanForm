@@ -151,3 +151,47 @@ test('the fixture folder only holds fixtures', () => {
     readFileSync(join(import.meta.dir, 'values', 'text.json'), 'utf8'),
   ).toContain('"cases"');
 });
+
+test('maxItems caps every list before it is walked (default 1000)', () => {
+  const s = schema([
+    {
+      type: 'array',
+      name: 'team',
+      itemFields: [{ type: 'text', name: 'who' }],
+    },
+    {
+      type: 'multiselect',
+      name: 'tags',
+      options: [{ value: 'a', label: 'A' }],
+    },
+    { type: 'file', name: 'docs' },
+  ]);
+  const rows = Array.from({ length: 4 }, () => ({ who: 'x' }));
+  const files = Array.from({ length: 4 }, (_, i) => ({
+    id: `${i}`,
+    name: 'a.txt',
+    size: 1,
+    type: 'text/plain',
+  }));
+  const r = validateValues(
+    s,
+    { team: rows, tags: ['a', 'a', 'a', 'a'], docs: files },
+    { maxItems: 3 },
+  );
+  expect(r.issues.map((i) => `${i.path}:${i.code}`).sort()).toEqual([
+    'docs:maxItems',
+    'tags:maxItems',
+    'team:maxItems',
+  ]);
+  expect(r.issues[0]?.params).toEqual({ max: 3 });
+  // within the limit, and with the default, the same values pass
+  expect(validateValues(s, { team: rows, tags: ['a'], docs: files }).ok).toBe(
+    true,
+  );
+  const huge = Array.from({ length: 1001 }, () => ({ who: 'x' }));
+  expect(validateValues(s, { team: huge }).issues[0]).toEqual({
+    path: 'team',
+    code: 'maxItems',
+    params: { max: 1000 },
+  });
+});
