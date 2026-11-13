@@ -2,6 +2,17 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased
+
+### Fixed
+
+- **Next.js App Router:** `artisanform`, `artisanform/headless` and `artisanform/payments/*` now ship the `'use client'` directive. Without it, importing the library from a Server Component failed the build (`Export FormProvider doesn't exist in target module`), because `react-hook-form` resolved to its server stub. `artisanform/schema` has no directive and stays usable on the server.
+- **TypeScript 6:** `import 'artisanform/style.css'` now has a type declaration (`exports["./style.css"].types`). Without it, strict side-effect-import checking failed in apps that do not provide `*.css` typings (Next 15).
+
+### Added
+
+- `scripts/consumer-next.mjs` (`bun run check:next`) and a `consumers-next` CI job: a clean Next 15 and 16 app with both routers; checks build, SSR, hydration, a server action and `validateValues` on the server.
+
 ## 1.0.0-rc.1 (2026-11-12)
 
 First release candidate of 1.0.0. The v1 schema contract, the public API of `artisanform` and `artisanform/schema`, the capabilities contract and the catalog format are frozen under the rules of [versioning](docs/versioning.md): until 1.0.0 only fixes land. The sections below (all `1.0.0-rc.1`) are what changed since 0.3.0-beta.2: server-side validation and `artisanform/schema`, capabilities, translations, performance gates and the contract freeze. Try it with `npm install artisanform@rc`.
