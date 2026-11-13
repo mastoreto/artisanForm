@@ -4,6 +4,10 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
 ## Unreleased
 
+## 1.0.0-rc.5 (2026-11-13)
+
+Adds the visual form builder, `artisanform/builder`: an optional entry, so nothing changes for code that does not import it. It needs two new **optional** peers, `@dnd-kit/core` and `@dnd-kit/sortable`, only to use the builder. The schema contract and the root and schema APIs are unchanged. Guide: [docs/builder.md](docs/builder.md).
+
 ### Added
 
 - **The builder's interface.** `<FormBuilder>` is a palette of inputs, a canvas with the steps and their fields, an inspector and a live preview, and gives back a v1 schema on every change (`onChange({ schema, ok, issues })`, `onSave({ …, hash })`). Drag an input from the palette (or click it) and reorder with the mouse, touch or the keyboard (Space to pick up, arrows, Space to drop); every row also has move up and down, duplicate, remove and move-to-step buttons. The inspector is generated from the catalog, so each input shows only what its type accepts; `mode="simple"` hides advanced and developer settings and inputs, and `policy` limits the inputs on offer. The preview is the real `<ArtisanForm>` (phone, tablet and desktop widths, light and dark). Controlled (`value`) or not (`defaultValue`), `readOnly`, `features` to turn parts off, and every text overridable through `labels`. The parts (`Palette`, `Canvas`, `Inspector`, `Preview`, `Toolbar`) and the `useFormBuilder` hook can be composed into your own layout. Import `artisanform/builder.css` (a separate stylesheet) and `artisanform/style.css`. Drag and drop uses `@dnd-kit/core` and `@dnd-kit/sortable`, optional peers: install them to use the builder.
