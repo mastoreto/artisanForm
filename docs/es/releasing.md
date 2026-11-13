@@ -18,7 +18,7 @@ Cómo se publica ArtisanForm en npm. Se publican cinco paquetes juntos, todos co
 
 - `develop` es integración; `main` es lo que se publica. Nadie commitea directo a ninguna: los cambios llegan por pull request, y `develop` → `main` es solo para releases.
 - Los kits tienen al núcleo como peer (`artisanform@^<versión>`), así que se publican **en lockstep**: el mismo número de versión, en este orden: núcleo, bootstrap, mui, tailwind, scss. `check:pack` falla si la versión de un kit difiere de la del núcleo.
-- Las pre-releases usan el sufijo `-beta.N` y el dist-tag `beta`. La **primera** publicación de un paquete también fija `latest` (npm lo hace cuando el paquete todavía no tiene `latest`), así que hasta el primer release estable un simple `npm install artisanform` instala la beta; eso fue lo que pasó con `0.3.0-beta.0`. Cuando se publique una versión estable con `--tag latest`, las siguientes publicaciones con `--tag beta` dejan `latest` como está. Una beta se instala de forma explícita con `npm install artisanform@beta`.
+- Las pre-releases usan el sufijo `-beta.N` o `-rc.N`. Qué dist-tag de npm recibe una versión, y cómo la siguen los tags de git y los Releases de GitHub, es una sola regla: [Versiones, tags y releases](#versiones-tags-y-releases-la-regla-única).
 
 ## Configuración inicial (una sola vez)
 
@@ -30,22 +30,40 @@ Cómo se publica ArtisanForm en npm. Se publican cinco paquetes juntos, todos co
 1. Verificá que `develop` esté en verde en el CI y que el changelog (`CHANGELOG.md` y `docs/es/CHANGELOG.md`) describa el release.
 2. Poné la versión nueva en el `package.json` raíz **y** en los cuatro kits (`packages/ui-*/package.json`), y actualizá el rango de `peerDependencies.artisanform` de los kits si cambió el minor. Abrí un PR a `develop`.
 3. Mergeá `develop` en `main` con un pull request.
-4. En **Actions → Release → Run workflow**, elegí la rama `main`, dejá `tag` en `beta` (o el dist-tag que quieras) y mantené **`dry-run` activado**. Verificá que termine en verde.
-5. Corrélo de nuevo con `dry-run` **desactivado**. Esto publica de verdad y **no se puede deshacer**: un número de versión publicado no se puede volver a usar nunca.
+4. En **Actions → Release → Run workflow**, elegí la rama `main`, y mantené **`dry-run` activado**. Verificá que termine en verde y leé la línea `version … -> dist-tag …` que imprime.
+5. Corrélo de nuevo con `dry-run` **desactivado**. Esto publica de verdad y **no se puede deshacer**: un número de versión publicado no se puede volver a usar nunca. También crea el tag de git y el Release de GitHub.
 6. Verificá el resultado desde el registro, con los paquetes reales instalados en una app limpia:
 
    ```bash
-   ARTISAN_SPEC=0.3.0-beta.0 node scripts/consumer-test.mjs 19
+   ARTISAN_SPEC=<versión> node scripts/consumer-test.mjs 19
    ```
 
    Instala el núcleo y los kits de bootstrap, MUI y Tailwind desde npm, los tipa contra la prop `kit` y compila una app Vite limpia (usá `18` en lugar de `19` para React 18).
 
+## Versiones, tags y releases (la regla única)
+
+Un único número de versión identifica un release en todos lados, y todo lo demás se deriva de él:
+
+| Dónde | Qué | Cómo |
+| --- | --- | --- |
+| Código | `version` del `package.json` raíz y de los cuatro kits | idéntica; `check:pack` falla si no |
+| Git | tag `vX.Y.Z[-pre.N]` sobre el commit de `main` que se publicó | lo crea el workflow `Release` |
+| GitHub | un Release por tag, marcado *pre-release* cuando la versión tiene `-` | lo crea el workflow, con notas generadas |
+| npm | exactamente dos dist-tags, `latest` y `next` | ver abajo |
+
+Dist-tags de npm:
+
+- Una versión **estable** (sin `-`) se publica como `latest`.
+- Una **pre-release** (`-beta.N`, `-rc.N`) se publica como `next`, **salvo mientras no exista una versión estable**: entonces va a `latest`, así un `npm install artisanform` sin tag y la página de npm muestran el build más nuevo y no una pre-release vieja. Desde la primera versión estable, `latest` solo se mueve con versiones estables.
+- **No hay tags `beta` ni `rc`**: el sufijo de la versión ya dice qué es. No inventes un tag nuevo; un tag por canal es como `latest`, `beta` y `rc` terminaron en tres versiones distintas.
+- El workflow calcula el tag a partir de la versión; no hay un input para elegirlo. Publicar a mano sigue la misma regla (`TAG` más abajo).
+
 ## Release candidate y estable (1.0.0)
 
-1. **`1.0.0-rc.N`**, tag `rc`: el contrato está congelado ([versionado](versioning.md)); solo entran correcciones. Publicá con `--tag rc` y verificá desde el registro (`ARTISAN_SPEC=1.0.0-rc.1 node scripts/consumer-test.mjs 19`, `18` y `node scripts/consumer-schema.mjs`). `latest` sigue apuntando a la beta anterior.
+1. **`1.0.0-rc.N`**: el contrato está congelado ([versionado](versioning.md)); solo entran correcciones. Se publica como `latest` (todavía no existe una estable); verificá desde el registro (`ARTISAN_SPEC=1.0.0-rc.1 node scripts/consumer-test.mjs 19`, `18` y `node scripts/consumer-schema.mjs`).
 2. **Criterios de salida para 1.0.0:** al menos dos semanas sin cambios de contrato (`check:api` y los fixtures golden sin tocar) y sin issues P0/P1 abiertos; CI en verde en todos los jobs, incluido `perf` en los tres navegadores; documentación en inglés y español sincronizada. Si algo de esto falla, sale una nueva `rc.N`, no un parche sobre el candidato.
-3. **`1.0.0`**: subí la versión de los cinco paquetes (y el `peerDependencies.artisanform` de los kits a `^1.0.0`) y publicá con `--tag latest`. Es la primera publicación que mueve `latest` fuera de la beta; desde entonces un `npm install artisanform` simple instala la estable.
-4. Deprecá las betas reemplazadas (`npm deprecate artisanform@"<1.0.0-rc.1" "Usá 1.x"`) cuando `latest` sea estable.
+3. **`1.0.0`**: subí la versión de los cinco paquetes (y el `peerDependencies.artisanform` de los kits a `^1.0.0`) y publicala como `latest`. Desde ahí `latest` solo se mueve con versiones estables y las pre-releases posteriores van a `next`.
+4. Deprecá las betas reemplazadas (`npm deprecate artisanform@"<1.0.0" "Usá 1.x"`) cuando `latest` sea estable.
 
 ## Qué hace el workflow `Release`
 
@@ -66,12 +84,13 @@ Antes de publicar a mano, corré `bun run check:publish` después de construir. 
 git checkout main && git pull
 bun install && bun run build && bun run build:kits
 npm login                                              # tu usuario, con 2FA
+TAG=latest   # una versión estable, o una pre-release mientras no exista una estable; si no, next
 
-npm publish --access public --tag beta --ignore-scripts
-(cd packages/ui-bootstrap && npm publish --access public --tag beta)
-(cd packages/ui-mui       && npm publish --access public --tag beta)
-(cd packages/ui-tailwind  && npm publish --access public --tag beta)
-(cd packages/ui-scss      && npm publish --access public --tag beta)
+npm publish --access public --tag $TAG --ignore-scripts
+(cd packages/ui-bootstrap && npm publish --access public --tag $TAG)
+(cd packages/ui-mui       && npm publish --access public --tag $TAG)
+(cd packages/ui-tailwind  && npm publish --access public --tag $TAG)
+(cd packages/ui-scss      && npm publish --access public --tag $TAG)
 ```
 
 Después corré la verificación del paso 6 de arriba.

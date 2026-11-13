@@ -2,7 +2,7 @@
 import { project } from '../data/project';
 
 // react and react-dom are implied for a React library.
-const installPackages = 'artisanform@beta react-hook-form yup zustand';
+const installPackages = 'artisanform react-hook-form yup zustand';
 
 export const en = {
   lang: 'en' as 'en' | 'es',
@@ -358,7 +358,7 @@ export default function ContactPage() {
       },
       {
         q: 'Is it published to npm yet?',
-        a: `Yes. ${project.version} is on npm under the rc tag: npm install artisanform@rc. A plain npm install still gets an older beta until 1.0.0 is published.`,
+        a: `Yes. ${project.version} is on npm: npm install artisanform.`,
       },
     ],
   },

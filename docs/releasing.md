@@ -18,7 +18,7 @@ How ArtisanForm is published to npm. Five packages ship together, all at the sam
 
 - `develop` is integration; `main` is what gets released. Nobody commits to either directly: changes arrive through pull requests, and `develop` → `main` is only for releases.
 - The kits peer on the core (`artisanform@^<version>`), so they are released **in lockstep**: same version number, published in this order: core, bootstrap, mui, tailwind, scss. `check:pack` fails if a kit version differs from the core's.
-- Pre-releases use a `-beta.N` suffix and the `beta` dist-tag. The **very first** publish of a package also sets `latest` (npm does it when a package has no `latest` yet), so until the first stable release a plain `npm install artisanform` installs the beta; that is what happened with `0.3.0-beta.0`. Once a stable version is published with `--tag latest`, later `--tag beta` publishes leave `latest` alone. Install a beta explicitly with `npm install artisanform@beta`.
+- Pre-releases use a `-beta.N` or `-rc.N` suffix. Which npm dist-tag a version gets, and how git tags and GitHub Releases follow, is one rule: [Versions, tags and releases](#versions-tags-and-releases-the-single-rule).
 
 ## One-time setup
 
@@ -30,22 +30,40 @@ How ArtisanForm is published to npm. Five packages ship together, all at the sam
 1. Make sure `develop` is green in CI and the changelog (`CHANGELOG.md` and `docs/es/CHANGELOG.md`) describes the release.
 2. Set the new version in the root `package.json` **and** in the four kits (`packages/ui-*/package.json`), and update the kits' `peerDependencies.artisanform` range if the minor changed. Open a PR to `develop`.
 3. Merge `develop` into `main` with a pull request.
-4. In **Actions → Release → Run workflow**, choose the branch `main`, leave `tag` as `beta` (or the dist-tag you want) and keep **`dry-run` on**. Check that it is green.
-5. Run it again with `dry-run` **off**. This publishes for real, and **it cannot be undone**: a published version number can never be reused.
+4. In **Actions → Release → Run workflow**, choose the branch `main`, and keep **`dry-run` on**. Check that it is green and read the `version … -> dist-tag …` line it prints.
+5. Run it again with `dry-run` **off**. This publishes for real, and **it cannot be undone**: a published version number can never be reused. It also creates the git tag and the GitHub Release.
 6. Verify the result from the registry, with the real packages installed in a clean app:
 
    ```bash
-   ARTISAN_SPEC=0.3.0-beta.0 node scripts/consumer-test.mjs 19
+   ARTISAN_SPEC=<version> node scripts/consumer-test.mjs 19
    ```
 
    It installs the core and the bootstrap, MUI and Tailwind kits from npm, typechecks them against the `kit` prop and builds a clean Vite app (use `18` instead of `19` for React 18).
 
+## Versions, tags and releases (the single rule)
+
+One version number identifies a release everywhere, and everything below is derived from it:
+
+| Where | What | How |
+| --- | --- | --- |
+| Source | `version` in the root and the four kit `package.json` | identical; `check:pack` fails otherwise |
+| Git | tag `vX.Y.Z[-pre.N]` on the `main` commit that was published | created by the `Release` workflow |
+| GitHub | one Release per tag, marked *pre-release* when the version has a `-` | created by the workflow, with generated notes |
+| npm | exactly two dist-tags, `latest` and `next` | see below |
+
+npm dist-tags:
+
+- A **stable** version (no `-`) is published as `latest`.
+- A **pre-release** (`-beta.N`, `-rc.N`) is published as `next`, **except while no stable version exists**: then it goes to `latest`, so a plain `npm install artisanform` and the npm page show the newest build instead of an old pre-release. From the first stable version on, `latest` only moves with stable versions.
+- There are **no `beta` or `rc` tags**: the suffix in the version already says what it is. Do not invent a new tag; a tag per channel is how `latest`, `beta` and `rc` ended up on three different versions.
+- The workflow computes the tag from the version; there is no input to choose it. Publishing by hand follows the same rule (`TAG` below).
+
 ## Release candidate and stable (1.0.0)
 
-1. **`1.0.0-rc.N`**, tag `rc`: the contract is frozen ([versioning](versioning.md)); only fixes land. Publish with `--tag rc`, then check it from the registry (`ARTISAN_SPEC=1.0.0-rc.1 node scripts/consumer-test.mjs 19`, `18` and `node scripts/consumer-schema.mjs`). `latest` keeps pointing at the old beta.
+1. **`1.0.0-rc.N`**: the contract is frozen ([versioning](versioning.md)); only fixes land. It is published as `latest` (no stable version exists yet), then check it from the registry (`ARTISAN_SPEC=1.0.0-rc.1 node scripts/consumer-test.mjs 19`, `18` and `node scripts/consumer-schema.mjs`).
 2. **Exit criteria for 1.0.0:** at least two weeks with no contract change (`check:api` and the golden fixtures untouched) and no open P0/P1 issue; CI green on every job, including `perf` in the three browsers; docs in English and Spanish in sync. Anything that breaks one of these means a new `rc.N`, not a patch to the candidate.
-3. **`1.0.0`**: bump the five packages (and the kits' `peerDependencies.artisanform` to `^1.0.0`), publish with `--tag latest`. This is the first publish that moves `latest` off the beta; from then on a plain `npm install artisanform` installs the stable version.
-4. Deprecate the superseded betas (`npm deprecate artisanform@"<1.0.0-rc.1" "Use 1.x"`) once `latest` is stable.
+3. **`1.0.0`**: bump the five packages (and the kits' `peerDependencies.artisanform` to `^1.0.0`), publish it as `latest`. From then on `latest` only moves with stable versions, and later pre-releases go to `next`.
+4. Deprecate the superseded betas (`npm deprecate artisanform@"<1.0.0" "Use 1.x"`) once `latest` is stable.
 
 ## What the `Release` workflow does
 
@@ -66,12 +84,13 @@ Before publishing by hand, run `bun run check:publish` after building. It fails 
 git checkout main && git pull
 bun install && bun run build && bun run build:kits
 npm login                                              # your user, with 2FA
+TAG=latest   # a stable version, or a pre-release while no stable exists; otherwise next
 
-npm publish --access public --tag beta --ignore-scripts
-(cd packages/ui-bootstrap && npm publish --access public --tag beta)
-(cd packages/ui-mui       && npm publish --access public --tag beta)
-(cd packages/ui-tailwind  && npm publish --access public --tag beta)
-(cd packages/ui-scss      && npm publish --access public --tag beta)
+npm publish --access public --tag $TAG --ignore-scripts
+(cd packages/ui-bootstrap && npm publish --access public --tag $TAG)
+(cd packages/ui-mui       && npm publish --access public --tag $TAG)
+(cd packages/ui-tailwind  && npm publish --access public --tag $TAG)
+(cd packages/ui-scss      && npm publish --access public --tag $TAG)
 ```
 
 Then run the verification from step 6 above.

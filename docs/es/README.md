@@ -4,7 +4,7 @@
 
 Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con estilos en CSS plano (tematizables y reemplazables), validación con React Hook Form + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
 
-> **Estado:** release candidate, `1.0.0-rc.1` (dist-tag de npm `rc`; el contrato está congelado, ver [versionado](versioning.md)): wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable, plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal; probados por el mantenedor contra el sandbox de cada proveedor) y kits de UI oficiales. Ver [Estado del proyecto](#estado-del-proyecto).
+> **Estado:** release candidate, `1.0.0-rc.1` (`latest` en npm; el contrato está congelado, ver [versionado](versioning.md)): wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable, plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal; probados por el mantenedor contra el sandbox de cada proveedor) y kits de UI oficiales. Ver [Estado del proyecto](#estado-del-proyecto).
 
 ## Documentación
 
@@ -358,19 +358,19 @@ Los ajustes semánticos `ui` del esquema (`columns`, `span`, `density`, `labelPo
 `react-hook-form`, `yup` y `zustand` son `peerDependencies` (junto a `react` y `react-dom`, que ya tenés); usá npm, pnpm, yarn o bun. Mientras la librería esté en beta, instalala con el tag `beta`:
 
 ```bash
-npm install artisanform@rc react-hook-form yup zustand
-pnpm add artisanform@rc react-hook-form yup zustand
-yarn add artisanform@rc react-hook-form yup zustand
-bun add artisanform@rc react-hook-form yup zustand
+npm install artisanform react-hook-form yup zustand
+pnpm add artisanform react-hook-form yup zustand
+yarn add artisanform react-hook-form yup zustand
+bun add artisanform react-hook-form yup zustand
 ```
 
 Los kits de UI oficiales son paquetes aparte y opcionales, bajo el scope `@beardartisans`; tienen a `artisanform` como peer, y `artisanform` nunca depende de ellos:
 
 ```bash
-npm install @beardartisans/ui-bootstrap@rc
-pnpm add @beardartisans/ui-bootstrap@rc
-yarn add @beardartisans/ui-bootstrap@rc
-bun add @beardartisans/ui-bootstrap@rc
+npm install @beardartisans/ui-bootstrap
+pnpm add @beardartisans/ui-bootstrap
+yarn add @beardartisans/ui-bootstrap
+bun add @beardartisans/ui-bootstrap
 # o ui-mui, ui-tailwind, ui-scss
 ```
 
