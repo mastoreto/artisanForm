@@ -20,6 +20,7 @@ const targets = [
       'dist/index.js',
       'dist/index.d.ts',
       'dist/style.css',
+      'dist/style.css.d.ts',
       'dist/schema.js',
       'dist/schema/index.d.ts',
     ],

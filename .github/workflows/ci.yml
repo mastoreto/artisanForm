@@ -104,6 +104,24 @@ jobs:
           name: perf-${{ matrix.browser }}
           path: perf-results.*.json
 
+  # The packed tarball in a clean Next.js app with both routers: App Router
+  # (a Server Component, a 'use client' wrapper, a server action) and Pages Router.
+  consumers-next:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        next: [15.5.29, 16.4.3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium
+      - run: bun run build
+      - run: NEXT_VERSION=${{ matrix.next }} node scripts/consumer-next.mjs "$RUNNER_TEMP/consumer-next"
+
   # The packed tarball installed in clean Vite apps (React 18 and 19).
   consumers:
     runs-on: ubuntu-latest

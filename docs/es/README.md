@@ -383,9 +383,18 @@ El uso de cada kit, y el item de registry de shadcn/ui, están en [docs/es/ui.md
 | React / React DOM | `^18.3.1 \|\| ^19.0.0` (18.3.1 y 19.3.1 probadas en apps Vite limpias, más SSR en Node) |
 | Formato de módulo | **Solo ESM** (`"type": "module"`); `require()` de CommonJS no está soportado |
 | TypeScript | `moduleResolution` `bundler`, `node16` o `nodenext`. El `node10` heredado no resuelve los tipos de `artisanform/payments/*` |
+| Next.js | 15.5 y 16.4, App Router y Pages Router (probado en una app limpia con ambos, ver abajo) |
 | Herramientas de build | Cualquier bundler que entienda `exports`; hay que importar `artisanform/style.css` una vez |
 
 **React Compiler.** El código publicado ya está compilado con React Compiler (`oxc-transform-react` en Rust mediante `@vitejs/plugin-react`, `target: '18'`). Quien consume la librería **no necesita configurar el compilador**. La salida importa `react-compiler-runtime` (dependencia normal de este paquete), que funciona en React 18 y 19; React sigue siendo externo, así que hay una sola copia de React en tu app. Tu propia app puede activar u omitir el compilador por su cuenta.
+
+**Next.js.** Las entradas que renderizan o usan hooks (`artisanform`, `artisanform/headless`, `artisanform/payments/*`) traen la directiva `'use client'`, así que funcionan en ambos routers:
+
+- **Pages Router:** se usa como en cualquier app React (también renderiza en el servidor). Importá `artisanform/style.css` en `pages/_app.tsx`.
+- **App Router:** importá `ArtisanForm` en un Client Component, o directo en un Server Component. Desde un Server Component, `onSubmit` tiene que ser una [server action](https://nextjs.org/docs/app/getting-started/mutating-data), porque una función común no puede pasar al navegador. Importá `artisanform/style.css` en `app/layout.tsx`.
+- **Código de servidor:** importá desde `artisanform/schema` (`defineForm`, `parseArtisanSchema`, `validateValues`…). No tiene directiva ni React, así que corre en Server Components, route handlers y server actions. Los mismos nombres reexportados por `artisanform` son referencias de cliente ahí y no se pueden llamar en el servidor.
+
+`bun run check:next` instala el tarball empaquetado en una app Next limpia con ambos routers y verifica el build, el HTML renderizado en el servidor, la hidratación, una server action y `validateValues` en el servidor.
 
 **Renderizado en servidor.** El paquete compilado se renderiza con `react-dom/server` (verificado en el test de consumo). Los borradores (`persistKey`) leen `localStorage` solo en el cliente.
 

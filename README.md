@@ -382,9 +382,18 @@ Usage of each kit, and the shadcn/ui registry item, is in [docs/ui.md](docs/ui.m
 | React / React DOM | `^18.3.1 \|\| ^19.0.0` (18.3.1 and 19.3.1 tested in clean Vite apps, plus Node SSR) |
 | Module format | **ESM only** (`"type": "module"`); CommonJS `require()` is not supported |
 | TypeScript | `moduleResolution` `bundler`, `node16` or `nodenext`. Legacy `node10` cannot resolve the `artisanform/payments/*` types |
+| Next.js | 15.5 and 16.4, App Router and Pages Router (tested in a clean app with both, see below) |
 | Build tooling | Any bundler that understands `exports`; `artisanform/style.css` must be imported once |
 
 **React Compiler.** The published code is already compiled with the React Compiler (Rust `oxc-transform-react` through `@vitejs/plugin-react`, `target: '18'`). Consumers need **no compiler configuration**. The output imports `react-compiler-runtime` (a regular dependency of this package), which works on React 18 and 19; React itself stays external, so there is a single copy of React in your app. Your own app can enable or skip the compiler independently.
+
+**Next.js.** The entries that render or use hooks (`artisanform`, `artisanform/headless`, `artisanform/payments/*`) ship the `'use client'` directive, so they work in both routers:
+
+- **Pages Router:** use it like in any React app (it also server-renders). Import `artisanform/style.css` in `pages/_app.tsx`.
+- **App Router:** import `ArtisanForm` in a Client Component, or straight in a Server Component. From a Server Component, `onSubmit` must be a [server action](https://nextjs.org/docs/app/getting-started/mutating-data), because plain functions cannot cross to the browser. Import `artisanform/style.css` in `app/layout.tsx`.
+- **Server code:** import from `artisanform/schema` (`defineForm`, `parseArtisanSchema`, `validateValues`…). It has no directive and no React, so it runs in Server Components, route handlers and server actions. The same names re-exported by `artisanform` are client references there and cannot be called on the server.
+
+`bun run check:next` installs the packed tarball in a clean Next app with both routers and checks the build, the server-rendered HTML, hydration, a server action and `validateValues` on the server.
 
 **Server-side rendering.** The built package renders with `react-dom/server` (checked in the consumer test). Drafts (`persistKey`) read `localStorage` only on the client.
 
