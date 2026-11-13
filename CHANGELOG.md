@@ -2,6 +2,19 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## 1.0.0-rc.4 (2026-11-13)
+
+Replaces `1.0.0-rc.3`, which was published with an old build (no `artisanform/schema.json`, none of the new `artisanform/schema` functions, and a CLI that could not run). rc.4 is the same source as rc.3, built correctly; rc.3's contents are listed under its own heading. Do not use rc.3.
+
+### Fixed
+
+- A stale build can no longer be published by hand: each kit has a `prepublishOnly` that runs the prepublish check (links, freshness of `dist`, typings), and the documented manual publish no longer skips the core's `prepublishOnly`.
+- The `artisanform` CLI was lost when publishing: with `"bin": {"artisanform": "./bin/artisanform.mjs"}` npm 11 drops the entry ("script name … was invalid and removed"). The path is now `bin/artisanform.mjs`, and `check:pack` fails when `npm publish --dry-run` would correct anything in a `package.json`; `verify-registry` also checks that the published package has its `bin`.
+
+### Added
+
+- `scripts/verify-registry.mjs`: downloads the five packages of a version from npm and checks their files and that `artisanform/schema` declares every export of the API snapshot. The `Release` workflow runs it after a real publish (retrying while npm propagates).
+
 ## 1.0.0-rc.3 (2026-11-13)
 
 Third release candidate: backend tooling. It adds the `sensitive` field flag (a contract addition), `checkSchema` and its companions in `artisanform/schema`, a form that no longer throws on a schema it cannot run, `artisanform/schema.json`, the `artisanform` CLI and the [backend guide](docs/backend.md). Everything is additive except the behavior changes listed under "Changed".

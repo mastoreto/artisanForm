@@ -2,6 +2,19 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## 1.0.0-rc.4 (2026-11-13)
+
+Reemplaza a `1.0.0-rc.3`, que se publicó con un build viejo (sin `artisanform/schema.json`, sin ninguna de las funciones nuevas de `artisanform/schema` y con un CLI que no podía ejecutarse). La rc.4 es el mismo código que la rc.3, construido correctamente; el contenido de la rc.3 está listado bajo su propio título. No uses la rc.3.
+
+### Corregido
+
+- Ya no se puede publicar a mano un build viejo: cada kit tiene un `prepublishOnly` que corre el chequeo previo (enlaces, frescura de `dist`, tipos), y la publicación manual documentada ya no se salta el `prepublishOnly` del núcleo.
+- Se perdía el CLI `artisanform` al publicar: con `"bin": {"artisanform": "./bin/artisanform.mjs"}` npm 11 descarta la entrada ("script name … was invalid and removed"). Ahora la ruta es `bin/artisanform.mjs`, y `check:pack` falla cuando `npm publish --dry-run` corregiría algo de un `package.json`; `verify-registry` también comprueba que el paquete publicado tenga su `bin`.
+
+### Agregado
+
+- `scripts/verify-registry.mjs`: descarga los cinco paquetes de una versión desde npm y verifica sus archivos y que `artisanform/schema` declare todos los exports del snapshot de la API. El workflow `Release` lo corre después de una publicación real (reintentando mientras npm propaga).
+
 ## 1.0.0-rc.3 (2026-11-13)
 
 Tercer release candidate: herramientas de backend. Agrega la marca `sensitive` en los campos (una adición al contrato), `checkSchema` y sus compañeras en `artisanform/schema`, un formulario que ya no lanza una excepción ante un schema que no puede ejecutar, `artisanform/schema.json`, el CLI `artisanform` y la [guía de backend](backend.md). Todo es aditivo salvo los cambios de comportamiento listados en "Cambiado".
