@@ -1,6 +1,6 @@
 {
   "name": "@beardartisans/ui-tailwind",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-rc.4",
   "description": "Tailwind CSS kit for ArtisanForm",
   "license": "MIT",
   "author": "ArtisanForm contributors",
@@ -40,7 +40,7 @@
     "check": "publint --strict"
   },
   "peerDependencies": {
-    "artisanform": "^1.0.0-rc.3"
+    "artisanform": "^1.0.0-rc.4"
   },
   "devDependencies": {
     "artisanform": "link:../.."
