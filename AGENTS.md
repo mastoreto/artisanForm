@@ -37,6 +37,7 @@ src/
     legacy/              the 0.2.0 shape (types.ts) + the adapter to v1 (adapter.ts)
     parser.ts · normalize.ts
     __tests__/           + fixtures/ (0.2.0 schemas mirroring the playground)
+  builder/               the visual form builder (optional entry `artisanform/builder`): model/ is pure (operations, catalog, history), no React
   persistence/           ArtisanSnapshotV1 and draft storage (does not import the engine either)
   engine/                runs a schema; React Hook Form/Yup/Zustand live here
     project.ts           normalized schema → the shape the wizard consumes (the only seam that knows both)

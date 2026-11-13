@@ -2,6 +2,12 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## Unreleased
+
+### Added
+
+- **`artisanform/builder` (first part: the model).** The foundation of a visual form builder, with no React: immutable operations over a v1 schema (`addField`, `removeField`, `moveField` across steps and into the rows of an `array`, `duplicateField`, `renameField`, the same for steps, and `setProperty` on a dotted path), names and ids that stay unique (implicit names such as `${name}End` and `termsAccepted` included), references that follow a rename or are pruned on removal, undo and redo with merging of typing bursts, and `pathToSelection` to jump from an issue path to the element. `FIELD_CATALOG` and `STEP_CATALOG` describe every native type for a palette, and `fieldProperties` / `stepProperties` list the properties an inspector edits. A new field or step type in the contract is a compile error until the catalog and the inspector decide how to handle it, and a test fails if a contract key is left uncovered. The operations keep a schema valid by construction: tested with random sequences of operations (seeded) that must pass `checkSchema` after every step. The entry is optional: it has its own size budget and does not grow the rest of the package.
+
 ## 1.0.0-rc.4 (2026-11-13)
 
 Replaces `1.0.0-rc.3`, which was published with an old build (no `artisanform/schema.json`, none of the new `artisanform/schema` functions, and a CLI that could not run). rc.4 is the same source as rc.3, built correctly; rc.3's contents are listed under its own heading. Do not use rc.3.

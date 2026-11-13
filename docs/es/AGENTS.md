@@ -39,6 +39,7 @@ src/
     legacy/              la forma 0.2.0 (types.ts) + el adaptador a v1 (adapter.ts)
     parser.ts · normalize.ts
     __tests__/           + fixtures/ (esquemas 0.2.0 que reflejan el playground)
+  builder/               el constructor visual de formularios (entry opcional `artisanform/builder`): model/ es puro (operaciones, catálogo, historial), sin React
   persistence/           ArtisanSnapshotV1 y storage de borradores (tampoco importa el motor)
   engine/                ejecuta un esquema; acá viven React Hook Form/Yup/Zustand
     project.ts           esquema normalizado → la forma que consume el wizard (la única costura que conoce ambas)

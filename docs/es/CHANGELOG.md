@@ -2,6 +2,12 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Unreleased
+
+### Agregado
+
+- **`artisanform/builder` (primera parte: el modelo).** La base de un constructor visual de formularios, sin React: operaciones inmutables sobre un schema v1 (`addField`, `removeField`, `moveField` entre pasos y hacia las filas de un `array`, `duplicateField`, `renameField`, lo mismo para pasos, y `setProperty` sobre una ruta con puntos), nombres e ids que se mantienen únicos (incluidos los implícitos como `${name}End` y `termsAccepted`), referencias que siguen a un renombrado o se podan al borrar, deshacer y rehacer con fusión de ráfagas de tipeo, y `pathToSelection` para saltar de la ruta de un issue al elemento. `FIELD_CATALOG` y `STEP_CATALOG` describen cada tipo nativo para una paleta, y `fieldProperties` / `stepProperties` listan las propiedades que edita un inspector. Un tipo nuevo de campo o de paso en el contrato es un error de compilación hasta que el catálogo y el inspector decidan cómo tratarlo, y un test falla si una clave del contrato queda sin cubrir. Las operaciones dejan siempre un schema válido: se probó con secuencias aleatorias de operaciones (con semilla) que deben pasar `checkSchema` después de cada paso. El entry es opcional: tiene su propio presupuesto de tamaño y no hace crecer el resto del paquete.
+
 ## 1.0.0-rc.4 (2026-11-13)
 
 Reemplaza a `1.0.0-rc.3`, que se publicó con un build viejo (sin `artisanform/schema.json`, sin ninguna de las funciones nuevas de `artisanform/schema` y con un CLI que no podía ejecutarse). La rc.4 es el mismo código que la rc.3, construido correctamente; el contenido de la rc.3 está listado bajo su propio título. No uses la rc.3.
