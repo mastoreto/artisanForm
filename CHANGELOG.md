@@ -4,6 +4,15 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
 ## Unreleased
 
+### Changed
+
+- **`<ArtisanForm>` no longer throws on a schema that cannot run.** Before, an invalid schema or a name nobody registered threw during render and, without an error boundary in the app, left the page blank. Now the form runs the schema through the same gate as `checkSchema` first and, when something stops it, shows a short message instead (`labels.schemaErrorMessage`, translatable; in development it also lists each error with its code and path, controlled by `showSchemaIssues`). Everything is reported through the new `onSchemaIssues(issues)` prop, errors and warnings alike, once per distinct set. A custom `fallback` (node or function of the issues) replaces the message. The headless `useArtisanWizard` returns `schemaIssues` and `schemaBlocked`. A blocked form never reads or touches a saved draft.
+  - What stops the form (error): an invalid schema, a missing hook, wait strategy, renderer, action or payment provider, an unregistered step type, an invalid `config` of a custom type. A missing payment provider is now reported before the user fills anything, not when the payment step is reached.
+  - What only degrades (warning): a missing options source (the field shows no options; before, it blocked the form), a missing storage adapter, an unregistered custom field (it shows its own notice), lint findings, and anything found in a 0.2.0 schema, which never blocks.
+  - `normalizeArtisanSchema` still throws `ArtisanSchemaError` (its contract); only the form stopped throwing.
+- `Unknown field type` / `Unknown step kind` come from `labels` (`unknownFieldType`, `unknownStepKind`) instead of being fixed English.
+- With a `SchemaPolicy` object, a `storage` id that the policy does not list is now a `policy-violation` (before, any adapter id passed). Add `storage: [...]` to the policy to allow the ones you provide. Trusted schemas are unaffected.
+
 ### Added
 
 - **Backend helpers in `artisanform/schema`:** `answerFields(schema)`, `answerKeys(field)` and `sensitiveAnswerKeys(schema)` list the questions a schema asks, the keys a field writes (a date range and a dynamic select write two) and the keys flagged sensitive. Pure functions, no React.
@@ -20,10 +29,6 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 - **`lintSchema(schema)`:** semantic warnings (`forward-field-reference`, `default-not-an-option`, `duplicate-option`).
 - **`canonicalize(value)` and `schemaHash(value)`:** stable JSON text (sorted keys) and its SHA-256 (hex): an ETag, the identity of a revision, change detection.
 - **`compareSchemas(previous, next)`:** what changed between two revisions (added, removed, changed type, required, dropped options) and whether answers given to the previous one keep their meaning (`compatible`).
-
-### Changed
-
-- With a `SchemaPolicy` object, a `storage` id that the policy does not list is now a `policy-violation` (before, any adapter id passed). Add `storage: [...]` to the policy to allow the ones you provide. Trusted schemas are unaffected.
 
 ## 1.0.0-rc.2 (2026-11-13)
 

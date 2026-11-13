@@ -319,7 +319,10 @@ Cada tipo es una `FieldDefinition` (`render`, `initialValues`, `rules`, y opcion
 | `fields?`             | Registro de tipos de campo propios (ver arriba)                                                                                           |
 | `stepTypes?`          | Registro de tipos de paso propios (`StepDefinition`)                                                                                      |
 | `extensions?`         | Funciones y componentes locales a los que un esquema v1 hace referencia por id (`options`, `waits`, `hooks`, `renderers`, `actions`)      |
-| `onUnresolved?`       | Se llama por cada nombre que el esquema usa y que `extensions` no provee; devuelve `'ignore'` para renderizar sin él (por defecto: falla con `unresolved-reference`) |
+| `onUnresolved?`       | Se llama por cada nombre que el esquema usa y que `extensions` no provee; devuelve `'ignore'` para renderizar sin él (por defecto: se informa como `unresolved-reference` y, si detiene el formulario, se muestra un mensaje en lugar del formulario) |
+| `onSchemaIssues?`             | Se llama con los errores y avisos del esquema (una vez por conjunto distinto): para registrar o alertar |
+| `fallback?`                   | Qué mostrar en lugar de un formulario cuyo esquema no puede ejecutarse (un nodo o una función de los issues); por defecto: un mensaje corto y traducible |
+| `showSchemaIssues?`           | Lista cada error del esquema en ese mensaje (por defecto: fuera de producción) |
 | `storage?`            | Adapter(s) de almacenamiento para campos `file`/`image` (ver arriba)                                                                      |
 | `plugins?`            | `{ payments: PaymentPlugin[], navigate? }` para los pasos de pago                                                                         |
 

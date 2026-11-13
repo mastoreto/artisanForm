@@ -318,7 +318,10 @@ Each type is a `FieldDefinition` (`render`, `initialValues`, `rules`, and option
 | `fields?`                     | Registry of custom field types (see above)                                                                                                       |
 | `stepTypes?`                  | Registry of custom step types (`StepDefinition`)                                                                                                 |
 | `extensions?`                 | Local functions and components a v1 schema refers to by id (`options`, `waits`, `hooks`, `renderers`, `actions`)                                 |
-| `onUnresolved?`               | Called for each name the schema uses that `extensions` does not provide; return `'ignore'` to render without it (default: fail with `unresolved-reference`) |
+| `onUnresolved?`               | Called for each name the schema uses that `extensions` does not provide; return `'ignore'` to render without it (default: reported as `unresolved-reference` and, if it stops the form, a message is shown instead of the form) |
+| `onSchemaIssues?`             | Called with the errors and warnings about the schema (once per distinct set): log or alert with it |
+| `fallback?`                   | What to show instead of a form whose schema cannot run (a node or a function of the issues); default: a short, translatable message |
+| `showSchemaIssues?`           | List every schema error in that message (default: outside production) |
 | `storage?`                    | Storage adapter(s) for `file`/`image` fields (see above)                                                                                         |
 | `plugins?`                    | `{ payments: PaymentPlugin[], navigate? }` for payment steps                                                                                     |
 

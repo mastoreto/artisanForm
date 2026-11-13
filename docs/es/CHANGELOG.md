@@ -4,6 +4,15 @@
 
 ## Unreleased
 
+### Cambiado
+
+- **`<ArtisanForm>` ya no lanza una excepción ante un schema que no puede ejecutarse.** Antes, un schema inválido o un nombre que nadie registró lanzaba durante el render y, sin un error boundary en la app, dejaba la página en blanco. Ahora el formulario pasa el schema por la misma puerta que `checkSchema` y, si algo lo detiene, muestra un mensaje corto (`labels.schemaErrorMessage`, traducible; en desarrollo además lista cada error con su código y ruta, controlado por `showSchemaIssues`). Todo se informa por la nueva prop `onSchemaIssues(issues)`, errores y avisos por igual, una vez por cada conjunto distinto. Un `fallback` propio (nodo o función de los issues) reemplaza el mensaje. El hook headless `useArtisanWizard` devuelve `schemaIssues` y `schemaBlocked`. Un formulario bloqueado nunca lee ni toca un borrador guardado.
+  - Lo que detiene el formulario (error): un schema inválido, un hook, wait strategy, renderer, acción o proveedor de pago ausente, un tipo de paso no registrado, un `config` inválido de un tipo custom. Un proveedor de pago ausente ahora se informa antes de que el usuario complete nada, no al llegar al paso de pago.
+  - Lo que solo degrada (aviso): un origen de opciones ausente (el campo no muestra opciones; antes bloqueaba el formulario), un adaptador de storage ausente, un campo custom no registrado (muestra su propio aviso), hallazgos de lint, y todo lo que se encuentre en un schema 0.2.0, que nunca bloquea.
+  - `normalizeArtisanSchema` sigue lanzando `ArtisanSchemaError` (es su contrato); solo el formulario dejó de lanzar.
+- `Unknown field type` / `Unknown step kind` salen de `labels` (`unknownFieldType`, `unknownStepKind`) en lugar de estar fijos en inglés.
+- Con un objeto `SchemaPolicy`, un id de `storage` que la política no lista ahora es un `policy-violation` (antes pasaba cualquier id). Agregá `storage: [...]` a la política para permitir los que proveés. Los schemas de confianza no cambian.
+
 ### Agregado
 
 - **Ayudantes para backend en `artisanform/schema`:** `answerFields(schema)`, `answerKeys(field)` y `sensitiveAnswerKeys(schema)` listan las preguntas que hace un schema, las claves que escribe un campo (un rango de fechas y un select dinámico escriben dos) y las claves marcadas como sensibles. Funciones puras, sin React.
@@ -20,10 +29,6 @@
 - **`lintSchema(schema)`:** avisos semánticos (`forward-field-reference`, `default-not-an-option`, `duplicate-option`).
 - **`canonicalize(value)` y `schemaHash(value)`:** texto JSON estable (claves ordenadas) y su SHA-256 (hex): un ETag, la identidad de una revisión, detección de cambios.
 - **`compareSchemas(previous, next)`:** qué cambió entre dos revisiones (agregadas, quitadas, tipo cambiado, obligatoriedad, opciones eliminadas) y si las respuestas dadas a la anterior conservan su significado (`compatible`).
-
-### Cambiado
-
-- Con un objeto `SchemaPolicy`, un id de `storage` que la política no lista ahora es un `policy-violation` (antes pasaba cualquier id). Agregá `storage: [...]` a la política para permitir los que proveés. Los schemas de confianza no cambian.
 
 ## 1.0.0-rc.2 (2026-11-13)
 
