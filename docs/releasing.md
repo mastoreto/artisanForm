@@ -60,7 +60,7 @@ npm dist-tags:
 
 ## Release candidate and stable (1.0.0)
 
-1. **`1.0.0-rc.N`**: the contract is frozen ([versioning](versioning.md)); only fixes land. It is published as `latest` (no stable version exists yet), then check it from the registry (`ARTISAN_SPEC=1.0.0-rc.2 node scripts/consumer-test.mjs 19`, `18` and `node scripts/consumer-schema.mjs`).
+1. **`1.0.0-rc.N`**: the contract is frozen ([versioning](versioning.md)); only fixes land. It is published as `latest` (no stable version exists yet), then check it from the registry (`ARTISAN_SPEC=1.0.0-rc.4 node scripts/consumer-test.mjs 19`, `18` and `node scripts/consumer-schema.mjs`).
 2. **Exit criteria for 1.0.0:** at least two weeks with no contract change (`check:api` and the golden fixtures untouched) and no open P0/P1 issue; CI green on every job, including `perf` in the three browsers; docs in English and Spanish in sync. Anything that breaks one of these means a new `rc.N`, not a patch to the candidate.
 3. **`1.0.0`**: bump the five packages (and the kits' `peerDependencies.artisanform` to `^1.0.0`), publish it as `latest`. From then on `latest` only moves with stable versions, and later pre-releases go to `next`.
 4. Deprecate the superseded betas (`npm deprecate artisanform@"<1.0.0" "Use 1.x"`) once `latest` is stable.
@@ -86,14 +86,22 @@ bun install && bun run build && bun run build:kits
 npm login                                              # your user, with 2FA
 TAG=latest   # a stable version, or a pre-release while no stable exists; otherwise next
 
-npm publish --access public --tag $TAG --ignore-scripts
+# No --ignore-scripts here: the core's `prepublishOnly` rebuilds everything and runs the gates, and
+# each kit's `prepublishOnly` refuses a stale build. They are the safety net of a manual publish.
+npm publish --access public --tag $TAG
 (cd packages/ui-bootstrap && npm publish --access public --tag $TAG)
 (cd packages/ui-mui       && npm publish --access public --tag $TAG)
 (cd packages/ui-tailwind  && npm publish --access public --tag $TAG)
 (cd packages/ui-scss      && npm publish --access public --tag $TAG)
 ```
 
-Then run the verification from step 6 above.
+Then check what the registry really serves, and run the verification from step 6 above:
+
+```bash
+node scripts/verify-registry.mjs   # downloads the five tarballs and checks their files and the schema exports
+```
+
+If it fails, **do not try to fix the published version**: npm never lets you replace one. Publish the next one and `npm deprecate` the bad one (`npm deprecate "artisanform@1.0.0-rc.3" "Broken build, use 1.0.0-rc.4"`).
 
 ## Trusted Publishing (no token)
 

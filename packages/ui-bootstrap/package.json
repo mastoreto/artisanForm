@@ -1,6 +1,6 @@
 {
   "name": "@beardartisans/ui-bootstrap",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.4",
   "description": "Bootstrap 5 UI kit for ArtisanForm",
   "license": "MIT",
   "author": "ArtisanForm contributors",
@@ -37,12 +37,13 @@
     "./style.css": "./dist/style.css"
   },
   "scripts": {
+    "prepublishOnly": "node ../../scripts/prepublish-check.mjs --skip-consumer",
     "build": "vite build && cp src/style.css dist/style.css",
     "typecheck": "tsc --noEmit",
     "check": "publint --strict"
   },
   "peerDependencies": {
-    "artisanform": "^1.0.0-rc.2"
+    "artisanform": "^1.0.0-rc.4"
   },
   "devDependencies": {
     "artisanform": "link:../.."

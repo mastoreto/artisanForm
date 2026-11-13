@@ -70,6 +70,16 @@ jobs:
             (cd "$dir" && npm publish $flags)
             echo "::endgroup::"
           done
+      - name: Verify what the registry really serves
+        if: ${{ !inputs.dry-run }}
+        run: |
+          # npm needs a moment to propagate: retry before failing.
+          VER=$(node -p "require('./package.json').version")
+          for i in 1 2 3 4 5 6; do
+            node scripts/verify-registry.mjs "$VER" && exit 0
+            sleep 30
+          done
+          exit 1
       - name: Git tag and GitHub Release
         if: ${{ !inputs.dry-run }}
         env:

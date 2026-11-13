@@ -1,6 +1,6 @@
 {
   "name": "@beardartisans/ui-mui",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.4",
   "description": "Material UI kit for ArtisanForm",
   "license": "MIT",
   "author": "ArtisanForm contributors",
@@ -34,6 +34,7 @@
     }
   },
   "scripts": {
+    "prepublishOnly": "node ../../scripts/prepublish-check.mjs --skip-consumer",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "check": "publint --strict"
@@ -42,7 +43,7 @@
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
     "@mui/material": "^9.0.0",
-    "artisanform": "^1.0.0-rc.2",
+    "artisanform": "^1.0.0-rc.4",
     "react": "^18.3.1 || ^19.0.0"
   },
   "devDependencies": {
