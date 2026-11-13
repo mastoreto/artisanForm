@@ -58,7 +58,7 @@ src/
     storage/             StorageAdapter + presignedPut, cloudinary, mock
     wait/                WaitStrategy (polling, sse, websocket, callback)
   commons/               cn.ts (clsx), labels.ts (textos)
-  styles/artisanform.css la única hoja de estilos: CSS plano, clases `af-*`, tokens `--artisan-*`
+  styles/artisanform.css la hoja del formulario: CSS plano, clases `af-*`, tokens `--artisan-*` (el builder tiene la suya, `builder/builder.css`)
   __tests__/setup.ts     preload de happy-dom para bun test
 bin/                     el CLI `artisanform` (validate, json-schema, hash); ejecuta el `dist/schema.js` construido
 packages/                paquetes del workspace: ui-bootstrap, ui-mui, ui-tailwind, ui-scss (kits), ui-shadcn (plantilla + item de registry)
@@ -91,7 +91,7 @@ Un tipo de campo nuevo = una `FieldDefinition` en `components/fields/registry.ts
 - Biome manda (`biome.jsonc`: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 cols). Correr `bun run format` antes de commitear; no mezclar reformateo con cambios funcionales.
 - Un componente por carpeta, `export default`, con su `*.stories.tsx` al lado.
 - Inputs: `forwardRef`, props tipadas con `interface`, `id` + `label` obligatorios, `className` opcional mezclado vía `cx()`. Accesibilidad básica obligatoria (`label htmlFor`, `aria-invalid`/`aria-describedby` en errores).
-- Estilos solo en `src/styles/artisanform.css`, como clases `af-*` simples (el estado por `data-*`/`aria-*`) y variables `--artisan-*`: sin frameworks, sin selectores de elemento sueltos. Los componentes obtienen sus clases con `useCx()` para que `classNames` y `unstyled` sigan funcionando. Tailwind solo lo usan el playground y Storybook.
+- Estilos solo en una hoja por entry: `src/styles/artisanform.css` para el formulario y `src/builder/builder.css` para el builder opcional (nunca va a `style.css`), como clases `af-*` (builder: `afb-*`) simples (el estado por `data-*`/`aria-*`) y variables `--artisan-*`: sin frameworks, sin selectores de elemento sueltos. Los componentes obtienen sus clases con `useCx()` para que `classNames` y `unstyled` sigan funcionando. Tailwind solo lo usan el playground y Storybook.
 - Los puntos de extensión de UI (`components`, contratos en `components/ui/types.ts`) son API pública: nunca exponen React Hook Form ni Zustand. Ver `docs/es/ui.md`.
 - Estado global solo en `useArtisanStore`; estado local de UI en el componente. Nada de estado hardcodeado de demo dentro de componentes.
 - Todo lo público se exporta desde `src/index.ts`.
