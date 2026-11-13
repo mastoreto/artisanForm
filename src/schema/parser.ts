@@ -34,11 +34,29 @@ export interface SchemaPolicy {
   renderers?: readonly string[];
   actions?: readonly string[];
   paymentProviders?: readonly string[];
+  /** Storage adapter ids a `file`/`image` field may name in `storage`. */
+  storage?: readonly string[];
+}
+
+/**
+ * Ceilings against abuse, for a schema that comes from outside. None is applied
+ * unless set (a trusted schema needs no limits); a backend that accepts
+ * schemas from users should set all four.
+ */
+export interface SchemaLimits {
+  /** Size of the JSON text in bytes (UTF-8). Checked first; nothing else runs past it. */
+  maxBytes?: number;
+  maxSteps?: number;
+  /** Fields in form steps, counting the item fields of arrays and content fields. */
+  maxFields?: number;
+  /** Options in any one list (`options`, `dependentOptions` of one parent). */
+  maxOptions?: number;
 }
 
 export interface ParseOptions {
   /** `trusted` (default) accepts any reference; an object restricts them. */
   policy?: 'trusted' | SchemaPolicy;
+  limits?: SchemaLimits;
 }
 
 export type ParseResult<T> =
@@ -217,6 +235,22 @@ export const parseArtisanSchema = (
     return { success: false, issues: c.issues };
   }
 
+  const limits = options.limits;
+  if (limits?.maxBytes !== undefined) {
+    let bytes = 0;
+    try {
+      bytes = new TextEncoder().encode(JSON.stringify(input)).length;
+    } catch {} // not serializable: checkJSON reports it
+    if (bytes > limits.maxBytes) {
+      c.error(
+        'too-large',
+        '$',
+        `the schema is ${bytes} bytes, over the limit of ${limits.maxBytes}`,
+      );
+      return { success: false, issues: c.issues };
+    }
+  }
+
   checkJSON(input, '$', c);
 
   // version
@@ -242,6 +276,7 @@ export const parseArtisanSchema = (
   checkKeys(
     input,
     [
+      '$schema',
       'schemaVersion',
       'id',
       'revision',
@@ -254,6 +289,7 @@ export const parseArtisanSchema = (
     '$',
     c,
   );
+  if (input.$schema !== undefined) need.string(input.$schema, '$schema', c);
   need.string(input.id, 'id', c);
   if (input.revision !== undefined) need.int(input.revision, 'revision', c);
   if (input.title !== undefined) need.string(input.title, 'title', c, true);
@@ -393,6 +429,12 @@ export const parseArtisanSchema = (
         path,
         'must be an array of { value, label }',
       );
+    if (limits?.maxOptions !== undefined && v.length > limits.maxOptions)
+      c.error(
+        'too-many-options',
+        path,
+        `${v.length} options, over the limit of ${limits.maxOptions}`,
+      );
     for (const [i, o] of v.entries()) {
       if (!isObj(o)) {
         c.error('invalid-type', `${path}[${i}]`, 'must be { value, label }');
@@ -495,7 +537,7 @@ export const parseArtisanSchema = (
     endName: (v, p) => need.string(v, p, c),
     endLabel: (v, p) => need.string(v, p, c, true),
     accept: (v, p) => need.string(v, p, c),
-    storage: (v, p) => need.string(v, p, c),
+    storage: (v, p) => reference(v, pol.storage, p, 'storage adapter'),
     capture: (v, p) => need.oneOf(v, p, c, ['user', 'environment']),
     dependentName: (v, p) => need.string(v, p, c),
     addLabel: (v, p) => need.string(v, p, c, true),
@@ -983,6 +1025,36 @@ export const parseArtisanSchema = (
   else if (input.steps.length === 0)
     c.error('empty-steps', 'steps', 'a schema needs at least one step');
   else {
+    if (limits?.maxSteps !== undefined && input.steps.length > limits.maxSteps)
+      c.error(
+        'too-many-steps',
+        'steps',
+        `${input.steps.length} steps, over the limit of ${limits.maxSteps}`,
+      );
+    if (limits?.maxFields !== undefined) {
+      const fields = input.steps.reduce(
+        (total: number, step: unknown) =>
+          total +
+          (isObj(step) && step.type === 'form' && Array.isArray(step.fields)
+            ? step.fields.reduce(
+                (n: number, f: unknown) =>
+                  n +
+                  1 +
+                  (isObj(f) && Array.isArray(f.itemFields)
+                    ? f.itemFields.length
+                    : 0),
+                0,
+              )
+            : 0),
+        0,
+      );
+      if (fields > limits.maxFields)
+        c.error(
+          'too-many-fields',
+          'steps',
+          `${fields} fields, over the limit of ${limits.maxFields}`,
+        );
+    }
     for (const [i, s] of input.steps.entries()) checkStep(s, `steps[${i}]`);
     checkFlow(input.steps);
     // A payment recorded in the browser is never proof of payment: a redirect

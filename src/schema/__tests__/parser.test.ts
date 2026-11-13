@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { parseArtisanSchema, type SchemaPolicy } from '../parser';
+import {
+  parseArtisanSchema,
+  type SchemaLimits,
+  type SchemaPolicy,
+} from '../parser';
 
 const valid = () => ({
   schemaVersion: 1,
@@ -735,4 +739,129 @@ test('a policy can restrict native field and step types', () => {
     parseArtisanSchema(schema, { policy: { paymentProviders: ['stripe'] } })
       .success,
   ).toBe(true);
+});
+
+describe('storage in the policy', () => {
+  const withStorage = (storage: string) => ({
+    schemaVersion: 1,
+    id: 'f',
+    steps: [
+      {
+        id: 's',
+        type: 'form',
+        title: 'S',
+        fields: [{ name: 'doc', type: 'file', storage }],
+      },
+    ],
+  });
+
+  test('a storage adapter the policy does not list is a policy violation', () => {
+    expect(errors(withStorage('cloud'), { fieldTypes: [] })).toEqual([
+      'policy-violation @ steps[0].fields[0].storage',
+    ]);
+    expect(errors(withStorage('cloud'), { storage: ['other'] })).toEqual([
+      'policy-violation @ steps[0].fields[0].storage',
+    ]);
+  });
+
+  test('listed adapters and trusted schemas pass', () => {
+    expect(errors(withStorage('cloud'), { storage: ['cloud'] })).toEqual([]);
+    expect(errors(withStorage('cloud'))).toEqual([]);
+  });
+});
+
+describe('limits', () => {
+  const big = (steps: number, fieldsPerStep: number, options = 0) => ({
+    schemaVersion: 1,
+    id: 'f',
+    steps: Array.from({ length: steps }, (_, s) => ({
+      id: `s${s}`,
+      type: 'form',
+      title: 'S',
+      fields: Array.from({ length: fieldsPerStep }, (_, f) =>
+        options
+          ? {
+              name: `f${s}_${f}`,
+              type: 'select',
+              options: Array.from({ length: options }, (_, o) => ({
+                value: `v${o}`,
+                label: `V${o}`,
+              })),
+            }
+          : { name: `f${s}_${f}`, type: 'text' },
+      ),
+    })),
+  });
+  const codes = (input: unknown, limits: SchemaLimits): string[] => {
+    const r = parseArtisanSchema(input, { limits });
+    return r.success ? [] : r.issues.map((i) => `${i.code} @ ${i.path}`);
+  };
+
+  test('nothing is limited unless asked', () => {
+    expect(parseArtisanSchema(big(30, 30)).success).toBe(true);
+  });
+
+  test('maxBytes stops before anything else is read', () => {
+    expect(codes(big(2, 2), { maxBytes: 50 })).toEqual(['too-large @ $']);
+    expect(codes(big(2, 2), { maxBytes: 100_000 })).toEqual([]);
+  });
+
+  test('maxBytes counts UTF-8 bytes, not characters', () => {
+    const s = { ...big(1, 1), title: 'ñ'.repeat(40) };
+    const chars = JSON.stringify(s).length;
+    expect(codes(s, { maxBytes: chars + 10 })).toEqual(['too-large @ $']);
+  });
+
+  test('maxSteps and maxFields (array item fields and content fields count)', () => {
+    expect(codes(big(5, 1), { maxSteps: 4 })).toEqual([
+      'too-many-steps @ steps',
+    ]);
+    expect(codes(big(2, 3), { maxFields: 5 })).toEqual([
+      'too-many-fields @ steps',
+    ]);
+    expect(codes(big(2, 3), { maxFields: 6 })).toEqual([]);
+    const withArray = {
+      schemaVersion: 1,
+      id: 'f',
+      steps: [
+        {
+          id: 's',
+          type: 'form',
+          title: 'S',
+          fields: [
+            {
+              name: 'team',
+              type: 'array',
+              itemFields: [
+                { name: 'a', type: 'text' },
+                { name: 'b', type: 'text' },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    expect(codes(withArray, { maxFields: 2 })).toEqual([
+      'too-many-fields @ steps',
+    ]);
+    expect(codes(withArray, { maxFields: 3 })).toEqual([]);
+  });
+
+  test('maxOptions limits one list', () => {
+    expect(codes(big(1, 1, 5), { maxOptions: 4 })).toEqual([
+      'too-many-options @ steps[0].fields[0].options',
+    ]);
+    expect(codes(big(1, 1, 5), { maxOptions: 5 })).toEqual([]);
+  });
+});
+
+test('$schema is an optional string at the root', () => {
+  const s = {
+    ...valid(),
+    $schema: 'https://unpkg.com/artisanform/schema.json',
+  };
+  expect(errors(s)).toEqual([]);
+  expect(errors({ ...valid(), $schema: 3 })).toEqual([
+    'invalid-type @ $schema',
+  ]);
 });
