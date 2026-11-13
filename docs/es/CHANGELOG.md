@@ -2,6 +2,22 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Unreleased
+
+### Agregado
+
+- **Ayudantes para backend en `artisanform/schema`:** `answerFields(schema)`, `answerKeys(field)` y `sensitiveAnswerKeys(schema)` listan las preguntas que hace un schema, las claves que escribe un campo (un rango de fechas y un select dinámico escriben dos) y las claves marcadas como sensibles. Funciones puras, sin React.
+- **`sensitive?: boolean` en los campos:** una marca para respuestas personales o confidenciales. La librería solo la transporta; quién puede leer esas respuestas lo decide el backend.
+- **`SchemaPolicy.nativeFieldTypes` / `nativeStepTypes`:** restringen qué tipos nativos de campo y de paso puede usar una fuente de schemas (las violaciones son `policy-violation`).
+- **`SchemaPolicy.storage`:** los ids de adaptadores de storage que un campo `file`/`image` puede nombrar.
+- **`ParseOptions.limits`** (`maxBytes`, `maxSteps`, `maxFields`, `maxOptions`): topes para schemas que vienen de afuera. Ninguno se aplica si no se define. Códigos: `too-large`, `too-many-steps`, `too-many-fields`, `too-many-options`.
+- **Opción `maxItems` de `validateValues`** (por defecto 1000): tope para las filas de un `array`, las opciones de un `check`/`multiselect` y los archivos de una subida, comprobado antes de recorrer la lista.
+- **`$schema`** se acepta como string opcional en la raíz de un schema (autocompletado en editores).
+
+### Cambiado
+
+- Con un objeto `SchemaPolicy`, un id de `storage` que la política no lista ahora es un `policy-violation` (antes pasaba cualquier id). Agregá `storage: [...]` a la política para permitir los que proveés. Los schemas de confianza no cambian.
+
 ## 1.0.0-rc.2 (2026-11-13)
 
 Segundo release candidate: corrige la compatibilidad con Next.js. El contrato v1 y la API pública (`check:api`) no cambian respecto de `1.0.0-rc.1`.
