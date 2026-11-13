@@ -68,6 +68,7 @@ describe('Spanish documentation mirrors the English originals', () => {
     ['docs/schema-v1.md', 'docs/es/schema-v1.md'],
     ['docs/backend.md', 'docs/es/backend.md'],
     ['docs/ui.md', 'docs/es/ui.md'],
+    ['docs/builder.md', 'docs/es/builder.md'],
     ['docs/versioning.md', 'docs/es/versioning.md'],
   ];
 
@@ -88,6 +89,7 @@ describe('Spanish documentation mirrors the English originals', () => {
       'docs/es/schema-v1.md',
       'docs/es/backend.md',
       'docs/es/ui.md',
+      'docs/es/builder.md',
     ])
       expect(agents).toContain(link);
   });

@@ -14,6 +14,7 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 | [Guía de backend](backend.md) | Guardar, servir y validar schemas en cualquier base de datos; autores de plugins y tipos custom; el CLI `artisanform` y `schema.json` |
 | [Versionado (contrato 1.x)](versioning.md) | Qué puede cambiar en una menor, qué exige una mayor y las guardias |
 | [Extensión de UI y kits](ui.md) | Estilos, `components`, `classNames` y los kits oficiales |
+| [Constructor visual](builder.md) | `artisanform/builder`: un editor con arrastrar y soltar que produce el schema, para un CRM o panel de administración |
 | [Rendimiento](performance.md) | Presupuestos de Web Vitals y cómo correrlos |
 | [API headless](headless.md) | `useArtisanWizard`: el comportamiento sin markup, para tu propia UI |
 | [Pagos](payments.md) | Plugins, el principio de seguridad y una checklist de producción |
