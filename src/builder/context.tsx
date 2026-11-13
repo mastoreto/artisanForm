@@ -24,6 +24,10 @@ export interface BuilderContextValue extends FormBuilder {
   policy?: 'trusted' | SchemaPolicy;
   /** Props passed to the live `<ArtisanForm>` of the preview (kit, theme, extensions…). */
   previewProps: Record<string, unknown>;
+  /** Language the preview renders in (`undefined`: the schema's own). */
+  previewLocale?: string;
+  setPreviewLocale: (locale: string | undefined) => void;
+  templates: import('./templates').BuilderTemplate[];
 }
 
 export const BuilderContext = createContext<BuilderContextValue | null>(null);

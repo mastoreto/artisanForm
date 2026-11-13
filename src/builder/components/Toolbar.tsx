@@ -10,12 +10,18 @@ export interface SavePayload extends BuilderResult {
 }
 
 /** Undo and redo, the mode, a validity badge, JSON export and save. */
+export type Panel = 'templates' | 'translations' | 'json';
+
 export const Toolbar = ({
   onSave,
   onModeChange,
+  panel,
+  onPanel,
 }: {
   onSave?: (payload: SavePayload) => void;
   onModeChange?: (mode: 'simple' | 'advanced') => void;
+  panel?: Panel;
+  onPanel?: (panel: Panel | undefined) => void;
 }) => {
   const {
     labels,
@@ -78,6 +84,26 @@ export const Toolbar = ({
         {errors ? labels.problems(errors) : labels.valid}
       </span>
       <span className={bx('spacer')} />
+      {onPanel &&
+        (
+          [
+            ['templates', labels.panelTemplates, features.templates],
+            ['translations', labels.panelTranslations, features.translations],
+            ['json', labels.panelJson, features.json || features.import],
+          ] as const
+        )
+          .filter(([, , on]) => on)
+          .map(([id, text]) => (
+            <button
+              key={id}
+              type="button"
+              className={bx('button')}
+              aria-pressed={panel === id}
+              onClick={() => onPanel(panel === id ? undefined : id)}
+            >
+              {text}
+            </button>
+          ))}
       {features.json && (
         <button type="button" className={bx('button')} onClick={copy}>
           {copied ? labels.copied : labels.exportJson}

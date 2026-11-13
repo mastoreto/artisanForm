@@ -8,7 +8,8 @@ type Device = keyof typeof WIDTHS;
 
 /** The real form, rendered from the schema as it is right now. */
 export const Preview = () => {
-  const { schema, selection, labels, previewProps } = useBuilder();
+  const { schema, selection, labels, previewProps, previewLocale } =
+    useBuilder();
   const bx = useBx();
   const [device, setDevice] = useState<Device>('desktop');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -60,6 +61,7 @@ export const Preview = () => {
           step={stepIndex}
           theme={theme}
           showSchemaIssues
+          locale={previewLocale}
           {...(previewProps as object)}
           onSubmit={() => {}}
         />

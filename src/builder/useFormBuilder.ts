@@ -176,6 +176,8 @@ export const useFormBuilder = ({
 
   const actions = {
     select: (selection: Selection) => dispatch({ type: 'select', selection }),
+    /** Applies any model operation; edits sharing a `key` close together merge into one undo step. */
+    apply: (fn: Run, key?: string) => run(fn, key),
     undo: () => dispatch({ type: 'undo' }),
     redo: () => dispatch({ type: 'redo' }),
     /** Replaces the whole schema (import, template); one undo step. */

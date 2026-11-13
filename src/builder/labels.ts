@@ -109,6 +109,34 @@ export interface BuilderLabels {
   actionAction: string;
   flowTitle: string;
   flowEnd: string;
+  panelTemplates: string;
+  panelTranslations: string;
+  panelJson: string;
+  closePanel: string;
+  templatesTitle: string;
+  useTemplate: (title: string) => string;
+  confirmReplace: string;
+  jsonTitle: string;
+  applyJson: string;
+  loadFile: string;
+  downloadJson: string;
+  importedNotes: (n: number) => string;
+  importedLegacy: string;
+  jsonRefused: string;
+  transTitle: string;
+  addLanguage: string;
+  languageTag: string;
+  sourceLanguage: string;
+  noLanguages: string;
+  removeLanguage: (tag: string) => string;
+  previewInLanguage: string;
+  translatedCount: (done: number, total: number) => string;
+  transMissing: string;
+  transBadPlaceholders: string;
+  transPlural: string;
+  transOrphans: (n: number) => string;
+  invalidLanguage: string;
+  languageExists: string;
 }
 
 export const defaultBuilderLabels: BuilderLabels = {
@@ -225,4 +253,34 @@ export const defaultBuilderLabels: BuilderLabels = {
   actionAction: 'Action',
   flowTitle: 'Flow',
   flowEnd: 'ends here',
+  panelTemplates: 'Templates',
+  panelTranslations: 'Translations',
+  panelJson: 'JSON',
+  closePanel: 'Close',
+  templatesTitle: 'Start from a template',
+  useTemplate: (title) => `Use ${title}`,
+  confirmReplace: 'This replaces the current form. Click again to confirm.',
+  jsonTitle: 'Schema JSON',
+  applyJson: 'Apply',
+  loadFile: 'Load a file',
+  downloadJson: 'Download',
+  importedNotes: (n) =>
+    `Imported. ${n} ${n === 1 ? 'thing was' : 'things were'} not carried over exactly.`,
+  importedLegacy: 'An older schema was converted to the current format.',
+  jsonRefused: 'This is not a schema the builder can open:',
+  transTitle: 'Translations',
+  addLanguage: 'Add language',
+  languageTag: 'Language (es, es-AR…)',
+  sourceLanguage: 'Language of the form',
+  noLanguages: 'No translations yet. Add a language to start.',
+  removeLanguage: (tag) => `Remove ${tag}`,
+  previewInLanguage: 'Preview in this language',
+  translatedCount: (done, total) => `${done} of ${total} translated`,
+  transMissing: 'Missing',
+  transBadPlaceholders: 'Placeholders do not match',
+  transPlural: 'Plural forms (edit the JSON)',
+  transOrphans: (n) =>
+    `${n} ${n === 1 ? 'translation points' : 'translations point'} at a text that no longer exists`,
+  invalidLanguage: 'This is not a language tag',
+  languageExists: 'This language already exists',
 };

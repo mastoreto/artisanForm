@@ -14,6 +14,11 @@ export {
 export { Inspector } from './components/Inspector';
 export { Compatibility, Issues } from './components/Issues';
 export { Palette } from './components/Palette';
+export {
+  JsonPanel,
+  TemplatesPanel,
+  TranslationsPanel,
+} from './components/Panels';
 export { Preview } from './components/Preview';
 export { type SavePayload, Toolbar } from './components/Toolbar';
 export {

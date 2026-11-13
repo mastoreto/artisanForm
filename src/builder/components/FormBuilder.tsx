@@ -30,13 +30,15 @@ import {
 import { type BuilderUi, BuilderUiContext, useBx } from '../cx';
 import { type BuilderLabels, defaultBuilderLabels } from '../labels';
 import { FIELD_CATALOG } from '../model/catalog';
+import { type BuilderTemplate, defaultTemplates } from '../templates';
 import { type BuilderResult, useFormBuilder } from '../useFormBuilder';
 import { Canvas } from './Canvas';
 import { Inspector } from './Inspector';
 import { Compatibility, Issues } from './Issues';
 import { Palette } from './Palette';
+import { JsonPanel, TemplatesPanel, TranslationsPanel } from './Panels';
 import { Preview } from './Preview';
-import { type SavePayload, Toolbar } from './Toolbar';
+import { type Panel, type SavePayload, Toolbar } from './Toolbar';
 
 export interface FormBuilderProps extends BuilderUi {
   /** Controlled: the schema being edited. */
@@ -60,6 +62,8 @@ export interface FormBuilderProps extends BuilderUi {
   labels?: Partial<BuilderLabels>;
   /** Props for the live preview's `<ArtisanForm>` (kit, extensions, locale…). */
   previewProps?: Record<string, unknown>;
+  /** Starting points of the gallery (default: a few starter forms). */
+  templates?: BuilderTemplate[];
   className?: string;
   children?: ReactNode;
 }
@@ -159,9 +163,11 @@ export const FormBuilderProvider = ({
   classNames,
   unstyled,
   policy,
+  templates,
   ...options
 }: Omit<FormBuilderProps, 'onSave' | 'onModeChange' | 'className'>) => {
   const builder = useFormBuilder({ ...options, policy });
+  const [previewLocale, setPreviewLocale] = useState<string | undefined>();
   const value = useMemo<BuilderContextValue>(
     () => ({
       ...builder,
@@ -171,8 +177,21 @@ export const FormBuilderProvider = ({
       features: { ...ALL_FEATURES, ...features },
       policy,
       previewProps: previewProps ?? {},
+      previewLocale,
+      setPreviewLocale,
+      templates: templates ?? defaultTemplates,
     }),
-    [builder, labels, mode, readOnly, features, policy, previewProps],
+    [
+      builder,
+      labels,
+      mode,
+      readOnly,
+      features,
+      policy,
+      previewProps,
+      previewLocale,
+      templates,
+    ],
   );
   return (
     <BuilderUiContext.Provider value={{ classNames, unstyled }}>
@@ -190,9 +209,15 @@ const Layout = ({
 }: Pick<FormBuilderProps, 'onSave' | 'onModeChange' | 'className'>) => {
   const { features } = useBuilder();
   const bx = useBx();
+  const [panel, setPanel] = useState<Panel | undefined>();
   return (
     <div className={bx('root', className)}>
-      <Toolbar onSave={onSave} onModeChange={onModeChange} />
+      <Toolbar
+        onSave={onSave}
+        onModeChange={onModeChange}
+        panel={panel}
+        onPanel={setPanel}
+      />
       <Compatibility />
       <div className={bx('body', features.preview && 'afb-with-preview')}>
         <Palette />
@@ -200,6 +225,11 @@ const Layout = ({
         <Inspector />
         {features.preview && <Preview />}
       </div>
+      {panel === 'templates' && features.templates && <TemplatesPanel />}
+      {panel === 'translations' && features.translations && (
+        <TranslationsPanel />
+      )}
+      {panel === 'json' && <JsonPanel />}
       <Issues />
     </div>
   );
