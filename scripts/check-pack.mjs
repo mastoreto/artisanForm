@@ -23,6 +23,7 @@ const targets = [
       'dist/index.d.ts',
       'dist/style.css',
       'dist/style.css.d.ts',
+      'dist/builder.css.d.ts',
       'dist/schema.json',
       'dist/builder.js',
       'dist/builder.css',

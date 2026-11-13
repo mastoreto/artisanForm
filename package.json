@@ -152,7 +152,10 @@
       "import": "./dist/schema.js"
     },
     "./schema.json": "./dist/schema.json",
-    "./builder.css": "./dist/builder.css",
+    "./builder.css": {
+      "types": "./dist/builder.css.d.ts",
+      "default": "./dist/builder.css"
+    },
     "./builder": {
       "types": "./dist/builder/index.d.ts",
       "import": "./dist/builder.js"

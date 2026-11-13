@@ -37,6 +37,7 @@ const packages = [
       'dist/builder.css',
       'dist/style.css',
       'dist/style.css.d.ts',
+      'dist/builder.css.d.ts',
       'bin/artisanform.mjs',
     ],
   },
