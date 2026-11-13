@@ -33,6 +33,7 @@ const packages = [
       'dist/schema.js',
       'dist/schema/index.d.ts',
       'dist/schema.json',
+      'dist/builder.js',
       'dist/style.css',
       'dist/style.css.d.ts',
       'bin/artisanform.mjs',

@@ -25,12 +25,29 @@ const closure = (entry, seen = new Set()) => {
 };
 
 const files = walk('dist');
+// What only the builder entry loads: its closure minus what the other entries
+// already load. It is optional, so it has its own budget and does not count
+// against the rest of the library.
+const others = new Set(
+  files
+    .filter((f) =>
+      /^dist\/(index|headless|schema|payments\/[^/]+)\.js$/.test(
+        f.replaceAll('\\', '/'),
+      ),
+    )
+    .flatMap((f) => [...closure(f)]),
+);
+const builderOnly = [...closure('dist/builder.js')].filter(
+  (f) => !others.has(f),
+);
 const sizes = {
-  // Everything a consumer of the root entry may download.
-  js: gz(files.filter((f) => /\.js$/.test(f))),
+  // Everything a consumer of the root entry may download (the builder is apart).
+  js: gz(files.filter((f) => /\.js$/.test(f) && !builderOnly.includes(f))),
   css: gz(files.filter((f) => /\.css$/.test(f))),
   // The server-side entry must stay small: it is what a backend loads.
   schema: gz([...closure('dist/schema.js')]),
+  // The optional visual builder, on top of the root entry.
+  builder: gz(builderOnly),
 };
 
 if (process.argv.includes('--write')) {
