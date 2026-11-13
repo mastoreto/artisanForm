@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "id": "travel-onboarding",
+  "steps": [
+    {
+      "id": "you",
+      "type": "form",
+      "title": "Welcome",
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "What should we call you?",
+          "required": true
+        },
+        {
+          "type": "combobox",
+          "name": "home",
+          "label": "Home airport",
+          "placeholder": "Start typing…",
+          "options": [
+            {
+              "value": "madrid-mad",
+              "label": "Madrid MAD"
+            },
+            {
+              "value": "lisbon-lis",
+              "label": "Lisbon LIS"
+            },
+            {
+              "value": "buenos-aires-eze",
+              "label": "Buenos Aires EZE"
+            },
+            {
+              "value": "mexico-city-mex",
+              "label": "Mexico City MEX"
+            },
+            {
+              "value": "bogota-bog",
+              "label": "Bogota BOG"
+            },
+            {
+              "value": "montevideo-mvd",
+              "label": "Montevideo MVD"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "style",
+      "type": "form",
+      "title": "Your style",
+      "fields": [
+        {
+          "type": "radio",
+          "name": "pace",
+          "label": "Travel pace",
+          "required": true,
+          "options": [
+            {
+              "value": "slow",
+              "label": "Slow"
+            },
+            {
+              "value": "balanced",
+              "label": "Balanced"
+            },
+            {
+              "value": "packed",
+              "label": "Packed"
+            }
+          ]
+        },
+        {
+          "type": "multiselect",
+          "name": "interests",
+          "label": "Interests",
+          "options": [
+            {
+              "value": "food",
+              "label": "Food"
+            },
+            {
+              "value": "hiking",
+              "label": "Hiking"
+            },
+            {
+              "value": "museums",
+              "label": "Museums"
+            },
+            {
+              "value": "beaches",
+              "label": "Beaches"
+            },
+            {
+              "value": "nightlife",
+              "label": "Nightlife"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "name": "budget",
+          "label": "Daily budget (USD)",
+          "defaultValue": 120,
+          "step": 10,
+          "validation": {
+            "min": 30,
+            "max": 500
+          }
+        }
+      ]
+    },
+    {
+      "id": "dates",
+      "type": "form",
+      "title": "First trip",
+      "fields": [
+        {
+          "type": "daterange",
+          "name": "from",
+          "endName": "to",
+          "label": "Leaving",
+          "endLabel": "Coming back",
+          "validation": {
+            "min": "2026-11-12"
+          }
+        }
+      ]
+    },
+    {
+      "id": "alerts",
+      "type": "form",
+      "title": "Alerts",
+      "fields": [
+        {
+          "type": "switch",
+          "name": "deals",
+          "label": "Tell me about fare drops"
+        },
+        {
+          "type": "tel",
+          "name": "phone",
+          "label": "Phone for SMS alerts",
+          "visibleWhen": {
+            "field": "deals",
+            "operator": "eq",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "Your profile is ready. Let us find your first trip.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ]
+}

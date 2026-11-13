@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "id": "bank-transfer",
+  "steps": [
+    {
+      "id": "transfer",
+      "type": "form",
+      "title": "Transfer",
+      "fields": [
+        {
+          "type": "select",
+          "name": "from",
+          "label": "From",
+          "required": true,
+          "options": [
+            {
+              "value": "checking-1234",
+              "label": "Checking ····1234"
+            },
+            {
+              "value": "savings-9876",
+              "label": "Savings ····9876"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "beneficiary",
+          "label": "Beneficiary",
+          "required": true
+        },
+        {
+          "type": "text",
+          "name": "iban",
+          "label": "IBAN",
+          "required": true,
+          "validation": {
+            "pattern": "^[A-Z]{2}[0-9]{2}[A-Z0-9]{10,30}$"
+          },
+          "description": "e.g. ES9121000418450200051332"
+        },
+        {
+          "type": "number",
+          "name": "amount",
+          "label": "Amount",
+          "required": true,
+          "prefix": "$",
+          "validation": {
+            "min": 1,
+            "max": 50000
+          },
+          "description": "Over 1000 asks for a security code"
+        },
+        {
+          "type": "text",
+          "name": "concept",
+          "label": "Concept"
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "type": "form",
+      "title": "Security code",
+      "visibleWhen": {
+        "field": "amount",
+        "operator": "gt",
+        "value": 1000
+      },
+      "hooks": {
+        "beforeNext": "check-code"
+      },
+      "fields": [
+        {
+          "type": "otp",
+          "name": "code",
+          "label": "Code sent to your phone (use 123456)",
+          "length": 6,
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "title": "Review",
+      "revisit": "deny"
+    },
+    {
+      "id": "clearing",
+      "type": "wait",
+      "title": "Sending",
+      "strategy": "clearing",
+      "message": "Waiting for the bank network…",
+      "timeoutMs": 15000,
+      "retry": {
+        "max": 2,
+        "backoffMs": 800
+      },
+      "cancellable": true,
+      "failTo": "transfer"
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "Transfer sent. It usually lands within a minute.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ]
+}

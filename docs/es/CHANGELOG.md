@@ -2,6 +2,12 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## Sin publicar (Congelación del contrato)
+
+### Calidad
+
+- **Política de versionado y guardias del contrato (AF119):** [versionado](versioning.md) define qué puede cambiar en una menor de 1.x y qué exige una mayor, sobre tres superficies (el contrato del schema, la API de TypeScript de `artisanform` y `artisanform/schema`, el contrato de capacidades y el formato de catálogos). Lo hacen cumplir los fixtures golden (`src/schema/__tests__/fixtures-v1/`: los 13 ejemplos del catálogo deben parsear limpios, normalizar al JSON registrado y ser idempotentes y portables; los casos inválidos mantienen sus códigos y rutas) y `bun run check:api`, que compara cada export y declaración de ambas entradas con `api/*.api.txt` (CI, release y `prepublishOnly`). Sin cambios de comportamiento.
+
 ## Sin publicar (Rendimiento)
 
 ### Calidad

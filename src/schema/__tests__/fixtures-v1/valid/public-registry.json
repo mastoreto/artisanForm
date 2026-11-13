@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "id": "public-registry",
+  "steps": [
+    {
+      "id": "citizen",
+      "type": "form",
+      "title": "Applicant",
+      "ui": {
+        "columns": 2
+      },
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "Full name",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "text",
+          "name": "nationalId",
+          "label": "National ID",
+          "required": true,
+          "validation": {
+            "pattern": "^[0-9]{6,10}$"
+          },
+          "description": "6 to 10 digits"
+        },
+        {
+          "type": "date",
+          "name": "birthdate",
+          "label": "Date of birth",
+          "required": true,
+          "validation": {
+            "max": "2026-11-12"
+          }
+        },
+        {
+          "type": "text",
+          "name": "address",
+          "label": "Home address",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "household",
+      "type": "form",
+      "title": "Household",
+      "fields": [
+        {
+          "type": "array",
+          "name": "dependents",
+          "label": "Dependents",
+          "addLabel": "Add a dependent",
+          "validation": {
+            "maxItems": 5
+          },
+          "itemFields": [
+            {
+              "type": "text",
+              "name": "fullName",
+              "label": "Full name",
+              "required": true
+            },
+            {
+              "type": "select",
+              "name": "relation",
+              "label": "Relation",
+              "options": [
+                {
+                  "value": "child",
+                  "label": "Child"
+                },
+                {
+                  "value": "parent",
+                  "label": "Parent"
+                },
+                {
+                  "value": "spouse",
+                  "label": "Spouse"
+                },
+                {
+                  "value": "other",
+                  "label": "Other"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "documents",
+      "type": "form",
+      "title": "Documents",
+      "fields": [
+        {
+          "type": "file",
+          "name": "idScan",
+          "label": "ID scan",
+          "required": true,
+          "accept": "image/*,.pdf",
+          "validation": {
+            "maxSize": 5000000
+          }
+        },
+        {
+          "type": "file",
+          "name": "proofOfAddress",
+          "label": "Proof of address (optional)",
+          "accept": ".pdf"
+        }
+      ]
+    },
+    {
+      "id": "terms",
+      "type": "terms",
+      "title": "Terms",
+      "content": "By continuing you agree to the data protection notice. This is demo text: nothing is sent anywhere.",
+      "accept": {
+        "label": "I accept"
+      }
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "title": "Review"
+    },
+    {
+      "id": "processing",
+      "type": "wait",
+      "title": "Under review",
+      "strategy": "office",
+      "message": "An officer is reviewing your file…",
+      "cancellable": true,
+      "failTo": "review"
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Registered",
+      "message": "Your registration number is REG-2026-0042.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ]
+}

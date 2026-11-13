@@ -307,6 +307,8 @@ Fuera de alcance: diseños de derecha a izquierda, el formato de `<input type="d
 
 ## 10. Versionado ✅
 
+Las garantías de 1.x (qué puede cambiar en una menor, qué exige una mayor y las guardias que lo hacen cumplir) están en [versionado](versioning.md).
+
 - `schemaVersion: 1` identifica el formato. Un número mayor se rechaza (`unsupported-version`) en lugar de interpretarse mal. Un esquema **sin** `schemaVersion` se trata como 0.2.0 en `normalizeArtisanSchema`.
 - `id` identifica el formulario y `revision` una definición concreta; ambos se registran en los borradores.
 - Las migraciones de datos son opt-in (`snapshotMigrations`, §11): sin ellas se detecta la incompatibilidad y decide el consumidor.

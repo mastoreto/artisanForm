@@ -1,0 +1,58 @@
+[
+  { "name": "not an object", "schema": [], "errors": ["invalid-type @ $"] },
+  {
+    "name": "missing schemaVersion points at the legacy adapter",
+    "schema": {
+      "id": "x",
+      "steps": [{ "id": "a", "type": "form", "title": "A", "fields": [] }]
+    },
+    "errors": ["missing-version @ schemaVersion"]
+  },
+  {
+    "name": "a future version is refused",
+    "schema": {
+      "schemaVersion": 2,
+      "id": "x",
+      "steps": [{ "id": "a", "type": "result", "title": "A" }]
+    },
+    "errors": ["unsupported-version @ schemaVersion"]
+  },
+  {
+    "name": "no steps",
+    "schema": { "schemaVersion": 1, "id": "x", "steps": [] },
+    "errors": ["empty-steps @ steps"]
+  },
+  {
+    "name": "unknown root property",
+    "schema": {
+      "schemaVersion": 1,
+      "id": "x",
+      "extra": 1,
+      "steps": [{ "id": "a", "type": "result", "title": "A" }]
+    },
+    "errors": ["unknown-property @ $.extra"]
+  },
+  {
+    "name": "select with both options and optionsSource",
+    "schema": {
+      "schemaVersion": 1,
+      "id": "x",
+      "steps": [
+        {
+          "id": "a",
+          "type": "form",
+          "title": "A",
+          "fields": [
+            {
+              "type": "select",
+              "name": "p",
+              "options": [{ "value": "a", "label": "A" }],
+              "optionsSource": "s"
+            }
+          ]
+        }
+      ]
+    },
+    "errors": ["conflicting-properties @ steps[0].fields[0].optionsSource"]
+  }
+]

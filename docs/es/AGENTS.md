@@ -7,7 +7,7 @@ Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se 
 ## Idioma
 
 - **Todo lo que se genera en este repositorio va en inglés**: código, identificadores, comentarios, JSDoc, nombres de tests, mensajes de commit, texto de PR e issues, `README.md`, `AGENTS.md`, `CHANGELOG.md` y todo lo que está bajo `docs/`.
-- **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) [`schema v1`](schema-v1.md), [`UI`](ui.md), [`pagos`](payments.md), [`archivos`](files.md), [`accesibilidad`](accessibility.md) y [`release`](releasing.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
+- **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) [`schema v1`](schema-v1.md), [`UI`](ui.md), [`pagos`](payments.md), [`archivos`](files.md), [`accesibilidad`](accessibility.md), [`release`](releasing.md) y [`versionado`](versioning.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
 - Los textos de la librería nunca están hardcodeados: los valores por defecto (`src/commons/labels.ts`) están en inglés y todos se sobrescriben con la prop `labels`. Las etiquetas, nombres y títulos de paso son texto libre que aporta el esquema del usuario. Los textos de demo (playground, stories, fixtures, tests) también van en inglés.
 - A las personas se les responde en el idioma en que escriben; los artefactos del repositorio quedan en inglés.
 
@@ -26,7 +26,7 @@ bun run format            # biome check --write
 ```
 
 Además: `bun run playground` (app de prueba en vivo, escenarios en `playground/src/scenarios/`), `bun run e2e` (Playwright, `e2e/`), `bun run build` (librería), `bun run typecheck` y `bun test` (tests `*.test.ts(x)` junto al código).
-Además: `bun run perf` (presupuestos de Web Vitals sobre el playground de producción; ver `docs/es/performance.md`) y `bun run check:size` tras un build; `bun run lint:react` (reglas de React Hooks/Compiler), `bun run check:dist`, `bun run check:package` y `bun run check:pack` tras un build; `ARTISAN_BROWSERS=chromium,firefox,webkit` corre el e2e en más navegadores (por defecto: Chromium); `ARTISAN_COMPILER=off` desactiva React Compiler (playground, build, e2e) para comparar comportamiento. No leas estado mutable (`getValues()`, refs) durante el render en código compilado.
+Además: `bun run check:api` (instantánea de la API pública en `api/`; ver `docs/es/versioning.md`) tras un build; `bun run perf` (presupuestos de Web Vitals sobre el playground de producción; ver `docs/es/performance.md`) y `bun run check:size` tras un build; `bun run lint:react` (reglas de React Hooks/Compiler), `bun run check:dist`, `bun run check:package` y `bun run check:pack` tras un build; `ARTISAN_BROWSERS=chromium,firefox,webkit` corre el e2e en más navegadores (por defecto: Chromium); `ARTISAN_COMPILER=off` desactiva React Compiler (playground, build, e2e) para comparar comportamiento. No leas estado mutable (`getValues()`, refs) durante el render en código compilado.
 Verificación mínima de un cambio: `bun run lint` + `bun run typecheck` + `bun run build` + `bun test` + la story renderiza sin errores. Verificá el **código de salida** de cada comando, no solo el final de su salida.
 
 ## Estructura

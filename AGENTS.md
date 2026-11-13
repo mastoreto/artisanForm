@@ -5,7 +5,7 @@ React library for multi-step forms (wizards) with ready-made inputs. It ships as
 ## Language
 
 - **Everything generated in this repository is written in English**: code, identifiers, comments, JSDoc, test names, commit messages, PR and issue text, `README.md`, `AGENTS.md`, `CHANGELOG.md` and everything under `docs/`.
-- **Spanish versions live in [`docs/es/`](docs/es/)** and mirror the English documents: [`README`](docs/es/README.md), [`AGENTS`](docs/es/AGENTS.md), [`CHANGELOG`](docs/es/CHANGELOG.md), [`schema v1`](docs/es/schema-v1.md), [`UI`](docs/es/ui.md), [`payments`](docs/es/payments.md), [`files`](docs/es/files.md), [`accessibility`](docs/es/accessibility.md) and [`releasing`](docs/es/releasing.md). Read them when you need the Spanish text; **when you change an English document, update its Spanish copy in the same change**.
+- **Spanish versions live in [`docs/es/`](docs/es/)** and mirror the English documents: [`README`](docs/es/README.md), [`AGENTS`](docs/es/AGENTS.md), [`CHANGELOG`](docs/es/CHANGELOG.md), [`schema v1`](docs/es/schema-v1.md), [`UI`](docs/es/ui.md), [`payments`](docs/es/payments.md), [`files`](docs/es/files.md), [`accessibility`](docs/es/accessibility.md) and [`releasing`](docs/es/releasing.md) and [`versioning`](docs/es/versioning.md). Read them when you need the Spanish text; **when you change an English document, update its Spanish copy in the same change**.
 - Library texts are never hard-coded: built-in defaults (`src/commons/labels.ts`) are English and every one is overridable through the `labels` prop. Field labels, names and step titles are free text supplied by the user's schema. Demo copy (playground, stories, fixtures, tests) is English too.
 - Reply to people in the language they write to you in; the repository artifacts stay in English.
 
@@ -24,7 +24,7 @@ bun run format            # biome check --write
 ```
 
 Also: `bun run playground` (live test app, scenarios in `playground/src/scenarios/`), `bun run e2e` (Playwright, `e2e/`), `bun run build` (library), `bun run typecheck` and `bun test` (`*.test.ts(x)` next to the code).
-Also: `bun run perf` (Web Vitals budgets on the production playground; see `docs/performance.md`) and `bun run check:size` after a build; `bun run lint:react` (React Hooks/Compiler rules), `bun run check:dist`, `bun run check:package` and `bun run check:pack` after a build; `ARTISAN_BROWSERS=chromium,firefox,webkit` runs e2e in more browsers (default: Chromium); `ARTISAN_COMPILER=off` disables the React Compiler (playground, build, e2e) to compare behavior. Never read mutable state (`getValues()`, refs) during render in compiled code.
+Also: `bun run check:api` (public API snapshot in `api/`, see `docs/versioning.md`) after a build; `bun run perf` (Web Vitals budgets on the production playground; see `docs/performance.md`) and `bun run check:size` after a build; `bun run lint:react` (React Hooks/Compiler rules), `bun run check:dist`, `bun run check:package` and `bun run check:pack` after a build; `ARTISAN_BROWSERS=chromium,firefox,webkit` runs e2e in more browsers (default: Chromium); `ARTISAN_COMPILER=off` disables the React Compiler (playground, build, e2e) to compare behavior. Never read mutable state (`getValues()`, refs) during render in compiled code.
 Minimum verification for a change: `bun run lint` + `bun run typecheck` + `bun run build` + `bun test` + the story renders without errors. Check the **exit code** of each command, not just the tail of its output.
 
 ## Structure

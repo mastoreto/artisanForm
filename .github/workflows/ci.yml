@@ -28,6 +28,7 @@ jobs:
       - run: bun run typecheck
       - run: bun run build
       - run: bun run check:dist
+      - run: bun run check:api
       - run: bun run check:package
       - run: bun run build:kits
       - run: bun run typecheck:kits

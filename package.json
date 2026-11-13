@@ -99,6 +99,7 @@
   "scripts": {
     "build": "vite build && node scripts/fix-dts.mjs",
     "check:dist": "node scripts/check-dist.mjs",
+    "check:api": "node scripts/check-api.mjs",
     "check:package": "publint --strict && attw --pack . --profile esm-only --ignore-rules no-resolution",
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
@@ -119,7 +120,7 @@
     "check:kits": "bun run --filter './packages/ui-{bootstrap,mui,tailwind,scss}' check",
     "docs": "bun run --filter @artisanform/docs dev",
     "build:docs": "bun run --filter @artisanform/docs build",
-    "prepublishOnly": "bun run build && bun run build:kits && bun run check:dist && bun run check:package && bun run check:pack && bun test",
+    "prepublishOnly": "bun run build && bun run build:kits && bun run check:dist && bun run check:api && bun run check:package && bun run check:pack && bun test",
     "check:pack": "node scripts/check-pack.mjs",
     "check:publish": "node scripts/prepublish-check.mjs",
     "bench:parse": "bun run scripts/bench-parse.mjs",

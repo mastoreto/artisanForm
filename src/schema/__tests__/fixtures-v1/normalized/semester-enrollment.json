@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "id": "semester-enrollment",
+  "steps": [
+    {
+      "id": "student",
+      "type": "form",
+      "title": "Student",
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "Full name",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "text",
+          "name": "studentId",
+          "label": "Student ID",
+          "required": true,
+          "validation": {
+            "pattern": "^[0-9]{8}$"
+          },
+          "description": "8 digits",
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "dynamicSelect",
+          "name": "faculty",
+          "label": "Faculty",
+          "dependentName": "career",
+          "options": [
+            {
+              "value": "engineering",
+              "label": "Engineering"
+            },
+            {
+              "value": "sciences",
+              "label": "Sciences"
+            },
+            {
+              "value": "humanities",
+              "label": "Humanities"
+            }
+          ],
+          "dependentOptions": {
+            "engineering": [
+              {
+                "value": "software",
+                "label": "Software"
+              },
+              {
+                "value": "civil",
+                "label": "Civil"
+              },
+              {
+                "value": "electrical",
+                "label": "Electrical"
+              }
+            ],
+            "sciences": [
+              {
+                "value": "physics",
+                "label": "Physics"
+              },
+              {
+                "value": "biology",
+                "label": "Biology"
+              }
+            ],
+            "humanities": [
+              {
+                "value": "history",
+                "label": "History"
+              },
+              {
+                "value": "philosophy",
+                "label": "Philosophy"
+              },
+              {
+                "value": "linguistics",
+                "label": "Linguistics"
+              }
+            ]
+          },
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "subjects",
+      "type": "form",
+      "title": "Subjects",
+      "hooks": {
+        "beforeNext": "credits"
+      },
+      "fields": [
+        {
+          "type": "check",
+          "name": "subjects",
+          "label": "Pick up to 5",
+          "required": true,
+          "options": [
+            {
+              "value": "calculus-ii",
+              "label": "Calculus II"
+            },
+            {
+              "value": "algorithms",
+              "label": "Algorithms"
+            },
+            {
+              "value": "databases",
+              "label": "Databases"
+            },
+            {
+              "value": "operating-systems",
+              "label": "Operating systems"
+            },
+            {
+              "value": "statistics",
+              "label": "Statistics"
+            },
+            {
+              "value": "ethics",
+              "label": "Ethics"
+            },
+            {
+              "value": "english",
+              "label": "English"
+            },
+            {
+              "value": "networks",
+              "label": "Networks"
+            }
+          ],
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "schedule",
+      "type": "form",
+      "title": "Schedule and aid",
+      "fields": [
+        {
+          "type": "radio",
+          "name": "shift",
+          "label": "Shift",
+          "required": true,
+          "options": [
+            {
+              "value": "morning",
+              "label": "Morning"
+            },
+            {
+              "value": "evening",
+              "label": "Evening"
+            }
+          ],
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "switch",
+          "name": "scholarship",
+          "label": "I have a scholarship",
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "file",
+          "name": "scholarshipLetter",
+          "label": "Scholarship letter",
+          "required": true,
+          "visibleWhen": {
+            "field": "scholarship",
+            "operator": "eq",
+            "value": true
+          },
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "title": "Review"
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "Enrollment saved. Your timetable will be emailed.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "layout": "vertical",
+    "density": "comfortable",
+    "labelPosition": "top"
+  }
+}
