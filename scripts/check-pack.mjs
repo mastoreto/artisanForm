@@ -3,7 +3,7 @@
 // package.json (no sources, tests or stories), and that the kits are in
 // lockstep with the core version.
 // Usage: node scripts/check-pack.mjs   (after `bun run build:kits`)
-import { execSync } from 'node:child_process';
+import { execSync, spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 const kits = ['bootstrap', 'mui', 'tailwind', 'scss'].map((k) => ({
@@ -45,6 +45,22 @@ for (const { dir, out, also = [], required } of targets) {
     }),
   );
   const paths = files.map((f) => f.path);
+
+  // What `npm publish` itself would change: it silently drops or rewrites what
+  // it considers invalid (a `bin` path starting with `./` lost the CLI in
+  // 1.0.0-rc.3), and `npm pack` does not say so.
+  const publish = spawnSync(
+    'npm',
+    ['publish', '--dry-run', '--ignore-scripts'],
+    {
+      cwd: dir,
+      encoding: 'utf8',
+    },
+  );
+  if (/auto-corrected/.test(publish.stderr ?? ''))
+    problems.push(
+      `${label}: npm publish would correct package.json (${(publish.stderr.match(/publish "[^\n]*/g) ?? []).join(' ')}); run \`npm pkg fix\` and commit it`,
+    );
 
   if (pkg.version !== coreVersion)
     problems.push(`${label}: version ${pkg.version} != core ${coreVersion}`);

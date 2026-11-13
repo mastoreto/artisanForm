@@ -87,6 +87,10 @@ for (const { name, files } of packages) {
   const pkg = JSON.parse(
     readFileSync(join(dir, 'package/package.json'), 'utf8'),
   );
+  if (name === 'artisanform' && !pkg.bin?.artisanform)
+    problems.push(
+      `${name}@${version}: package.json has no \`bin\` (npm dropped the CLI)`,
+    );
   if (pkg.version !== version)
     problems.push(`${name}: tarball is ${pkg.version}, expected ${version}`);
   for (const f of files)
