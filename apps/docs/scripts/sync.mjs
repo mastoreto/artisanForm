@@ -6,6 +6,7 @@ const root = new URL('../../../', import.meta.url);
 const out = new URL('../src/content/docs/', import.meta.url);
 const pages = [
   ['schema-v1.md', 'schema-v1'],
+  ['backend.md', 'backend'],
   ['ui.md', 'ui'],
   ['payments.md', 'payments'],
   ['files.md', 'files'],

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://unpkg.com/artisanform/dist/schema.json",
+  "schemaVersion": 1,
+  "id": "event-registration",
+  "revision": 1,
+  "title": "Event registration",
+  "steps": [
+    {
+      "id": "attendee",
+      "type": "form",
+      "title": "Attendee",
+      "fields": [
+        {
+          "name": "fullName",
+          "type": "text",
+          "label": "Full name",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "email",
+          "label": "Email",
+          "required": true
+        },
+        {
+          "name": "documentNumber",
+          "type": "text",
+          "label": "Document number",
+          "sensitive": true,
+          "validation": { "maxLength": 32 }
+        },
+        {
+          "name": "stay",
+          "type": "daterange",
+          "label": "Stay",
+          "endName": "stayEnd",
+          "sensitive": true
+        },
+        {
+          "name": "companions",
+          "type": "array",
+          "label": "Companions",
+          "validation": { "maxItems": 4 },
+          "itemFields": [
+            { "name": "name", "type": "text", "label": "Name" },
+            {
+              "name": "allergies",
+              "type": "text",
+              "label": "Allergies",
+              "sensitive": true
+            }
+          ]
+        }
+      ]
+    },
+    { "id": "terms", "type": "terms", "title": "Terms" }
+  ]
+}

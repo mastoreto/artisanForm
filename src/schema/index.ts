@@ -1,3 +1,5 @@
+export { answerFields, answerKeys, sensitiveAnswerKeys } from './answers';
+export { canonicalize, schemaHash } from './canonical';
 export {
   CAPABILITIES_CONTRACT,
   type CapabilitiesManifest,
@@ -14,6 +16,14 @@ export {
   type RefKind,
   type Requirements,
 } from './capabilities';
+export {
+  type CheckOptions,
+  type CheckResult,
+  capabilitySeverity,
+  checkSchema,
+  toSchemaIssue,
+} from './check';
+export { compareSchemas, type SchemaComparison } from './compare';
 export {
   conditionFields,
   evaluateCondition,
@@ -37,6 +47,12 @@ export {
 export type * from './contract/steps';
 export type * from './contract/types';
 export {
+  type ConfigIssue,
+  type ConfigShape,
+  type CustomTypeSpec,
+  validateConfig,
+} from './custom-types';
+export {
   applyCatalog,
   type Catalog,
   type CatalogReport,
@@ -50,6 +66,7 @@ export {
   validateCatalog,
 } from './i18n';
 export type { LegacyFormSchema } from './legacy/adapter';
+export { lintSchema } from './lint';
 export {
   type NormalizedArtisanSchema,
   type NormalizeOptions,
@@ -59,6 +76,7 @@ export {
   type ParseOptions,
   type ParseResult,
   parseArtisanSchema,
+  type SchemaLimits,
   type SchemaPolicy,
 } from './parser';
 export {

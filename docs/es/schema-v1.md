@@ -197,6 +197,8 @@ Esto valida **la definición**. En el navegador, los **valores** que escribe el 
 
 ### Validar los valores en un servidor ✅
 
+Guardar y servir schemas, la puerta `checkSchema`, el JSON Schema y el CLI están en la [guía de backend](backend.md).
+
 `validateValues` revisa los **valores** que envió un cliente contra el mismo schema, sin React, Yup ni el motor del formulario. Se exporta desde `artisanform/schema`, una entrada que no importa ninguno de ellos (un chequeo del build falla si alguna vez lo hace), así que corre en Node, en un worker o en cualquier runtime de JS.
 
 ```ts
@@ -241,7 +243,7 @@ El esquema solo nombra; lo ejecutable vive en registros locales:
 | Acciones del resultado | `actions[].action` | `extensions.actions` |
 | Pagos / almacenamiento | `providers` / `storage` | props `plugins` / `storage` (sin cambios) |
 
-Una referencia sin registrar **falla de forma explícita** (`ArtisanSchemaError`, `unresolved-reference`), no se ignora. Los nombres propios deben empezar con `x-` para no chocar nunca con un tipo nativo futuro; un tipo 0.2.0 sin prefijo (`stars`) y su equivalente v1 (`x-stars`) resuelven a la misma entrada del registro.
+Una referencia sin registrar **nunca se ignora en silencio**: el formulario no la ejecuta. `<ArtisanForm>` la informa como un issue (`unresolved-reference`) por `onSchemaIssues` y, cuando detiene el formulario, muestra un mensaje corto en lugar de lanzar una excepción (`fallback` lo reemplaza, `showSchemaIssues` lista los errores). Un origen de opciones ausente solo degrada su campo (un aviso). Los nombres propios deben empezar con `x-` para no chocar nunca con un tipo nativo futuro; un tipo 0.2.0 sin prefijo (`stars`) y su equivalente v1 (`x-stars`) resuelven a la misma entrada del registro.
 
 `optionsSource` existe en `combobox`, `multiselect`, `select` y `radio` (y `dependentOptionsSource` en `dynamicSelect`). En `select` y `radio` reemplaza a `options` (no ambos) y la fuente se llama con una consulta vacía para obtener todas las opciones; el campo muestra un estado de carga y uno de error como `dynamicSelect`. ⏳ **Limitación:** `check` sigue requiriendo `options` en línea.
 

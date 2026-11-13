@@ -39,4 +39,6 @@ A deprecated name keeps working for the whole major, is marked `@deprecated` wit
 
 ## Stored schemas
 
+How to store, serve and validate them in a database is in the [backend guide](backend.md). `checkSchema`, `schemaHash`, `compareSchemas`, `artisanform/schema.json` and the `artisanform` CLI are part of the public surface and follow the same rules.
+
 Normalization is deterministic and idempotent, so a schema stored with a revision keeps rendering the same under any 1.x. Drafts of in-progress forms carry the `revision` and follow the snapshot rules of [schema v1](schema-v1.md#11-persistence-).

@@ -7,7 +7,6 @@ import {
   type ArtisanSchemaV1,
   defineForm,
 } from '../../../schema/contract/define';
-import { ArtisanSchemaError } from '../../../schema/contract/errors';
 import type { FormSchema } from '../../../schema/legacy/types';
 import ArtisanForm from '../ArtisanForm';
 
@@ -337,16 +336,17 @@ describe('extensions: a serializable schema refers to local code by id', () => {
     expect(goHome).toHaveBeenCalledTimes(1);
   });
 
-  test('a reference nobody registered fails loudly, not silently', () => {
-    const consoleError = console.error;
-    console.error = () => {};
-    try {
-      expect(() =>
-        render(<ArtisanForm scheme={schema} onSubmit={() => {}} />),
-      ).toThrow(ArtisanSchemaError);
-    } finally {
-      console.error = consoleError;
-    }
+  test('a reference nobody registered is reported, not thrown, and not silent', () => {
+    const onSchemaIssues = mock((_: unknown) => {});
+    render(
+      <ArtisanForm
+        scheme={schema}
+        onSchemaIssues={onSchemaIssues}
+        onSubmit={() => {}}
+      />,
+    );
+    expect(screen.getByRole('alert')).toBeTruthy();
+    expect(onSchemaIssues).toHaveBeenCalledTimes(1);
   });
 });
 

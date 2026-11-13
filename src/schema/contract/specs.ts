@@ -27,6 +27,7 @@ const base = [
   'required',
   'disabled',
   'defaultValue',
+  'sensitive',
   'visibleWhen',
   'ui',
 ] as const;

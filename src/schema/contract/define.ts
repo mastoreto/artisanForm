@@ -11,6 +11,8 @@ export interface I18nBlockV1 {
 }
 
 export interface ArtisanSchemaV1 {
+  /** Optional pointer to the JSON Schema of the contract, for editor completion. Ignored by the engine. */
+  $schema?: string;
   /** Format version. Unknown (e.g. future) versions are rejected by the parser. */
   schemaVersion: 1;
   /** Identifies the form (snapshots are tied to it). */

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import type { ArtisanLabels } from '../../commons/labels';
 import type { ArtisanExtensions, OnUnresolved } from '../../engine/extensions';
 import type { FormValues } from '../../engine/form/types';
@@ -14,7 +14,7 @@ import type {
   SnapshotConflict,
   SnapshotMigrations,
 } from '../../persistence';
-import type { Catalog } from '../../schema';
+import type { Catalog, SchemaIssue } from '../../schema';
 import type { ArtisanSchemaV1 } from '../../schema/contract/define';
 import type { FormSchema } from '../../schema/legacy/types';
 import type { FieldRegistry } from '../fields/registry';
@@ -22,6 +22,7 @@ import type { StepRegistry } from '../steps/registry';
 import { type ArtisanUiKit, mergeUiLayers } from '../ui/kit';
 import type { ArtisanComponents } from '../ui/types';
 import { type ArtisanClassNames, UiContext } from '../ui/UiContext';
+import { SchemaErrorPanel, showsIssuesByDefault } from './SchemaErrorPanel';
 import {
   ArtisanWizardProvider,
   useArtisanWizard,
@@ -39,8 +40,20 @@ interface ArtisanFormProps<
   scheme: S;
   /** Local functions and components a v1 schema refers to by id. */
   extensions?: ArtisanExtensions;
-  /** What to do with a name the schema uses that `extensions` does not provide: return `'ignore'` to render without it. By default the form fails with `unresolved-reference`. */
+  /** What to do with a name the schema uses that `extensions` does not provide: return `'ignore'` to render without it. By default it is reported as `unresolved-reference` (see `onSchemaIssues`) and, when it stops the form, a message replaces it. */
   onUnresolved?: OnUnresolved;
+  /**
+   * Errors and warnings about the schema, each time they change: log or alert
+   * with it. An error also stops the form (see `fallback`).
+   */
+  onSchemaIssues?: (issues: SchemaIssue[]) => void;
+  /**
+   * What to show instead of a form whose schema cannot run. Never an
+   * exception: by default a short message (`labels.schemaErrorMessage`).
+   */
+  fallback?: ReactNode | ((issues: SchemaIssue[]) => ReactNode);
+  /** List every schema error in the default message (default: outside production). */
+  showSchemaIssues?: boolean;
   /** Return a promise to keep "Finish" disabled until it settles. */
   /** The values are typed when `scheme` comes from `defineForm` (see `InferValues`). */
   onSubmit: (values: ValuesOf<S>) => unknown;
@@ -108,6 +121,8 @@ const ArtisanForm = <S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1>({
   className,
   stepperNavigation,
   theme,
+  fallback,
+  showSchemaIssues,
   ...options
 }: ArtisanFormProps<S>) => {
   // default UI < kit < explicit props
@@ -138,12 +153,27 @@ const ArtisanForm = <S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1>({
   return (
     <ArtisanWizardProvider wizard={wizard}>
       <UiContext.Provider value={uiConfig}>
-        <Wizard
-          wizard={wizard}
-          className={className}
-          stepperNavigation={stepperNavigation}
-          theme={theme}
-        />
+        {wizard.schemaBlocked ? (
+          typeof fallback === 'function' ? (
+            fallback(wizard.schemaIssues)
+          ) : (
+            (fallback ?? (
+              <SchemaErrorPanel
+                issues={wizard.schemaIssues}
+                labels={wizard.labels}
+                showIssues={showSchemaIssues ?? showsIssuesByDefault()}
+                className={className}
+              />
+            ))
+          )
+        ) : (
+          <Wizard
+            wizard={wizard}
+            className={className}
+            stepperNavigation={stepperNavigation}
+            theme={theme}
+          />
+        )}
       </UiContext.Provider>
     </ArtisanWizardProvider>
   );

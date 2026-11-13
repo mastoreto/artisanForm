@@ -23,6 +23,12 @@ export interface FieldBaseV1 {
   required?: boolean;
   disabled?: boolean;
   defaultValue?: JSONValue;
+  /**
+   * Marks the answer as personal or confidential. The library only carries the
+   * flag; the backend decides who may read sensitive answers (see
+   * `sensitiveAnswerKeys`).
+   */
+  sensitive?: boolean;
   /** Hidden fields are neither rendered, validated nor submitted. */
   visibleWhen?: ConditionV1;
   ui?: FieldUIConfig;

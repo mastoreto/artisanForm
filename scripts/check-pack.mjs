@@ -16,11 +16,15 @@ const targets = [
   {
     dir: '.',
     out: 'dist/',
+    // The CLI (`bin` in package.json) ships next to the build output.
+    also: ['bin/'],
     required: [
       'dist/index.js',
       'dist/index.d.ts',
       'dist/style.css',
       'dist/style.css.d.ts',
+      'dist/schema.json',
+      'bin/artisanform.mjs',
       'dist/schema.js',
       'dist/schema/index.d.ts',
     ],
@@ -30,7 +34,7 @@ const targets = [
 const coreVersion = JSON.parse(readFileSync('package.json', 'utf8')).version;
 const problems = [];
 
-for (const { dir, out, required } of targets) {
+for (const { dir, out, also = [], required } of targets) {
   const pkg = JSON.parse(readFileSync(`${dir}/package.json`, 'utf8'));
   const label = pkg.name;
   const [{ files }] = JSON.parse(
@@ -51,7 +55,9 @@ for (const { dir, out, required } of targets) {
   }
   for (const p of paths) {
     const allowed =
-      p.startsWith(out) || ['LICENSE', 'README.md', 'package.json'].includes(p);
+      p.startsWith(out) ||
+      also.some((prefix) => p.startsWith(prefix)) ||
+      ['LICENSE', 'README.md', 'package.json'].includes(p);
     if (!allowed) problems.push(`${label}: unexpected file ${p}`);
     if (/(__tests__|\.test\.|\.stories\.)/.test(p))
       problems.push(`${label}: test/story file ${p}`);

@@ -35,6 +35,8 @@ export const LABEL_PARAMS: Record<FunctionKeys, readonly string[]> = {
   maxLength: ['n'],
   minValue: ['n'],
   maxValue: ['n'],
+  unknownFieldType: ['type'],
+  unknownStepKind: ['kind'],
 };
 
 const pick = (value: CatalogValue, locale: string, args: unknown[]) => {
