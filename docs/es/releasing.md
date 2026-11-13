@@ -86,14 +86,22 @@ bun install && bun run build && bun run build:kits
 npm login                                              # tu usuario, con 2FA
 TAG=latest   # una versión estable, o una pre-release mientras no exista una estable; si no, next
 
-npm publish --access public --tag $TAG --ignore-scripts
+# Sin --ignore-scripts acá: el `prepublishOnly` del núcleo reconstruye todo y corre las puertas, y
+# el de cada kit rechaza un build viejo. Son la red de seguridad de una publicación manual.
+npm publish --access public --tag $TAG
 (cd packages/ui-bootstrap && npm publish --access public --tag $TAG)
 (cd packages/ui-mui       && npm publish --access public --tag $TAG)
 (cd packages/ui-tailwind  && npm publish --access public --tag $TAG)
 (cd packages/ui-scss      && npm publish --access public --tag $TAG)
 ```
 
-Después corré la verificación del paso 6 de arriba.
+Después comprobá qué sirve realmente el registro y corré la verificación del paso 6 de arriba:
+
+```bash
+node scripts/verify-registry.mjs   # descarga los cinco tarballs y verifica sus archivos y los exports del schema
+```
+
+Si falla, **no intentes arreglar la versión publicada**: npm nunca deja reemplazar una. Publicá la siguiente y hacé `npm deprecate` de la mala (`npm deprecate "artisanform@1.0.0-rc.3" "Build roto, usá 1.0.0-rc.4"`).
 
 ## Trusted Publishing (sin token)
 

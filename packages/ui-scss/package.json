@@ -38,6 +38,7 @@
     "artisanform": "link:../.."
   },
   "scripts": {
+    "prepublishOnly": "node ../../scripts/prepublish-check.mjs --skip-consumer",
     "check": "publint --strict"
   },
   "publishConfig": {

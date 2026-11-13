@@ -37,6 +37,7 @@
     "./style.css": "./dist/style.css"
   },
   "scripts": {
+    "prepublishOnly": "node ../../scripts/prepublish-check.mjs --skip-consumer",
     "build": "vite build && cp src/style.css dist/style.css",
     "typecheck": "tsc --noEmit",
     "check": "publint --strict"

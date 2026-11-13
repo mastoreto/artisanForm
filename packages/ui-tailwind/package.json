@@ -34,6 +34,7 @@
     }
   },
   "scripts": {
+    "prepublishOnly": "node ../../scripts/prepublish-check.mjs --skip-consumer",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "check": "publint --strict"
