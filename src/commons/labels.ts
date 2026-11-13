@@ -47,6 +47,10 @@ export interface ArtisanLabels {
   retryUpload: (name: string) => string;
   uploadFailed: string;
   noStorage: string;
+  /** Shown instead of a form whose schema cannot run (the issues go to `onSchemaIssues`). */
+  schemaErrorMessage: string;
+  unknownFieldType: (type: string) => string;
+  unknownStepKind: (kind: string) => string;
   acceptTerms: string;
   readFullTerms: string;
   yes: string;
@@ -117,6 +121,9 @@ export const defaultLabels: ArtisanLabels = {
   retryUpload: (name) => `Retry ${name}`,
   uploadFailed: 'Upload failed',
   noStorage: 'No storage is configured for this field',
+  schemaErrorMessage: 'This form is not available right now',
+  unknownFieldType: (type) => `Unknown field type "${type}"`,
+  unknownStepKind: (kind) => `Unknown step kind "${kind}"`,
   acceptTerms: 'I accept the terms and conditions',
   readFullTerms: 'Read the full document',
   yes: 'Yes',

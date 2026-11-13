@@ -628,9 +628,9 @@ export const defaultFieldRegistry: FieldRegistry = {
 const unknownField: FieldDefinition = {
   initialValues: (f) => single(f),
   rules: () => ({}),
-  render: (f) => (
-    <p role="alert" className="af-error">
-      {`Unknown field type "${f.type}"`}
+  render: (f, { cx, labels }) => (
+    <p role="alert" className={cx('error')}>
+      {labels.unknownFieldType(f.type)}
     </p>
   ),
 };
