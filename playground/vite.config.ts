@@ -17,6 +17,10 @@ export default defineConfig({
         replacement: `${resolve(repo, 'src/integrations/payments/providers')}/$1.tsx`,
       },
       {
+        find: /^artisanform\/schema$/,
+        replacement: resolve(repo, 'src/schema/index.ts'),
+      },
+      {
         find: /^artisanform\/builder\.css$/,
         replacement: resolve(repo, 'src/builder/builder.css'),
       },
