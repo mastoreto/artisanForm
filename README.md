@@ -4,7 +4,7 @@ React library for building multi-step forms (wizards) from a declarative definit
 
 > 🌐 Spanish version: [docs/es/README.md](docs/es/README.md)
 
-> **Status:** beta, `0.3.0-beta.2` (npm dist-tag `beta`): a `scheme`-driven wizard with 30+ field types, special steps (terms, payment, waiting, review, result), files with pluggable storage, payment plugins (Stripe, Lemon Squeezy, Mercado Pago, PayPal; tried by the maintainer against provider sandboxes, except Mercado Pago Checkout Pro, which is being investigated) and official UI kits. See [Project status](#project-status).
+> **Status:** release candidate, `1.0.0-rc.1` (npm dist-tag `rc`; the contract is frozen, see [versioning](docs/versioning.md)): a `scheme`-driven wizard with 30+ field types, special steps (terms, payment, waiting, review, result), files with pluggable storage, payment plugins (Stripe, Lemon Squeezy, Mercado Pago, PayPal; tried by the maintainer against each provider's sandbox) and official UI kits. See [Project status](#project-status).
 
 ## Documentation
 
@@ -357,19 +357,19 @@ The schema's semantic `ui` settings (`columns`, `span`, `density`, `labelPositio
 `react-hook-form`, `yup` and `zustand` are `peerDependencies` (next to `react` and `react-dom`, which you already have); use npm, pnpm, yarn or bun. While the library is in beta, install it with the `beta` tag:
 
 ```bash
-npm install artisanform@beta react-hook-form yup zustand
-pnpm add artisanform@beta react-hook-form yup zustand
-yarn add artisanform@beta react-hook-form yup zustand
-bun add artisanform@beta react-hook-form yup zustand
+npm install artisanform@rc react-hook-form yup zustand
+pnpm add artisanform@rc react-hook-form yup zustand
+yarn add artisanform@rc react-hook-form yup zustand
+bun add artisanform@rc react-hook-form yup zustand
 ```
 
 The official UI kits are separate, optional packages under the `@beardartisans` scope; they peer on `artisanform`, which never depends on them:
 
 ```bash
-npm install @beardartisans/ui-bootstrap@beta
-pnpm add @beardartisans/ui-bootstrap@beta
-yarn add @beardartisans/ui-bootstrap@beta
-bun add @beardartisans/ui-bootstrap@beta
+npm install @beardartisans/ui-bootstrap@rc
+pnpm add @beardartisans/ui-bootstrap@rc
+yarn add @beardartisans/ui-bootstrap@rc
+bun add @beardartisans/ui-bootstrap@rc
 # or ui-mui, ui-tailwind, ui-scss
 ```
 

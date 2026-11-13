@@ -2,20 +2,24 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
-## Sin publicar (Congelación del contrato)
+## 1.0.0-rc.1 (2026-11-12)
+
+Primer release candidate de la 1.0.0. El contrato del schema v1, la API pública de `artisanform` y `artisanform/schema`, el contrato de capacidades y el formato de catálogos quedan congelados con las reglas de [versionado](versioning.md): hasta la 1.0.0 solo entran correcciones. Las secciones siguientes (todas `1.0.0-rc.1`) son lo que cambió desde la 0.3.0-beta.2: validación en el servidor y `artisanform/schema`, capacidades, traducciones, gates de rendimiento y congelación del contrato. Probala con `npm install artisanform@rc`.
+
+## 1.0.0-rc.1 (Congelación del contrato)
 
 ### Calidad
 
 - **Política de versionado y guardias del contrato (AF119):** [versionado](versioning.md) define qué puede cambiar en una menor de 1.x y qué exige una mayor, sobre tres superficies (el contrato del schema, la API de TypeScript de `artisanform` y `artisanform/schema`, el contrato de capacidades y el formato de catálogos). Lo hacen cumplir los fixtures golden (`src/schema/__tests__/fixtures-v1/`: los 13 ejemplos del catálogo deben parsear limpios, normalizar al JSON registrado y ser idempotentes y portables; los casos inválidos mantienen sus códigos y rutas) y `bun run check:api`, que compara cada export y declaración de ambas entradas con `api/*.api.txt` (CI, release y `prepublishOnly`). Sin cambios de comportamiento.
 
-## Sin publicar (Rendimiento)
+## 1.0.0-rc.1 (Rendimiento)
 
 ### Calidad
 
 - **Rendimiento medido contra el estándar de Web Vitals (AF118):** `bun run perf` (Playwright, build de producción del playground) verifica "formulario listo", latencia de interacción, tareas largas y cambio de diseño en Chromium (escritorio y un perfil móvil con la CPU 4x más lenta), Firefox y WebKit, más una línea base por navegador (`perf/web-baseline.json`, +50%). `bun run check:size` limita el JS, el CSS y `artisanform/schema` comprimidos a +10% sobre `perf/size.json`. Nuevo job de CI `perf`. Los presupuestos y su base están en [rendimiento](performance.md). El pipeline del schema cuesta unos 1,2 ms con 200 campos, así que no se cambió código de la librería.
 - Nuevo escenario `perf` del playground (`?demo=perf&fields=50&perStep=50`) y scripts `playground:build` / `playground:preview`; `perf/generate.mjs` acepta un argumento `perStep`.
 
-## Sin publicar (Traducciones)
+## 1.0.0-rc.1 (Traducciones)
 
 ### Back end y front end
 
@@ -23,7 +27,7 @@
 - **Los textos propios de la librería son traducibles (AF117):** las entradas `labels.<clave>` de un catálogo traducen `ArtisanLabels`, incluidas las etiquetas función (`{n}`, formas plurales). Precedencia: valores por defecto < labels del kit < catálogo < la prop `labels`. `ArtisanForm` ahora pasa los labels del kit al wizard por separado (opción `kitLabels` de `useArtisanWizard`), de modo que un kit en inglés no pisa un catálogo. Sin `locale` el resultado no cambia.
 - **`formatIssue(issue, labels)` (AF117):** convierte una incidencia de `validateValues` en el mismo mensaje que muestra el navegador, en el idioma de `labels`.
 
-## Sin publicar (Capacidades y enrutamiento del retorno de pagos)
+## 1.0.0-rc.1 (Capacidades y enrutamiento del retorno de pagos)
 
 ### Back end y front end
 
@@ -43,7 +47,7 @@
 - Una checklist del sandbox de Mercado Pago (vendedor y comprador de prueba, moneda, `auto_return` solo con https) en la guía de pagos. `apps/payments-test` ahora usa un solo puerto (5858) y tiene tests de servidor que fijan el cuerpo de la preferencia de Checkout Pro.
 - **`apps/payments-test`: causa de "Una de las partes con la que intentas hacer el pago es de prueba" en Checkout Pro (AF115):** el backend de la demo enviaba `MP_PAYER_EMAIL` (una dirección común que necesita el Payment Brick) como `payer` de la preferencia, así que un vendedor de prueba quedaba emparejado con un pagador que no es comprador de prueba. Checkout Pro ahora envía un pagador solo desde la nueva `MP_CHECKOUT_PAYER_EMAIL` (el correo del propio comprador de prueba), y la variante H de `mp-diagnose.ts` reproduce la petición anterior.
 
-## Sin publicar (Validación en servidor)
+## 1.0.0-rc.1 (Validación en servidor)
 
 ### Validación y empaquetado
 

@@ -41,6 +41,13 @@ How ArtisanForm is published to npm. Five packages ship together, all at the sam
 
    It installs the core and the bootstrap, MUI and Tailwind kits from npm, typechecks them against the `kit` prop and builds a clean Vite app (use `18` instead of `19` for React 18).
 
+## Release candidate and stable (1.0.0)
+
+1. **`1.0.0-rc.N`**, tag `rc`: the contract is frozen ([versioning](versioning.md)); only fixes land. Publish with `--tag rc`, then check it from the registry (`ARTISAN_SPEC=1.0.0-rc.1 node scripts/consumer-test.mjs 19`, `18` and `node scripts/consumer-schema.mjs`). `latest` keeps pointing at the old beta.
+2. **Exit criteria for 1.0.0:** at least two weeks with no contract change (`check:api` and the golden fixtures untouched) and no open P0/P1 issue; CI green on every job, including `perf` in the three browsers; docs in English and Spanish in sync. Anything that breaks one of these means a new `rc.N`, not a patch to the candidate.
+3. **`1.0.0`**: bump the five packages (and the kits' `peerDependencies.artisanform` to `^1.0.0`), publish with `--tag latest`. This is the first publish that moves `latest` off the beta; from then on a plain `npm install artisanform` installs the stable version.
+4. Deprecate the superseded betas (`npm deprecate artisanform@"<1.0.0-rc.1" "Use 1.x"`) once `latest` is stable.
+
 ## What the `Release` workflow does
 
 `.github/workflows/release.yml` is manual (`workflow_dispatch`) with two inputs, `tag` and `dry-run` (default **true**). It runs, in this order: lint, typecheck, build, build of the kits, typecheck of the kits, `check:dist`, `check:package` (publint and attw), `check:kits`, `check:pack` and the unit tests. Only then does it run `npm publish --provenance --access public --tag <tag> --ignore-scripts` in each package.
