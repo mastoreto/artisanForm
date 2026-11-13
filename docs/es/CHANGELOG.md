@@ -14,6 +14,13 @@
 - **Opción `maxItems` de `validateValues`** (por defecto 1000): tope para las filas de un `array`, las opciones de un `check`/`multiselect` y los archivos de una subida, comprobado antes de recorrer la lista.
 - **`$schema`** se acepta como string opcional en la raíz de un schema (autocompletado en editores).
 
+- **`checkSchema(input, { policy, limits, manifest, lint })`:** una puerta pura para un schema. Parsea (contrato, política, límites), aplica lint y comprueba el schema contra lo que el front puede ejecutar, y nunca lanza. Usala donde un schema entra o sale de un sistema: guardarlo o publicarlo en un backend, CI, o el formulario que está por renderizarlo. Errores y avisos comparten una forma de issue, y lo que impide que el formulario funcione (un hook, wait strategy, renderer, acción o proveedor de pago ausente, un `config` custom inválido) es un error, mientras que lo que solo degrada un elemento (un origen de opciones o adaptador de storage ausente, un campo custom no registrado) es un aviso (`capabilitySeverity`).
+- **Tipos custom verificables:** `CustomTypeSpec` y `ConfigShape` (un subconjunto declarativo mínimo de JSON Schema) describen como datos el `config` de un campo o paso custom `x-…`. Viaja en el manifiesto de capacidades (`CapabilitiesManifest.customTypes`), así `checkCapabilities` informa `invalid-config` con la ruta exacta sin ejecutar el código de la app. `validateConfig` se exporta.
+- **`describeRegistrations({ extensions, fields, stepTypes, plugins, storage })`:** deriva el manifiesto de capacidades de las mismas props que se pasan a `<ArtisanForm>`, en lugar de cuatro listas mantenidas a mano. `FieldDefinition` y `StepDefinition` aceptan un `spec` opcional.
+- **`lintSchema(schema)`:** avisos semánticos (`forward-field-reference`, `default-not-an-option`, `duplicate-option`).
+- **`canonicalize(value)` y `schemaHash(value)`:** texto JSON estable (claves ordenadas) y su SHA-256 (hex): un ETag, la identidad de una revisión, detección de cambios.
+- **`compareSchemas(previous, next)`:** qué cambió entre dos revisiones (agregadas, quitadas, tipo cambiado, obligatoriedad, opciones eliminadas) y si las respuestas dadas a la anterior conservan su significado (`compatible`).
+
 ### Cambiado
 
 - Con un objeto `SchemaPolicy`, un id de `storage` que la política no lista ahora es un `policy-violation` (antes pasaba cualquier id). Agregá `storage: [...]` a la política para permitir los que proveés. Los schemas de confianza no cambian.

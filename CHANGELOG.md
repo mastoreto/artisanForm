@@ -14,6 +14,13 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 - **`validateValues` option `maxItems`** (default 1000): a cap on the rows of an `array`, the choices of a `check`/`multiselect` and the files of an upload, checked before the list is walked.
 - **`$schema`** is accepted as an optional string at the root of a schema (editor completion).
 
+- **`checkSchema(input, { policy, limits, manifest, lint })`:** one pure gate for a schema. It parses (contract, policy, limits), lints, and checks the schema against what the front end can run, and never throws. Use it where a schema enters or leaves a system: saving or publishing in a backend, CI, or the form about to render it. Errors and warnings share one issue shape, and what stops a form (a missing hook, wait strategy, renderer, action or payment provider, a bad custom `config`) is an error while what only degrades one element (a missing options source or storage adapter, an unregistered custom field) is a warning (`capabilitySeverity`).
+- **Verifiable custom types:** `CustomTypeSpec` and `ConfigShape` (a tiny declarative subset of JSON Schema) describe the `config` of a custom `x-…` field or step as plain data. It travels in the capabilities manifest (`CapabilitiesManifest.customTypes`), so `checkCapabilities` reports `invalid-config` with the exact path without running the app's code. `validateConfig` is exported.
+- **`describeRegistrations({ extensions, fields, stepTypes, plugins, storage })`:** derives the capabilities manifest from the same props passed to `<ArtisanForm>`, instead of four lists kept by hand. `FieldDefinition` and `StepDefinition` take an optional `spec`.
+- **`lintSchema(schema)`:** semantic warnings (`forward-field-reference`, `default-not-an-option`, `duplicate-option`).
+- **`canonicalize(value)` and `schemaHash(value)`:** stable JSON text (sorted keys) and its SHA-256 (hex): an ETag, the identity of a revision, change detection.
+- **`compareSchemas(previous, next)`:** what changed between two revisions (added, removed, changed type, required, dropped options) and whether answers given to the previous one keep their meaning (`compatible`).
+
 ### Changed
 
 - With a `SchemaPolicy` object, a `storage` id that the policy does not list is now a `policy-violation` (before, any adapter id passed). Add `storage: [...]` to the policy to allow the ones you provide. Trusted schemas are unaffected.

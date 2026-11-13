@@ -67,6 +67,10 @@ export type {
 export type { FormValues } from './engine/form/types';
 export { useArtisanField } from './engine/form/useArtisanField';
 export {
+  describeRegistrations,
+  type Registrations,
+} from './engine/registrations';
+export {
   ArtisanStoreProvider,
   useArtisanStore,
 } from './engine/store/useArtisanStore';
