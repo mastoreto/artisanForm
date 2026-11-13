@@ -78,7 +78,7 @@ test('the keyboard reorders too: Space to pick up, arrows, Space to drop', async
   await page.keyboard.press('Space');
   await expect(handle).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('ArrowUp');
-  await page.waitForTimeout(250); // the sensor measures the rows between keys
+  await page.waitForTimeout(600); // the sensor measures the rows between keys
   await page.keyboard.press('Space');
   await expect.poll(() => names(page)).toEqual(['email', 'text']);
 });
@@ -106,11 +106,9 @@ test('editing in the inspector reaches the preview and the schema', async ({
   await expect(
     page.getByRole('region', { name: 'Preview' }).getByLabel('Full name'),
   ).toBeVisible();
-  const field = (await schema(page)).steps[0]?.fields[0] as {
-    label: string;
-    required: boolean;
-  };
-  expect(field).toMatchObject({ label: 'Full name', required: true });
+  await expect
+    .poll(async () => (await schema(page)).steps[0]?.fields[0])
+    .toMatchObject({ label: 'Full name', required: true });
 });
 
 test('round trip: build, take the JSON out, bring it back', async ({
