@@ -4,7 +4,7 @@ React library for building multi-step forms (wizards) from a declarative definit
 
 > 🌐 Spanish version: [docs/es/README.md](docs/es/README.md)
 
-> **Status:** release candidate, `1.0.0-rc.3` (`latest` on npm; the contract is frozen, see [versioning](docs/versioning.md)): a `scheme`-driven wizard with 30+ field types, special steps (terms, payment, waiting, review, result), files with pluggable storage, payment plugins (Stripe, Lemon Squeezy, Mercado Pago, PayPal; tried by the maintainer against each provider's sandbox) and official UI kits. See [Project status](#project-status).
+> **Status:** release candidate, `1.0.0-rc.4` (`latest` on npm; the contract is frozen, see [versioning](docs/versioning.md)): a `scheme`-driven wizard with 30+ field types, special steps (terms, payment, waiting, review, result), files with pluggable storage, payment plugins (Stripe, Lemon Squeezy, Mercado Pago, PayPal; tried by the maintainer against each provider's sandbox) and official UI kits. See [Project status](#project-status).
 
 ## Documentation
 
