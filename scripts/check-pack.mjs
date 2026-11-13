@@ -25,6 +25,7 @@ const targets = [
       'dist/style.css.d.ts',
       'dist/schema.json',
       'dist/builder.js',
+      'dist/builder.css',
       'dist/builder/index.d.ts',
       'bin/artisanform.mjs',
       'dist/schema.js',

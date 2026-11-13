@@ -43,11 +43,11 @@ const builderOnly = [...closure('dist/builder.js')].filter(
 const sizes = {
   // Everything a consumer of the root entry may download (the builder is apart).
   js: gz(files.filter((f) => /\.js$/.test(f) && !builderOnly.includes(f))),
-  css: gz(files.filter((f) => /\.css$/.test(f))),
+  css: gz(files.filter((f) => /\.css$/.test(f) && !f.endsWith('builder.css'))),
   // The server-side entry must stay small: it is what a backend loads.
   schema: gz([...closure('dist/schema.js')]),
   // The optional visual builder, on top of the root entry.
-  builder: gz(builderOnly),
+  builder: gz([...builderOnly, 'dist/builder.css']),
 };
 
 if (process.argv.includes('--write')) {

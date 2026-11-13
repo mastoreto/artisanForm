@@ -54,7 +54,7 @@ export default defineConfig({
           chunk.isEntry && chunk.name !== 'schema' ? "'use client';" : '',
       },
       external: (id) =>
-        /^(react|react-dom|react-compiler-runtime|react-hook-form|@hookform|yup|zustand|@stripe|@mercadopago|@paypal)(\/|$)/.test(
+        /^(react|react-dom|react-compiler-runtime|react-hook-form|@hookform|yup|zustand|@dnd-kit|@stripe|@mercadopago|@paypal)(\/|$)/.test(
           id,
         ),
     },
