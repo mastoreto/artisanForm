@@ -132,6 +132,11 @@ export default defineConfig({
           items: [
             { slug: 'docs/schema-v1', label: 'Schema v1' },
             {
+              slug: 'docs/backend',
+              label: 'Backend guide',
+              translations: { es: 'Guía de backend' },
+            },
+            {
               slug: 'docs/ui',
               label: 'UI and kits',
               translations: { es: 'UI y kits' },

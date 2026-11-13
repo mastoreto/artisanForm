@@ -11,6 +11,7 @@ Librería React para construir formularios multi-paso (wizard) a partir de una d
 | Guía | Qué cubre |
 | --- | --- |
 | [Schema v1](schema-v1.md) | El contrato de esquema serializable y versionado, y `artisanform/schema` para validar valores en un servidor |
+| [Guía de backend](backend.md) | Guardar, servir y validar schemas en cualquier base de datos; autores de plugins y tipos custom; el CLI `artisanform` y `schema.json` |
 | [Versionado (contrato 1.x)](versioning.md) | Qué puede cambiar en una menor, qué exige una mayor y las guardias |
 | [Extensión de UI y kits](ui.md) | Estilos, `components`, `classNames` y los kits oficiales |
 | [Rendimiento](performance.md) | Presupuestos de Web Vitals y cómo correrlos |

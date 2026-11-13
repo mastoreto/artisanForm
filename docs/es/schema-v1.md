@@ -197,6 +197,8 @@ Esto valida **la definición**. En el navegador, los **valores** que escribe el 
 
 ### Validar los valores en un servidor ✅
 
+Guardar y servir schemas, la puerta `checkSchema`, el JSON Schema y el CLI están en la [guía de backend](backend.md).
+
 `validateValues` revisa los **valores** que envió un cliente contra el mismo schema, sin React, Yup ni el motor del formulario. Se exporta desde `artisanform/schema`, una entrada que no importa ninguno de ellos (un chequeo del build falla si alguna vez lo hace), así que corre en Node, en un worker o en cualquier runtime de JS.
 
 ```ts

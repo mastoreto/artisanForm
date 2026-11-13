@@ -11,6 +11,7 @@ React library for building multi-step forms (wizards) from a declarative definit
 | Guide | What it covers |
 | --- | --- |
 | [Schema v1](docs/schema-v1.md) | The serializable, versioned schema contract, and `artisanform/schema` to validate values on a server |
+| [Backend guide](docs/backend.md) | Storing, serving and validating schemas in any database; plugin and custom type authors; the `artisanform` CLI and `schema.json` |
 | [Versioning (1.x contract)](docs/versioning.md) | What may change in a minor, what needs a major, and the guards |
 | [UI extension and kits](docs/ui.md) | Styles, `components`, `classNames` and the official kits |
 | [Performance](docs/performance.md) | Web Vitals budgets and how to run them |

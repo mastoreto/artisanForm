@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { checkSchema } from '../check';
 import { normalizeArtisanSchema } from '../normalize';
 import { parseArtisanSchema } from '../parser';
 
@@ -65,6 +66,7 @@ describe('Spanish documentation mirrors the English originals', () => {
     ['AGENTS.md', 'docs/es/AGENTS.md'],
     ['CHANGELOG.md', 'docs/es/CHANGELOG.md'],
     ['docs/schema-v1.md', 'docs/es/schema-v1.md'],
+    ['docs/backend.md', 'docs/es/backend.md'],
     ['docs/ui.md', 'docs/es/ui.md'],
     ['docs/versioning.md', 'docs/es/versioning.md'],
   ];
@@ -84,8 +86,43 @@ describe('Spanish documentation mirrors the English originals', () => {
       'docs/es/AGENTS.md',
       'docs/es/CHANGELOG.md',
       'docs/es/schema-v1.md',
+      'docs/es/backend.md',
       'docs/es/ui.md',
     ])
       expect(agents).toContain(link);
+  });
+});
+
+describe.each([
+  { lang: 'en', doc: read('docs/backend.md') },
+  { lang: 'es', doc: read('docs/es/backend.md') },
+])('backend guide ($lang)', ({ doc }) => {
+  test('the schema example is valid, with a $schema and a sensitive field', () => {
+    const [block] = jsonBlocks(doc);
+    const schema = JSON.parse(block ?? '{}');
+    expect(schema.$schema).toBe(
+      'https://unpkg.com/artisanform/dist/schema.json',
+    );
+    const result = checkSchema(schema);
+    expect(result.ok).toBe(true);
+    expect(result.issues).toEqual([]);
+  });
+
+  test('every JSON block is valid JSON', () => {
+    for (const block of jsonBlocks(doc))
+      expect(() => JSON.parse(block)).not.toThrow();
+  });
+
+  test('the TypeScript snippets name only functions the library exports', async () => {
+    const lib = await import('../index');
+    const asked = [
+      ...doc.matchAll(/import \{([^}]*)\} from 'artisanform\/schema'/g),
+    ]
+      .flatMap((m) => (m[1] ?? '').split(','))
+      .map((n) => n.trim())
+      // `type X` imports are erased at runtime: only values can be checked
+      .filter((n) => n && !n.startsWith('type '));
+    expect(asked.length).toBeGreaterThan(0);
+    for (const name of asked) expect(name in lib).toBe(true);
   });
 });

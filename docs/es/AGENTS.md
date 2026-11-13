@@ -7,7 +7,7 @@ Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se 
 ## Idioma
 
 - **Todo lo que se genera en este repositorio va en inglés**: código, identificadores, comentarios, JSDoc, nombres de tests, mensajes de commit, texto de PR e issues, `README.md`, `AGENTS.md`, `CHANGELOG.md` y todo lo que está bajo `docs/`.
-- **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) [`schema v1`](schema-v1.md), [`UI`](ui.md), [`pagos`](payments.md), [`archivos`](files.md), [`accesibilidad`](accessibility.md), [`release`](releasing.md) y [`versionado`](versioning.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
+- **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) [`schema v1`](schema-v1.md), [`backend`](backend.md), [`UI`](ui.md), [`pagos`](payments.md), [`archivos`](files.md), [`accesibilidad`](accessibility.md), [`release`](releasing.md) y [`versionado`](versioning.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
 - Los textos de la librería nunca están hardcodeados: los valores por defecto (`src/commons/labels.ts`) están en inglés y todos se sobrescriben con la prop `labels`. Las etiquetas, nombres y títulos de paso son texto libre que aporta el esquema del usuario. Los textos de demo (playground, stories, fixtures, tests) también van en inglés.
 - A las personas se les responde en el idioma en que escriben; los artefactos del repositorio quedan en inglés.
 
@@ -59,6 +59,7 @@ src/
   commons/               cn.ts (clsx), labels.ts (textos)
   styles/artisanform.css la única hoja de estilos: CSS plano, clases `af-*`, tokens `--artisan-*`
   __tests__/setup.ts     preload de happy-dom para bun test
+bin/                     el CLI `artisanform` (validate, json-schema, hash); ejecuta el `dist/schema.js` construido
 packages/                paquetes del workspace: ui-bootstrap, ui-mui, ui-tailwind, ui-scss (kits), ui-shadcn (plantilla + item de registry)
 playground/              app React de prueba (escenarios en src/scenarios)
 e2e/                     tests de Playwright

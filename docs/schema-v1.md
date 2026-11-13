@@ -197,6 +197,8 @@ This validates **the definition**. In the browser, the **values** a user types a
 
 ### Validating values on a server ✅
 
+Storing and serving schemas, the `checkSchema` gate, the JSON Schema and the CLI are in the [backend guide](backend.md).
+
 `validateValues` checks the **values** a client submitted against the same schema, with no React, Yup or form engine. It is exported from `artisanform/schema`, an entry that imports none of them (a build check fails if it ever does), so it runs in Node, a worker or any JS runtime.
 
 ```ts
