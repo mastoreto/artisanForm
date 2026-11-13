@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+## 1.0.0-rc.5 (2026-11-13)
+
+Agrega el constructor visual de formularios, `artisanform/builder`: un entry opcional, así que nada cambia para el código que no lo importa. Necesita dos peers **opcionales** nuevos, `@dnd-kit/core` y `@dnd-kit/sortable`, solo para usar el builder. El contrato del schema y las APIs raíz y de schema no cambian. Guía: [builder.md](builder.md).
+
 ### Agregado
 
 - **La interfaz del builder.** `<FormBuilder>` es una paleta de inputs, un canvas con los pasos y sus campos, un inspector y una vista previa en vivo, y entrega un schema v1 en cada cambio (`onChange({ schema, ok, issues })`, `onSave({ …, hash })`). Arrastrá un input desde la paleta (o hacé clic) y reordená con el mouse, el tacto o el teclado (Espacio para levantar, flechas, Espacio para soltar); cada fila también tiene botones para subir, bajar, duplicar, quitar y mover a otro paso. El inspector se genera desde el catálogo, así cada input muestra solo lo que su tipo acepta; `mode="simple"` oculta inputs y ajustes avanzados y de desarrollador, y `policy` limita los inputs disponibles. La vista previa es el `<ArtisanForm>` real (anchos de teléfono, tableta y escritorio, claro y oscuro). Controlado (`value`) o no (`defaultValue`), `readOnly`, `features` para apagar partes, y todos los textos se pueden cambiar con `labels`. Las partes (`Palette`, `Canvas`, `Inspector`, `Preview`, `Toolbar`) y el hook `useFormBuilder` se pueden componer en tu propio layout. Importá `artisanform/builder.css` (una hoja separada) y `artisanform/style.css`. El arrastre usa `@dnd-kit/core` y `@dnd-kit/sortable`, peers opcionales: instalalos para usar el builder.

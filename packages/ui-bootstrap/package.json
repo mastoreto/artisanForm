@@ -1,6 +1,6 @@
 {
   "name": "@beardartisans/ui-bootstrap",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0-rc.5",
   "description": "Bootstrap 5 UI kit for ArtisanForm",
   "license": "MIT",
   "author": "ArtisanForm contributors",
@@ -43,7 +43,7 @@
     "check": "publint --strict"
   },
   "peerDependencies": {
-    "artisanform": "^1.0.0-rc.4"
+    "artisanform": "^1.0.0-rc.5"
   },
   "devDependencies": {
     "artisanform": "link:../.."

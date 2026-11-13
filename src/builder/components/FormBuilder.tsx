@@ -31,6 +31,7 @@ import {
 import { type BuilderUi, BuilderUiContext, useBx } from '../cx';
 import { type BuilderLabels, defaultBuilderLabels } from '../labels';
 import { FIELD_CATALOG } from '../model/catalog';
+import { getField } from '../model/operations';
 import { type BuilderTemplate, defaultTemplates } from '../templates';
 import { type BuilderResult, useFormBuilder } from '../useFormBuilder';
 import { Canvas } from './Canvas';
@@ -91,11 +92,32 @@ const Dnd = ({ children }: { children: ReactNode }) => {
       keyboardCodes: { start: ['Space'], cancel: ['Escape'], end: ['Space'] },
     }),
   );
-  const nameOf = (id: string): string => {
-    const data = id.split(':');
-    if (data[0] === 'palette')
-      return FIELD_CATALOG[data[1] as NativeFieldType]?.label ?? data[1] ?? '';
-    return data[2] ?? '';
+  const nameOf = (item: {
+    id: string | number;
+    data: { current?: unknown };
+  }) => {
+    const id = String(item.id);
+    const data = item.data.current as
+      | {
+          kind?: string;
+          type?: NativeFieldType;
+          stepId?: string;
+          path?: number[];
+        }
+      | undefined;
+    if (data?.kind === 'palette' || id.startsWith('palette:'))
+      return FIELD_CATALOG[id.split(':')[1] as NativeFieldType]?.label ?? id;
+    const field =
+      data?.stepId && data.path
+        ? getField(schema, data.stepId, data.path)
+        : null;
+    const named = field as { label?: string; name?: string } | null;
+    return String(named?.label ?? named?.name ?? id);
+  };
+  /** 1-based place of the row (or list) being hovered. */
+  const positionOf = (over: { data: { current?: unknown } } | null) => {
+    const path = (over?.data.current as { path?: number[] } | undefined)?.path;
+    return (path?.at(-1) ?? 0) + 1;
   };
   const onDragEnd = ({ active: a, over }: DragEndEvent) => {
     setActive(null);
@@ -135,30 +157,27 @@ const Dnd = ({ children }: { children: ReactNode }) => {
         },
       );
   };
-  void schema;
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={rowsFirst}
-      onDragStart={(e) => setActive(String(e.active.id))}
+      onDragStart={(e) => setActive(nameOf(e.active))}
       onDragCancel={() => setActive(null)}
       onDragEnd={onDragEnd}
       accessibility={{
         announcements: {
-          onDragStart: ({ active: a }) =>
-            labels.announceGrab(nameOf(String(a.id))),
-          onDragOver: ({ active: a }) =>
-            labels.announceMove(nameOf(String(a.id)), 0),
-          onDragEnd: ({ active: a }) =>
-            labels.announceDrop(nameOf(String(a.id)), 0),
-          onDragCancel: ({ active: a }) =>
-            labels.announceCancel(nameOf(String(a.id))),
+          onDragStart: ({ active: a }) => labels.announceGrab(nameOf(a)),
+          onDragOver: ({ active: a, over }) =>
+            labels.announceMove(nameOf(a), positionOf(over)),
+          onDragEnd: ({ active: a, over }) =>
+            labels.announceDrop(nameOf(a), positionOf(over)),
+          onDragCancel: ({ active: a }) => labels.announceCancel(nameOf(a)),
         },
       }}
     >
       {children}
       <DragOverlay>
-        {active ? <div className="afb-overlay">{nameOf(active)}</div> : null}
+        {active ? <div className="afb-overlay">{active}</div> : null}
       </DragOverlay>
     </DndContext>
   );
