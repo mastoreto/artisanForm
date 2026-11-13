@@ -23,7 +23,7 @@ bun run lint              # biome check
 bun run format            # biome check --write
 ```
 
-Also: `bun run playground` (live test app, scenarios in `playground/src/scenarios/`), `bun run e2e` (Playwright, `e2e/`), `bun run build` (library), `bun run typecheck` and `bun test` (`*.test.ts(x)` next to the code).
+Also: `bun run check:next` (the packed tarball in a clean Next 15/16 app with both routers, after a build), `bun run playground` (live test app, scenarios in `playground/src/scenarios/`), `bun run e2e` (Playwright, `e2e/`), `bun run build` (library), `bun run typecheck` and `bun test` (`*.test.ts(x)` next to the code).
 Also: `bun run check:api` (public API snapshot in `api/`, see `docs/versioning.md`) after a build; `bun run perf` (Web Vitals budgets on the production playground; see `docs/performance.md`) and `bun run check:size` after a build; `bun run lint:react` (React Hooks/Compiler rules), `bun run check:dist`, `bun run check:package` and `bun run check:pack` after a build; `ARTISAN_BROWSERS=chromium,firefox,webkit` runs e2e in more browsers (default: Chromium); `ARTISAN_COMPILER=off` disables the React Compiler (playground, build, e2e) to compare behavior. Never read mutable state (`getValues()`, refs) during render in compiled code.
 Minimum verification for a change: `bun run lint` + `bun run typecheck` + `bun run build` + `bun test` + the story renders without errors. Check the **exit code** of each command, not just the tail of its output.
 
@@ -99,7 +99,7 @@ A new field type is a `FieldDefinition` in `components/fields/registry.tsx` (ren
 
 ## Current state / known debt
 
-Version `1.0.0-rc.1` (the core and the four npm kits, in lockstep) with the v1 schema contract: a wizard driven by a `scheme` (0.2.0 `FormSchema` or `ArtisanSchemaV1`) with extensible field and step registries, plugin-based payments (Stripe, Lemon Squeezy, Mercado Pago, PayPal), files through `StorageAdapter`, waiting through `WaitStrategy`, versioned draft snapshots, Biome, a playground and e2e tests. GitHub Actions CI runs lint, typecheck, build, package checks, unit tests, e2e on Chromium, Firefox and WebKit (with axe accessibility checks) and clean-app consumer tests on React 18 and 19 on every PR; a manual `Release` workflow publishes to npm ([`docs/releasing.md`](docs/releasing.md)). Pending: Trusted Publishing for npm, trying the payment plugins against sandboxes with test credentials, and a public headless API (internal `useWizard` is the starting point). Details and roadmap in the README.
+Version `1.0.0-rc.2` (the core and the four npm kits, in lockstep) with the v1 schema contract: a wizard driven by a `scheme` (0.2.0 `FormSchema` or `ArtisanSchemaV1`) with extensible field and step registries, plugin-based payments (Stripe, Lemon Squeezy, Mercado Pago, PayPal), files through `StorageAdapter`, waiting through `WaitStrategy`, versioned draft snapshots, Biome, a playground and e2e tests. GitHub Actions CI runs lint, typecheck, build, package checks, unit tests, e2e on Chromium, Firefox and WebKit (with axe accessibility checks) and clean-app consumer tests on React 18 and 19 on every PR; a manual `Release` workflow publishes to npm ([`docs/releasing.md`](docs/releasing.md)). Pending: Trusted Publishing for npm, trying the payment plugins against sandboxes with test credentials, and a public headless API (internal `useWizard` is the starting point). Details and roadmap in the README.
 
 Tasks are GitHub issues with the `AF<n>` code in the title (issue number = n − 6).
 

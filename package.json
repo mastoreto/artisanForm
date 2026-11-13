@@ -1,6 +1,6 @@
 {
   "name": "artisanform",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "description": "Declarative multi-step forms (wizards) for React: a serializable JSON schema, 30+ field types, payments, file uploads and themeable UI kits.",
   "keywords": [
     "react",
@@ -124,7 +124,8 @@
     "check:pack": "node scripts/check-pack.mjs",
     "check:publish": "node scripts/prepublish-check.mjs",
     "bench:parse": "bun run scripts/bench-parse.mjs",
-    "check:schema": "node scripts/consumer-schema.mjs"
+    "check:schema": "node scripts/consumer-schema.mjs",
+    "check:next": "node scripts/consumer-next.mjs"
   },
   "sideEffects": [
     "**/*.css"
@@ -142,7 +143,10 @@
       "types": "./dist/schema/index.d.ts",
       "import": "./dist/schema.js"
     },
-    "./style.css": "./dist/style.css",
+    "./style.css": {
+      "types": "./dist/style.css.d.ts",
+      "default": "./dist/style.css"
+    },
     "./payments/stripe": {
       "types": "./dist/integrations/payments/providers/stripe.d.ts",
       "import": "./dist/payments/stripe.js"

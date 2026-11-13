@@ -2,6 +2,19 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## 1.0.0-rc.2 (2026-11-13)
+
+Segundo release candidate: corrige la compatibilidad con Next.js. El contrato v1 y la API pública (`check:api`) no cambian respecto de `1.0.0-rc.1`.
+
+### Corregido
+
+- **Next.js App Router:** `artisanform`, `artisanform/headless` y `artisanform/payments/*` ahora traen la directiva `'use client'`. Sin ella, importar la librería desde un Server Component rompía el build (`Export FormProvider doesn't exist in target module`), porque `react-hook-form` resolvía a su versión de servidor sin hooks. `artisanform/schema` no tiene la directiva y sigue siendo usable en el servidor.
+- **TypeScript 6:** `import 'artisanform/style.css'` ahora tiene declaración de tipos (`exports["./style.css"].types`). Sin ella, la verificación estricta de imports con efectos secundarios fallaba en apps que no aportan tipos para `*.css` (Next 15).
+
+### Agregado
+
+- `scripts/consumer-next.mjs` (`bun run check:next`) y un job de CI `consumers-next`: una app Next 15 y 16 limpia con ambos routers; verifica build, SSR, hidratación, una server action y `validateValues` en el servidor.
+
 ## 1.0.0-rc.1 (2026-11-12)
 
 Primer release candidate de la 1.0.0. El contrato del schema v1, la API pública de `artisanform` y `artisanform/schema`, el contrato de capacidades y el formato de catálogos quedan congelados con las reglas de [versionado](versioning.md): hasta la 1.0.0 solo entran correcciones. Las secciones siguientes (todas `1.0.0-rc.1`) son lo que cambió desde la 0.3.0-beta.2: validación en el servidor y `artisanform/schema`, capacidades, traducciones, gates de rendimiento y congelación del contrato. Probala con `npm install artisanform@rc`.

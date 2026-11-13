@@ -43,6 +43,14 @@ export default defineConfig({
       fileName: (_format, name) => `${name}.js`,
     },
     rollupOptions: {
+      output: {
+        // Next.js (App Router): everything that renders or uses hooks must be a
+        // client boundary, or importing it from a Server Component breaks the
+        // build. The schema entry is plain functions and stays server-safe.
+        // Shared chunks get no directive: they are only reached from entries.
+        banner: (chunk: { isEntry: boolean; name: string }) =>
+          chunk.isEntry && chunk.name !== 'schema' ? "'use client';" : '',
+      },
       external: (id) =>
         /^(react|react-dom|react-compiler-runtime|react-hook-form|@hookform|yup|zustand|@stripe|@mercadopago|@paypal)(\/|$)/.test(
           id,

@@ -33,3 +33,7 @@ for (const file of walk('dist')) {
   }
 }
 console.log(`fix-dts: rewrote ${changed} declaration file(s)`);
+
+// TypeScript 6 checks side-effect imports, so `import 'artisanform/style.css'`
+// needs a declaration (Vite and Next 16 supply `*.css` typings, Next 15 does not).
+writeFileSync('dist/style.css.d.ts', 'export {};\n');
