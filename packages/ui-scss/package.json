@@ -1,6 +1,6 @@
 {
   "name": "@beardartisans/ui-scss",
-  "version": "0.3.0-beta.2",
+  "version": "1.0.0-rc.1",
   "description": "Sass theme (tokens mixin) for ArtisanForm",
   "license": "MIT",
   "author": "ArtisanForm contributors",
@@ -32,7 +32,7 @@
     }
   },
   "peerDependencies": {
-    "artisanform": "^0.3.0-beta.2"
+    "artisanform": "^1.0.0-rc.1"
   },
   "devDependencies": {
     "artisanform": "link:../.."
