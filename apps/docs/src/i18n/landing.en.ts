@@ -301,7 +301,7 @@ export default function App() {
     status: {
       icon: 'release-alert',
       title: `Project status: v${project.version}`,
-      text: 'Active development toward 1.0.',
+      text: 'Release candidate: the v1 contract is frozen for 1.x. Feedback welcome before 1.0.',
       cta: 'Changelog',
       href: `${project.repo}/blob/main/CHANGELOG.md`,
     },
@@ -358,7 +358,7 @@ export default function ContactPage() {
       },
       {
         q: 'Is it published to npm yet?',
-        a: `Not yet: it is a ${project.version} beta and the release workflow is being finalized. Follow the repository for the first publish.`,
+        a: `Yes. ${project.version} is on npm under the rc tag: npm install artisanform@rc. A plain npm install still gets an older beta until 1.0.0 is published.`,
       },
     ],
   },
