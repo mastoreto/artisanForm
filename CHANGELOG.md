@@ -2,20 +2,24 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
-## Unreleased (Contract freeze)
+## 1.0.0-rc.1 (2026-11-12)
+
+First release candidate of 1.0.0. The v1 schema contract, the public API of `artisanform` and `artisanform/schema`, the capabilities contract and the catalog format are frozen under the rules of [versioning](docs/versioning.md): until 1.0.0 only fixes land. The sections below (all `1.0.0-rc.1`) are what changed since 0.3.0-beta.2: server-side validation and `artisanform/schema`, capabilities, translations, performance gates and the contract freeze. Try it with `npm install artisanform@rc`.
+
+## 1.0.0-rc.1 (Contract freeze)
 
 ### Quality
 
 - **Versioning policy and contract guards (AF119):** [versioning](docs/versioning.md) states what may change in a 1.x minor and what needs a major, over three surfaces (the schema contract, the TypeScript API of `artisanform` and `artisanform/schema`, the capabilities contract and catalog format). Enforced by golden fixtures (`src/schema/__tests__/fixtures-v1/`: the 13 catalog examples must parse clean, normalize to the recorded JSON, be idempotent and portable; invalid cases keep their codes and paths) and by `bun run check:api`, which compares every export and declaration of both entries with `api/*.api.txt` (CI, release and `prepublishOnly`). No behavior change.
 
-## Unreleased (Performance)
+## 1.0.0-rc.1 (Performance)
 
 ### Quality
 
 - **Performance measured against the Web Vitals standard (AF118):** `bun run perf` (Playwright, production build of the playground) checks "form ready", interaction latency, long tasks and layout shift in Chromium (desktop and a mobile profile with the CPU slowed 4x), Firefox and WebKit, plus a per-browser baseline (`perf/web-baseline.json`, +50%). `bun run check:size` gates the gzipped JS, CSS and `artisanform/schema` at +10% over `perf/size.json`. New CI job `perf`. The budgets and what they are based on are in [performance](docs/performance.md). The schema pipeline costs about 1.2 ms for 200 fields, so no library code was changed.
 - New playground scenario `perf` (`?demo=perf&fields=50&perStep=50`) and scripts `playground:build` / `playground:preview`; `perf/generate.mjs` takes a `perStep` argument.
 
-## Unreleased (Translations)
+## 1.0.0-rc.1 (Translations)
 
 ### Back end and front end
 
@@ -23,7 +27,7 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 - **The library's own texts are translatable (AF117):** `labels.<key>` entries of a catalog translate `ArtisanLabels`, including the function labels (`{n}`, plural forms). Precedence: defaults < kit labels < catalog < the `labels` prop. `ArtisanForm` now hands the kit's labels to the wizard separately (`useArtisanWizard` option `kitLabels`), so a catalog is not overridden by an English kit. With no `locale` the output is unchanged.
 - **`formatIssue(issue, labels)` (AF117):** turns a `validateValues` issue into the same message the browser shows, in the language of `labels`.
 
-## Unreleased (Capabilities and payment return routing)
+## 1.0.0-rc.1 (Capabilities and payment return routing)
 
 ### Back end and front end
 
@@ -43,7 +47,7 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 - A Mercado Pago sandbox checklist (test seller and buyer, currency, `auto_return` only over https) in the payments guide. `apps/payments-test` now uses one port (5858) and has server tests that pin the Checkout Pro preference body.
 - **`apps/payments-test`: cause of "Una de las partes con la que intentas hacer el pago es de prueba" in Checkout Pro (AF115):** the demo backend sent `MP_PAYER_EMAIL` (an ordinary address that the Payment Brick needs) as the preference's `payer`, so a test seller was paired with a payer that is not a test buyer. Checkout Pro now sends a payer only from the new `MP_CHECKOUT_PAYER_EMAIL` (the test buyer's own e-mail), and variant H of `mp-diagnose.ts` reproduces the old request.
 
-## Unreleased (Server-side validation)
+## 1.0.0-rc.1 (Server-side validation)
 
 ### Validation and packaging
 
