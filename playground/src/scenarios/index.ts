@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import BrokenSchemas from './BrokenSchemas';
+import Builder from './Builder';
 import Custom from './Custom';
 import Extensions from './Extensions';
 import Fields from './Fields';
@@ -31,6 +32,7 @@ export const scenarios: Record<
   styles: { title: 'Three ways to style', component: Styles },
   tailwind: { title: 'UI kits (Tailwind)', component: Tailwind },
   mui: { title: 'UI kits (Material UI)', component: Mui },
+  builder: { title: 'Form builder', component: Builder },
   broken: { title: 'Schemas that cannot run', component: BrokenSchemas },
   perf: { title: 'Performance (synthetic)', component: Perf },
   kits: { title: 'UI kits (Bootstrap)', component: Kits },

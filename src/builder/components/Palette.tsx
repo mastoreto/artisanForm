@@ -30,9 +30,6 @@ const PaletteItem = ({ type }: { type: NativeFieldType }) => {
         // Enter or a click adds it; dragging starts after a few pixels (or Space).
         onClick={() => actions.addField(type)}
       >
-        <span className={bx('paletteGlyph')} aria-hidden="true">
-          {type.slice(0, 2)}
-        </span>
         {entry.label}
       </button>
     </li>
@@ -58,9 +55,6 @@ const CustomItem = ({
         title={spec.description}
         onClick={() => actions.addCustomField(spec)}
       >
-        <span className={bx('paletteGlyph')} aria-hidden="true">
-          x
-        </span>
         {spec.type.replace(/^x-/, '')}
       </button>
     </li>

@@ -16,6 +16,14 @@ export default defineConfig({
         find: /^artisanform\/payments\/(.*)$/,
         replacement: `${resolve(repo, 'src/integrations/payments/providers')}/$1.tsx`,
       },
+      {
+        find: /^artisanform\/builder\.css$/,
+        replacement: resolve(repo, 'src/builder/builder.css'),
+      },
+      {
+        find: /^artisanform\/builder$/,
+        replacement: resolve(repo, 'src/builder/index.ts'),
+      },
       { find: /^artisanform$/, replacement: resolve(repo, 'src/index.ts') },
       // UI kits (workspace packages) straight from their sources.
       {

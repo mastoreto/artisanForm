@@ -1,4 +1,5 @@
 import {
+  type CollisionDetection,
   closestCenter,
   DndContext,
   type DragEndEvent,
@@ -68,6 +69,17 @@ export interface FormBuilderProps extends BuilderUi {
   children?: ReactNode;
 }
 
+/** A row wins over the list that holds it: dropping on a row means "here", on the list "at the end". */
+const rowsFirst: CollisionDetection = (args) => {
+  const rows = args.droppableContainers.filter(
+    (c) => c.data.current?.kind === 'field',
+  );
+  const hit = rows.length
+    ? closestCenter({ ...args, droppableContainers: rows })
+    : [];
+  return hit.length ? hit : closestCenter(args);
+};
+
 /** Drag and drop between the palette and the lists of fields. */
 const Dnd = ({ children }: { children: ReactNode }) => {
   const { schema, labels, actions } = useBuilder();
@@ -127,7 +139,7 @@ const Dnd = ({ children }: { children: ReactNode }) => {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={rowsFirst}
       onDragStart={(e) => setActive(String(e.active.id))}
       onDragCancel={() => setActive(null)}
       onDragEnd={onDragEnd}

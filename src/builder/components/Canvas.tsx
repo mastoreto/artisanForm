@@ -253,23 +253,25 @@ export const Canvas = () => {
     );
   return (
     <section className={bx('canvas')} aria-label={labels.canvasTitle}>
-      <div
-        className={bx('stepTabs')}
-        role="tablist"
-        aria-label={labels.stepsLabel}
-      >
-        {schema.steps.map((s, i) => (
-          <button
-            key={s.id}
-            type="button"
-            role="tab"
-            aria-selected={s.id === activeId}
-            className={bx('stepTab', s.id === activeId && 'afb-selected')}
-            onClick={() => actions.select({ kind: 'step', stepId: s.id })}
-          >
-            {labels.stepPage(i + 1, s.title)}
-          </button>
-        ))}
+      <div className={bx('stepBar')}>
+        <div
+          className={bx('stepTabs')}
+          role="tablist"
+          aria-label={labels.stepsLabel}
+        >
+          {schema.steps.map((s, i) => (
+            <button
+              key={s.id}
+              type="button"
+              role="tab"
+              aria-selected={s.id === activeId}
+              className={bx('stepTab', s.id === activeId && 'afb-selected')}
+              onClick={() => actions.select({ kind: 'step', stepId: s.id })}
+            >
+              {labels.stepPage(i + 1, s.title)}
+            </button>
+          ))}
+        </div>
         {!readOnly && (
           <select
             className={bx('moveSelect')}
