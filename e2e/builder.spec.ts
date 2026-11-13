@@ -78,7 +78,8 @@ test('the keyboard reorders too: Space to pick up, arrows, Space to drop', async
   await page.keyboard.press('Space');
   await expect(handle).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('ArrowUp');
-  await page.waitForTimeout(600); // the sensor measures the rows between keys
+  // the announcement says where the row is now: wait for it to be first
+  await expect(page.locator('[aria-live]')).toContainText('position 1');
   await page.keyboard.press('Space');
   await expect.poll(() => names(page)).toEqual(['email', 'text']);
 });
