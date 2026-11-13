@@ -72,6 +72,43 @@ export interface BuilderLabels {
   compatRequired: (names: string) => string;
   compatOptions: (names: string) => string;
   customGroup: string;
+  condEmpty: string;
+  condMatch: string;
+  condAll: string;
+  condAny: string;
+  condNot: string;
+  condAdd: string;
+  condAddGroup: string;
+  condRemove: string;
+  condNoAnswers: string;
+  condAnswer: string;
+  condOperator: string;
+  condValue: string;
+  condListHelp: string;
+  operators: Record<
+    | 'eq'
+    | 'neq'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'in'
+    | 'notIn'
+    | 'filled'
+    | 'empty',
+    string
+  >;
+  transAdd: string;
+  transTo: string;
+  transWhen: string;
+  transAlways: string;
+  transRemove: string;
+  actionsAdd: string;
+  actionLabel: string;
+  actionHref: string;
+  actionAction: string;
+  flowTitle: string;
+  flowEnd: string;
 }
 
 export const defaultBuilderLabels: BuilderLabels = {
@@ -152,4 +189,40 @@ export const defaultBuilderLabels: BuilderLabels = {
   compatRequired: (n) => `Now required (earlier answers may be empty): ${n}.`,
   compatOptions: (n) => `Options removed from: ${n}.`,
   customGroup: 'Custom',
+  condEmpty: 'Always shown',
+  condMatch: 'Match',
+  condAll: 'all of these',
+  condAny: 'any of these',
+  condNot: 'Not',
+  condAdd: 'Add condition',
+  condAddGroup: 'Add group',
+  condRemove: 'Remove condition',
+  condNoAnswers: 'Add an input before this one to use its answer here.',
+  condAnswer: 'Answer',
+  condOperator: 'Is',
+  condValue: 'Value',
+  condListHelp: 'Separate values with commas',
+  operators: {
+    eq: 'equal to',
+    neq: 'not equal to',
+    gt: 'greater than',
+    gte: 'at least',
+    lt: 'less than',
+    lte: 'at most',
+    in: 'one of',
+    notIn: 'none of',
+    filled: 'filled in',
+    empty: 'empty',
+  },
+  transAdd: 'Add next step',
+  transTo: 'Go to',
+  transWhen: 'When',
+  transAlways: 'Always',
+  transRemove: 'Remove next step',
+  actionsAdd: 'Add button',
+  actionLabel: 'Button text',
+  actionHref: 'Link',
+  actionAction: 'Action',
+  flowTitle: 'Flow',
+  flowEnd: 'ends here',
 };

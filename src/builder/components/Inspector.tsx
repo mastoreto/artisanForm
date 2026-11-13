@@ -33,6 +33,7 @@ export const Inspector = () => {
     pruned,
     readOnly,
     manifest,
+    features,
   } = useBuilder();
   const bx = useBx();
   const shown = (level: Level) => mode === 'advanced' || level === 'simple';
@@ -61,7 +62,12 @@ export const Inspector = () => {
           );
     }
   }
-  const visible = props.filter((d) => shown(d.level));
+  const visible = props.filter(
+    (d) =>
+      shown(d.level) &&
+      (features.conditions ||
+        (d.control !== 'condition' && d.control !== 'transitions')),
+  );
   const message = error ? labels.errors[error] : undefined;
 
   return (

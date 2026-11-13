@@ -5,6 +5,7 @@
  */
 
 export { Canvas } from './components/Canvas';
+export { Flow } from './components/Flow';
 export {
   FormBuilder,
   type FormBuilderProps,

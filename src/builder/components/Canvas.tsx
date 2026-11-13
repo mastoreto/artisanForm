@@ -10,6 +10,7 @@ import { useBuilder } from '../context';
 import { useBx } from '../cx';
 import { FIELD_CATALOG, STEP_CATALOG } from '../model/catalog';
 import type { Selection } from '../model/types';
+import { Flow } from './Flow';
 
 export const fieldId = (stepId: string, path: readonly number[]) =>
   `field:${stepId}:${path.join('.')}`;
@@ -338,6 +339,7 @@ export const Canvas = () => {
           </span>
         </div>
       ) : null}
+      {features.steps && <Flow />}
     </section>
   );
 };

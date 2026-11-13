@@ -1,7 +1,15 @@
 import { useId, useState } from 'react';
+import { answerKeys } from '../../schema/answers';
+import type { ConditionV1 } from '../../schema/contract/types';
 import { useBuilder } from '../context';
 import { useBx } from '../cx';
+import { getField } from '../model/operations';
 import type { PropertyDescriptor } from '../model/types';
+import {
+  ActionsEditor,
+  ConditionEditor,
+  TransitionsEditor,
+} from './LogicEditors';
 
 /** Text keys that must keep an empty string instead of being removed. */
 const KEEP_EMPTY = new Set(['name', 'title', 'id']);
@@ -163,7 +171,7 @@ export const PropertyControl = ({
   onChange: (next: unknown) => void;
   error?: string;
 }) => {
-  const { manifest, schema, labels } = useBuilder();
+  const { manifest, schema, labels, selection } = useBuilder();
   const bx = useBx();
   const id = useId();
   const refs = d.ref ? (manifest?.refs[d.ref] ?? []) : [];
@@ -313,14 +321,63 @@ export const PropertyControl = ({
         />
       );
       break;
+    case 'condition': {
+      // A field may read answers up to its own step (not itself); a step's own visibility, only earlier steps.
+      const stepIndex =
+        selection.kind === 'form'
+          ? 0
+          : schema.steps.findIndex((s) => s.id === selection.stepId);
+      const own =
+        selection.kind === 'field'
+          ? getField(schema, selection.stepId, selection.path)
+          : undefined;
+      control = (
+        <ConditionEditor
+          value={value as ConditionV1 | undefined}
+          onChange={onChange}
+          upToStep={selection.kind === 'step' ? stepIndex - 1 : stepIndex}
+          exclude={own ? new Set([...answerKeys(own), own.name]) : undefined}
+        />
+      );
+      break;
+    }
+    case 'transitions':
+      control = (
+        <TransitionsEditor
+          value={value as { when?: ConditionV1; to: string }[] | undefined}
+          onChange={onChange}
+          stepIndex={
+            selection.kind === 'step'
+              ? schema.steps.findIndex((s) => s.id === selection.stepId)
+              : 0
+          }
+        />
+      );
+      break;
+    case 'actions':
+      control = (
+        <ActionsEditor
+          value={
+            value as
+              | { label: string; href?: string; action?: string }[]
+              | undefined
+          }
+          onChange={onChange}
+        />
+      );
+      break;
     default:
-      // condition, transitions, actions, optionsMap, json: edited as JSON for now
+      // optionsMap and json: edited as JSON
       control = <JsonEditor id={id} value={value} onChange={onChange} />;
   }
   return (
     <div className={bx('property', d.control === 'boolean' && 'afb-inline')}>
       <label
-        htmlFor={d.control === 'options' ? undefined : id}
+        htmlFor={
+          ['options', 'condition', 'transitions', 'actions'].includes(d.control)
+            ? undefined
+            : id
+        }
         className={bx('propertyLabel')}
       >
         {d.label}
