@@ -2,10 +2,11 @@ name: Release
 
 # Manual publish to npm of `artisanform` and the official kits
 # (@beardartisans/ui-bootstrap, ui-mui, ui-tailwind, ui-scss), all at the same
-# version. Needs the repository secret NPM_TOKEN: a granular access token with
-# read/write on all packages (the `artisanform` package and the @beardartisans
-# organization scope). `dry-run` defaults to true: it runs every check and
-# `npm publish --dry-run` for each package, and uploads nothing.
+# version. It authenticates with npm Trusted Publishing (OIDC): no token is
+# stored, but each of the five packages must list this repository and this
+# workflow file as a trusted publisher (docs/releasing.md). `dry-run` defaults
+# to true: it runs every check and `npm publish --dry-run` for each package,
+# and uploads nothing.
 on:
   workflow_dispatch:
     inputs:
@@ -19,7 +20,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write # npm provenance
+  id-token: write # npm Trusted Publishing (OIDC) and provenance
 
 jobs:
   publish:
@@ -51,7 +52,6 @@ jobs:
       - run: bun test
       - name: Publish the core, then the kits
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           TAG: ${{ inputs.tag }}
           DRY_RUN: ${{ inputs.dry-run }}
         run: |

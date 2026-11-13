@@ -23,8 +23,7 @@ How ArtisanForm is published to npm. Five packages ship together, all at the sam
 ## One-time setup
 
 1. **npm account with 2FA**, and an npm **organization** named `beardartisans` (the free plan is enough for public packages). The user who publishes must be a member with permission to publish.
-2. A **granular access token**: read and write on *all packages* (the unscoped `artisanform` does not exist before its first release, so it cannot be picked individually), with *Bypass two-factor authentication* enabled. Save it as the repository secret `NPM_TOKEN` (Settings → Secrets and variables → Actions). Never paste it in an issue, a PR or a chat.
-3. Read the `EOTP` row of [Troubleshooting](#troubleshooting): npm is restricting bypass tokens for direct publishing, so this token may not be enough on its own.
+2. **Trusted Publishing** for the five packages ([below](#trusted-publishing-no-token)). It replaces the old `NPM_TOKEN` secret; npm is restricting tokens that bypass 2FA, so a token alone may not publish (see the `EOTP` row of [Troubleshooting](#troubleshooting)).
 
 ## Cutting a release
 
@@ -79,10 +78,19 @@ Then run the verification from step 6 above.
 
 ## Trusted Publishing (no token)
 
-npm can trust a GitHub workflow directly (OIDC), so **no `NPM_TOKEN` is needed** and provenance comes for free. The workflow already has `id-token: write`.
+npm can trust a GitHub workflow directly (OIDC), so **no `NPM_TOKEN` is needed** and provenance comes for free. The workflow has `id-token: write` and no longer reads a token.
 
-1. On npmjs.com, open each of the five packages → **Settings → Trusted Publisher** and add GitHub Actions with repository `mastoreto/artisanForm` and workflow `release.yml`. This is done per package and needs the package to exist, which is why the first release goes through a token or by hand.
-2. Remove the `NODE_AUTH_TOKEN` line from the publish step in `release.yml` and delete the `NPM_TOKEN` secret. A recent npm CLI is required (11.5.1 or newer at the time of writing; Node 24 on the runner ships a compatible one).
+1. Once per package (the five of them; the package must already exist), register the workflow as a trusted publisher. It needs your npm login and a 2FA code, so it is done by hand:
+
+   ```bash
+   for p in artisanform @beardartisans/ui-bootstrap @beardartisans/ui-mui @beardartisans/ui-tailwind @beardartisans/ui-scss; do
+     npm trust github "$p" --repo mastoreto/artisanForm --file release.yml --yes
+   done
+   ```
+
+   The same is available in the web UI: package → **Settings → Trusted Publisher** → GitHub Actions, repository `mastoreto/artisanForm`, workflow `release.yml`. Check it with `npm trust list <package>`.
+2. Delete the `NPM_TOKEN` repository secret.
+3. Run the `Release` workflow from `main` with `dry-run` on, then off. A recent npm CLI is required (11.5.1 or newer; Node 24 on the runner ships a compatible one). The workflow file name must match what you registered.
 
 ## Troubleshooting
 
