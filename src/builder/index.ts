@@ -4,6 +4,23 @@
  * types with the properties an inspector edits, and undo/redo.
  */
 
+export { Canvas } from './components/Canvas';
+export {
+  FormBuilder,
+  type FormBuilderProps,
+  FormBuilderProvider,
+} from './components/FormBuilder';
+export { Inspector } from './components/Inspector';
+export { Palette } from './components/Palette';
+export { Preview } from './components/Preview';
+export { type SavePayload, Toolbar } from './components/Toolbar';
+export {
+  type BuilderFeatures,
+  type BuilderMode,
+  useBuilder,
+} from './context';
+export type { BuilderUi } from './cx';
+export { type BuilderLabels, defaultBuilderLabels } from './labels';
 export type { FieldEntry, StepEntry } from './model/catalog';
 export {
   FIELD_CATALOG,
@@ -62,3 +79,10 @@ export type {
   Section,
   Selection,
 } from './model/types';
+export {
+  type BuilderResult,
+  emptySchema,
+  type FormBuilder as FormBuilderState,
+  type UseFormBuilderOptions,
+  useFormBuilder,
+} from './useFormBuilder';

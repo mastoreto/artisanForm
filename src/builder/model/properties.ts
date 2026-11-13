@@ -306,3 +306,22 @@ export const MANAGED_STEP_KEYS = (
 )
   .filter(([, e]) => e === MANAGED)
   .map(([k]) => k);
+
+/** The properties of the form itself (the root of the schema). */
+export const formProperties = (): PropertyDescriptor[] => [
+  p('title', 'Form title', 'text', 'simple', 'general'),
+  p('description', 'Description', 'textarea', 'simple', 'general'),
+  p('ui.layout', 'Layout', 'enum', 'simple', 'layout', {
+    options: ['vertical', 'horizontal'],
+  }),
+  p('ui.density', 'Density', 'enum', 'simple', 'layout', {
+    options: ['compact', 'comfortable'],
+  }),
+  p('ui.labelPosition', 'Label position', 'enum', 'simple', 'layout', {
+    options: ['top', 'left'],
+  }),
+  p('id', 'Form id', 'text', 'developer', 'advanced', {
+    help: 'Identifies the form (saved drafts are tied to it)',
+  }),
+  p('revision', 'Revision', 'number', 'developer', 'advanced', { min: 0 }),
+];
