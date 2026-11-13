@@ -1,3 +1,4 @@
+export { answerFields, answerKeys, sensitiveAnswerKeys } from './answers';
 export {
   CAPABILITIES_CONTRACT,
   type CapabilitiesManifest,
@@ -59,6 +60,7 @@ export {
   type ParseOptions,
   type ParseResult,
   parseArtisanSchema,
+  type SchemaLimits,
   type SchemaPolicy,
 } from './parser';
 export {
