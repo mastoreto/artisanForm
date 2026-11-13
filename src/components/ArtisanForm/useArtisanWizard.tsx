@@ -19,6 +19,11 @@ import { useFormBinding } from '../../engine/form/useFormBinding';
 import { type FormUi, FormUiContext } from '../../engine/form/validators';
 import { projectToRuntime } from '../../engine/project';
 import {
+  BLOCKED_PROJECTION,
+  collectSchemaIssues,
+  issuesOf,
+} from '../../engine/schemaGuard';
+import {
   type ArtisanStore,
   ArtisanStoreContext,
   createArtisanStore,
@@ -37,7 +42,7 @@ import type {
   SnapshotConflict,
   SnapshotMigrations,
 } from '../../persistence';
-import { applyCatalog, type Catalog } from '../../schema';
+import { applyCatalog, type Catalog, type SchemaIssue } from '../../schema';
 import type { ArtisanSchemaV1 } from '../../schema/contract/define';
 import type { InferValues } from '../../schema/contract/infer';
 import type { FormUIConfig } from '../../schema/contract/types';
@@ -76,6 +81,12 @@ export interface ArtisanWizardOptions<
   extensions?: ArtisanExtensions;
   /** What to do with a name the schema uses that `extensions` and the plugins do not provide (default: fail). */
   onUnresolved?: OnUnresolved;
+  /**
+   * Everything wrong or doubtful about the schema (errors and warnings), each
+   * time it changes. An error stops the form: `ArtisanForm` shows a panel and
+   * the headless hook reports `schemaBlocked`. Use it to log or alert.
+   */
+  onSchemaIssues?: (issues: SchemaIssue[]) => void;
   /** Return a promise to keep the last step's action disabled until it settles. */
   onSubmit: (values: ValuesOf<S>) => unknown;
   /** What to do with a saved draft that does not fit this form (default: `backup`). */
@@ -169,6 +180,10 @@ export interface ArtisanWizard {
   stepError: string | null;
   labels: ArtisanLabels;
   ui: FormUIConfig;
+  /** Errors and warnings about the schema; empty when it is clean. */
+  schemaIssues: SchemaIssue[];
+  /** The schema cannot run (it has errors): render a message instead of the form. */
+  schemaBlocked: boolean;
   /** Renders the current step with the registered step type (used by `ArtisanForm`). */
   renderStep: () => ReactNode;
   /** The step type's default controls merged with the step's own. */
@@ -212,6 +227,7 @@ export const useArtisanWizard = <
   schema: input,
   extensions,
   onUnresolved,
+  onSchemaIssues,
   onSubmit,
   initialValues: initialOverrides,
   labels: labelOverrides,
@@ -256,27 +272,39 @@ export const useArtisanWizard = <
     [stepTypes],
   );
   // One internal representation: normalize (v1 or 0.2.0) → project to the
-  // shape the engine runs. Memoized; `key` only changes with the content.
-  const normalized = useMemo(
-    () =>
-      normalizeArtisanSchema(input, {
-        id: persistKey ? `legacy:${persistKey}` : undefined,
-      }),
-    [input, persistKey],
-  );
+  // shape the engine runs. A schema that cannot run never throws out of the
+  // render: its issues are collected and the form shows a panel instead.
+  const attempt = useMemo(() => {
+    try {
+      return {
+        normalized: normalizeArtisanSchema(input, {
+          id: persistKey ? `legacy:${persistKey}` : undefined,
+        }),
+        issues: [] as SchemaIssue[],
+      };
+    } catch (error) {
+      return { normalized: null, issues: issuesOf(error) };
+    }
+  }, [input, persistKey]);
+  const normalized = attempt.normalized;
   const catalogs = useCatalogs(
     locale,
     messages,
     loadMessages,
-    normalized.schema.i18n,
+    normalized?.schema.i18n,
   );
   // The content key comes from the untranslated schema: changing language
   // must not look like a new form and reset what the user typed.
-  const projection = useMemo(
-    () =>
-      projectToRuntime(
+  const built = useMemo(() => {
+    if (!normalized)
+      return { projection: BLOCKED_PROJECTION, issues: [] as SchemaIssue[] };
+    try {
+      const projection = projectToRuntime(
         catalogs.length
-          ? { ...normalized, schema: applyCatalog(normalized.schema, catalogs) }
+          ? {
+              ...normalized,
+              schema: applyCatalog(normalized.schema, catalogs),
+            }
           : normalized,
         extensions,
         {
@@ -285,15 +313,59 @@ export const useArtisanWizard = <
         },
         onUnresolved,
         JSON.stringify(normalized.schema),
-      ),
-    [normalized, catalogs, extensions, onUnresolved, registry, stepRegistry],
+      );
+      return { projection, issues: projection.issues };
+    } catch (error) {
+      return { projection: BLOCKED_PROJECTION, issues: issuesOf(error) };
+    }
+  }, [normalized, catalogs, extensions, onUnresolved, registry, stepRegistry]);
+  const schemaIssues = useMemo(
+    () =>
+      collectSchemaIssues({
+        normalized,
+        parseIssues: attempt.issues,
+        projectionIssues: built.issues,
+        registrations: {
+          extensions,
+          fields,
+          stepTypes,
+          plugins,
+          storage,
+        },
+      }),
+    [
+      normalized,
+      attempt.issues,
+      built.issues,
+      extensions,
+      fields,
+      stepTypes,
+      plugins,
+      storage,
+    ],
   );
+  const schemaBlocked = schemaIssues.some((i) => i.severity === 'error');
+  const projection = schemaBlocked ? BLOCKED_PROJECTION : built.projection;
+  // A form that cannot run must not read or touch a saved draft.
+  const draftKey = schemaBlocked ? undefined : persistKey;
+  const reported = useRef(onSchemaIssues);
+  useEffect(() => {
+    reported.current = onSchemaIssues;
+  });
+  const issuesKey = JSON.stringify(schemaIssues);
+  const lastReported = useRef('');
+  useEffect(() => {
+    // Report each distinct set of issues once, not on every render.
+    if (schemaIssues.length === 0 || lastReported.current === issuesKey) return;
+    lastReported.current = issuesKey;
+    reported.current?.(schemaIssues);
+  }, [issuesKey, schemaIssues]);
   const scheme = projection.scheme;
   // Read once on mount; the draft wins over defaults and `initialValues`.
   const [draft] = useState(() =>
-    persistKey
+    draftKey
       ? restoreDraft({
-          persistKey,
+          persistKey: draftKey,
           formId: projection.formId,
           revision: projection.revision,
           scheme,
@@ -391,7 +463,7 @@ export const useArtisanWizard = <
     labels,
     onChange,
     onStepChange,
-    persistKey,
+    persistKey: draftKey,
     initialHistory: draft?.history,
     draftStorage,
     draftDebounceMs,
@@ -416,6 +488,8 @@ export const useArtisanWizard = <
     form: methods,
     labels,
     ui: projection.ui,
+    schemaIssues,
+    schemaBlocked,
     _provider: { form: methods, store, ui },
   };
   if (!inner)
