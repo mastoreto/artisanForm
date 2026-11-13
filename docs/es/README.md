@@ -4,13 +4,14 @@
 
 Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con estilos en CSS plano (tematizables y reemplazables), validación con React Hook Form + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
 
-> **Estado:** release candidate, `1.0.0-rc.2` (`latest` en npm; el contrato está congelado, ver [versionado](versioning.md)): wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable, plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal; probados por el mantenedor contra el sandbox de cada proveedor) y kits de UI oficiales. Ver [Estado del proyecto](#estado-del-proyecto).
+> **Estado:** release candidate, `1.0.0-rc.3` (`latest` en npm; el contrato está congelado, ver [versionado](versioning.md)): wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable, plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal; probados por el mantenedor contra el sandbox de cada proveedor) y kits de UI oficiales. Ver [Estado del proyecto](#estado-del-proyecto).
 
 ## Documentación
 
 | Guía | Qué cubre |
 | --- | --- |
 | [Schema v1](schema-v1.md) | El contrato de esquema serializable y versionado, y `artisanform/schema` para validar valores en un servidor |
+| [Guía de backend](backend.md) | Guardar, servir y validar schemas en cualquier base de datos; autores de plugins y tipos custom; el CLI `artisanform` y `schema.json` |
 | [Versionado (contrato 1.x)](versioning.md) | Qué puede cambiar en una menor, qué exige una mayor y las guardias |
 | [Extensión de UI y kits](ui.md) | Estilos, `components`, `classNames` y los kits oficiales |
 | [Rendimiento](performance.md) | Presupuestos de Web Vitals y cómo correrlos |
@@ -319,7 +320,10 @@ Cada tipo es una `FieldDefinition` (`render`, `initialValues`, `rules`, y opcion
 | `fields?`             | Registro de tipos de campo propios (ver arriba)                                                                                           |
 | `stepTypes?`          | Registro de tipos de paso propios (`StepDefinition`)                                                                                      |
 | `extensions?`         | Funciones y componentes locales a los que un esquema v1 hace referencia por id (`options`, `waits`, `hooks`, `renderers`, `actions`)      |
-| `onUnresolved?`       | Se llama por cada nombre que el esquema usa y que `extensions` no provee; devuelve `'ignore'` para renderizar sin él (por defecto: falla con `unresolved-reference`) |
+| `onUnresolved?`       | Se llama por cada nombre que el esquema usa y que `extensions` no provee; devuelve `'ignore'` para renderizar sin él (por defecto: se informa como `unresolved-reference` y, si detiene el formulario, se muestra un mensaje en lugar del formulario) |
+| `onSchemaIssues?`             | Se llama con los errores y avisos del esquema (una vez por conjunto distinto): para registrar o alertar |
+| `fallback?`                   | Qué mostrar en lugar de un formulario cuyo esquema no puede ejecutarse (un nodo o una función de los issues); por defecto: un mensaje corto y traducible |
+| `showSchemaIssues?`           | Lista cada error del esquema en ese mensaje (por defecto: fuera de producción) |
 | `storage?`            | Adapter(s) de almacenamiento para campos `file`/`image` (ver arriba)                                                                      |
 | `plugins?`            | `{ payments: PaymentPlugin[], navigate? }` para los pasos de pago                                                                         |
 

@@ -197,6 +197,8 @@ This validates **the definition**. In the browser, the **values** a user types a
 
 ### Validating values on a server ✅
 
+Storing and serving schemas, the `checkSchema` gate, the JSON Schema and the CLI are in the [backend guide](backend.md).
+
 `validateValues` checks the **values** a client submitted against the same schema, with no React, Yup or form engine. It is exported from `artisanform/schema`, an entry that imports none of them (a build check fails if it ever does), so it runs in Node, a worker or any JS runtime.
 
 ```ts
@@ -241,7 +243,7 @@ The schema only names things; executable code lives in local registries:
 | Result actions | `actions[].action` | `extensions.actions` |
 | Payments / storage | `providers` / `storage` | `plugins` / `storage` props (unchanged) |
 
-A reference nobody registered **fails explicitly** (`ArtisanSchemaError`, `unresolved-reference`); it is not ignored. Custom names must start with `x-` so they can never collide with a future native type; a 0.2.0 type without the prefix (`stars`) and its v1 equivalent (`x-stars`) resolve to the same registry entry.
+A reference nobody registered is **never ignored silently**: the form does not run it. `<ArtisanForm>` reports it as an issue (`unresolved-reference`) through `onSchemaIssues` and, when it stops the form, shows a short message instead of throwing (`fallback` replaces it, `showSchemaIssues` lists the errors). A missing options source only degrades its field (a warning). Custom names must start with `x-` so they can never collide with a future native type; a 0.2.0 type without the prefix (`stars`) and its v1 equivalent (`x-stars`) resolve to the same registry entry.
 
 `optionsSource` exists on `combobox`, `multiselect`, `select` and `radio` (and `dependentOptionsSource` on `dynamicSelect`). On `select` and `radio` it replaces `options` (not both) and the source is called with an empty query to get every option; the field shows a loading state and an error state like `dynamicSelect`. ⏳ **Limitation:** `check` still requires inline `options`.
 

@@ -63,6 +63,7 @@ export const SLOTS = [
   'statusTitle',
   'statusMessage',
   'statusActions',
+  'schemaIssues',
   'spinner',
   'callout',
   'stack',

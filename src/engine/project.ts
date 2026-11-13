@@ -17,6 +17,8 @@ export interface RuntimeProjection {
   stepIds: string[];
   /** Changes only when the schema's content changes (not when its identity does). */
   key: string;
+  /** Warnings: what does not stop the form (a missing options source leaves its field without options). */
+  issues: SchemaIssue[];
 }
 
 export interface ProjectionRegistries {
@@ -63,7 +65,11 @@ export const projectToRuntime = (
       onUnresolved?.({ group, id, path }) !== 'ignore'
     ) {
       issues.push({
-        severity: 'error',
+        // Options are loaded on demand: without a loader the field just has none.
+        severity:
+          group === 'options' || group === 'dependentOptions'
+            ? 'warning'
+            : 'error',
         code: 'unresolved-reference',
         path,
         message: `"${id}" is not registered in extensions.${group}`,
@@ -274,7 +280,8 @@ export const projectToRuntime = (
     return out;
   });
 
-  if (issues.length > 0) throw new ArtisanSchemaError(issues);
+  if (issues.some((i) => i.severity === 'error'))
+    throw new ArtisanSchemaError(issues);
 
   return {
     scheme: { steps } as unknown as FormSchema,
@@ -283,5 +290,6 @@ export const projectToRuntime = (
     ui: schema.ui ?? {},
     stepIds,
     key: contentKey ?? JSON.stringify(schema),
+    issues,
   };
 };

@@ -2,6 +2,39 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## 1.0.0-rc.3 (2026-11-13)
+
+Third release candidate: backend tooling. It adds the `sensitive` field flag (a contract addition), `checkSchema` and its companions in `artisanform/schema`, a form that no longer throws on a schema it cannot run, `artisanform/schema.json`, the `artisanform` CLI and the [backend guide](docs/backend.md). Everything is additive except the behavior changes listed under "Changed".
+
+### Changed
+
+- **`<ArtisanForm>` no longer throws on a schema that cannot run.** Before, an invalid schema or a name nobody registered threw during render and, without an error boundary in the app, left the page blank. Now the form runs the schema through the same gate as `checkSchema` first and, when something stops it, shows a short message instead (`labels.schemaErrorMessage`, translatable; in development it also lists each error with its code and path, controlled by `showSchemaIssues`). Everything is reported through the new `onSchemaIssues(issues)` prop, errors and warnings alike, once per distinct set. A custom `fallback` (node or function of the issues) replaces the message. The headless `useArtisanWizard` returns `schemaIssues` and `schemaBlocked`. A blocked form never reads or touches a saved draft.
+  - What stops the form (error): an invalid schema, a missing hook, wait strategy, renderer, action or payment provider, an unregistered step type, an invalid `config` of a custom type. A missing payment provider is now reported before the user fills anything, not when the payment step is reached.
+  - What only degrades (warning): a missing options source (the field shows no options; before, it blocked the form), a missing storage adapter, an unregistered custom field (it shows its own notice), lint findings, and anything found in a 0.2.0 schema, which never blocks.
+  - `normalizeArtisanSchema` still throws `ArtisanSchemaError` (its contract); only the form stopped throwing.
+- `Unknown field type` / `Unknown step kind` come from `labels` (`unknownFieldType`, `unknownStepKind`) instead of being fixed English.
+- With a `SchemaPolicy` object, a `storage` id that the policy does not list is now a `policy-violation` (before, any adapter id passed). Add `storage: [...]` to the policy to allow the ones you provide. Trusted schemas are unaffected.
+
+### Added
+
+- **Backend helpers in `artisanform/schema`:** `answerFields(schema)`, `answerKeys(field)` and `sensitiveAnswerKeys(schema)` list the questions a schema asks, the keys a field writes (a date range and a dynamic select write two) and the keys flagged sensitive. Pure functions, no React.
+- **`sensitive?: boolean` on fields:** a marker for personal or confidential answers. The library only carries it; who may read those answers is the backend's decision.
+- **`SchemaPolicy.nativeFieldTypes` / `nativeStepTypes`:** restrict which native field and step types a schema source may use (violations are `policy-violation`).
+- **`SchemaPolicy.storage`:** the storage adapter ids a `file`/`image` field may name.
+- **`ParseOptions.limits`** (`maxBytes`, `maxSteps`, `maxFields`, `maxOptions`): ceilings for schemas that come from outside. None applies unless set. Codes: `too-large`, `too-many-steps`, `too-many-fields`, `too-many-options`.
+- **`validateValues` option `maxItems`** (default 1000): a cap on the rows of an `array`, the choices of a `check`/`multiselect` and the files of an upload, checked before the list is walked.
+- **`$schema`** is accepted as an optional string at the root of a schema (editor completion).
+
+- **`checkSchema(input, { policy, limits, manifest, lint })`:** one pure gate for a schema. It parses (contract, policy, limits), lints, and checks the schema against what the front end can run, and never throws. Use it where a schema enters or leaves a system: saving or publishing in a backend, CI, or the form about to render it. Errors and warnings share one issue shape, and what stops a form (a missing hook, wait strategy, renderer, action or payment provider, a bad custom `config`) is an error while what only degrades one element (a missing options source or storage adapter, an unregistered custom field) is a warning (`capabilitySeverity`).
+- **Verifiable custom types:** `CustomTypeSpec` and `ConfigShape` (a tiny declarative subset of JSON Schema) describe the `config` of a custom `x-…` field or step as plain data. It travels in the capabilities manifest (`CapabilitiesManifest.customTypes`), so `checkCapabilities` reports `invalid-config` with the exact path without running the app's code. `validateConfig` is exported.
+- **`describeRegistrations({ extensions, fields, stepTypes, plugins, storage })`:** derives the capabilities manifest from the same props passed to `<ArtisanForm>`, instead of four lists kept by hand. `FieldDefinition` and `StepDefinition` take an optional `spec`.
+- **`lintSchema(schema)`:** semantic warnings (`forward-field-reference`, `default-not-an-option`, `duplicate-option`).
+- **`canonicalize(value)` and `schemaHash(value)`:** stable JSON text (sorted keys) and its SHA-256 (hex): an ETag, the identity of a revision, change detection.
+- **`compareSchemas(previous, next)`:** what changed between two revisions (added, removed, changed type, required, dropped options) and whether answers given to the previous one keep their meaning (`compatible`).
+- **`artisanform/schema.json`:** the JSON Schema (draft 2020-12) of the v1 contract, built from the library's own key lists. It describes the structure (types, known keys, enums, required properties), so any language, or a database that validates JSON, can check a schema without Node. Use it from a schema's `$schema` for editor completion. It does not replace `parseArtisanSchema` / `checkSchema`: unique names and ids, references between fields and steps, the flow, policy, limits and capabilities need the whole document. Parity with the parser is tested with every golden fixture.
+- **Backend guide** ([docs/backend.md](docs/backend.md)): the save, publish, serve and receive flow with `checkSchema`, `compareSchemas`, `schemaHash` and `validateValues`; storage models (a JSON document per revision, a field projection table, full normalization and when to avoid it); the column type, validity check and limits for PostgreSQL, MySQL, MariaDB, SQL Server, Oracle, SQLite and MongoDB; and a guide for plugin and custom type authors (`spec`, `describeRegistrations`, what blocks a form and what only warns).
+- **`artisanform` CLI** (`npx artisanform`): `validate <files…>` runs `checkSchema` (options `--policy`, `--manifest`, `--max-bytes`, `--max-steps`, `--max-fields`, `--max-options`, `--no-lint`, `--json`; exit 0 ok, 1 invalid schema, 2 wrong usage), `json-schema` prints the contract schema and `hash <file>` prints the SHA-256 of its canonical JSON. For CI, pre-commit hooks and backends in any language.
+
 ## 1.0.0-rc.2 (2026-11-13)
 
 Second release candidate: fixes Next.js compatibility. The v1 contract and the public API (`check:api`) are unchanged from `1.0.0-rc.1`.

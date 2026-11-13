@@ -7,7 +7,7 @@ Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se 
 ## Idioma
 
 - **Todo lo que se genera en este repositorio va en inglés**: código, identificadores, comentarios, JSDoc, nombres de tests, mensajes de commit, texto de PR e issues, `README.md`, `AGENTS.md`, `CHANGELOG.md` y todo lo que está bajo `docs/`.
-- **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) [`schema v1`](schema-v1.md), [`UI`](ui.md), [`pagos`](payments.md), [`archivos`](files.md), [`accesibilidad`](accessibility.md), [`release`](releasing.md) y [`versionado`](versioning.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
+- **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) [`schema v1`](schema-v1.md), [`backend`](backend.md), [`UI`](ui.md), [`pagos`](payments.md), [`archivos`](files.md), [`accesibilidad`](accessibility.md), [`release`](releasing.md) y [`versionado`](versioning.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
 - Los textos de la librería nunca están hardcodeados: los valores por defecto (`src/commons/labels.ts`) están en inglés y todos se sobrescriben con la prop `labels`. Las etiquetas, nombres y títulos de paso son texto libre que aporta el esquema del usuario. Los textos de demo (playground, stories, fixtures, tests) también van en inglés.
 - A las personas se les responde en el idioma en que escriben; los artefactos del repositorio quedan en inglés.
 
@@ -59,6 +59,7 @@ src/
   commons/               cn.ts (clsx), labels.ts (textos)
   styles/artisanform.css la única hoja de estilos: CSS plano, clases `af-*`, tokens `--artisan-*`
   __tests__/setup.ts     preload de happy-dom para bun test
+bin/                     el CLI `artisanform` (validate, json-schema, hash); ejecuta el `dist/schema.js` construido
 packages/                paquetes del workspace: ui-bootstrap, ui-mui, ui-tailwind, ui-scss (kits), ui-shadcn (plantilla + item de registry)
 playground/              app React de prueba (escenarios en src/scenarios)
 e2e/                     tests de Playwright
@@ -101,7 +102,7 @@ Un tipo de campo nuevo = una `FieldDefinition` en `components/fields/registry.ts
 
 ## Estado actual / deuda conocida
 
-Versión `1.0.0-rc.2` (el núcleo y los cuatro kits de npm, en lockstep) con el contrato de esquema v1: un wizard guiado por un `scheme` (`FormSchema` 0.2.0 o `ArtisanSchemaV1`) con registros extensibles de campos y pasos, pagos por plugin (Stripe, Lemon Squeezy, Mercado Pago, PayPal), archivos con `StorageAdapter`, esperas con `WaitStrategy`, snapshots de borradores versionados, Biome, playground y tests e2e. El CI de GitHub Actions corre lint, typecheck, build, chequeos del paquete, tests unitarios, e2e en Chromium, Firefox y WebKit (con chequeos de accesibilidad de axe) y tests de consumidor en proyectos limpios con React 18 y 19 en cada PR; un workflow manual `Release` publica en npm ([`releasing.md`](releasing.md)). Pendiente: Trusted Publishing para npm, probar los plugins de pago contra sandbox con credenciales de prueba y una API headless pública (el `useWizard` interno es el punto de partida). Detalle y hoja de ruta en el README.
+Versión `1.0.0-rc.3` (el núcleo y los cuatro kits de npm, en lockstep) con el contrato de esquema v1: un wizard guiado por un `scheme` (`FormSchema` 0.2.0 o `ArtisanSchemaV1`) con registros extensibles de campos y pasos, pagos por plugin (Stripe, Lemon Squeezy, Mercado Pago, PayPal), archivos con `StorageAdapter`, esperas con `WaitStrategy`, snapshots de borradores versionados, Biome, playground y tests e2e. El CI de GitHub Actions corre lint, typecheck, build, chequeos del paquete, tests unitarios, e2e en Chromium, Firefox y WebKit (con chequeos de accesibilidad de axe) y tests de consumidor en proyectos limpios con React 18 y 19 en cada PR; un workflow manual `Release` publica en npm ([`releasing.md`](releasing.md)). Pendiente: Trusted Publishing para npm, probar los plugins de pago contra sandbox con credenciales de prueba y una API headless pública (el `useWizard` interno es el punto de partida). Detalle y hoja de ruta en el README.
 
 Las tareas son issues de GitHub con el código `AF<n>` en el título (número de issue = n − 6).
 

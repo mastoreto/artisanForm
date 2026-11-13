@@ -39,4 +39,6 @@ Un nombre deprecado sigue funcionando durante toda la mayor, se marca `@deprecat
 
 ## Schemas almacenados
 
+Cómo guardarlos, servirlos y validarlos en una base de datos está en la [guía de backend](backend.md). `checkSchema`, `schemaHash`, `compareSchemas`, `artisanform/schema.json` y el CLI `artisanform` son parte de la superficie pública y siguen las mismas reglas.
+
 La normalización es determinista e idempotente, así que un schema guardado con una revisión se renderiza igual en cualquier 1.x. Los borradores de formularios en curso llevan la `revision` y siguen las reglas de instantáneas de [schema v1](schema-v1.md#11-persistencia-).

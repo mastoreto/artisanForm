@@ -86,9 +86,69 @@ const bad = validateValues(schema, { email: 'nope', plan: 'gold' });
 assert.deepEqual(bad.issues.map((i) => i.path + ':' + i.code).sort(), ['email:invalidEmail', 'plan:invalidOption']);
 assert.deepEqual(validateValues(schema, { email: 'a@b.co', plan: 'pro', x: 1 }, { prune: true }).values, { email: 'a@b.co', plan: 'pro' });
 console.log('runtime OK: artisanform/schema works without React, Yup, RHF or Zustand');
+import { canonicalize, checkSchema, compareSchemas, describeCapabilities, schemaHash, sensitiveAnswerKeys } from 'artisanform/schema';
+// the single gate: contract, limits, and what the front can run
+assert.equal(checkSchema(schema).ok, true);
+assert.equal(checkSchema({ ...schema, steps: [] }).ok, false);
+assert.deepEqual(checkSchema(schema, { limits: { maxSteps: 1 } }).issues.map((i) => i.code), ['too-many-steps']);
+const needsHook = { ...schema, steps: [{ ...schema.steps[0], hooks: { onEnter: 'track' } }, schema.steps[1]] };
+assert.deepEqual(checkSchema(needsHook, { manifest: describeCapabilities() }).issues.map((i) => i.code), ['missing-reference']);
+assert.equal(checkSchema(needsHook, { manifest: describeCapabilities({ extensions: { hooks: { track: 1 } } }) }).ok, true);
+// hash, canonical text and revision comparison
+assert.equal(canonicalize({ b: 1, a: 2 }), '{"a":2,"b":1}');
+assert.match(await schemaHash(schema), /^[0-9a-f]{64}$/);
+const next = { ...schema, steps: [{ ...schema.steps[0], fields: [...schema.steps[0].fields, { type: 'tel', name: 'phone', sensitive: true }] }, schema.steps[1]] };
+assert.deepEqual(compareSchemas(schema, next).added, ['phone']);
+assert.equal(compareSchemas(schema, next).compatible, true);
+assert.deepEqual(sensitiveAnswerKeys(next), ['phone']);
+console.log('gate OK: checkSchema, schemaHash, compareSchemas');
 `,
 );
 sh('node check.mjs', app);
+
+// The JSON Schema ships as `artisanform/schema.json` and the CLI as a bin.
+writeFileSync(
+  join(app, 'ok.json'),
+  JSON.stringify({
+    schemaVersion: 1,
+    id: 'cli',
+    steps: [
+      {
+        id: 'a',
+        type: 'form',
+        title: 'A',
+        fields: [{ type: 'text', name: 'n' }],
+      },
+    ],
+  }),
+);
+writeFileSync(
+  join(app, 'bad.json'),
+  JSON.stringify({ schemaVersion: 1, id: 'cli', steps: [] }),
+);
+writeFileSync(
+  join(app, 'assets.mjs'),
+  `import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+const jsonSchema = createRequire(import.meta.url)('artisanform/schema.json');
+assert.equal(jsonSchema.$schema, 'https://json-schema.org/draft/2020-12/schema');
+assert.ok(jsonSchema.$defs.field && jsonSchema.$defs.step);
+console.log('json schema OK: artisanform/schema.json resolves');
+`,
+);
+sh('node assets.mjs', app);
+sh('npx --no-install artisanform validate ok.json', app);
+let failed = false;
+try {
+  execSync('npx --no-install artisanform validate bad.json', {
+    cwd: app,
+    stdio: 'pipe',
+  });
+} catch (error) {
+  failed = error.status === 1;
+}
+if (!failed) throw new Error('the CLI must exit 1 on an invalid schema');
+console.log('cli OK: artisanform validate runs from the installed package');
 
 writeFileSync(
   join(app, 'check.ts'),

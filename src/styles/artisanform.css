@@ -952,6 +952,20 @@
   font-weight: 500;
 }
 
+.af-schema-issues {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 0.8125rem;
+  text-align: left;
+}
+
+.af-schema-issues li + li {
+  margin-top: 0.25rem;
+}
+
 .af-status-actions {
   display: flex;
   flex-wrap: wrap;

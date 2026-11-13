@@ -1,6 +1,6 @@
 {
   "name": "artisanform",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.3",
   "description": "Declarative multi-step forms (wizards) for React: a serializable JSON schema, 30+ field types, payments, file uploads and themeable UI kits.",
   "keywords": [
     "react",
@@ -29,8 +29,12 @@
   },
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "artisanform": "./bin/artisanform.mjs"
+  },
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ],
   "type": "module",
   "devDependencies": {
@@ -97,7 +101,7 @@
     "react-compiler-runtime": "^1.0.0"
   },
   "scripts": {
-    "build": "vite build && node scripts/fix-dts.mjs",
+    "build": "vite build && node scripts/fix-dts.mjs && node scripts/build-json-schema.mjs",
     "check:dist": "node scripts/check-dist.mjs",
     "check:api": "node scripts/check-api.mjs",
     "check:package": "publint --strict && attw --pack . --profile esm-only --ignore-rules no-resolution",
@@ -143,6 +147,7 @@
       "types": "./dist/schema/index.d.ts",
       "import": "./dist/schema.js"
     },
+    "./schema.json": "./dist/schema.json",
     "./style.css": {
       "types": "./dist/style.css.d.ts",
       "default": "./dist/style.css"

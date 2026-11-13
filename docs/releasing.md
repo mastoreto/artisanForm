@@ -60,7 +60,7 @@ npm dist-tags:
 
 ## Release candidate and stable (1.0.0)
 
-1. **`1.0.0-rc.N`**: the contract is frozen ([versioning](versioning.md)); only fixes land. It is published as `latest` (no stable version exists yet), then check it from the registry (`ARTISAN_SPEC=1.0.0-rc.2 node scripts/consumer-test.mjs 19`, `18` and `node scripts/consumer-schema.mjs`).
+1. **`1.0.0-rc.N`**: the contract is frozen ([versioning](versioning.md)); only fixes land. It is published as `latest` (no stable version exists yet), then check it from the registry (`ARTISAN_SPEC=1.0.0-rc.3 node scripts/consumer-test.mjs 19`, `18` and `node scripts/consumer-schema.mjs`).
 2. **Exit criteria for 1.0.0:** at least two weeks with no contract change (`check:api` and the golden fixtures untouched) and no open P0/P1 issue; CI green on every job, including `perf` in the three browsers; docs in English and Spanish in sync. Anything that breaks one of these means a new `rc.N`, not a patch to the candidate.
 3. **`1.0.0`**: bump the five packages (and the kits' `peerDependencies.artisanform` to `^1.0.0`), publish it as `latest`. From then on `latest` only moves with stable versions, and later pre-releases go to `next`.
 4. Deprecate the superseded betas (`npm deprecate artisanform@"<1.0.0" "Use 1.x"`) once `latest` is stable.

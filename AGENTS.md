@@ -5,7 +5,7 @@ React library for multi-step forms (wizards) with ready-made inputs. It ships as
 ## Language
 
 - **Everything generated in this repository is written in English**: code, identifiers, comments, JSDoc, test names, commit messages, PR and issue text, `README.md`, `AGENTS.md`, `CHANGELOG.md` and everything under `docs/`.
-- **Spanish versions live in [`docs/es/`](docs/es/)** and mirror the English documents: [`README`](docs/es/README.md), [`AGENTS`](docs/es/AGENTS.md), [`CHANGELOG`](docs/es/CHANGELOG.md), [`schema v1`](docs/es/schema-v1.md), [`UI`](docs/es/ui.md), [`payments`](docs/es/payments.md), [`files`](docs/es/files.md), [`accessibility`](docs/es/accessibility.md) and [`releasing`](docs/es/releasing.md) and [`versioning`](docs/es/versioning.md). Read them when you need the Spanish text; **when you change an English document, update its Spanish copy in the same change**.
+- **Spanish versions live in [`docs/es/`](docs/es/)** and mirror the English documents: [`README`](docs/es/README.md), [`AGENTS`](docs/es/AGENTS.md), [`CHANGELOG`](docs/es/CHANGELOG.md), [`schema v1`](docs/es/schema-v1.md), [`backend`](docs/es/backend.md), [`UI`](docs/es/ui.md), [`payments`](docs/es/payments.md), [`files`](docs/es/files.md), [`accessibility`](docs/es/accessibility.md) and [`releasing`](docs/es/releasing.md) and [`versioning`](docs/es/versioning.md). Read them when you need the Spanish text; **when you change an English document, update its Spanish copy in the same change**.
 - Library texts are never hard-coded: built-in defaults (`src/commons/labels.ts`) are English and every one is overridable through the `labels` prop. Field labels, names and step titles are free text supplied by the user's schema. Demo copy (playground, stories, fixtures, tests) is English too.
 - Reply to people in the language they write to you in; the repository artifacts stay in English.
 
@@ -57,6 +57,7 @@ src/
   commons/               cn.ts (clsx), labels.ts (texts)
   styles/artisanform.css the only stylesheet: plain CSS, `af-*` classes, `--artisan-*` tokens
   __tests__/setup.ts     happy-dom preload for bun test
+bin/                     the `artisanform` CLI (validate, json-schema, hash); runs the built `dist/schema.js`
 packages/                workspace packages: ui-bootstrap, ui-mui, ui-tailwind, ui-scss (kits), ui-shadcn (template + registry item)
 playground/              React test app (scenarios in src/scenarios)
 e2e/                     Playwright tests
@@ -99,7 +100,7 @@ A new field type is a `FieldDefinition` in `components/fields/registry.tsx` (ren
 
 ## Current state / known debt
 
-Version `1.0.0-rc.2` (the core and the four npm kits, in lockstep) with the v1 schema contract: a wizard driven by a `scheme` (0.2.0 `FormSchema` or `ArtisanSchemaV1`) with extensible field and step registries, plugin-based payments (Stripe, Lemon Squeezy, Mercado Pago, PayPal), files through `StorageAdapter`, waiting through `WaitStrategy`, versioned draft snapshots, Biome, a playground and e2e tests. GitHub Actions CI runs lint, typecheck, build, package checks, unit tests, e2e on Chromium, Firefox and WebKit (with axe accessibility checks) and clean-app consumer tests on React 18 and 19 on every PR; a manual `Release` workflow publishes to npm ([`docs/releasing.md`](docs/releasing.md)). Pending: Trusted Publishing for npm, trying the payment plugins against sandboxes with test credentials, and a public headless API (internal `useWizard` is the starting point). Details and roadmap in the README.
+Version `1.0.0-rc.3` (the core and the four npm kits, in lockstep) with the v1 schema contract: a wizard driven by a `scheme` (0.2.0 `FormSchema` or `ArtisanSchemaV1`) with extensible field and step registries, plugin-based payments (Stripe, Lemon Squeezy, Mercado Pago, PayPal), files through `StorageAdapter`, waiting through `WaitStrategy`, versioned draft snapshots, Biome, a playground and e2e tests. GitHub Actions CI runs lint, typecheck, build, package checks, unit tests, e2e on Chromium, Firefox and WebKit (with axe accessibility checks) and clean-app consumer tests on React 18 and 19 on every PR; a manual `Release` workflow publishes to npm ([`docs/releasing.md`](docs/releasing.md)). Pending: Trusted Publishing for npm, trying the payment plugins against sandboxes with test credentials, and a public headless API (internal `useWizard` is the starting point). Details and roadmap in the README.
 
 Tasks are GitHub issues with the `AF<n>` code in the title (issue number = n − 6).
 
