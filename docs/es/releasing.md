@@ -60,7 +60,7 @@ Dist-tags de npm:
 
 ## Release candidate y estable (1.0.0)
 
-1. **`1.0.0-rc.N`**: el contrato está congelado ([versionado](versioning.md)); solo entran correcciones. Se publica como `latest` (todavía no existe una estable); verificá desde el registro (`ARTISAN_SPEC=1.0.0-rc.1 node scripts/consumer-test.mjs 19`, `18` y `node scripts/consumer-schema.mjs`).
+1. **`1.0.0-rc.N`**: el contrato está congelado ([versionado](versioning.md)); solo entran correcciones. Se publica como `latest` (todavía no existe una estable); verificá desde el registro (`ARTISAN_SPEC=1.0.0-rc.2 node scripts/consumer-test.mjs 19`, `18` y `node scripts/consumer-schema.mjs`).
 2. **Criterios de salida para 1.0.0:** al menos dos semanas sin cambios de contrato (`check:api` y los fixtures golden sin tocar) y sin issues P0/P1 abiertos; CI en verde en todos los jobs, incluido `perf` en los tres navegadores; documentación en inglés y español sincronizada. Si algo de esto falla, sale una nueva `rc.N`, no un parche sobre el candidato.
 3. **`1.0.0`**: subí la versión de los cinco paquetes (y el `peerDependencies.artisanform` de los kits a `^1.0.0`) y publicala como `latest`. Desde ahí `latest` solo se mueve con versiones estables y las pre-releases posteriores van a `next`.
 4. Deprecá las betas reemplazadas (`npm deprecate artisanform@"<1.0.0" "Usá 1.x"`) cuando `latest` sea estable.
