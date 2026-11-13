@@ -6,20 +6,19 @@ name: Release
 # stored, but each of the five packages must list this repository and this
 # workflow file as a trusted publisher (docs/releasing.md). `dry-run` defaults
 # to true: it runs every check and `npm publish --dry-run` for each package,
-# and uploads nothing.
+# and uploads nothing. The npm dist-tag is derived from the version (there is
+# no input to pick it) and a real publish also creates the git tag and the
+# GitHub Release: see "Versions, tags and releases" in docs/releasing.md.
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: npm dist-tag
-        default: beta
       dry-run:
         description: Do not publish, only verify
         type: boolean
         default: true
 
 permissions:
-  contents: read
+  contents: write # the git tag and the GitHub Release
   id-token: write # npm Trusted Publishing (OIDC) and provenance
 
 jobs:
@@ -52,12 +51,17 @@ jobs:
       - run: bun test
       - name: Publish the core, then the kits
         env:
-          TAG: ${{ inputs.tag }}
           DRY_RUN: ${{ inputs.dry-run }}
         run: |
           # --ignore-scripts: the checks already ran in the steps above, and
           # the core's prepublishOnly would repeat them (under --dry-run its
           # nested `npm pack` writes no tarball, which breaks `attw --pack`).
+          VER=$(node -p "require('./package.json').version")
+          LATEST=$(npm view artisanform dist-tags.latest 2>/dev/null || true)
+          # Stable -> latest. Pre-release -> next, except while no stable
+          # version exists: then latest follows the newest pre-release.
+          if [[ "$VER" != *-* || -z "$LATEST" || "$LATEST" == *-* ]]; then TAG=latest; else TAG=next; fi
+          echo "version $VER -> dist-tag $TAG"
           flags="--provenance --access public --tag $TAG --ignore-scripts"
           if [ "$DRY_RUN" = "true" ]; then flags="$flags --dry-run"; fi
           # The core goes first: the kits peer-depend on it.
@@ -66,3 +70,12 @@ jobs:
             (cd "$dir" && npm publish $flags)
             echo "::endgroup::"
           done
+      - name: Git tag and GitHub Release
+        if: ${{ !inputs.dry-run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          flags="--target $GITHUB_SHA --generate-notes --title $VER"
+          if [[ "$VER" == *-* ]]; then flags="$flags --prerelease"; fi
+          gh release create "v$VER" $flags

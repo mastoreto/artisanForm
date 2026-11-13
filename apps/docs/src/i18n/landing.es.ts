@@ -208,7 +208,7 @@ export const es: LandingCopy = {
       },
       {
         q: '¿Ya está publicado en npm?',
-        a: `Sí. La ${project.version} está en npm con el tag rc: npm install artisanform@rc. Un npm install sin tag todavía instala una beta anterior hasta que se publique la 1.0.0.`,
+        a: `Sí. La ${project.version} está en npm: npm install artisanform.`,
       },
     ],
   },
