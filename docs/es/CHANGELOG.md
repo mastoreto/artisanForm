@@ -9,6 +9,7 @@ Reemplaza a `1.0.0-rc.3`, que se publicó con un build viejo (sin `artisanform/s
 ### Corregido
 
 - Ya no se puede publicar a mano un build viejo: cada kit tiene un `prepublishOnly` que corre el chequeo previo (enlaces, frescura de `dist`, tipos), y la publicación manual documentada ya no se salta el `prepublishOnly` del núcleo.
+- Se perdía el CLI `artisanform` al publicar: con `"bin": {"artisanform": "./bin/artisanform.mjs"}` npm 11 descarta la entrada ("script name … was invalid and removed"). Ahora la ruta es `bin/artisanform.mjs`, y `check:pack` falla cuando `npm publish --dry-run` corregiría algo de un `package.json`; `verify-registry` también comprueba que el paquete publicado tenga su `bin`.
 
 ### Agregado
 
