@@ -2,6 +2,7 @@ import type { ArtisanSchemaV1 } from './contract/define';
 import type { ArtisanFieldV1 } from './contract/fields';
 import { NATIVE_FIELD_TYPES, NATIVE_STEP_TYPES } from './contract/specs';
 import type { ArtisanStepV1 } from './contract/steps';
+import { type CustomTypeSpec, validateConfig } from './custom-types';
 import type { NormalizedArtisanSchema } from './normalize';
 
 /**
@@ -66,6 +67,12 @@ export interface CapabilitiesManifest {
   stepKinds: string[];
   features: string[];
   refs: Record<RefKind, string[]>;
+  /**
+   * What the app declares about its custom (`x-…`) types, so the `config` of a
+   * schema's custom fields and steps can be checked without the app's code.
+   * Absent in manifests made before it existed.
+   */
+  customTypes?: CustomTypeSpec[];
 }
 
 /** Structural: an `ArtisanExtensions` object fits, and no React type is needed. */
@@ -86,6 +93,8 @@ export interface CapabilitySources {
   fieldTypes?: readonly string[];
   /** Custom step types registered through the `stepTypes` prop (`x-…`). */
   stepKinds?: readonly string[];
+  /** Shape of the `config` of custom types; their names are added to the type lists. */
+  customTypes?: readonly CustomTypeSpec[];
 }
 
 export type CapabilityIssue =
@@ -93,6 +102,7 @@ export type CapabilityIssue =
   | { code: 'missing-reference'; kind: RefKind; id: string; path: string }
   | { code: 'unsupported-field-type'; id: string; path: string }
   | { code: 'unsupported-step-kind'; id: string; path: string }
+  | { code: 'invalid-config'; id: string; path: string; message: string }
   | { code: 'missing-feature'; id: string; path: '' };
 
 const unique = (xs: Iterable<string>) => [...new Set(xs)].sort();
@@ -233,8 +243,20 @@ export const describeCapabilities = (
   sources: CapabilitySources = {},
 ): CapabilitiesManifest => ({
   contract: CAPABILITIES_CONTRACT,
-  fieldTypes: unique([...NATIVE_FIELD_TYPES, ...(sources.fieldTypes ?? [])]),
-  stepKinds: unique([...NATIVE_STEP_TYPES, ...(sources.stepKinds ?? [])]),
+  fieldTypes: unique([
+    ...NATIVE_FIELD_TYPES,
+    ...(sources.fieldTypes ?? []),
+    ...(sources.customTypes ?? [])
+      .filter((t) => t.kind === 'field')
+      .map((t) => t.type),
+  ]),
+  stepKinds: unique([
+    ...NATIVE_STEP_TYPES,
+    ...(sources.stepKinds ?? []),
+    ...(sources.customTypes ?? [])
+      .filter((t) => t.kind === 'step')
+      .map((t) => t.type),
+  ]),
   features: [...FEATURES],
   refs: {
     hooks: unique(keysOf(sources.extensions?.hooks)),
@@ -246,6 +268,9 @@ export const describeCapabilities = (
     paymentProviders: unique(sources.paymentProviders ?? []),
     storage: unique(sources.storage ?? []),
   },
+  ...(sources.customTypes?.length
+    ? { customTypes: [...sources.customTypes] }
+    : {}),
 });
 
 /**
@@ -275,6 +300,26 @@ export const checkCapabilities = (
 
   const fields = new Set(manifest.fieldTypes);
   const steps = new Set(manifest.stepKinds);
+  const specs = new Map(
+    (manifest.customTypes ?? []).map((t) => [`${t.kind}:${t.type}`, t]),
+  );
+  /** The `config` of a custom element against the shape its app declared. */
+  const checkConfig = (
+    kind: 'field' | 'step',
+    type: string,
+    config: unknown,
+    path: string,
+  ) => {
+    const shape = specs.get(`${kind}:${type}`)?.config;
+    if (!shape) return;
+    for (const issue of validateConfig(shape, config ?? {}))
+      issues.push({
+        code: 'invalid-config',
+        id: type,
+        path: issue.path ? `${path}.config.${issue.path}` : `${path}.config`,
+        message: issue.message,
+      });
+  };
   schema.steps.forEach((s, i) => {
     if (!steps.has(s.type))
       issues.push({
@@ -282,6 +327,13 @@ export const checkCapabilities = (
         id: s.type,
         path: `steps[${i}].type`,
       });
+    else
+      checkConfig(
+        'step',
+        s.type,
+        (s as { config?: unknown }).config,
+        `steps[${i}]`,
+      );
     if (s.type === 'form')
       walkFields(
         s.fields,
@@ -292,6 +344,13 @@ export const checkCapabilities = (
               id: f.type,
               path: `${path}.type`,
             });
+          else
+            checkConfig(
+              'field',
+              f.type,
+              (f as { config?: unknown }).config,
+              path,
+            );
         },
         `steps[${i}].fields`,
       );
