@@ -63,6 +63,15 @@ export interface BuilderLabels {
   announceMove: (name: string, position: number) => string;
   announceDrop: (name: string, position: number) => string;
   announceCancel: (name: string) => string;
+  issuesTitle: (errors: number, warnings: number) => string;
+  noIssues: string;
+  goToIssue: (path: string) => string;
+  compatTitle: string;
+  compatBreaking: (names: string) => string;
+  compatRemoved: (names: string) => string;
+  compatRequired: (names: string) => string;
+  compatOptions: (names: string) => string;
+  customGroup: string;
 }
 
 export const defaultBuilderLabels: BuilderLabels = {
@@ -132,4 +141,15 @@ export const defaultBuilderLabels: BuilderLabels = {
   announceMove: (name, position) => `${name} is now at position ${position}`,
   announceDrop: (name, position) => `${name} dropped at position ${position}`,
   announceCancel: (name) => `Moving ${name} was cancelled`,
+  issuesTitle: (e, w) =>
+    `${e} ${e === 1 ? 'error' : 'errors'}, ${w} ${w === 1 ? 'warning' : 'warnings'}`,
+  noIssues: 'Nothing to fix.',
+  goToIssue: (path) => `Go to ${path}`,
+  compatTitle: 'Compared with the published form',
+  compatBreaking: (n) =>
+    `Changing the type of ${n} would make earlier answers unreadable.`,
+  compatRemoved: (n) => `Removed: ${n}.`,
+  compatRequired: (n) => `Now required (earlier answers may be empty): ${n}.`,
+  compatOptions: (n) => `Options removed from: ${n}.`,
+  customGroup: 'Custom',
 };

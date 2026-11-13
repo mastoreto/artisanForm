@@ -11,6 +11,7 @@ export {
   FormBuilderProvider,
 } from './components/FormBuilder';
 export { Inspector } from './components/Inspector';
+export { Compatibility, Issues } from './components/Issues';
 export { Palette } from './components/Palette';
 export { Preview } from './components/Preview';
 export { type SavePayload, Toolbar } from './components/Toolbar';

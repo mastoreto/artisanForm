@@ -391,3 +391,58 @@
 :focus-visible {
   outline-offset: 2px;
 }
+
+.afb-issues {
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--afb-border);
+}
+.afb-issues-summary {
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.afb-issue-list {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.afb-issue {
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-left: 3px solid var(--afb-border);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8125rem;
+}
+.afb-issue.afb-bad {
+  border-left-color: var(--afb-danger);
+}
+.afb-issue.afb-warn {
+  border-left-color: #f59e0b;
+}
+.afb-issue-path {
+  color: var(--afb-muted);
+}
+.afb-compat {
+  margin: 0.5rem 0.75rem 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+}
+.afb-compat.afb-bad {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.afb-compat.afb-warn {
+  background: color-mix(in srgb, #f59e0b 18%, transparent);
+}
+.afb-compat ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}

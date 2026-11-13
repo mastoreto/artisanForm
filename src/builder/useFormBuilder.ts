@@ -5,7 +5,9 @@ import {
 } from '../engine/registrations';
 import {
   type CapabilitiesManifest,
+  type CustomTypeSpec,
   checkSchema,
+  compareSchemas,
   type SchemaIssue,
   type SchemaLimits,
   type SchemaPolicy,
@@ -13,6 +15,7 @@ import {
 import type { ArtisanSchemaV1 } from '../schema/contract/define';
 import type { NativeFieldType } from '../schema/contract/fields';
 import type { NativeStepType } from '../schema/contract/steps';
+import { addCustomField } from './model/custom';
 import {
   type BuilderState,
   canRedo,
@@ -45,6 +48,8 @@ export interface UseFormBuilderOptions {
   registrations?: Registrations;
   policy?: 'trusted' | SchemaPolicy;
   limits?: SchemaLimits;
+  /** The published schema: edits are compared with it to warn about changes that break earlier answers. */
+  baseline?: ArtisanSchemaV1;
 }
 
 type Run = (schema: ArtisanSchemaV1, selection: Selection) => Change;
@@ -120,6 +125,7 @@ export const useFormBuilder = ({
   registrations,
   policy,
   limits,
+  baseline,
 }: UseFormBuilderOptions = {}) => {
   const [store, dispatch] = useReducer(reduce, undefined, () => ({
     builder: createBuilderState(value ?? defaultValue ?? emptySchema()),
@@ -137,6 +143,11 @@ export const useFormBuilder = ({
     const checked = checkSchema(schema, { manifest, policy, limits });
     return { schema, ok: checked.ok, issues: checked.issues };
   }, [schema, manifest, policy, limits]);
+
+  const comparison = useMemo(
+    () => (baseline ? compareSchemas(baseline, schema) : undefined),
+    [baseline, schema],
+  );
 
   // Controlled: follow a new `value` that did not come from this builder.
   const emitted = useRef<ArtisanSchemaV1>(schema);
@@ -184,6 +195,16 @@ export const useFormBuilder = ({
             })
           : { schema: s, error: 'not-found' };
       }),
+    addCustomField: (
+      spec: Pick<CustomTypeSpec, 'type' | 'config' | 'description'>,
+      at: { stepId?: string; index?: number } = {},
+    ) =>
+      run((s, sel) => {
+        const stepId = at.stepId ?? defaultStepId(s, sel);
+        return stepId
+          ? addCustomField(s, stepId, spec, { index: at.index })
+          : { schema: s, error: 'not-found' };
+      }),
     addStep: (type: NativeStepType, index?: number) =>
       run((s) => ops.addStep(s, type, { index, ctx })),
     moveField: (
@@ -227,6 +248,7 @@ export const useFormBuilder = ({
     schema,
     selection: store.builder.selection,
     result,
+    comparison,
     manifest,
     ctx,
     canUndo: canUndo(store.builder),

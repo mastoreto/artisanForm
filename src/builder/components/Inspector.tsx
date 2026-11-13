@@ -1,7 +1,8 @@
-import { isNativeStepType } from '../../schema';
+import { isNativeFieldType, isNativeStepType } from '../../schema';
 import { useBuilder } from '../context';
 import { useBx } from '../cx';
 import { FIELD_CATALOG } from '../model/catalog';
+import { customFieldProperties } from '../model/custom';
 import { getField, getProperty } from '../model/operations';
 import {
   fieldProperties,
@@ -22,8 +23,17 @@ const SECTIONS: Section[] = [
 
 /** The settings of whatever is selected, generated from the catalog's property descriptors. */
 export const Inspector = () => {
-  const { schema, selection, labels, mode, actions, error, pruned, readOnly } =
-    useBuilder();
+  const {
+    schema,
+    selection,
+    labels,
+    mode,
+    actions,
+    error,
+    pruned,
+    readOnly,
+    manifest,
+  } = useBuilder();
   const bx = useBx();
   const shown = (level: Level) => mode === 'advanced' || level === 'simple';
 
@@ -42,7 +52,13 @@ export const Inspector = () => {
         FIELD_CATALOG[field.type as keyof typeof FIELD_CATALOG]?.label ??
           field.type,
       );
-      props = fieldProperties(field.type as never);
+      props = isNativeFieldType(field.type)
+        ? fieldProperties(field.type)
+        : customFieldProperties(
+            manifest?.customTypes?.find(
+              (t) => t.type === field.type && t.kind === 'field',
+            ),
+          );
     }
   }
   const visible = props.filter((d) => shown(d.level));

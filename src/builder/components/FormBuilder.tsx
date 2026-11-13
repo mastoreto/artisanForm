@@ -33,6 +33,7 @@ import { FIELD_CATALOG } from '../model/catalog';
 import { type BuilderResult, useFormBuilder } from '../useFormBuilder';
 import { Canvas } from './Canvas';
 import { Inspector } from './Inspector';
+import { Compatibility, Issues } from './Issues';
 import { Palette } from './Palette';
 import { Preview } from './Preview';
 import { type SavePayload, Toolbar } from './Toolbar';
@@ -49,6 +50,8 @@ export interface FormBuilderProps extends BuilderUi {
   registrations?: Registrations;
   policy?: 'trusted' | SchemaPolicy;
   limits?: SchemaLimits;
+  /** The published schema: edits are compared with it to warn about changes that break earlier answers. */
+  baseline?: ArtisanSchemaV1;
   /** `simple` hides advanced and developer settings and inputs. */
   mode?: BuilderMode;
   onModeChange?: (mode: BuilderMode) => void;
@@ -190,12 +193,14 @@ const Layout = ({
   return (
     <div className={bx('root', className)}>
       <Toolbar onSave={onSave} onModeChange={onModeChange} />
+      <Compatibility />
       <div className={bx('body', features.preview && 'afb-with-preview')}>
         <Palette />
         <Canvas />
         <Inspector />
         {features.preview && <Preview />}
       </div>
+      <Issues />
     </div>
   );
 };
