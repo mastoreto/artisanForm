@@ -170,7 +170,7 @@ export const es: LandingCopy = {
     status: {
       icon: 'release-alert',
       title: `Estado del proyecto: v${project.version}`,
-      text: 'Desarrollo activo rumbo a 1.0.',
+      text: 'Release candidate: el contrato v1 está congelado para 1.x. Se agradece feedback antes de la 1.0.',
       cta: 'Changelog',
       href: `${project.repo}/blob/main/CHANGELOG.md`,
     },
@@ -208,7 +208,7 @@ export const es: LandingCopy = {
       },
       {
         q: '¿Ya está publicado en npm?',
-        a: `Todavía no: es una beta ${project.version} y el workflow de release se está terminando. Seguí el repositorio para la primera publicación.`,
+        a: `Sí. La ${project.version} está en npm con el tag rc: npm install artisanform@rc. Un npm install sin tag todavía instala una beta anterior hasta que se publique la 1.0.0.`,
       },
     ],
   },
