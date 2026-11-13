@@ -29,6 +29,8 @@
 - **`lintSchema(schema)`:** avisos semánticos (`forward-field-reference`, `default-not-an-option`, `duplicate-option`).
 - **`canonicalize(value)` y `schemaHash(value)`:** texto JSON estable (claves ordenadas) y su SHA-256 (hex): un ETag, la identidad de una revisión, detección de cambios.
 - **`compareSchemas(previous, next)`:** qué cambió entre dos revisiones (agregadas, quitadas, tipo cambiado, obligatoriedad, opciones eliminadas) y si las respuestas dadas a la anterior conservan su significado (`compatible`).
+- **`artisanform/schema.json`:** el JSON Schema (draft 2020-12) del contrato v1, construido con las listas de claves de la propia librería. Describe la estructura (tipos, claves conocidas, enums, propiedades obligatorias), así cualquier lenguaje, o una base de datos que valide JSON, puede comprobar un schema sin Node. Usalo desde el `$schema` de un schema para el autocompletado del editor. No reemplaza a `parseArtisanSchema` / `checkSchema`: nombres e ids únicos, referencias entre campos y pasos, el flujo, la política, los límites y las capacidades necesitan el documento completo. La paridad con el parser se prueba con cada fixture golden.
+- **CLI `artisanform`** (`npx artisanform`): `validate <archivos…>` ejecuta `checkSchema` (opciones `--policy`, `--manifest`, `--max-bytes`, `--max-steps`, `--max-fields`, `--max-options`, `--no-lint`, `--json`; salida 0 ok, 1 schema inválido, 2 uso incorrecto), `json-schema` imprime el schema del contrato y `hash <archivo>` imprime el SHA-256 de su JSON canónico. Para CI, hooks de pre-commit y backends en cualquier lenguaje.
 
 ## 1.0.0-rc.2 (2026-11-13)
 
