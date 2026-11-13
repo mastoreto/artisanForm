@@ -2,7 +2,9 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
-## Unreleased
+## 1.0.0-rc.2 (2026-11-13)
+
+Second release candidate: fixes Next.js compatibility. The v1 contract and the public API (`check:api`) are unchanged from `1.0.0-rc.1`.
 
 ### Fixed
 

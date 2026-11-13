@@ -2,7 +2,9 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
-## Unreleased
+## 1.0.0-rc.2 (2026-11-13)
+
+Segundo release candidate: corrige la compatibilidad con Next.js. El contrato v1 y la API pública (`check:api`) no cambian respecto de `1.0.0-rc.1`.
 
 ### Corregido
 
