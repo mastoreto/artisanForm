@@ -31,6 +31,8 @@ export default defineConfig({
         // The schema layer alone: parser, normalizer, conditions and the values
         // validator. No React, Yup, React Hook Form or Zustand (check:dist asserts it).
         schema: 'src/schema/index.ts',
+        // The visual form builder (optional: its drag and drop library is an optional peer).
+        builder: 'src/builder/index.ts',
         'payments/stripe': 'src/integrations/payments/providers/stripe.tsx',
         'payments/lemonsqueezy':
           'src/integrations/payments/providers/lemonsqueezy.tsx',
@@ -52,7 +54,7 @@ export default defineConfig({
           chunk.isEntry && chunk.name !== 'schema' ? "'use client';" : '',
       },
       external: (id) =>
-        /^(react|react-dom|react-compiler-runtime|react-hook-form|@hookform|yup|zustand|@stripe|@mercadopago|@paypal)(\/|$)/.test(
+        /^(react|react-dom|react-compiler-runtime|react-hook-form|@hookform|yup|zustand|@dnd-kit|@stripe|@mercadopago|@paypal)(\/|$)/.test(
           id,
         ),
     },

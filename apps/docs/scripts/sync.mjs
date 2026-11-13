@@ -8,6 +8,7 @@ const pages = [
   ['schema-v1.md', 'schema-v1'],
   ['backend.md', 'backend'],
   ['ui.md', 'ui'],
+  ['builder.md', 'builder'],
   ['payments.md', 'payments'],
   ['files.md', 'files'],
   ['accessibility.md', 'accessibility'],

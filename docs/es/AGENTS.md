@@ -7,7 +7,7 @@ Librería React de formularios multi-paso (wizard) con inputs prediseñados. Se 
 ## Idioma
 
 - **Todo lo que se genera en este repositorio va en inglés**: código, identificadores, comentarios, JSDoc, nombres de tests, mensajes de commit, texto de PR e issues, `README.md`, `AGENTS.md`, `CHANGELOG.md` y todo lo que está bajo `docs/`.
-- **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) [`schema v1`](schema-v1.md), [`backend`](backend.md), [`UI`](ui.md), [`pagos`](payments.md), [`archivos`](files.md), [`accesibilidad`](accessibility.md), [`release`](releasing.md) y [`versionado`](versioning.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
+- **Las versiones en español viven en [`docs/es/`](.)** y reflejan los documentos en inglés: [`README`](README.md), [`AGENTS`](AGENTS.md), [`CHANGELOG`](CHANGELOG.md) [`schema v1`](schema-v1.md), [`backend`](backend.md), [`UI`](ui.md), [`constructor`](builder.md), [`pagos`](payments.md), [`archivos`](files.md), [`accesibilidad`](accessibility.md), [`release`](releasing.md) y [`versionado`](versioning.md). Leelas cuando necesites el texto en español; **cuando cambies un documento en inglés, actualizá su copia en español en el mismo cambio**.
 - Los textos de la librería nunca están hardcodeados: los valores por defecto (`src/commons/labels.ts`) están en inglés y todos se sobrescriben con la prop `labels`. Las etiquetas, nombres y títulos de paso son texto libre que aporta el esquema del usuario. Los textos de demo (playground, stories, fixtures, tests) también van en inglés.
 - A las personas se les responde en el idioma en que escriben; los artefactos del repositorio quedan en inglés.
 
@@ -39,6 +39,7 @@ src/
     legacy/              la forma 0.2.0 (types.ts) + el adaptador a v1 (adapter.ts)
     parser.ts · normalize.ts
     __tests__/           + fixtures/ (esquemas 0.2.0 que reflejan el playground)
+  builder/               el constructor visual de formularios (entry opcional `artisanform/builder`): model/ es puro (operaciones, catálogo, historial), sin React
   persistence/           ArtisanSnapshotV1 y storage de borradores (tampoco importa el motor)
   engine/                ejecuta un esquema; acá viven React Hook Form/Yup/Zustand
     project.ts           esquema normalizado → la forma que consume el wizard (la única costura que conoce ambas)
@@ -57,7 +58,7 @@ src/
     storage/             StorageAdapter + presignedPut, cloudinary, mock
     wait/                WaitStrategy (polling, sse, websocket, callback)
   commons/               cn.ts (clsx), labels.ts (textos)
-  styles/artisanform.css la única hoja de estilos: CSS plano, clases `af-*`, tokens `--artisan-*`
+  styles/artisanform.css la hoja del formulario: CSS plano, clases `af-*`, tokens `--artisan-*` (el builder tiene la suya, `builder/builder.css`)
   __tests__/setup.ts     preload de happy-dom para bun test
 bin/                     el CLI `artisanform` (validate, json-schema, hash); ejecuta el `dist/schema.js` construido
 packages/                paquetes del workspace: ui-bootstrap, ui-mui, ui-tailwind, ui-scss (kits), ui-shadcn (plantilla + item de registry)
@@ -90,7 +91,7 @@ Un tipo de campo nuevo = una `FieldDefinition` en `components/fields/registry.ts
 - Biome manda (`biome.jsonc`: 2 espacios, comillas simples, `;`, trailing comma `all`, 80 cols). Correr `bun run format` antes de commitear; no mezclar reformateo con cambios funcionales.
 - Un componente por carpeta, `export default`, con su `*.stories.tsx` al lado.
 - Inputs: `forwardRef`, props tipadas con `interface`, `id` + `label` obligatorios, `className` opcional mezclado vía `cx()`. Accesibilidad básica obligatoria (`label htmlFor`, `aria-invalid`/`aria-describedby` en errores).
-- Estilos solo en `src/styles/artisanform.css`, como clases `af-*` simples (el estado por `data-*`/`aria-*`) y variables `--artisan-*`: sin frameworks, sin selectores de elemento sueltos. Los componentes obtienen sus clases con `useCx()` para que `classNames` y `unstyled` sigan funcionando. Tailwind solo lo usan el playground y Storybook.
+- Estilos solo en una hoja por entry: `src/styles/artisanform.css` para el formulario y `src/builder/builder.css` para el builder opcional (nunca va a `style.css`), como clases `af-*` (builder: `afb-*`) simples (el estado por `data-*`/`aria-*`) y variables `--artisan-*`: sin frameworks, sin selectores de elemento sueltos. Los componentes obtienen sus clases con `useCx()` para que `classNames` y `unstyled` sigan funcionando. Tailwind solo lo usan el playground y Storybook.
 - Los puntos de extensión de UI (`components`, contratos en `components/ui/types.ts`) son API pública: nunca exponen React Hook Form ni Zustand. Ver `docs/es/ui.md`.
 - Estado global solo en `useArtisanStore`; estado local de UI en el componente. Nada de estado hardcodeado de demo dentro de componentes.
 - Todo lo público se exporta desde `src/index.ts`.

@@ -49,6 +49,9 @@ write(
       scripts: { build: 'next build', start: `next start -p ${port}` },
       dependencies: {
         artisanform: artisanDep,
+        // optional peers of artisanform/builder
+        '@dnd-kit/core': '^6.3.1',
+        '@dnd-kit/sortable': '^10.0.0',
         next: nextVersion,
         react: '19.3.1',
         'react-dom': '19.3.1',
@@ -183,6 +186,28 @@ export default function Page() {
 `,
 );
 
+// The visual builder: a Client Component (it ships 'use client'), rendered on the server and hydrated.
+write(
+  'app/app-builder/Client.tsx',
+  `'use client';
+import 'artisanform/builder.css';
+import { FormBuilder } from 'artisanform/builder';
+
+export default function Client() {
+  return <FormBuilder />;
+}
+`,
+);
+write(
+  'app/app-builder/page.tsx',
+  `import Client from './Client';
+
+export default function Page() {
+  return <Client />;
+}
+`,
+);
+
 // ---- Pages Router
 write(
   'pages/_app.tsx',
@@ -254,6 +279,10 @@ try {
       fail(`/${route}: SSR HTML has no "Email" field`);
     console.log(`SSR OK /${route}`);
   }
+  const builderHtml = await (await fetch(`${base}/app-builder`)).text();
+  if (!builderHtml.includes('Add Text'))
+    fail('/app-builder: SSR HTML has no palette');
+  console.log('SSR OK /app-builder');
   const schemaHtml = (await (await fetch(`${base}/app-schema`)).text()).replace(
     /<!-- -->/g,
     '',
@@ -288,6 +317,24 @@ try {
       fail(`/${route}: bad values ${JSON.stringify(v)}`);
     if (errors.length) fail(`/${route}: ${errors.join(' | ')}`);
     console.log(`browser OK /${route}`);
+    await page.close();
+  }
+
+  // The builder hydrates and works: add an input from the palette.
+  {
+    const page = await browser.newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+    await page.goto(`${base}/app-builder`);
+    await page.getByRole('button', { name: 'Add Text' }).click();
+    await page
+      .getByRole('list', { name: 'Form' })
+      .getByText('Text')
+      .first()
+      .waitFor({ timeout: 5000 });
+    if (errors.length) fail(`/app-builder: ${errors.join(' | ')}`);
+    console.log('browser OK /app-builder');
     await page.close();
   }
 

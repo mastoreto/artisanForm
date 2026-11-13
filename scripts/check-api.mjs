@@ -1,5 +1,5 @@
-// Public API snapshot. After `bun run build`, lists every export of the root
-// and `artisanform/schema` entries with its declaration text and compares it
+// Public API snapshot. After `bun run build`, lists every export of the root,
+// `artisanform/schema` and `artisanform/builder` entries with its declaration text and compares it
 // with api/*.api.txt. A difference is a contract change: removing or changing
 // an export is a major, adding one is a minor (docs/versioning.md). Update the
 // snapshot in the same PR with --write so the change is reviewed.
@@ -10,6 +10,7 @@ import ts from 'typescript';
 const entries = {
   index: 'dist/index.d.ts',
   schema: 'dist/schema/index.d.ts',
+  builder: 'dist/builder/index.d.ts',
 };
 
 const describe = (file) => {

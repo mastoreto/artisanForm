@@ -14,6 +14,7 @@ React library for building multi-step forms (wizards) from a declarative definit
 | [Backend guide](docs/backend.md) | Storing, serving and validating schemas in any database; plugin and custom type authors; the `artisanform` CLI and `schema.json` |
 | [Versioning (1.x contract)](docs/versioning.md) | What may change in a minor, what needs a major, and the guards |
 | [UI extension and kits](docs/ui.md) | Styles, `components`, `classNames` and the official kits |
+| [Visual builder](docs/builder.md) | `artisanform/builder`: a drag-and-drop editor that outputs the schema, for a CRM or admin panel |
 | [Performance](docs/performance.md) | Web Vitals budgets and how to run them |
 | [Headless API](docs/headless.md) | `useArtisanWizard`: the behavior without markup, for your own UI |
 | [Payments](docs/payments.md) | Plugins, the security principle and a production checklist |

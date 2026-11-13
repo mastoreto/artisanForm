@@ -142,6 +142,11 @@ export default defineConfig({
               translations: { es: 'UI y kits' },
             },
             {
+              slug: 'docs/builder',
+              label: 'Visual builder',
+              translations: { es: 'Constructor visual' },
+            },
+            {
               slug: 'docs/payments',
               label: 'Payments',
               translations: { es: 'Pagos' },

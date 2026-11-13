@@ -1,0 +1,561 @@
+/*
+ * Styles of artisanform/builder. Separate from artisanform.css on purpose:
+ * the form's stylesheet stays small for everyone who does not use the builder.
+ * Single `.afb-*` classes (state through `afb-*` modifiers and `aria-*`) and
+ * the `--artisan-*` variables of the form, each with a fallback, so the builder
+ * follows the host's theme.
+ */
+.afb-root {
+  --afb-border: var(--artisan-border, #d4d4d8);
+  --afb-surface: var(--artisan-surface, #fff);
+  --afb-subtle: var(--artisan-subtle, #f4f4f5);
+  --afb-muted: var(--artisan-muted, #52525b);
+  --afb-strong: var(--artisan-strong, #18181b);
+  --afb-primary: var(--artisan-primary, #4f46e5);
+  --afb-danger: var(--artisan-danger, #dc2626);
+  display: flex;
+  flex-direction: column;
+  min-height: 32rem;
+  container-type: inline-size;
+  color: var(--afb-strong);
+  background: var(--afb-surface);
+  border: 1px solid var(--afb-border);
+  border-radius: 0.75rem;
+  font: inherit;
+}
+.afb-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--afb-border);
+}
+.afb-spacer {
+  flex: 1;
+}
+.afb-body {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 14rem minmax(0, 1fr) 20rem;
+  min-height: 0;
+}
+.afb-body.afb-with-preview {
+  grid-template-columns: 14rem minmax(0, 1fr) 20rem minmax(0, 1fr);
+}
+@container (max-width: 1280px) {
+  .afb-body.afb-with-preview {
+    grid-template-columns: 14rem minmax(0, 1fr) 20rem;
+  }
+  .afb-with-preview .afb-preview {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--afb-border);
+  }
+}
+@container (max-width: 800px) {
+  .afb-body,
+  .afb-body.afb-with-preview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.afb-palette,
+.afb-canvas,
+.afb-inspector,
+.afb-preview {
+  min-width: 0;
+  padding: 0.75rem;
+  overflow: auto;
+}
+.afb-palette,
+.afb-inspector {
+  background: var(--afb-subtle);
+}
+.afb-palette {
+  border-right: 1px solid var(--afb-border);
+}
+.afb-inspector {
+  border-left: 1px solid var(--afb-border);
+}
+.afb-preview {
+  border-left: 1px solid var(--afb-border);
+}
+.afb-panel-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.afb-palette-heading,
+.afb-section-title {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--afb-muted);
+}
+.afb-palette-list {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.afb-palette-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  color: inherit;
+  text-align: left;
+  background: var(--afb-surface);
+  border: 1px solid var(--afb-border);
+  border-radius: 0.5rem;
+  cursor: grab;
+  touch-action: none;
+  font: inherit;
+}
+.afb-palette-item:hover {
+  border-color: var(--afb-primary);
+}
+.afb-palette-item.afb-dragging {
+  opacity: 0.5;
+}
+.afb-palette-glyph {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--afb-primary);
+  background: var(--afb-subtle);
+  border-radius: 0.375rem;
+}
+.afb-step-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+.afb-step-tab {
+  padding: 0.375rem 0.75rem;
+  color: inherit;
+  background: var(--afb-subtle);
+  border: 1px solid var(--afb-border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font: inherit;
+}
+.afb-step-tab.afb-selected {
+  color: #fff;
+  background: var(--afb-primary);
+  border-color: var(--afb-primary);
+}
+.afb-step-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+.afb-step-card {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: var(--afb-subtle);
+  border-radius: 0.5rem;
+}
+.afb-list {
+  display: grid;
+  gap: 0.375rem;
+  min-height: 3rem;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  border: 1px dashed transparent;
+  border-radius: 0.5rem;
+}
+.afb-list.afb-over {
+  border-color: var(--afb-primary);
+  background: color-mix(in srgb, var(--afb-primary) 6%, transparent);
+}
+.afb-empty {
+  padding: 1rem;
+  color: var(--afb-muted);
+  text-align: center;
+}
+.afb-field {
+  background: var(--afb-surface);
+  border: 1px solid var(--afb-border);
+  border-radius: 0.5rem;
+}
+.afb-field.afb-selected {
+  border-color: var(--afb-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--afb-primary) 25%, transparent);
+}
+.afb-field.afb-dragging {
+  opacity: 0.6;
+}
+.afb-field-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+}
+.afb-field-main {
+  flex: 1;
+  min-width: 0;
+  padding: 0.25rem 0.5rem;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+.afb-field-label {
+  display: block;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.afb-field-meta {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--afb-muted);
+}
+.afb-field-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.125rem;
+}
+.afb-rows {
+  padding: 0 0.5rem 0.5rem 1.5rem;
+}
+.afb-handle {
+  padding: 0.25rem;
+  color: var(--afb-muted);
+  background: none;
+  border: 0;
+  cursor: grab;
+  touch-action: none;
+  font: inherit;
+}
+.afb-icon-button,
+.afb-button,
+.afb-segment {
+  padding: 0.25rem 0.5rem;
+  color: inherit;
+  background: var(--afb-surface);
+  border: 1px solid var(--afb-border);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font: inherit;
+}
+.afb-icon-button:disabled,
+.afb-button:disabled,
+.afb-palette-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.afb-button.afb-primary {
+  color: #fff;
+  background: var(--afb-primary);
+  border-color: var(--afb-primary);
+}
+.afb-segmented {
+  display: inline-flex;
+  gap: 0;
+}
+.afb-segment {
+  border-radius: 0;
+}
+.afb-segment:first-child {
+  border-radius: 0.375rem 0 0 0.375rem;
+}
+.afb-segment:last-child {
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+.afb-segment.afb-selected,
+.afb-segment[aria-pressed="true"] {
+  color: #fff;
+  background: var(--afb-primary);
+  border-color: var(--afb-primary);
+}
+.afb-move-select,
+.afb-input {
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  color: inherit;
+  background: var(--afb-surface);
+  border: 1px solid var(--afb-border);
+  border-radius: 0.375rem;
+  font: inherit;
+}
+.afb-move-select {
+  width: auto;
+}
+.afb-input[aria-invalid="true"] {
+  border-color: var(--afb-danger);
+}
+.afb-mono {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+}
+.afb-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.afb-property {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.625rem;
+}
+.afb-property.afb-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.afb-property-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.afb-help {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--afb-muted);
+}
+.afb-error {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--afb-danger);
+}
+.afb-notice {
+  margin: 0 0 0.5rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.8125rem;
+  background: color-mix(in srgb, #f59e0b 18%, transparent);
+  border-radius: 0.375rem;
+}
+.afb-options {
+  display: grid;
+  gap: 0.375rem;
+}
+.afb-option-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.25rem;
+}
+.afb-badge {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 999px;
+}
+.afb-badge.afb-good {
+  color: #166534;
+  background: #dcfce7;
+}
+.afb-badge.afb-bad {
+  color: #991b1b;
+  background: #fee2e2;
+}
+.afb-preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.afb-frame {
+  margin: 0.5rem auto 0;
+  padding: 1rem;
+  background: var(--afb-surface);
+  border: 1px solid var(--afb-border);
+  border-radius: 0.5rem;
+}
+.afb-frame[data-device="mobile"],
+.afb-frame[data-device="tablet"] {
+  box-shadow: 0 0 0 6px var(--afb-subtle);
+}
+.afb-overlay {
+  padding: 0.375rem 0.75rem;
+  color: #fff;
+  background: var(--afb-primary);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.2);
+}
+.afb-details {
+  padding: 0.25rem 0;
+}
+:focus-visible {
+  outline-offset: 2px;
+}
+
+.afb-issues {
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--afb-border);
+}
+.afb-issues-summary {
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.afb-issue-list {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.afb-issue {
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-left: 3px solid var(--afb-border);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8125rem;
+}
+.afb-issue.afb-bad {
+  border-left-color: var(--afb-danger);
+}
+.afb-issue.afb-warn {
+  border-left-color: #f59e0b;
+}
+.afb-issue-path {
+  color: var(--afb-muted);
+}
+.afb-compat {
+  margin: 0.5rem 0.75rem 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+}
+.afb-compat.afb-bad {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.afb-compat.afb-warn {
+  background: color-mix(in srgb, #f59e0b 18%, transparent);
+}
+.afb-compat ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.afb-cond,
+.afb-transitions {
+  display: grid;
+  gap: 0.5rem;
+}
+.afb-cond-group {
+  display: grid;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  border: 1px solid var(--afb-border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--afb-surface) 70%, var(--afb-subtle));
+}
+.afb-cond-head,
+.afb-cond-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+}
+.afb-cond-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 0.25rem;
+  align-items: center;
+}
+.afb-edge {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid var(--afb-border);
+  border-radius: 0.5rem;
+}
+.afb-flow {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+}
+.afb-flow-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0.125rem 0;
+}
+.afb-flow-badge {
+  padding: 0 0.375rem;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 0.6875rem;
+}
+
+.afb-panel {
+  padding: 0.75rem;
+  border-top: 1px solid var(--afb-border);
+  max-height: 24rem;
+  overflow: auto;
+}
+.afb-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.afb-templates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.afb-template {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  border: 1px solid var(--afb-border);
+  border-radius: 0.5rem;
+}
+.afb-trans-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+.afb-trans-table th {
+  width: 40%;
+  padding: 0.25rem 0.5rem;
+  text-align: left;
+  font-weight: 500;
+  vertical-align: top;
+}
+.afb-trans-table th code {
+  display: block;
+}
+.afb-trans-table td {
+  padding: 0.25rem 0.5rem;
+}
+.afb-trans-table tr[data-state="missing"] th {
+  color: var(--afb-muted);
+}
+
+.afb-step-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.afb-step-bar .afb-step-tabs {
+  margin-bottom: 0;
+}
