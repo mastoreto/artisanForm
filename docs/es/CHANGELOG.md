@@ -8,6 +8,13 @@
 
 - **Política de versionado y guardias del contrato (AF119):** [versionado](versioning.md) define qué puede cambiar en una menor de 1.x y qué exige una mayor, sobre tres superficies (el contrato del schema, la API de TypeScript de `artisanform` y `artisanform/schema`, el contrato de capacidades y el formato de catálogos). Lo hacen cumplir los fixtures golden (`src/schema/__tests__/fixtures-v1/`: los 13 ejemplos del catálogo deben parsear limpios, normalizar al JSON registrado y ser idempotentes y portables; los casos inválidos mantienen sus códigos y rutas) y `bun run check:api`, que compara cada export y declaración de ambas entradas con `api/*.api.txt` (CI, release y `prepublishOnly`). Sin cambios de comportamiento.
 
+## Sin publicar (Rendimiento)
+
+### Calidad
+
+- **Rendimiento medido contra el estándar de Web Vitals (AF118):** `bun run perf` (Playwright, build de producción del playground) verifica "formulario listo", latencia de interacción, tareas largas y cambio de diseño en Chromium (escritorio y un perfil móvil con la CPU 4x más lenta), Firefox y WebKit, más una línea base por navegador (`perf/web-baseline.json`, +50%). `bun run check:size` limita el JS, el CSS y `artisanform/schema` comprimidos a +10% sobre `perf/size.json`. Nuevo job de CI `perf`. Los presupuestos y su base están en [rendimiento](performance.md). El pipeline del schema cuesta unos 1,2 ms con 200 campos, así que no se cambió código de la librería.
+- Nuevo escenario `perf` del playground (`?demo=perf&fields=50&perStep=50`) y scripts `playground:build` / `playground:preview`; `perf/generate.mjs` acepta un argumento `perStep`.
+
 ## Sin publicar (Traducciones)
 
 ### Back end y front end

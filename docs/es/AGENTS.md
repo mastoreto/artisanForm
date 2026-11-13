@@ -25,8 +25,8 @@ bun run lint              # biome check
 bun run format            # biome check --write
 ```
 
-Además: `bun run check:api` (instantánea de la API pública, `api/`; ver `docs/es/versioning.md`) tras un build; `bun run playground` (app de prueba en vivo, escenarios en `playground/src/scenarios/`), `bun run e2e` (Playwright, `e2e/`), `bun run build` (librería), `bun run typecheck` y `bun test` (tests `*.test.ts(x)` junto al código).
-Además: `bun run lint:react` (reglas de React Hooks/Compiler), `bun run check:dist`, `bun run check:package` y `bun run check:pack` tras un build; `ARTISAN_BROWSERS=chromium,firefox,webkit` corre el e2e en más navegadores (por defecto: Chromium); `ARTISAN_COMPILER=off` desactiva React Compiler (playground, build, e2e) para comparar comportamiento. No leas estado mutable (`getValues()`, refs) durante el render en código compilado.
+Además: `bun run playground` (app de prueba en vivo, escenarios en `playground/src/scenarios/`), `bun run e2e` (Playwright, `e2e/`), `bun run build` (librería), `bun run typecheck` y `bun test` (tests `*.test.ts(x)` junto al código).
+Además: `bun run check:api` (instantánea de la API pública en `api/`; ver `docs/es/versioning.md`) tras un build; `bun run perf` (presupuestos de Web Vitals sobre el playground de producción; ver `docs/es/performance.md`) y `bun run check:size` tras un build; `bun run lint:react` (reglas de React Hooks/Compiler), `bun run check:dist`, `bun run check:package` y `bun run check:pack` tras un build; `ARTISAN_BROWSERS=chromium,firefox,webkit` corre el e2e en más navegadores (por defecto: Chromium); `ARTISAN_COMPILER=off` desactiva React Compiler (playground, build, e2e) para comparar comportamiento. No leas estado mutable (`getValues()`, refs) durante el render en código compilado.
 Verificación mínima de un cambio: `bun run lint` + `bun run typecheck` + `bun run build` + `bun test` + la story renderiza sin errores. Verificá el **código de salida** de cada comando, no solo el final de su salida.
 
 ## Estructura

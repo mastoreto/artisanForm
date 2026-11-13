@@ -8,6 +8,13 @@ Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
 - **Versioning policy and contract guards (AF119):** [versioning](docs/versioning.md) states what may change in a 1.x minor and what needs a major, over three surfaces (the schema contract, the TypeScript API of `artisanform` and `artisanform/schema`, the capabilities contract and catalog format). Enforced by golden fixtures (`src/schema/__tests__/fixtures-v1/`: the 13 catalog examples must parse clean, normalize to the recorded JSON, be idempotent and portable; invalid cases keep their codes and paths) and by `bun run check:api`, which compares every export and declaration of both entries with `api/*.api.txt` (CI, release and `prepublishOnly`). No behavior change.
 
+## Unreleased (Performance)
+
+### Quality
+
+- **Performance measured against the Web Vitals standard (AF118):** `bun run perf` (Playwright, production build of the playground) checks "form ready", interaction latency, long tasks and layout shift in Chromium (desktop and a mobile profile with the CPU slowed 4x), Firefox and WebKit, plus a per-browser baseline (`perf/web-baseline.json`, +50%). `bun run check:size` gates the gzipped JS, CSS and `artisanform/schema` at +10% over `perf/size.json`. New CI job `perf`. The budgets and what they are based on are in [performance](docs/performance.md). The schema pipeline costs about 1.2 ms for 200 fields, so no library code was changed.
+- New playground scenario `perf` (`?demo=perf&fields=50&perStep=50`) and scripts `playground:build` / `playground:preview`; `perf/generate.mjs` takes a `perStep` argument.
+
 ## Unreleased (Translations)
 
 ### Back end and front end
