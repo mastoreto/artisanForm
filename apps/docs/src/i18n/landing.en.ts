@@ -2,7 +2,7 @@
 import { project } from '../data/project';
 
 // react and react-dom are implied for a React library.
-const installPackages = 'artisanform@beta react-hook-form yup zustand';
+const installPackages = 'artisanform@rc react-hook-form yup zustand';
 
 export const en = {
   lang: 'en' as 'en' | 'es',
