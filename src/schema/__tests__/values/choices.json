@@ -1,0 +1,259 @@
+{
+  "description": "select, radio, check, multiselect, checkbox, switch, dynamicSelect, combobox",
+  "schema": {
+    "schemaVersion": 1,
+    "id": "choices",
+    "steps": [
+      {
+        "id": "main",
+        "type": "form",
+        "title": "Main",
+        "fields": [
+          {
+            "type": "select",
+            "name": "plan",
+            "required": true,
+            "options": [
+              {
+                "value": "free",
+                "label": "Free"
+              },
+              {
+                "value": "pro",
+                "label": "Pro"
+              }
+            ]
+          },
+          {
+            "type": "radio",
+            "name": "size",
+            "options": [
+              {
+                "value": "s",
+                "label": "S"
+              },
+              {
+                "value": "l",
+                "label": "L"
+              }
+            ]
+          },
+          {
+            "type": "check",
+            "name": "tags",
+            "required": true,
+            "options": [
+              {
+                "value": "a",
+                "label": "A"
+              },
+              {
+                "value": "b",
+                "label": "B"
+              }
+            ]
+          },
+          {
+            "type": "multiselect",
+            "name": "langs",
+            "options": [
+              {
+                "value": "en",
+                "label": "English"
+              },
+              {
+                "value": "es",
+                "label": "Spanish"
+              }
+            ]
+          },
+          {
+            "type": "checkbox",
+            "name": "agree",
+            "required": true
+          },
+          {
+            "type": "switch",
+            "name": "news"
+          },
+          {
+            "type": "dynamicSelect",
+            "name": "country",
+            "dependentName": "city",
+            "required": true,
+            "options": [
+              {
+                "value": "ar",
+                "label": "Argentina"
+              },
+              {
+                "value": "uy",
+                "label": "Uruguay"
+              }
+            ],
+            "dependentOptions": {
+              "ar": [
+                {
+                  "value": "baires",
+                  "label": "Buenos Aires"
+                }
+              ],
+              "uy": [
+                {
+                  "value": "mvd",
+                  "label": "Montevideo"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "done",
+        "type": "result",
+        "title": "Done"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "all valid",
+      "values": {
+        "plan": "pro",
+        "size": "s",
+        "tags": ["a"],
+        "langs": ["en", "es"],
+        "agree": true,
+        "news": false,
+        "country": "ar",
+        "city": "baires"
+      },
+      "expect": []
+    },
+    {
+      "name": "required missing",
+      "values": {},
+      "expect": [
+        {
+          "path": "plan",
+          "code": "required"
+        },
+        {
+          "path": "tags",
+          "code": "required"
+        },
+        {
+          "path": "agree",
+          "code": "required"
+        },
+        {
+          "path": "country",
+          "code": "required"
+        }
+      ],
+      "serverOnly": true,
+      "note": "the browser pre-fills selects with their first option and checkboxes with false, so only the server sees them missing"
+    },
+    {
+      "name": "checkbox must be true",
+      "values": {
+        "plan": "pro",
+        "tags": ["a"],
+        "agree": false,
+        "country": "ar",
+        "city": "baires"
+      },
+      "expect": [
+        {
+          "path": "agree",
+          "code": "required"
+        }
+      ]
+    },
+    {
+      "name": "check with nothing selected",
+      "values": {
+        "plan": "pro",
+        "tags": [],
+        "agree": true,
+        "country": "ar",
+        "city": "baires"
+      },
+      "expect": [
+        {
+          "path": "tags",
+          "code": "required"
+        }
+      ]
+    },
+    {
+      "name": "select value not in options",
+      "values": {
+        "plan": "gold",
+        "tags": ["a"],
+        "agree": true,
+        "country": "ar",
+        "city": "baires"
+      },
+      "expect": [
+        {
+          "path": "plan",
+          "code": "invalidOption"
+        }
+      ],
+      "serverOnly": true,
+      "note": "the browser only offers real options"
+    },
+    {
+      "name": "check item not in options",
+      "values": {
+        "plan": "pro",
+        "tags": ["zzz"],
+        "agree": true,
+        "country": "ar",
+        "city": "baires"
+      },
+      "expect": [
+        {
+          "path": "tags[0]",
+          "code": "invalidOption"
+        }
+      ],
+      "serverOnly": true
+    },
+    {
+      "name": "city of another country",
+      "values": {
+        "plan": "pro",
+        "tags": ["a"],
+        "agree": true,
+        "country": "ar",
+        "city": "mvd"
+      },
+      "expect": [
+        {
+          "path": "city",
+          "code": "invalidOption"
+        }
+      ],
+      "serverOnly": true
+    },
+    {
+      "name": "a string where an array is expected",
+      "values": {
+        "plan": "pro",
+        "tags": "a",
+        "agree": true,
+        "country": "ar",
+        "city": "baires"
+      },
+      "expect": [
+        {
+          "path": "tags",
+          "code": "type"
+        }
+      ],
+      "note": "both sides reject it"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "id": "support-ticket",
+  "steps": [
+    {
+      "id": "ticket",
+      "type": "form",
+      "title": "Open a ticket",
+      "fields": [
+        {
+          "type": "email",
+          "name": "email",
+          "label": "Email",
+          "required": true
+        },
+        {
+          "type": "radio",
+          "name": "category",
+          "label": "What is it about?",
+          "required": true,
+          "options": [
+            {
+              "value": "billing",
+              "label": "Billing"
+            },
+            {
+              "value": "bug",
+              "label": "Bug"
+            },
+            {
+              "value": "question",
+              "label": "Question"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "invoice",
+          "label": "Invoice number",
+          "required": true,
+          "visibleWhen": {
+            "field": "category",
+            "operator": "eq",
+            "value": "billing"
+          }
+        },
+        {
+          "type": "select",
+          "name": "severity",
+          "label": "Severity",
+          "visibleWhen": {
+            "field": "category",
+            "operator": "eq",
+            "value": "bug"
+          },
+          "options": [
+            {
+              "value": "annoying",
+              "label": "Annoying"
+            },
+            {
+              "value": "blocks-my-work",
+              "label": "Blocks my work"
+            },
+            {
+              "value": "data-loss",
+              "label": "Data loss"
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "name": "screenshot",
+          "label": "Screenshot",
+          "visibleWhen": {
+            "field": "category",
+            "operator": "eq",
+            "value": "bug"
+          }
+        },
+        {
+          "type": "textarea",
+          "name": "message",
+          "label": "Describe it",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "Ticket #4821 opened. We will answer by email.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ]
+}

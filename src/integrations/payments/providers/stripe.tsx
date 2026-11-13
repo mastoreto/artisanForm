@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { ActionButton } from '../../../components/steps/StatusPanel';
 import { useCx } from '../../../components/ui/UiContext';
+import { iconOr, StripeIcon } from '../brands';
 import Loading from '../Loading';
 import type {
   EmbeddedRenderProps,
+  PaymentDisplayOptions,
   PaymentPlugin,
   PaymentRequest,
   PaymentResult,
 } from '../types';
 
-export interface StripeOptions {
+export interface StripeOptions extends PaymentDisplayOptions {
   /** `pk_live_…` / `pk_test_…`: safe to ship to the browser. */
   publishableKey: string;
   /**
@@ -154,10 +156,14 @@ export const stripe = ({
   mode = 'embedded',
   id = 'stripe',
   name = 'Stripe',
+  icon,
+  description,
   ...options
 }: StripeOptions): PaymentPlugin => ({
   id,
   name,
+  icon: iconOr(icon, <StripeIcon />),
+  description,
   mode,
   resumeKeys: [
     'payment_intent',

@@ -1,0 +1,112 @@
+ArrayFieldV1: export interface ArrayFieldV1 extends FieldBaseV1 { type: 'array'; itemFields: ArrayItemFieldV1[]; addLabel?: string; validation?: ArrayValidationV1; }
+ArrayItemFieldV1: export type ArrayItemFieldV1 = Exclude<NativeFieldV1, ArrayFieldV1 | ContentFieldV1>;
+ArrayValidationV1: export interface ArrayValidationV1 { minItems?: number; maxItems?: number; }
+ArtisanFieldV1: export type ArtisanFieldV1 = NativeFieldV1 | CustomFieldV1;
+ArtisanSchemaError: export declare class ArtisanSchemaError extends Error { readonly issues: SchemaIssue[]; constructor(issues: SchemaIssue[]); }
+ArtisanSchemaV1: export interface ArtisanSchemaV1 { schemaVersion: 1; id: string; revision?: number; title?: string; description?: string; ui?: FormUIConfig; i18n?: I18nBlockV1; steps: ArtisanStepV1[]; }
+ArtisanStepV1: export type ArtisanStepV1 = NativeStepV1 | ExtensionStepV1;
+BooleanFieldV1: export interface BooleanFieldV1 extends FieldBaseV1 { type: 'checkbox' | 'switch'; }
+CAPABILITIES_CONTRACT: CAPABILITIES_CONTRACT = "artisanform.capabilities/1"
+CapabilitiesManifest: export interface CapabilitiesManifest { contract: typeof CAPABILITIES_CONTRACT; fieldTypes: string[]; stepKinds: string[]; features: string[]; refs: Record<RefKind, string[]>; }
+CapabilityIssue: export type CapabilityIssue = { code: 'unsupported-contract'; id: string; path: ''; } | { code: 'missing-reference'; kind: RefKind; id: string; path: string; } | { code: 'unsupported-field-type'; id: string; path: string; } | { code: 'unsupported-step-kind'; id: string; path: string; } | { code: 'missing-feature'; id: string; path: ''; };
+CapabilitySources: export interface CapabilitySources { extensions?: { hooks?: object; waits?: object; renderers?: object; actions?: object; options?: object; dependentOptions?: object; }; paymentProviders?: readonly string[]; storage?: readonly string[]; fieldTypes?: readonly string[]; stepKinds?: readonly string[]; }
+Catalog: export type Catalog = Record<string, CatalogValue>;
+CatalogReport: export interface CatalogReport { missing: string[]; orphan: string[]; badPlaceholders: string[]; }
+CatalogValue: export type CatalogValue = string | PluralForms;
+ChoiceFieldV1: export interface ChoiceFieldV1 extends FieldBaseV1 { type: 'select' | 'radio' | 'check'; options: OptionV1[]; }
+ComparisonConditionV1: export interface ComparisonConditionV1 { field: string; operator: ComparisonOperator; value: JSONValue; coerce?: 'string'; }
+ComparisonOperator: export type ComparisonOperator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'notIn';
+ConditionV1: export type ConditionV1 = ComparisonConditionV1 | PresenceConditionV1 | { all: ConditionV1[]; } | { any: ConditionV1[]; } | { not: ConditionV1; };
+ContentFieldV1: export interface ContentFieldV1 { type: 'heading' | 'paragraph' | 'callout' | 'divider'; name: string; id?: string; text?: string; variant?: 'info' | 'success' | 'warning' | 'error'; visibleWhen?: ConditionV1; ui?: FieldUIConfig; }
+CustomFieldV1: export interface CustomFieldV1 extends FieldBaseV1 { type: `x-${string}`; config?: JSONObject; }
+CustomStepV1: export interface CustomStepV1 extends StepBaseV1 { type: 'custom'; renderer: string; config?: JSONObject; }
+DateFieldV1: export interface DateFieldV1 extends FieldBaseV1 { type: 'date' | 'time' | 'datetime' | 'month'; placeholder?: string; validation?: DateValidationV1; }
+DateRangeFieldV1: export interface DateRangeFieldV1 extends FieldBaseV1 { type: 'daterange'; placeholder?: string; endName?: string; endLabel?: string; validation?: DateValidationV1; }
+DateValidationV1: export interface DateValidationV1 { min?: string; max?: string; }
+DynamicSelectFieldV1: export interface DynamicSelectFieldV1 extends FieldBaseV1 { type: 'dynamicSelect'; options: OptionV1[]; dependentName?: string; dependentOptions?: Record<string, OptionV1[]>; dependentOptionsSource?: string; }
+ExtensionStepV1: export interface ExtensionStepV1 extends StepBaseV1 { type: `x-${string}`; config?: JSONObject; }
+FEATURES: FEATURES: readonly ["transitions", "wait-options", "options-source-choice"]
+FIELD_KEYS: FIELD_KEYS: { readonly text: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly email: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly tel: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly url: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly password: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly textarea: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "mask", "prefix", "suffix", "autoComplete", "inputMode", "readOnly", "maxLength", "validation"]; readonly number: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "prefix", "suffix", "step", "validation"]; readonly range: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "step", "validation"]; readonly rating: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "length"]; readonly otp: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "length", "charset"]; readonly date: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "validation"]; readonly time: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "validation"]; readonly datetime: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "validation"]; readonly month: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "validation"]; readonly daterange: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "validation", "endName", "endLabel"]; readonly select: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "options", "optionsSource"]; readonly radio: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "options", "optionsSource"]; readonly check: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "options"]; readonly combobox: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "options", "optionsSource"]; readonly multiselect: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "placeholder", "options", "optionsSource"]; readonly dynamicSelect: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "options", "dependentName", "dependentOptions", "dependentOptionsSource"]; readonly checkbox: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui"]; readonly switch: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui"]; readonly file: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "accept", "storage", "capture", "validation"]; readonly image: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "accept", "storage", "capture", "validation"]; readonly array: readonly ["type", "id", "name", "label", "description", "required", "disabled", "defaultValue", "visibleWhen", "ui", "itemFields", "addLabel", "validation"]; readonly heading: readonly ["type", "name", "id", "text", "variant", "visibleWhen", "ui"]; readonly paragraph: readonly ["type", "name", "id", "text", "variant", "visibleWhen", "ui"]; readonly callout: readonly ["type", "name", "id", "text", "variant", "visibleWhen", "ui"]; readonly divider: readonly ["type", "name", "id", "text", "variant", "visibleWhen", "ui"]; }
+Feature: export type Feature = (typeof FEATURES)[number];
+FieldBaseV1: export interface FieldBaseV1 { id?: string; name: string; label?: string; description?: string; required?: boolean; disabled?: boolean; defaultValue?: JSONValue; visibleWhen?: ConditionV1; ui?: FieldUIConfig; }
+FieldUIConfig: export interface FieldUIConfig { span?: 1 | 2; variant?: string; }
+FileFieldV1: export interface FileFieldV1 extends FieldBaseV1 { type: 'file' | 'image'; accept?: string; storage?: string; capture?: 'user' | 'environment'; validation?: FileValidationV1; }
+FileValidationV1: export interface FileValidationV1 { maxSize?: number; minFiles?: number; maxFiles?: number; }
+FormStepV1: export interface FormStepV1 extends StepBaseV1 { type: 'form'; fields: ArtisanFieldV1[]; }
+FormUIConfig: export interface FormUIConfig { layout?: 'vertical' | 'horizontal'; density?: 'compact' | 'comfortable'; labelPosition?: 'top' | 'left'; }
+InferValues: export type InferValues<S extends ArtisanSchemaV1> = ArtisanSchemaV1 extends S ? Obj : S extends { steps: readonly (infer St)[]; } ? Simplify<UnionToIntersection<St extends unknown ? StepEntry<St> : never>> : Obj;
+InferredPayment: export interface InferredPayment { provider: string; status: string; reference?: string; }
+IssueCode: export type IssueCode = 'required' | 'type' | 'tooLong' | 'minLength' | 'maxLength' | 'pattern' | 'unsafePattern' | 'mustMatch' | 'invalidEmail' | 'invalidUrl' | 'invalidPhone' | 'invalidNumber' | 'minValue' | 'maxValue' | 'invalidDate' | 'minDate' | 'maxDate' | 'endBeforeStart' | 'invalidOption' | 'invalidLength' | 'invalidCharset' | 'outOfRange' | 'minItems' | 'maxItems' | 'minFiles' | 'maxFiles' | 'invalidFile' | 'fileTooLarge' | 'fileType' | 'custom';
+JSONObject: export type JSONObject = { [key: string]: JSONValue; };
+JSONPrimitive: export type JSONPrimitive = string | number | boolean | null;
+JSONValue: export type JSONValue = JSONPrimitive | JSONValue[] | { [key: string]: JSONValue; };
+LegacyFormSchema: export type LegacyFormSchema = FormSchema;
+NATIVE_FIELD_TYPES: NATIVE_FIELD_TYPES: NativeFieldType[]
+NATIVE_STEP_TYPES: NATIVE_STEP_TYPES: NativeStepType[]
+NativeFieldType: export type NativeFieldType = NativeFieldV1['type'];
+NativeFieldV1: export type NativeFieldV1 = TextFieldV1 | NumberFieldV1 | RangeFieldV1 | RatingFieldV1 | OtpFieldV1 | DateFieldV1 | DateRangeFieldV1 | ChoiceFieldV1 | SourcedChoiceFieldV1 | SearchChoiceFieldV1 | DynamicSelectFieldV1 | BooleanFieldV1 | FileFieldV1 | ArrayFieldV1 | ContentFieldV1;
+NativeStepType: export type NativeStepType = NativeStepV1['type'];
+NativeStepV1: export type NativeStepV1 = FormStepV1 | PaymentStepV1 | WaitStepV1 | TermsStepV1 | ReviewStepV1 | ResultStepV1 | CustomStepV1;
+NormalizeOptions: export interface NormalizeOptions { id?: string; revision?: number; }
+NormalizedArtisanSchema: export interface NormalizedArtisanSchema { schema: ArtisanSchemaV1; bindings: Record<string, unknown>; portable: boolean; source: 'v1' | 'legacy'; issues: SchemaIssue[]; }
+NumberFieldV1: export interface NumberFieldV1 extends FieldBaseV1 { type: 'number'; placeholder?: string; prefix?: string; suffix?: string; step?: number; validation?: NumberValidationV1; }
+NumberValidationV1: export interface NumberValidationV1 { min?: number; max?: number; }
+OptionV1: export interface OptionV1 { value: string; label: string; }
+OtpFieldV1: export interface OtpFieldV1 extends FieldBaseV1 { type: 'otp'; length?: number; charset?: 'numeric' | 'alphanumeric'; }
+ParseOptions: export interface ParseOptions { policy?: 'trusted' | SchemaPolicy; }
+ParseResult: export type ParseResult<T> = { success: true; schema: T; issues: SchemaIssue[]; } | { success: false; issues: SchemaIssue[]; };
+PaymentStepV1: export interface PaymentStepV1 extends StepBaseV1 { type: 'payment'; providers: string[]; resultName?: string; summary?: string; }
+PluralForms: export type PluralForms = { other: string; } & Partial<Record<'zero' | 'one' | 'two' | 'few' | 'many', string>>;
+PresenceConditionV1: export interface PresenceConditionV1 { field: string; operator: 'filled' | 'empty'; }
+REF_KINDS: REF_KINDS: readonly ["hooks", "waits", "renderers", "actions", "options", "dependentOptions", "paymentProviders", "storage"]
+RangeFieldV1: export interface RangeFieldV1 extends FieldBaseV1 { type: 'range'; step?: number; validation?: NumberValidationV1; }
+RatingFieldV1: export interface RatingFieldV1 extends FieldBaseV1 { type: 'rating'; length?: number; }
+RefKind: export type RefKind = (typeof REF_KINDS)[number];
+Reference: export interface Reference { kind: RefKind; id: string; path: string; }
+Requirements: export interface Requirements extends Record<RefKind, string[]> { fieldTypes: string[]; stepKinds: string[]; features: Feature[]; }
+ResultActionV1: export interface ResultActionV1 { label: string; href?: string; action?: string; }
+ResultStepV1: export interface ResultStepV1 extends StepBaseV1 { type: 'result'; message?: string; errorMessage?: string; actions?: ResultActionV1[]; }
+ReviewStepV1: export interface ReviewStepV1 extends StepBaseV1 { type: 'review'; }
+STEP_KEYS: STEP_KEYS: { readonly form: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "fields"]; readonly payment: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "providers", "resultName", "summary"]; readonly wait: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "strategy", "message", "resultName", "failTo", "timeoutMs", "retry", "cancellable"]; readonly terms: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "content", "href", "accept"]; readonly review: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit"]; readonly result: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "message", "errorMessage", "actions"]; readonly custom: readonly ["type", "id", "title", "visibleWhen", "ui", "controls", "hooks", "next", "loop", "revisit", "renderer", "config"]; }
+SchemaIssue: export interface SchemaIssue { severity: 'error' | 'warning'; code: string; path: string; message: string; }
+SchemaPolicy: export interface SchemaPolicy { fieldTypes?: readonly string[]; stepTypes?: readonly string[]; optionsSources?: readonly string[]; dependentOptionsSources?: readonly string[]; waitStrategies?: readonly string[]; hooks?: readonly string[]; renderers?: readonly string[]; actions?: readonly string[]; paymentProviders?: readonly string[]; }
+SearchChoiceFieldV1: export interface SearchChoiceFieldV1 extends FieldBaseV1 { type: 'combobox' | 'multiselect'; placeholder?: string; options?: OptionV1[]; optionsSource?: string; }
+SourcedChoiceFieldV1: export interface SourcedChoiceFieldV1 extends FieldBaseV1 { type: 'select' | 'radio'; options?: undefined; optionsSource: string; }
+StepBaseV1: export interface StepBaseV1 { id: string; title: string; visibleWhen?: ConditionV1; ui?: StepUIConfig; controls?: StepControlsV1; hooks?: StepHooksV1; next?: StepTransitionV1[]; loop?: StepLoopV1; revisit?: 'allow' | 'deny'; }
+StepControlsV1: export interface StepControlsV1 { hidden?: boolean; hidePrevious?: boolean; hideNext?: boolean; nextDisabled?: boolean; nextLabel?: string; previousLabel?: string; }
+StepHooksV1: export interface StepHooksV1 { beforeNext?: string; onEnter?: string; }
+StepLoopV1: export interface StepLoopV1 { max: number; }
+StepTransitionV1: export interface StepTransitionV1 { when?: ConditionV1; to: string; }
+StepUIConfig: export interface StepUIConfig { columns?: 1 | 2; }
+TermsStepV1: export interface TermsStepV1 extends StepBaseV1 { type: 'terms'; content?: string; href?: string; accept?: { name?: string; label?: string; }; }
+TextFieldType: export type TextFieldType = 'text' | 'email' | 'tel' | 'url' | 'password' | 'textarea';
+TextFieldV1: export interface TextFieldV1 extends FieldBaseV1 { type: TextFieldType; placeholder?: string; mask?: string; prefix?: string; suffix?: string; autoComplete?: string; inputMode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search'; readOnly?: boolean; maxLength?: number; validation?: TextValidationV1; }
+TextValidationV1: export interface TextValidationV1 { minLength?: number; maxLength?: number; pattern?: string; sameAs?: string; }
+ValidateOptions: export interface ValidateOptions { prune?: boolean; dynamicOptions?: Record<string, readonly string[]>; customTypes?: Record<string, (value: unknown, field: ArtisanFieldV1) => ValidationIssue[] | undefined>; maxStringLength?: number; }
+ValidationIssue: export interface ValidationIssue { path: string; code: IssueCode; params?: Record<string, JSONValue>; }
+ValidationResult: export interface ValidationResult { ok: boolean; issues: ValidationIssue[]; values?: Record<string, unknown>; }
+WaitRetryV1: export interface WaitRetryV1 { max: number; backoffMs?: number; }
+WaitStepV1: export interface WaitStepV1 extends StepBaseV1 { type: 'wait'; strategy: string; message?: string; resultName?: string; failTo?: string; timeoutMs?: number; retry?: WaitRetryV1; cancellable?: boolean; }
+applyCatalog: applyCatalog: (schema: ArtisanSchemaV1, catalogs: readonly Catalog[]) => ArtisanSchemaV1
+checkCapabilities: checkCapabilities: (input: ArtisanSchemaV1 | NormalizedArtisanSchema, manifest: CapabilitiesManifest) => CapabilityIssue[]
+collectReferences: collectReferences: (input: ArtisanSchemaV1 | NormalizedArtisanSchema) => Requirements
+conditionFields: conditionFields: (cond: ConditionV1) => string[]
+defineForm: defineForm: <const S extends ArtisanSchemaV1>(schema: S) => S
+describeCapabilities: describeCapabilities: (sources?: CapabilitySources) => CapabilitiesManifest
+evaluateCondition: evaluateCondition: (cond: ConditionV1, values: Values) => boolean
+extractMessages: extractMessages: (schema: ArtisanSchemaV1) => Record<string, string>
+format: format: (template: string, params?: Record<string, string | number>) => string
+fromLegacyCondition: fromLegacyCondition: (legacy: { field: string; equals?: string | string[]; not?: boolean; }) => ConditionV1
+isExtensionType: isExtensionType: (type: string) => type is `x-${string}`
+isFilled: isFilled: (v: unknown) => boolean
+isJSONValue: isJSONValue: (v: unknown, depth?: number) => v is JSONValue
+isNativeFieldType: isNativeFieldType: (type: string) => type is NativeFieldType
+isNativeStepType: isNativeStepType: (type: string) => type is NativeStepType
+listReferences: listReferences: (input: ArtisanSchemaV1 | NormalizedArtisanSchema) => Reference[]
+normalizeArtisanSchema: normalizeArtisanSchema: (input: ArtisanSchemaV1 | LegacyFormSchema, options?: NormalizeOptions) => NormalizedArtisanSchema
+parseArtisanSchema: parseArtisanSchema: (input: unknown, options?: ParseOptions) => ParseResult<ArtisanSchemaV1>
+placeholdersOf: placeholdersOf: (template: string) => string[]
+resolveLocaleChain: resolveLocaleChain: (locale: string) => string[]
+textOf: textOf: (value: CatalogValue | undefined) => string | undefined
+validateCatalog: validateCatalog: (schema: ArtisanSchemaV1, catalog: Catalog, options?: { labelKeys?: readonly string[]; }) => CatalogReport
+validateValues: validateValues: (input: ArtisanSchemaV1 | NormalizedArtisanSchema, values: unknown, opts?: ValidateOptions) => ValidationResult

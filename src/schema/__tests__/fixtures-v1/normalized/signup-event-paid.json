@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "id": "signup-event-paid",
+  "steps": [
+    {
+      "id": "account",
+      "type": "form",
+      "title": "You",
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "Full name",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "email",
+          "name": "email",
+          "label": "Email",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "ticket",
+      "type": "form",
+      "title": "Ticket",
+      "fields": [
+        {
+          "type": "radio",
+          "name": "plan",
+          "label": "Ticket (the backend sets the price: pro, team)",
+          "required": true,
+          "options": [
+            {
+              "value": "free",
+              "label": "Community (free)"
+            },
+            {
+              "value": "pro",
+              "label": "Individual"
+            },
+            {
+              "value": "team",
+              "label": "Team"
+            }
+          ],
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "payment",
+      "type": "payment",
+      "title": "Payment",
+      "visibleWhen": {
+        "field": "plan",
+        "operator": "neq",
+        "value": "free"
+      },
+      "providers": ["mock"],
+      "summary": "No provider configured: this is the mock. See .env.example to try a real sandbox."
+    },
+    {
+      "id": "confirming",
+      "type": "wait",
+      "title": "Confirming",
+      "visibleWhen": {
+        "field": "plan",
+        "operator": "neq",
+        "value": "free"
+      },
+      "strategy": "mock",
+      "message": "Confirming the payment…",
+      "timeoutMs": 180000
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "Payment confirmed and seat reserved.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "layout": "vertical",
+    "density": "comfortable",
+    "labelPosition": "top"
+  }
+}

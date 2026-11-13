@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "id": "survey",
+  "steps": [
+    {
+      "id": "overall",
+      "type": "form",
+      "title": "How was it?",
+      "fields": [
+        {
+          "type": "rating",
+          "name": "satisfaction",
+          "label": "Overall satisfaction",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "range",
+          "name": "nps",
+          "label": "How likely are you to recommend us? (0-10)",
+          "defaultValue": 8,
+          "validation": {
+            "min": 0,
+            "max": 10
+          },
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "unhappy",
+      "type": "form",
+      "title": "What went wrong?",
+      "visibleWhen": {
+        "field": "satisfaction",
+        "operator": "lt",
+        "value": 4
+      },
+      "fields": [
+        {
+          "type": "check",
+          "name": "areas",
+          "label": "Where?",
+          "options": [
+            {
+              "value": "pricing",
+              "label": "Pricing"
+            },
+            {
+              "value": "support",
+              "label": "Support"
+            },
+            {
+              "value": "speed",
+              "label": "Speed"
+            },
+            {
+              "value": "missing-features",
+              "label": "Missing features"
+            }
+          ],
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "textarea",
+          "name": "issue",
+          "label": "Tell us more",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "happy",
+      "type": "form",
+      "title": "What did you like?",
+      "visibleWhen": {
+        "field": "satisfaction",
+        "operator": "gte",
+        "value": 4
+      },
+      "fields": [
+        {
+          "type": "textarea",
+          "name": "liked",
+          "label": "Anything we should keep doing?",
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "switch",
+          "name": "quote",
+          "label": "We may quote you",
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "Thanks, your answers were recorded.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "layout": "vertical",
+    "density": "comfortable",
+    "labelPosition": "top"
+  }
+}

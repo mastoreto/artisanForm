@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "id": "job-application",
+  "steps": [
+    {
+      "id": "candidate",
+      "type": "form",
+      "title": "About you",
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "Full name",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "email",
+          "name": "email",
+          "label": "Email",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "url",
+          "name": "profile",
+          "label": "LinkedIn or portfolio",
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "file",
+          "name": "cv",
+          "label": "CV (PDF)",
+          "required": true,
+          "accept": ".pdf",
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "experience",
+      "type": "form",
+      "title": "Experience",
+      "fields": [
+        {
+          "type": "array",
+          "name": "jobs",
+          "label": "Previous roles",
+          "addLabel": "Add a role",
+          "validation": {
+            "minItems": 1,
+            "maxItems": 4
+          },
+          "itemFields": [
+            {
+              "type": "text",
+              "name": "company",
+              "label": "Company",
+              "required": true
+            },
+            {
+              "type": "text",
+              "name": "role",
+              "label": "Role",
+              "required": true
+            },
+            {
+              "type": "number",
+              "name": "years",
+              "label": "Years",
+              "validation": {
+                "min": 0,
+                "max": 50
+              }
+            }
+          ],
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "questions",
+      "type": "form",
+      "title": "Last questions",
+      "fields": [
+        {
+          "type": "select",
+          "name": "salary",
+          "label": "Salary expectation",
+          "options": [
+            {
+              "value": "under-40k",
+              "label": "Under 40k"
+            },
+            {
+              "value": "40k-70k",
+              "label": "40k-70k"
+            },
+            {
+              "value": "over-70k",
+              "label": "Over 70k"
+            }
+          ],
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "textarea",
+          "name": "why",
+          "label": "Why this role?",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        }
+      ],
+      "ui": {
+        "columns": 2
+      }
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "title": "Review"
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "Application received. We reply within five working days.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "layout": "vertical",
+    "density": "comfortable",
+    "labelPosition": "top"
+  }
+}

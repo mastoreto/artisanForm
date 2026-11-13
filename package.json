@@ -1,6 +1,6 @@
 {
   "name": "artisanform",
-  "version": "0.3.0-beta.2",
+  "version": "1.0.0-rc.1",
   "description": "Declarative multi-step forms (wizards) for React: a serializable JSON schema, 30+ field types, payments, file uploads and themeable UI kits.",
   "keywords": [
     "react",
@@ -99,6 +99,7 @@
   "scripts": {
     "build": "vite build && node scripts/fix-dts.mjs",
     "check:dist": "node scripts/check-dist.mjs",
+    "check:api": "node scripts/check-api.mjs",
     "check:package": "publint --strict && attw --pack . --profile esm-only --ignore-rules no-resolution",
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
@@ -109,14 +110,21 @@
     "playground": "vite --config playground/vite.config.ts",
     "payments-test": "bun run --filter @artisanform/payments-test dev",
     "payments-test:all": "bun run --filter @artisanform/payments-test dev:all",
+    "playground:build": "vite build --config playground/vite.config.ts",
+    "playground:preview": "vite preview --config playground/vite.config.ts --port 5175 --strictPort",
     "e2e": "playwright test",
+    "perf": "ARTISAN_PERF=1 playwright test e2e/perf.spec.ts",
+    "check:size": "node scripts/check-size.mjs",
     "build:kits": "bun run --filter './packages/*' build",
     "typecheck:kits": "bun run --filter './packages/*' typecheck",
     "check:kits": "bun run --filter './packages/ui-{bootstrap,mui,tailwind,scss}' check",
     "docs": "bun run --filter @artisanform/docs dev",
     "build:docs": "bun run --filter @artisanform/docs build",
-    "prepublishOnly": "bun run build && bun run build:kits && bun run check:dist && bun run check:package && bun run check:pack && bun test",
-    "check:pack": "node scripts/check-pack.mjs"
+    "prepublishOnly": "bun run build && bun run build:kits && bun run check:dist && bun run check:api && bun run check:package && bun run check:pack && bun test",
+    "check:pack": "node scripts/check-pack.mjs",
+    "check:publish": "node scripts/prepublish-check.mjs",
+    "bench:parse": "bun run scripts/bench-parse.mjs",
+    "check:schema": "node scripts/consumer-schema.mjs"
   },
   "sideEffects": [
     "**/*.css"
@@ -129,6 +137,10 @@
     "./headless": {
       "types": "./dist/headless.d.ts",
       "import": "./dist/headless.js"
+    },
+    "./schema": {
+      "types": "./dist/schema/index.d.ts",
+      "import": "./dist/schema.js"
     },
     "./style.css": "./dist/style.css",
     "./payments/stripe": {

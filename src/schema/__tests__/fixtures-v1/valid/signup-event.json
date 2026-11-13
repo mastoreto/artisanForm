@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "id": "signup-event",
+  "steps": [
+    {
+      "id": "account",
+      "type": "form",
+      "title": "You",
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "Full name",
+          "required": true
+        },
+        {
+          "type": "email",
+          "name": "email",
+          "label": "Email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "event",
+      "type": "form",
+      "title": "The event",
+      "fields": [
+        {
+          "type": "radio",
+          "name": "session",
+          "label": "Session",
+          "required": true,
+          "options": [
+            {
+              "value": "morning-workshop",
+              "label": "Morning workshop"
+            },
+            {
+              "value": "afternoon-talks",
+              "label": "Afternoon talks"
+            },
+            {
+              "value": "full-day",
+              "label": "Full day"
+            }
+          ]
+        },
+        {
+          "type": "switch",
+          "name": "guest",
+          "label": "I bring a guest"
+        },
+        {
+          "type": "text",
+          "name": "guestName",
+          "label": "Guest name",
+          "required": true,
+          "visibleWhen": {
+            "field": "guest",
+            "operator": "eq",
+            "value": true
+          }
+        },
+        {
+          "type": "check",
+          "name": "diet",
+          "label": "Dietary needs",
+          "options": [
+            {
+              "value": "vegetarian",
+              "label": "Vegetarian"
+            },
+            {
+              "value": "vegan",
+              "label": "Vegan"
+            },
+            {
+              "value": "gluten-free",
+              "label": "Gluten free"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "title": "Review"
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "You are registered. A calendar invite is on its way.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ]
+}

@@ -2,6 +2,59 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
+## 1.0.0-rc.1 (2026-11-12)
+
+Primer release candidate de la 1.0.0. El contrato del schema v1, la API pública de `artisanform` y `artisanform/schema`, el contrato de capacidades y el formato de catálogos quedan congelados con las reglas de [versionado](versioning.md): hasta la 1.0.0 solo entran correcciones. Las secciones siguientes (todas `1.0.0-rc.1`) son lo que cambió desde la 0.3.0-beta.2: validación en el servidor y `artisanform/schema`, capacidades, traducciones, gates de rendimiento y congelación del contrato. Probala con `npm install artisanform@rc`.
+
+## 1.0.0-rc.1 (Congelación del contrato)
+
+### Calidad
+
+- **Política de versionado y guardias del contrato (AF119):** [versionado](versioning.md) define qué puede cambiar en una menor de 1.x y qué exige una mayor, sobre tres superficies (el contrato del schema, la API de TypeScript de `artisanform` y `artisanform/schema`, el contrato de capacidades y el formato de catálogos). Lo hacen cumplir los fixtures golden (`src/schema/__tests__/fixtures-v1/`: los 13 ejemplos del catálogo deben parsear limpios, normalizar al JSON registrado y ser idempotentes y portables; los casos inválidos mantienen sus códigos y rutas) y `bun run check:api`, que compara cada export y declaración de ambas entradas con `api/*.api.txt` (CI, release y `prepublishOnly`). Sin cambios de comportamiento.
+
+## 1.0.0-rc.1 (Rendimiento)
+
+### Calidad
+
+- **Rendimiento medido contra el estándar de Web Vitals (AF118):** `bun run perf` (Playwright, build de producción del playground) verifica "formulario listo", latencia de interacción, tareas largas y cambio de diseño en Chromium (escritorio y un perfil móvil con la CPU 4x más lenta), Firefox y WebKit, más una línea base por navegador (`perf/web-baseline.json`, +50%). `bun run check:size` limita el JS, el CSS y `artisanform/schema` comprimidos a +10% sobre `perf/size.json`. Nuevo job de CI `perf`. Los presupuestos y su base están en [rendimiento](performance.md). El pipeline del schema cuesta unos 1,2 ms con 200 campos, así que no se cambió código de la librería.
+- Nuevo escenario `perf` del playground (`?demo=perf&fields=50&perStep=50`) y scripts `playground:build` / `playground:preview`; `perf/generate.mjs` acepta un argumento `perStep`.
+
+## 1.0.0-rc.1 (Traducciones)
+
+### Back end y front end
+
+- **Catálogos de traducción (AF117):** el schema se queda en su idioma fuente y un catálogo asocia rutas de texto estables (`steps.<id>.fields.<name>.label`, `…options.<value>`, …) con el texto traducido, con formas plurales y `{placeholders}`. `<ArtisanForm locale messages loadMessages>` lo aplica (`es-AR` cae a `es` y luego al texto fuente); un schema también puede llevar catálogos pequeños en un bloque opcional `i18n`. Cambiar `locale` no reinicia los valores escritos, un catálogo ausente o que falla nunca rompe el formulario y `loadMessages` carga solo el idioma en uso. Solo se incluye inglés. `artisanform/schema` suma las utilidades puras `extractMessages`, `validateCatalog`, `applyCatalog`, `resolveLocaleChain`, `format` y `placeholdersOf`. Ver [schema v1](schema-v1.md#traducciones-).
+- **Los textos propios de la librería son traducibles (AF117):** las entradas `labels.<clave>` de un catálogo traducen `ArtisanLabels`, incluidas las etiquetas función (`{n}`, formas plurales). Precedencia: valores por defecto < labels del kit < catálogo < la prop `labels`. `ArtisanForm` ahora pasa los labels del kit al wizard por separado (opción `kitLabels` de `useArtisanWizard`), de modo que un kit en inglés no pisa un catálogo. Sin `locale` el resultado no cambia.
+- **`formatIssue(issue, labels)` (AF117):** convierte una incidencia de `validateValues` en el mismo mensaje que muestra el navegador, en el idioma de `labels`.
+
+## 1.0.0-rc.1 (Capacidades y enrutamiento del retorno de pagos)
+
+### Back end y front end
+
+- **Contrato de capacidades (AF115):** `collectReferences`, `describeCapabilities` y `checkCapabilities` en `artisanform/schema` (puras, sin React). Un front describe lo que registró como un manifiesto JSON (`artisanform.capabilities/1`); una API revisa un schema contra él al publicar una revisión y obtiene `missing-reference` (kind, id, ruta en el schema), `unsupported-field-type`, `unsupported-step-kind`, `missing-feature` o `unsupported-contract`, en vez de un `unresolved-reference` al renderizar. Los requisitos se derivan del schema (`collectReferences`), así que el contrato del schema no cambió. Ver [schema v1](schema-v1.md#capacidades-qué-puede-ejecutar-un-front-).
+- **`onUnresolved` (AF115):** `<ArtisanForm onUnresolved>` se llama por cada nombre que el schema usa y que ningún registro provee; devolver `'ignore'` renderiza sin él. Cualquier otro valor mantiene el fallo, así que el comportamiento por defecto no cambia.
+
+### Personalización
+
+- **Selector de métodos de pago (AF115):** cada método es una tarjeta con su logo, su nombre y una línea que dice si el usuario se queda en la página o es redirigido. `PaymentPlugin` y cada plugin incluido aceptan `icon` y `description`; Stripe, PayPal, Mercado Pago y Lemon Squeezy traen su marca (Simple Icons, CC0). Nuevos labels `payHintEmbedded` y `payHintRedirect`, nuevos slots de clases (`paymentOptions`, `paymentOption`, `paymentOptionIcon`, `paymentOptionText`, `paymentOptionName`, `paymentOptionHint`) y clases en los kits de Bootstrap y Tailwind.
+
+### Correcciones
+
+- **Un retorno de redirección iba al primer plugin que podía leerlo (AF115):** dos plugins de un mismo proveedor que comparten parámetros de retorno (el formulario embebido de Stripe y Checkout, el Brick de Mercado Pago y Checkout Pro) podían registrar el pago bajo el proveedor equivocado. El paso de pago ahora recuerda, por pestaña, qué plugin envió al usuario fuera y le pregunta primero a ese. Sin cambios en el contrato de los plugins ni en las URL de retorno.
+
+### Documentación
+
+- Una checklist del sandbox de Mercado Pago (vendedor y comprador de prueba, moneda, `auto_return` solo con https) en la guía de pagos. `apps/payments-test` ahora usa un solo puerto (5858) y tiene tests de servidor que fijan el cuerpo de la preferencia de Checkout Pro.
+- **`apps/payments-test`: causa de "Una de las partes con la que intentas hacer el pago es de prueba" en Checkout Pro (AF115):** el backend de la demo enviaba `MP_PAYER_EMAIL` (una dirección común que necesita el Payment Brick) como `payer` de la preferencia, así que un vendedor de prueba quedaba emparejado con un pagador que no es comprador de prueba. Checkout Pro ahora envía un pagador solo desde la nueva `MP_CHECKOUT_PAYER_EMAIL` (el correo del propio comprador de prueba), y la variante H de `mp-diagnose.ts` reproduce la petición anterior.
+
+## 1.0.0-rc.1 (Validación en servidor)
+
+### Validación y empaquetado
+
+- **`validateValues` y `artisanform/schema` (AF112):** un validador de **los valores enviados** que no necesita React, Yup ni el motor del formulario, para backends que guardan o actúan sobre los envíos. Devuelve los problemas como `{ path, code, params }` (sin mensajes), sigue las reglas de visibilidad del motor y da el mismo resultado que el navegador en las reglas compartidas, y es **más estricto donde un servidor no debe confiar en el cliente** (tipos, pertenencia a opciones, valores ausentes, límites de OTP y rating, fechas reales, metadatos de archivos, esquema de las URL, un tope de longitud y una guarda contra `pattern` catastróficos). Las diferencias están listadas en [schema v1](schema-v1.md#validar-los-valores-en-un-servidor-) y cada una está fijada por un test; fixtures JSON compartidos corren contra este validador y contra Yup. Se exporta desde la nueva entrada **`artisanform/schema`**, que no importa React, Yup, React Hook Form ni Zustand: `check:dist` sigue sus imports y falla ante cualquier especificador suelto, y un consumidor de CI sin ninguno de ellos instalados la importa y compila los tipos con `NodeNext`. La entrada raíz sigue reexportando todo.
+- **`optionsSource` en `select` y `radio` (AF112):** sus opciones pueden venir de una fuente registrada en `extensions.options` (llamada con una consulta vacía), exclusiva con `options` en línea (`conflicting-properties`). El campo muestra un estado de carga y uno de error, y un select arranca en su primera opción una vez cargado, como uno estático. Los kits reciben las opciones ya resueltas. `check` sigue necesitando opciones en línea.
+- **Notas de comportamiento:** la validación propia del formulario en el navegador no cambia. `SourcedChoiceFieldV1` es un miembro nuevo de `NativeFieldV1`; el código que reducía `select`/`radio` a `ChoiceFieldV1` ahora ve `options` como posiblemente ausente.
+
 ## 0.3.0-beta.2 (2026-11-12)
 
 Republicación de 0.3.0-beta.1 con el empaquetado corregido. **No uses los kits de 0.3.0-beta.1; usá esta versión.** La librería núcleo no tiene cambios de código.

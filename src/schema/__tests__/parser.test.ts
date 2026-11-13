@@ -600,3 +600,89 @@ describe('wait step options', () => {
     ]);
   });
 });
+
+describe('optionsSource on select and radio', () => {
+  const withField = (field: Record<string, unknown>) => ({
+    schemaVersion: 1,
+    id: 'f',
+    steps: [{ id: 's', type: 'form', title: 'S', fields: [field] }],
+  });
+  const codes = (field: Record<string, unknown>) => {
+    const r = parseArtisanSchema(withField(field));
+    return r.issues.map((i) => `${i.code} @ ${i.path}`);
+  };
+
+  for (const type of ['select', 'radio']) {
+    test(`${type} accepts a source instead of options`, () => {
+      expect(
+        parseArtisanSchema(
+          withField({ type, name: 'x', optionsSource: 'plans' }),
+        ).success,
+      ).toBe(true);
+    });
+    test(`${type} rejects options and a source together`, () => {
+      expect(
+        codes({
+          type,
+          name: 'x',
+          options: [{ value: 'a', label: 'A' }],
+          optionsSource: 'plans',
+        }),
+      ).toEqual(['conflicting-properties @ steps[0].fields[0].optionsSource']);
+    });
+    test(`${type} needs one of the two`, () => {
+      expect(codes({ type, name: 'x' })).toEqual([
+        'missing-property @ steps[0].fields[0].options',
+      ]);
+    });
+  }
+
+  test('check still needs inline options and does not accept a source', () => {
+    expect(
+      codes({ type: 'check', name: 'x', optionsSource: 'plans' }),
+    ).toContain('unknown-property @ steps[0].fields[0].optionsSource');
+  });
+
+  test('the policy applies to a select source like to a combobox', () => {
+    const r = parseArtisanSchema(
+      withField({ type: 'select', name: 'x', optionsSource: 'secret' }),
+      {
+        policy: { optionsSources: ['plans'] },
+      },
+    );
+    expect(r.issues.map((i) => i.code)).toContain('policy-violation');
+  });
+});
+
+test('the optional i18n block is accepted and validated', () => {
+  const ok = {
+    sourceLocale: 'en',
+    messages: { es: { title: 'Hola', 'a.b': { one: 'x', other: 'y' } } },
+  };
+  expect(errors({ ...valid(), i18n: ok })).toEqual([]);
+  expect(errors({ ...valid(), i18n: 'es' })).toEqual(['invalid-type @ i18n']);
+  expect(errors({ ...valid(), i18n: { x: 1 } })).toEqual([
+    'unknown-property @ i18n.x',
+  ]);
+  expect(errors({ ...valid(), i18n: { sourceLocale: '??' } })).toEqual([
+    'invalid-value @ i18n.sourceLocale',
+  ]);
+  expect(
+    errors({ ...valid(), i18n: { messages: { 'not a tag': {} } } }),
+  ).toEqual(['invalid-value @ i18n.messages.not a tag']);
+  expect(errors({ ...valid(), i18n: { messages: { es: 'x' } } })).toEqual([
+    'invalid-type @ i18n.messages.es',
+  ]);
+  expect(errors({ ...valid(), i18n: { messages: { es: { t: 5 } } } })).toEqual([
+    'invalid-type @ i18n.messages.es.t',
+  ]);
+  expect(
+    errors({ ...valid(), i18n: { messages: { es: { t: { one: 'x' } } } } }),
+  ).toEqual(['invalid-type @ i18n.messages.es.t']);
+  expect(
+    errors({
+      ...valid(),
+      i18n: { messages: { es: { t: { other: 'x', one: 1 } } } },
+    }),
+  ).toEqual(['invalid-type @ i18n.messages.es.t']);
+});

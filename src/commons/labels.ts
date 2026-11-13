@@ -24,6 +24,8 @@ export interface ArtisanLabels {
   pay: string;
   loadingPayment: string;
   payWith: (name: string) => string;
+  payHintEmbedded: string;
+  payHintRedirect: string;
   choosePayment: string;
   paying: string;
   paymentFailed: string;
@@ -92,6 +94,8 @@ export const defaultLabels: ArtisanLabels = {
   pay: 'Pay',
   loadingPayment: 'Loading the payment method…',
   payWith: (name) => `Pay with ${name}`,
+  payHintEmbedded: 'Pay on this page',
+  payHintRedirect: 'You will be redirected',
   choosePayment: 'Choose how to pay',
   paying: 'Redirecting to payment…',
   paymentFailed: 'The payment could not be completed',

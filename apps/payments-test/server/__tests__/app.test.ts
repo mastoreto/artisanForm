@@ -23,7 +23,7 @@ test('the browser names a plan, never a price', () => {
 
 test('return URLs are limited to ALLOWED_ORIGINS', () => {
   expect(() => allowedUrl('https://evil.example/x')).toThrow('not allowed');
-  expect(allowedUrl('http://localhost:5174/?a=1')).toContain('localhost:5174');
+  expect(allowedUrl('http://localhost:5858/?a=1')).toContain('localhost:5858');
 });
 
 test('a provider without credentials answers 503, bad bodies 400', async () => {
@@ -66,7 +66,9 @@ test('the Stripe webhook verifies the signature and its age', async () => {
 });
 
 test('the Mercado Pago webhook needs a valid signature', async () => {
-  const { verifyMercadoPago } = await import('../providers/mercadopago.ts');
+  const { verifyMercadoPago } = await import(
+    '../providers/mercadopago/index.ts'
+  );
   const { hmacHex } = await import('../common.ts');
   process.env.MP_WEBHOOK_SECRET = 's3cret';
   const url = '/api/mercadopago/webhook?type=payment&data.id=12345';

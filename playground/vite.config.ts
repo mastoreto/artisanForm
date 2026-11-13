@@ -29,5 +29,6 @@ export default defineConfig({
     ],
   },
   css: { postcss: repo },
+  build: { outDir: resolve(__dirname, 'dist'), emptyOutDir: true },
   server: { port: 5173, fs: { allow: [repo] } },
 });

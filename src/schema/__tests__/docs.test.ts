@@ -66,6 +66,7 @@ describe('Spanish documentation mirrors the English originals', () => {
     ['CHANGELOG.md', 'docs/es/CHANGELOG.md'],
     ['docs/schema-v1.md', 'docs/es/schema-v1.md'],
     ['docs/ui.md', 'docs/es/ui.md'],
+    ['docs/versioning.md', 'docs/es/versioning.md'],
   ];
 
   test.each(pairs)('%s has a Spanish copy with the same sections', (en, es) => {

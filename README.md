@@ -4,14 +4,16 @@ React library for building multi-step forms (wizards) from a declarative definit
 
 > 🌐 Spanish version: [docs/es/README.md](docs/es/README.md)
 
-> **Status:** first public beta, `0.3.0-beta.0` (npm dist-tag `beta`): a `scheme`-driven wizard with 30+ field types, special steps (terms, payment, waiting, review, result), files with pluggable storage, payment plugins (Stripe, Lemon Squeezy, Mercado Pago, PayPal; verified against SDK mocks, not yet live sandboxes) and official UI kits. See [Project status](#project-status).
+> **Status:** release candidate, `1.0.0-rc.1` (npm dist-tag `rc`; the contract is frozen, see [versioning](docs/versioning.md)): a `scheme`-driven wizard with 30+ field types, special steps (terms, payment, waiting, review, result), files with pluggable storage, payment plugins (Stripe, Lemon Squeezy, Mercado Pago, PayPal; tried by the maintainer against each provider's sandbox) and official UI kits. See [Project status](#project-status).
 
 ## Documentation
 
 | Guide | What it covers |
 | --- | --- |
-| [Schema v1](docs/schema-v1.md) | The serializable, versioned schema contract |
+| [Schema v1](docs/schema-v1.md) | The serializable, versioned schema contract, and `artisanform/schema` to validate values on a server |
+| [Versioning (1.x contract)](docs/versioning.md) | What may change in a minor, what needs a major, and the guards |
 | [UI extension and kits](docs/ui.md) | Styles, `components`, `classNames` and the official kits |
+| [Performance](docs/performance.md) | Web Vitals budgets and how to run them |
 | [Headless API](docs/headless.md) | `useArtisanWizard`: the behavior without markup, for your own UI |
 | [Payments](docs/payments.md) | Plugins, the security principle and a production checklist |
 | [Files and storage](docs/files.md) | `file`/`image` fields and storage adapters |
@@ -310,11 +312,13 @@ Each type is a `FieldDefinition` (`render`, `initialValues`, `rules`, and option
 | `step?`                       | Moves the wizard to that step when it changes (pair with `onStepChange`)                                                                         |
 | `persistKey?`                 | Saves values and step to `localStorage` and restores them on mount. Passwords are never saved; the draft is deleted on submit                    |
 | `onSnapshotConflict?`         | What to do with a saved draft that does not fit this form: `'backup'` (default), `'restore'` or `'discard'`                                       |
+| `locale?` / `messages?` / `loadMessages?` | Translate the form: catalogs by locale, applied over the schema's source texts (see [schema v1](docs/schema-v1.md#translations-)) |
 | `labels?`                     | Overrides any text or validation message (see `defaultLabels`; English by default)                                                               |
 | `className?`                  | Extra classes for the `<form>` element                                                                                                           |
 | `fields?`                     | Registry of custom field types (see above)                                                                                                       |
 | `stepTypes?`                  | Registry of custom step types (`StepDefinition`)                                                                                                 |
 | `extensions?`                 | Local functions and components a v1 schema refers to by id (`options`, `waits`, `hooks`, `renderers`, `actions`)                                 |
+| `onUnresolved?`               | Called for each name the schema uses that `extensions` does not provide; return `'ignore'` to render without it (default: fail with `unresolved-reference`) |
 | `storage?`                    | Storage adapter(s) for `file`/`image` fields (see above)                                                                                         |
 | `plugins?`                    | `{ payments: PaymentPlugin[], navigate? }` for payment steps                                                                                     |
 
@@ -353,19 +357,19 @@ The schema's semantic `ui` settings (`columns`, `span`, `density`, `labelPositio
 `react-hook-form`, `yup` and `zustand` are `peerDependencies` (next to `react` and `react-dom`, which you already have); use npm, pnpm, yarn or bun. While the library is in beta, install it with the `beta` tag:
 
 ```bash
-npm install artisanform@beta react-hook-form yup zustand
-pnpm add artisanform@beta react-hook-form yup zustand
-yarn add artisanform@beta react-hook-form yup zustand
-bun add artisanform@beta react-hook-form yup zustand
+npm install artisanform@rc react-hook-form yup zustand
+pnpm add artisanform@rc react-hook-form yup zustand
+yarn add artisanform@rc react-hook-form yup zustand
+bun add artisanform@rc react-hook-form yup zustand
 ```
 
 The official UI kits are separate, optional packages under the `@beardartisans` scope; they peer on `artisanform`, which never depends on them:
 
 ```bash
-npm install @beardartisans/ui-bootstrap@beta
-pnpm add @beardartisans/ui-bootstrap@beta
-yarn add @beardartisans/ui-bootstrap@beta
-bun add @beardartisans/ui-bootstrap@beta
+npm install @beardartisans/ui-bootstrap@rc
+pnpm add @beardartisans/ui-bootstrap@rc
+yarn add @beardartisans/ui-bootstrap@rc
+bun add @beardartisans/ui-bootstrap@rc
 # or ui-mui, ui-tailwind, ui-scss
 ```
 
@@ -437,15 +441,15 @@ Standalone inputs bind to the form by `name` (not `value`/`onChange`) and **must
 - Biome (format + lint), a live playground, unit tests (`bun test`) and e2e tests (Playwright).
 - **UI kits:** `@beardartisans/ui-bootstrap`, `ui-mui`, `ui-tailwind` and `ui-scss` on npm, plus a shadcn/ui registry item ([guide](docs/ui.md#ui-kits)).
 - **Accessibility:** a default theme that meets WCAG AA contrast, and automated axe checks in CI ([guide](docs/accessibility.md)).
-- **Release automation:** a manual `Release` workflow that verifies everything and publishes the five packages with provenance ([guide](docs/releasing.md)).
+- **Release tooling:** a manual `Release` workflow that verifies everything, and a `check:publish` gate that catches broken kit links, stale builds and broken published typings. Publishing is still done by hand with a one-time code until Trusted Publishing works ([guide](docs/releasing.md)).
 
 ### Pending
 
 - **Release:** move npm publishing from a token to Trusted Publishing, and cut a stable version after the beta feedback ([docs/releasing.md](docs/releasing.md)).
-- **Real providers:** the plugins are verified against mocks of their SDKs; they still need a pass against sandboxes with test credentials.
+- **Real providers:** Stripe, PayPal, Lemon Squeezy and the Mercado Pago Payment Brick work in their sandboxes (manual checks with `apps/payments-test`). Mercado Pago Checkout Pro (redirect) shows an error on Mercado Pago's own page after paying; it is under investigation and is not covered by automated tests against the real service.
 - **UI:** `layout: 'horizontal'` has no styling of its own and steppers cannot jump between steps. Details in [docs/ui.md](docs/ui.md#pending).
 - **Browser:** component tests run in happy-dom; Playwright covers the playground flows (wizard, files, waiting, mock payments, fields) on Chromium, Firefox and WebKit. Screen-reader passes, motion preferences and touch devices are not verified yet ([docs/accessibility.md](docs/accessibility.md)).
-- Default texts are English only; for another language pass `labels` (and write your own field labels).
+- Only English ships. Other languages come from your own catalogs (`locale`, `messages`, `loadMessages`; the library's texts through `labels.*`), or from `labels` alone.
 
 ### History
 

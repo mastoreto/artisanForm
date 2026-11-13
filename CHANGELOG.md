@@ -2,6 +2,59 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
+## 1.0.0-rc.1 (2026-11-12)
+
+First release candidate of 1.0.0. The v1 schema contract, the public API of `artisanform` and `artisanform/schema`, the capabilities contract and the catalog format are frozen under the rules of [versioning](docs/versioning.md): until 1.0.0 only fixes land. The sections below (all `1.0.0-rc.1`) are what changed since 0.3.0-beta.2: server-side validation and `artisanform/schema`, capabilities, translations, performance gates and the contract freeze. Try it with `npm install artisanform@rc`.
+
+## 1.0.0-rc.1 (Contract freeze)
+
+### Quality
+
+- **Versioning policy and contract guards (AF119):** [versioning](docs/versioning.md) states what may change in a 1.x minor and what needs a major, over three surfaces (the schema contract, the TypeScript API of `artisanform` and `artisanform/schema`, the capabilities contract and catalog format). Enforced by golden fixtures (`src/schema/__tests__/fixtures-v1/`: the 13 catalog examples must parse clean, normalize to the recorded JSON, be idempotent and portable; invalid cases keep their codes and paths) and by `bun run check:api`, which compares every export and declaration of both entries with `api/*.api.txt` (CI, release and `prepublishOnly`). No behavior change.
+
+## 1.0.0-rc.1 (Performance)
+
+### Quality
+
+- **Performance measured against the Web Vitals standard (AF118):** `bun run perf` (Playwright, production build of the playground) checks "form ready", interaction latency, long tasks and layout shift in Chromium (desktop and a mobile profile with the CPU slowed 4x), Firefox and WebKit, plus a per-browser baseline (`perf/web-baseline.json`, +50%). `bun run check:size` gates the gzipped JS, CSS and `artisanform/schema` at +10% over `perf/size.json`. New CI job `perf`. The budgets and what they are based on are in [performance](docs/performance.md). The schema pipeline costs about 1.2 ms for 200 fields, so no library code was changed.
+- New playground scenario `perf` (`?demo=perf&fields=50&perStep=50`) and scripts `playground:build` / `playground:preview`; `perf/generate.mjs` takes a `perStep` argument.
+
+## 1.0.0-rc.1 (Translations)
+
+### Back end and front end
+
+- **Translation catalogs (AF117):** the schema stays in its source language and a catalog maps stable text paths (`steps.<id>.fields.<name>.label`, `…options.<value>`, …) to translated text, with plural forms and `{placeholders}`. `<ArtisanForm locale messages loadMessages>` applies it (`es-AR` falls back to `es`, then to the source text); a schema can also carry small catalogs in an optional `i18n` block. Changing `locale` does not reset the typed values, a missing or failing catalog never breaks the form, and `loadMessages` loads only the language in use. Only English ships. `artisanform/schema` gains the pure helpers `extractMessages`, `validateCatalog`, `applyCatalog`, `resolveLocaleChain`, `format` and `placeholdersOf`. See [schema v1](docs/schema-v1.md#translations-).
+- **The library's own texts are translatable (AF117):** `labels.<key>` entries of a catalog translate `ArtisanLabels`, including the function labels (`{n}`, plural forms). Precedence: defaults < kit labels < catalog < the `labels` prop. `ArtisanForm` now hands the kit's labels to the wizard separately (`useArtisanWizard` option `kitLabels`), so a catalog is not overridden by an English kit. With no `locale` the output is unchanged.
+- **`formatIssue(issue, labels)` (AF117):** turns a `validateValues` issue into the same message the browser shows, in the language of `labels`.
+
+## 1.0.0-rc.1 (Capabilities and payment return routing)
+
+### Back end and front end
+
+- **Capabilities contract (AF115):** `collectReferences`, `describeCapabilities` and `checkCapabilities` in `artisanform/schema` (pure, no React). A front end describes what it registered as a JSON manifest (`artisanform.capabilities/1`); an API checks a schema against it when a revision is published and gets `missing-reference` (kind, id, schema path), `unsupported-field-type`, `unsupported-step-kind`, `missing-feature` or `unsupported-contract`, instead of a render-time `unresolved-reference`. The requirements are derived from the schema (`collectReferences`), so the schema contract did not change. See [schema v1](docs/schema-v1.md#capabilities-what-a-front-end-can-run-).
+- **`onUnresolved` (AF115):** `<ArtisanForm onUnresolved>` is called for each name the schema uses that no registry provides; returning `'ignore'` renders without it. Anything else keeps the failure, so the default is unchanged.
+
+### Personalization
+
+- **Payment method selector (AF115):** each method is a card with its logo, its name and a line saying whether the user stays on the page or is redirected. `PaymentPlugin` and every built-in plugin accept `icon` and `description`; Stripe, PayPal, Mercado Pago and Lemon Squeezy ship their brand mark (Simple Icons, CC0). New labels `payHintEmbedded` and `payHintRedirect`, new class slots (`paymentOptions`, `paymentOption`, `paymentOptionIcon`, `paymentOptionText`, `paymentOptionName`, `paymentOptionHint`) and classes in the Bootstrap and Tailwind kits.
+
+### Fixes
+
+- **A redirect return went to the first plugin that could read it (AF115):** two plugins of one provider that share return parameters (Stripe's embedded form and Checkout, the Mercado Pago Brick and Checkout Pro) could record the payment under the wrong provider. The payment step now remembers, per tab, which plugin sent the user away and asks it first. No change to the plugin contract or to the return URLs.
+
+### Documentation
+
+- A Mercado Pago sandbox checklist (test seller and buyer, currency, `auto_return` only over https) in the payments guide. `apps/payments-test` now uses one port (5858) and has server tests that pin the Checkout Pro preference body.
+- **`apps/payments-test`: cause of "Una de las partes con la que intentas hacer el pago es de prueba" in Checkout Pro (AF115):** the demo backend sent `MP_PAYER_EMAIL` (an ordinary address that the Payment Brick needs) as the preference's `payer`, so a test seller was paired with a payer that is not a test buyer. Checkout Pro now sends a payer only from the new `MP_CHECKOUT_PAYER_EMAIL` (the test buyer's own e-mail), and variant H of `mp-diagnose.ts` reproduces the old request.
+
+## 1.0.0-rc.1 (Server-side validation)
+
+### Validation and packaging
+
+- **`validateValues` and `artisanform/schema` (AF112):** a validator of **submitted values** that needs no React, Yup or form engine, for backends that store or act on submissions. It returns issues as `{ path, code, params }` (no messages), follows the engine's visibility rules and gives the same result as the browser for the shared rules, and is **stricter where a server must not trust the client** (types, option membership, missing values, OTP and rating limits, real calendar dates, file metadata, URL scheme, a length cap and a guard against catastrophic `pattern`s). The differences are listed in [schema v1](docs/schema-v1.md#validating-values-on-a-server-) and each is pinned by a test; shared JSON fixtures run against both this validator and Yup. It is exported from the new **`artisanform/schema`** entry, which imports no React, Yup, React Hook Form or Zustand: `check:dist` follows its imports and fails on any bare specifier, and a CI consumer with none of them installed imports it and type-checks with `NodeNext`. The root entry still re-exports everything.
+- **`optionsSource` on `select` and `radio` (AF112):** their options can come from a source registered in `extensions.options` (called with an empty query), exclusive with inline `options` (`conflicting-properties`). The field shows a loading state and an error state, and a select starts on its first option once loaded, like a static one. Kits receive the resolved options. `check` still needs inline options.
+- **Behavior notes:** the form's own validation in the browser is unchanged. `SourcedChoiceFieldV1` is a new member of `NativeFieldV1`; code that narrowed `select`/`radio` to `ChoiceFieldV1` now sees `options` as possibly absent.
+
 ## 0.3.0-beta.2 (2026-11-12)
 
 Republish of 0.3.0-beta.1 with the packaging fixed. **Do not use the kits of 0.3.0-beta.1; use this version.** The core library has no code changes.

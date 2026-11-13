@@ -4,7 +4,7 @@
 #   docker compose --env-file .env.local --profile stripe up        # + Stripe CLI
 #   docker compose --env-file .env.local --profile lemon up         # + public tunnel
 #
-# The web app still runs on the host (`bun run dev:web`, :5174) and reaches the
+# The web app still runs on the host (`bun run dev:web`, :5858) and reaches the
 # API on localhost:8787.
 name: payments-test
 

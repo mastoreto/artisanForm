@@ -786,6 +786,71 @@
   color: var(--artisan-strong, #1f2937);
 }
 
+/* ---- Payment method selector ---- */
+
+.af-payment-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.75rem;
+}
+
+.af-payment-option {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--artisan-border, #d1d5db);
+  border-radius: var(--artisan-radius, 0.5rem);
+  background-color: var(--artisan-surface, #fff);
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.af-payment-option:hover {
+  border-color: var(--artisan-primary, #2563eb);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
+}
+
+.af-payment-option-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  background-color: var(--artisan-subtle, #f3f4f6);
+}
+
+.af-payment-option-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.af-payment-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.af-payment-option-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  color: var(--artisan-strong, #1f2937);
+}
+
+.af-payment-option-hint {
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  color: var(--artisan-muted, #6b7280);
+}
+
 /* ---- Controls ---- */
 
 .af-controls {
@@ -953,6 +1018,7 @@
 .af-choice:focus-within,
 .af-small-button:focus-visible,
 .af-action:focus-visible,
+.af-payment-option:focus-visible,
 .af-link:focus-visible,
 .af-star:focus-visible,
 .af-otp-box:focus-visible,
@@ -973,7 +1039,8 @@
   .af-select,
   .af-button,
   .af-checkbox,
-  .af-small-button {
+  .af-small-button,
+  .af-payment-option {
     transition: none;
   }
 

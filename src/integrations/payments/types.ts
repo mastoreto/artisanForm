@@ -36,10 +36,22 @@ export interface EmbeddedRenderProps {
  * data: embedded ones mount the provider's own hosted fields, redirect ones
  * send the user to the provider's checkout.
  */
+/** How a provider's own plugin can be shown in the method selector. */
+export interface PaymentDisplayOptions {
+  /** The logo. The built-in plugins ship their brand mark; `null` shows none. */
+  icon?: ReactNode | null;
+  /** A line under the name. Default: whether the user stays here or is redirected. */
+  description?: string;
+}
+
 export interface PaymentPlugin {
   id: string;
   /** Shown on the method selector and the pay button. */
   name: string;
+  /** Shown next to the name in the method selector (decorative: the name is the label). */
+  icon?: ReactNode;
+  /** A line under the name; defaults to a hint by `mode` (`labels.payHintEmbedded` / `payHintRedirect`). */
+  description?: string;
   mode: 'embedded' | 'redirect';
   /** embedded: mount the provider UI. */
   render?: (props: EmbeddedRenderProps) => ReactNode;

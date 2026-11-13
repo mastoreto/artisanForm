@@ -2,7 +2,7 @@ import { ArtisanSchemaError } from '../schema/contract/errors';
 import type { FormUIConfig, SchemaIssue } from '../schema/contract/types';
 import type { FormSchema } from '../schema/legacy/types';
 import type { NormalizedArtisanSchema } from '../schema/normalize';
-import type { ArtisanExtensions } from './extensions';
+import type { ArtisanExtensions, OnUnresolved } from './extensions';
 
 type Obj = Record<string, unknown>;
 
@@ -42,6 +42,9 @@ export const projectToRuntime = (
   normalized: NormalizedArtisanSchema,
   ext: ArtisanExtensions | undefined,
   registries: ProjectionRegistries,
+  onUnresolved?: OnUnresolved,
+  /** Identity of the content when it differs from `schema` (e.g. a translated copy). */
+  contentKey?: string,
 ): RuntimeProjection => {
   const { schema, bindings } = normalized;
   const issues: SchemaIssue[] = [];
@@ -55,7 +58,10 @@ export const projectToRuntime = (
     const found =
       (ext?.[group] as Record<string, unknown> | undefined)?.[id] ??
       bindings[id];
-    if (found === undefined) {
+    if (
+      found === undefined &&
+      onUnresolved?.({ group, id, path }) !== 'ignore'
+    ) {
       issues.push({
         severity: 'error',
         code: 'unresolved-reference',
@@ -276,6 +282,6 @@ export const projectToRuntime = (
     revision: schema.revision,
     ui: schema.ui ?? {},
     stepIds,
-    key: JSON.stringify(schema),
+    key: contentKey ?? JSON.stringify(schema),
   };
 };

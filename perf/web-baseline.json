@@ -1,0 +1,22 @@
+{
+  "perf-firefox": {
+    "50 fields in steps of 8": 58,
+    "50 fields in one step": 82,
+    "200 fields in steps of 8": 59
+  },
+  "perf-chromium-mobile": {
+    "50 fields in steps of 8": 116,
+    "50 fields in one step": 139,
+    "200 fields in steps of 8": 101
+  },
+  "perf-webkit": {
+    "50 fields in steps of 8": 145,
+    "50 fields in one step": 162,
+    "200 fields in steps of 8": 147
+  },
+  "perf-chromium": {
+    "50 fields in steps of 8": 25,
+    "50 fields in one step": 40,
+    "200 fields in steps of 8": 32
+  }
+}

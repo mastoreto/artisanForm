@@ -1,6 +1,7 @@
 import './styles/artisanform.css';
 
 export { cn } from './commons/cn';
+export { formatIssue } from './commons/formatIssue';
 export { type ArtisanLabels, defaultLabels } from './commons/labels';
 export { default as ArtisanForm } from './components/ArtisanForm/ArtisanForm';
 export {
@@ -58,7 +59,11 @@ export {
   type ArtisanSlot,
   SLOTS as ARTISAN_SLOTS,
 } from './components/ui/UiContext';
-export type { ArtisanExtensions } from './engine/extensions';
+export type {
+  ArtisanExtensions,
+  OnUnresolved,
+  UnresolvedReference,
+} from './engine/extensions';
 export type { FormValues } from './engine/form/types';
 export { useArtisanField } from './engine/form/useArtisanField';
 export {

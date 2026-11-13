@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { env, HttpError } from './common.ts';
+import { allowedOrigins, env, HttpError } from './common.ts';
 import * as lemon from './providers/lemonsqueezy.ts';
-import * as mp from './providers/mercadopago.ts';
+import * as mp from './providers/mercadopago/index.ts';
 import * as paypal from './providers/paypal.ts';
 import * as stripe from './providers/stripe.ts';
 
@@ -15,9 +15,7 @@ export const app = new Hono();
 app.use(
   '/api/*',
   cors({
-    origin: (env('ALLOWED_ORIGINS') ?? 'http://localhost:5174')
-      .split(',')
-      .map((o) => o.trim()),
+    origin: allowedOrigins(),
   }),
 );
 

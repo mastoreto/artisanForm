@@ -4,14 +4,16 @@
 
 Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con estilos en CSS plano (tematizables y reemplazables), validación con React Hook Form + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
 
-> **Estado:** primera beta pública, `0.3.0-beta.0` (dist-tag de npm `beta`): wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable, plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal; verificados con mocks de sus SDK, todavía no contra sandboxes reales) y kits de UI oficiales. Ver [Estado del proyecto](#estado-del-proyecto).
+> **Estado:** release candidate, `1.0.0-rc.1` (dist-tag de npm `rc`; el contrato está congelado, ver [versionado](versioning.md)): wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable, plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal; probados por el mantenedor contra el sandbox de cada proveedor) y kits de UI oficiales. Ver [Estado del proyecto](#estado-del-proyecto).
 
 ## Documentación
 
 | Guía | Qué cubre |
 | --- | --- |
-| [Schema v1](schema-v1.md) | El contrato de esquema serializable y versionado |
+| [Schema v1](schema-v1.md) | El contrato de esquema serializable y versionado, y `artisanform/schema` para validar valores en un servidor |
+| [Versionado (contrato 1.x)](versioning.md) | Qué puede cambiar en una menor, qué exige una mayor y las guardias |
 | [Extensión de UI y kits](ui.md) | Estilos, `components`, `classNames` y los kits oficiales |
+| [Rendimiento](performance.md) | Presupuestos de Web Vitals y cómo correrlos |
 | [API headless](headless.md) | `useArtisanWizard`: el comportamiento sin markup, para tu propia UI |
 | [Pagos](payments.md) | Plugins, el principio de seguridad y una checklist de producción |
 | [Archivos y storage](files.md) | Campos `file`/`image` y adaptadores de storage |
@@ -311,11 +313,13 @@ Cada tipo es una `FieldDefinition` (`render`, `initialValues`, `rules`, y opcion
 | `step?`               | Lleva el wizard a ese paso cuando cambia (combinar con `onStepChange`)                                                                    |
 | `persistKey?`         | Guarda valores y paso en `localStorage` y los restaura al montar. Las contraseñas nunca se guardan; el borrador se borra al enviar        |
 | `onSnapshotConflict?` | Qué hacer con un borrador que no corresponde a este formulario: `'backup'` (por defecto), `'restore'` o `'discard'`                       |
+| `locale?` / `messages?` / `loadMessages?` | Traduce el formulario: catálogos por idioma, aplicados sobre los textos fuente del schema (ver [schema v1](schema-v1.md#traducciones-)) |
 | `labels?`             | Sobrescribe cualquier texto o mensaje de validación (ver `defaultLabels`; por defecto inglés)                                            |
 | `className?`          | Clases extra para el `<form>`                                                                                                             |
 | `fields?`             | Registro de tipos de campo propios (ver arriba)                                                                                           |
 | `stepTypes?`          | Registro de tipos de paso propios (`StepDefinition`)                                                                                      |
 | `extensions?`         | Funciones y componentes locales a los que un esquema v1 hace referencia por id (`options`, `waits`, `hooks`, `renderers`, `actions`)      |
+| `onUnresolved?`       | Se llama por cada nombre que el esquema usa y que `extensions` no provee; devuelve `'ignore'` para renderizar sin él (por defecto: falla con `unresolved-reference`) |
 | `storage?`            | Adapter(s) de almacenamiento para campos `file`/`image` (ver arriba)                                                                      |
 | `plugins?`            | `{ payments: PaymentPlugin[], navigate? }` para los pasos de pago                                                                         |
 
@@ -354,19 +358,19 @@ Los ajustes semánticos `ui` del esquema (`columns`, `span`, `density`, `labelPo
 `react-hook-form`, `yup` y `zustand` son `peerDependencies` (junto a `react` y `react-dom`, que ya tenés); usá npm, pnpm, yarn o bun. Mientras la librería esté en beta, instalala con el tag `beta`:
 
 ```bash
-npm install artisanform@beta react-hook-form yup zustand
-pnpm add artisanform@beta react-hook-form yup zustand
-yarn add artisanform@beta react-hook-form yup zustand
-bun add artisanform@beta react-hook-form yup zustand
+npm install artisanform@rc react-hook-form yup zustand
+pnpm add artisanform@rc react-hook-form yup zustand
+yarn add artisanform@rc react-hook-form yup zustand
+bun add artisanform@rc react-hook-form yup zustand
 ```
 
 Los kits de UI oficiales son paquetes aparte y opcionales, bajo el scope `@beardartisans`; tienen a `artisanform` como peer, y `artisanform` nunca depende de ellos:
 
 ```bash
-npm install @beardartisans/ui-bootstrap@beta
-pnpm add @beardartisans/ui-bootstrap@beta
-yarn add @beardartisans/ui-bootstrap@beta
-bun add @beardartisans/ui-bootstrap@beta
+npm install @beardartisans/ui-bootstrap@rc
+pnpm add @beardartisans/ui-bootstrap@rc
+yarn add @beardartisans/ui-bootstrap@rc
+bun add @beardartisans/ui-bootstrap@rc
 # o ui-mui, ui-tailwind, ui-scss
 ```
 
@@ -438,15 +442,15 @@ Los inputs sueltos se enlazan al formulario por `name` (no `value`/`onChange`) y
 - Biome (formato + lint), playground en vivo, tests unitarios (`bun test`) y e2e (Playwright).
 - **Kits de UI:** `@beardartisans/ui-bootstrap`, `ui-mui`, `ui-tailwind` y `ui-scss` en npm, más un item de registry de shadcn/ui ([guía](ui.md#kits-de-ui)).
 - **Accesibilidad:** un tema por defecto que cumple el contraste WCAG AA y chequeos automáticos de axe en el CI ([guía](accessibility.md)).
-- **Automatización de releases:** un workflow manual `Release` que verifica todo y publica los cinco paquetes con provenance ([guía](releasing.md)).
+- **Herramientas de release:** un workflow manual `Release` que verifica todo, y un gate `check:publish` que detecta enlaces de kits rotos, builds viejos y tipos publicados rotos. La publicación se sigue haciendo a mano con un código de un solo uso hasta que funcione Trusted Publishing ([guía](releasing.md)).
 
 ### Pendiente
 
 - **Release:** pasar la publicación en npm de un token a Trusted Publishing, y sacar una versión estable tras el feedback de la beta ([docs/es/releasing.md](releasing.md)).
-- **Proveedores reales:** los plugins se verifican con mocks de sus SDK; falta probarlos contra sandbox con credenciales de prueba.
+- **Proveedores reales:** Stripe, PayPal, Lemon Squeezy y el Payment Brick de Mercado Pago funcionan en sus sandboxes (pruebas manuales con `apps/payments-test`). Mercado Pago Checkout Pro (redirección) muestra un error en la propia página de Mercado Pago tras pagar; se está investigando y no hay pruebas automáticas contra el servicio real.
 - **Navegador:** los tests de componentes corren en happy-dom; Playwright cubre los flujos del playground (wizard, archivos, espera, pagos mock, campos) en Chromium, Firefox y WebKit. Las pasadas con lector de pantalla, las preferencias de movimiento y los dispositivos táctiles todavía no se verifican ([docs/es/accessibility.md](accessibility.md)).
 - **UI:** `layout: 'horizontal'` no tiene estilo propio y los steppers no pueden saltar entre pasos. Detalle en [docs/es/ui.md](ui.md#pendiente).
-- Los textos por defecto están solo en inglés; para otro idioma pasá `labels` (y escribí tus propias etiquetas de campo).
+- Solo se incluye inglés. Otros idiomas salen de tus propios catálogos (`locale`, `messages`, `loadMessages`; los textos de la librería mediante `labels.*`), o solo de `labels`.
 
 ### Historial
 

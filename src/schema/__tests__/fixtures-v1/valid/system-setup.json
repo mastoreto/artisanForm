@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "id": "system-setup",
+  "steps": [
+    {
+      "id": "admin",
+      "type": "form",
+      "title": "Administrator",
+      "fields": [
+        {
+          "type": "text",
+          "name": "name",
+          "label": "Full name",
+          "required": true
+        },
+        {
+          "type": "email",
+          "name": "email",
+          "label": "Email",
+          "required": true
+        },
+        {
+          "type": "password",
+          "name": "password",
+          "label": "Password",
+          "required": true,
+          "validation": {
+            "minLength": 12
+          }
+        },
+        {
+          "type": "password",
+          "name": "confirm",
+          "label": "Repeat the password",
+          "required": true,
+          "validation": {
+            "sameAs": "password"
+          }
+        }
+      ]
+    },
+    {
+      "id": "workspace",
+      "type": "form",
+      "title": "Workspace",
+      "ui": {
+        "columns": 2
+      },
+      "fields": [
+        {
+          "type": "text",
+          "name": "org",
+          "label": "Organization",
+          "required": true,
+          "ui": {
+            "span": 2
+          }
+        },
+        {
+          "type": "select",
+          "name": "timezone",
+          "label": "Time zone",
+          "options": [
+            {
+              "value": "utc",
+              "label": "UTC"
+            },
+            {
+              "value": "america-bogota",
+              "label": "America/Bogota"
+            },
+            {
+              "value": "europe-madrid",
+              "label": "Europe/Madrid"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "name": "language",
+          "label": "Language",
+          "options": [
+            {
+              "value": "english",
+              "label": "English"
+            },
+            {
+              "value": "spanish",
+              "label": "Spanish"
+            },
+            {
+              "value": "portuguese",
+              "label": "Portuguese"
+            }
+          ]
+        },
+        {
+          "type": "radio",
+          "name": "theme",
+          "label": "Theme",
+          "defaultValue": "auto",
+          "options": [
+            {
+              "value": "auto",
+              "label": "Auto"
+            },
+            {
+              "value": "light",
+              "label": "Light"
+            },
+            {
+              "value": "dark",
+              "label": "Dark"
+            }
+          ],
+          "ui": {
+            "span": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "integrations",
+      "type": "form",
+      "title": "Integrations",
+      "fields": [
+        {
+          "type": "switch",
+          "name": "smtp",
+          "label": "Send email through my own SMTP server"
+        },
+        {
+          "type": "text",
+          "name": "smtpHost",
+          "label": "SMTP host",
+          "required": true,
+          "visibleWhen": {
+            "field": "smtp",
+            "operator": "eq",
+            "value": true
+          }
+        },
+        {
+          "type": "number",
+          "name": "smtpPort",
+          "label": "SMTP port",
+          "defaultValue": 587,
+          "visibleWhen": {
+            "field": "smtp",
+            "operator": "eq",
+            "value": true
+          },
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "type": "switch",
+          "name": "backups",
+          "label": "Nightly backups"
+        },
+        {
+          "type": "select",
+          "name": "retention",
+          "label": "Keep backups for",
+          "visibleWhen": {
+            "field": "backups",
+            "operator": "eq",
+            "value": true
+          },
+          "options": [
+            {
+              "value": "7-days",
+              "label": "7 days"
+            },
+            {
+              "value": "30-days",
+              "label": "30 days"
+            },
+            {
+              "value": "1-year",
+              "label": "1 year"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "title": "Review"
+    },
+    {
+      "id": "provision",
+      "type": "wait",
+      "title": "Installing",
+      "strategy": "provision",
+      "message": "Creating the database and your workspace…"
+    },
+    {
+      "id": "done",
+      "type": "result",
+      "title": "Done",
+      "message": "The system is ready. Sign in with the administrator account.",
+      "actions": [
+        {
+          "label": "Start over",
+          "action": "restart"
+        }
+      ]
+    }
+  ]
+}

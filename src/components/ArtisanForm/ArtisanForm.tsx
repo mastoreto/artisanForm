@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import type { ArtisanLabels } from '../../commons/labels';
-import type { ArtisanExtensions } from '../../engine/extensions';
+import type { ArtisanExtensions, OnUnresolved } from '../../engine/extensions';
 import type { FormValues } from '../../engine/form/types';
+import type { LoadMessages } from '../../engine/useCatalogs';
 import type { PluginsConfig } from '../../integrations/payments/types';
 import type {
   StorageAdapter,
@@ -13,6 +14,7 @@ import type {
   SnapshotConflict,
   SnapshotMigrations,
 } from '../../persistence';
+import type { Catalog } from '../../schema';
 import type { ArtisanSchemaV1 } from '../../schema/contract/define';
 import type { FormSchema } from '../../schema/legacy/types';
 import type { FieldRegistry } from '../fields/registry';
@@ -37,6 +39,8 @@ interface ArtisanFormProps<
   scheme: S;
   /** Local functions and components a v1 schema refers to by id. */
   extensions?: ArtisanExtensions;
+  /** What to do with a name the schema uses that `extensions` does not provide: return `'ignore'` to render without it. By default the form fails with `unresolved-reference`. */
+  onUnresolved?: OnUnresolved;
   /** Return a promise to keep "Finish" disabled until it settles. */
   /** The values are typed when `scheme` comes from `defineForm` (see `InferValues`). */
   onSubmit: (values: ValuesOf<S>) => unknown;
@@ -50,6 +54,12 @@ interface ArtisanFormProps<
   onChange?: (values: FormValues) => void;
   /** Drives the wizard to this step when it changes (pair with onStepChange). */
   step?: number;
+  /** Language of the texts (`es`, `es-AR`); the schema itself is written in its source language (English). */
+  locale?: string;
+  /** Catalogs by locale (text path → translation). */
+  messages?: Record<string, Catalog>;
+  /** Fetches the catalog of a locale on demand; the source text shows until it arrives. */
+  loadMessages?: LoadMessages;
   /** Overrides any UI text or validation message (default: English). */
   labels?: Partial<ArtisanLabels>;
   /** Extra classes for the <form> element. */
@@ -119,11 +129,12 @@ const ArtisanForm = <S extends FormSchema | ArtisanSchemaV1 = ArtisanSchemaV1>({
     () => ({ components, classNames, unstyled }),
     [components, classNames, unstyled],
   );
-  const labels = useMemo(
-    () => ({ ...kitLabels, ...labelOverrides }),
-    [kitLabels, labelOverrides],
-  );
-  const wizard = useArtisanWizard<S>({ schema: scheme, labels, ...options });
+  const wizard = useArtisanWizard<S>({
+    schema: scheme,
+    kitLabels,
+    labels: labelOverrides,
+    ...options,
+  });
   return (
     <ArtisanWizardProvider wizard={wizard}>
       <UiContext.Provider value={uiConfig}>

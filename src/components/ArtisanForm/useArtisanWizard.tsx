@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { FormProvider, type UseFormReturn } from 'react-hook-form';
+import { labelsFromCatalogs } from '../../commons/i18n';
 import { type ArtisanLabels, defaultLabels } from '../../commons/labels';
 import {
   buildInitialValues,
@@ -12,7 +13,7 @@ import {
   visibleSteps,
 } from '../../engine/conditions';
 import { clearDraft, restoreDraft } from '../../engine/draft';
-import type { ArtisanExtensions } from '../../engine/extensions';
+import type { ArtisanExtensions, OnUnresolved } from '../../engine/extensions';
 import type { FormValues } from '../../engine/form/types';
 import { useFormBinding } from '../../engine/form/useFormBinding';
 import { type FormUi, FormUiContext } from '../../engine/form/validators';
@@ -23,6 +24,7 @@ import {
   createArtisanStore,
   type SubmitState,
 } from '../../engine/store/useArtisanStore';
+import { type LoadMessages, useCatalogs } from '../../engine/useCatalogs';
 import type { PluginsConfig } from '../../integrations/payments/types';
 import {
   normalizeStorage,
@@ -35,6 +37,7 @@ import type {
   SnapshotConflict,
   SnapshotMigrations,
 } from '../../persistence';
+import { applyCatalog, type Catalog } from '../../schema';
 import type { ArtisanSchemaV1 } from '../../schema/contract/define';
 import type { InferValues } from '../../schema/contract/infer';
 import type { FormUIConfig } from '../../schema/contract/types';
@@ -71,6 +74,8 @@ export interface ArtisanWizardOptions<
   schema: S;
   /** Local functions and components a v1 schema refers to by id. */
   extensions?: ArtisanExtensions;
+  /** What to do with a name the schema uses that `extensions` and the plugins do not provide (default: fail). */
+  onUnresolved?: OnUnresolved;
   /** Return a promise to keep the last step's action disabled until it settles. */
   onSubmit: (values: ValuesOf<S>) => unknown;
   /** What to do with a saved draft that does not fit this form (default: `backup`). */
@@ -87,7 +92,15 @@ export interface ArtisanWizardOptions<
   stepId?: string;
   /** Called with the new step id whenever the wizard moves. */
   onStepIdChange?: (stepId: string) => void;
-  /** Overrides any text or validation message (default: English). */
+  /** Language of the texts (`es`, `es-AR`): the catalogs for it are applied over the schema's source texts. */
+  locale?: string;
+  /** Catalogs by locale, same format as the schema's `i18n.messages`. They win over `loadMessages` and the schema. */
+  messages?: Record<string, Catalog>;
+  /** Fetches the catalog of a locale on demand (e.g. `(l) => import(`./${l}.json`)`). The source text shows until it arrives. */
+  loadMessages?: LoadMessages;
+  /** Texts a UI kit supplies: above the defaults, below the catalogs' `labels.*` entries and `labels`. */
+  kitLabels?: Partial<ArtisanLabels>;
+  /** Overrides any text or validation message (default: English). Wins over everything else. */
   labels?: Partial<ArtisanLabels>;
   /** Saves values and step to localStorage under this key and restores them on mount. */
   persistKey?: string;
@@ -198,9 +211,14 @@ export const useArtisanWizard = <
 >({
   schema: input,
   extensions,
+  onUnresolved,
   onSubmit,
   initialValues: initialOverrides,
   labels: labelOverrides,
+  kitLabels,
+  locale,
+  messages,
+  loadMessages,
   fields,
   stepTypes,
   storage,
@@ -239,19 +257,36 @@ export const useArtisanWizard = <
   );
   // One internal representation: normalize (v1 or 0.2.0) → project to the
   // shape the engine runs. Memoized; `key` only changes with the content.
+  const normalized = useMemo(
+    () =>
+      normalizeArtisanSchema(input, {
+        id: persistKey ? `legacy:${persistKey}` : undefined,
+      }),
+    [input, persistKey],
+  );
+  const catalogs = useCatalogs(
+    locale,
+    messages,
+    loadMessages,
+    normalized.schema.i18n,
+  );
+  // The content key comes from the untranslated schema: changing language
+  // must not look like a new form and reset what the user typed.
   const projection = useMemo(
     () =>
       projectToRuntime(
-        normalizeArtisanSchema(input, {
-          id: persistKey ? `legacy:${persistKey}` : undefined,
-        }),
+        catalogs.length
+          ? { ...normalized, schema: applyCatalog(normalized.schema, catalogs) }
+          : normalized,
         extensions,
         {
           fieldTypes: Object.keys(registry),
           stepKinds: Object.keys(stepRegistry),
         },
+        onUnresolved,
+        JSON.stringify(normalized.schema),
       ),
-    [input, extensions, registry, stepRegistry, persistKey],
+    [normalized, catalogs, extensions, onUnresolved, registry, stepRegistry],
   );
   const scheme = projection.scheme;
   // Read once on mount; the draft wins over defaults and `initialValues`.
@@ -276,9 +311,15 @@ export const useArtisanWizard = <
     }),
     [scheme, draft, registry, initialOverrides],
   );
+  // defaults < kit < catalogs (`labels.*`) < the `labels` prop
   const labels = useMemo(
-    () => ({ ...defaultLabels, ...labelOverrides }),
-    [labelOverrides],
+    () => ({
+      ...defaultLabels,
+      ...kitLabels,
+      ...labelsFromCatalogs(catalogs, locale ?? 'en'),
+      ...labelOverrides,
+    }),
+    [kitLabels, catalogs, locale, labelOverrides],
   );
   const validationSchema = useMemo(
     () => buildValidationSchema(scheme, labels, registry),

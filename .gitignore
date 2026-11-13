@@ -119,3 +119,4 @@ apps/docs/src/content/docs/es/docs/payments.md
 apps/docs/src/content/docs/es/docs/files.md
 apps/docs/src/content/docs/es/docs/accessibility.md
 apps/docs/src/content/docs/es/docs/releasing.md
+perf-results.*.json

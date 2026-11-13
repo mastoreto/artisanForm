@@ -13,10 +13,35 @@ Tries the real payment plugins (Stripe, PayPal, Mercado Pago, Lemon Squeezy) aga
 
 ```bash
 cp apps/payments-test/.env.example apps/payments-test/.env.local   # fill in only what you want to test
-cd apps/payments-test && bun run dev                                # API :8787, app http://localhost:5174
+cd apps/payments-test && bun run dev                                # API :8787, app http://localhost:5858
 ```
 
-Providers without credentials show as "not configured" and are left out of the payment step. Keys go in `.env.local` (git-ignored), never in the chat or the code. Only public keys reach the browser, through `GET /api/config`.
+Providers without credentials show as "not configured" and are left out of the payment step. On the paid-event example, a **Test data** panel beside the form lists the sandbox data (cards, test account) of the configured providers that are paid on the page (Stripe, PayPal, the Mercado Pago Brick), with a copy button on each value. When a method is chosen, only its data is shown; a method that sends the user to the provider (Stripe Checkout, Checkout Pro, Lemon Squeezy) shows no data and says to use the provider's own sandbox data there. The data lives in `src/testData.ts`. Keys go in `.env.local` (git-ignored), never in the chat or the code. Only public keys reach the browser, through `GET /api/config`.
+
+## Diagnosing Mercado Pago Checkout Pro
+
+**Known cause of "Una de las partes con la que intentas hacer el pago es de prueba":** a TEST seller with a payer that is not a test buyer. Checkout Pro no longer sends `MP_PAYER_EMAIL` (the Brick's workaround, an ordinary address); it sends a payer only if you set `MP_CHECKOUT_PAYER_EMAIL` to the test buyer's own e-mail. Pay logged in as that test buyer, in a private window.
+
+If the redirect flow ends on Mercado Pago's page with "algo salió mal", isolate the cause with evidence instead of guessing. `scripts/mp-diagnose.ts` creates preferences in variants that each change one thing, and prints the URL to open for each:
+
+| Variant | What it changes |
+| --- | --- |
+| A | minimal: items, currency, `external_reference` |
+| B | A + `back_urls` (plain http) |
+| C | B + `auto_return` (Mercado Pago should reject it over http) |
+| D | C over an https tunnel (`DIAG_HTTPS_URL`) |
+| E | B + `payer.email` = the **test buyer's** own e-mail (`MP_CHECKOUT_PAYER_EMAIL`) |
+| F | B, opening `sandbox_init_point` instead of `init_point` |
+| G | B with the query string the app really sends |
+| H | B + `MP_PAYER_EMAIL` (the Brick's ordinary address): what the app used to send to Checkout Pro |
+
+```bash
+cd apps/payments-test
+node --env-file-if-exists=.env.local scripts/mp-diagnose.ts          # all variants
+node --env-file-if-exists=.env.local scripts/mp-diagnose.ts --user   # only check the seller account
+```
+
+It first prints the seller site (country) and warns if `MP_CURRENCY` does not match it or if `MP_CHECKOUT_PAYER_EMAIL` is the seller's own e-mail. Then open each printed URL in a **private window logged in as the test buyer** (a different user from the seller, same country) and pay with an official test card. Note for each variant whether it paid, showed the error, or returned to the app: the first variant that behaves differently points at the cause. It creates real preferences in the account of `MP_ACCESS_TOKEN`, so use the test seller; the token is never printed.
 
 ## Webhooks with Docker
 
@@ -50,6 +75,6 @@ Everything at once (API + Stripe CLI + tunnel in Docker, web app in the foregrou
 ## Sandbox notes
 
 - **Redirects** (Stripe Checkout, Checkout Pro, Lemon Squeezy) return to the page; the draft (`persistKey`) restores the form and the `pending` step confirms through the backend. `ALLOWED_ORIGINS` limits where a checkout may send the user back to.
-- **Mercado Pago:** use the credentials of a *test seller*, and the currency of its country (`MP_CURRENCY`). `auto_return` is only sent for https return URLs.
+- **Mercado Pago:** optional `MP_NOTIFICATION_URL` (public https) sets the webhook per preference. Use the credentials of a *test seller*, and the currency of its country (`MP_CURRENCY`). `auto_return` is only sent for https return URLs.
 - **Lemon Squeezy:** prices live on the variant. It has no payment reference on return, so confirmation needs the webhook: expose the backend (see [Webhooks with Docker](#webhooks-with-docker)). The paid state is kept in memory.
 - `bun test server` runs the backend checks (no network).

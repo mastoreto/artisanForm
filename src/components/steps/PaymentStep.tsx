@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { fromReturnUrl } from '../../integrations/payments/resume';
 import type {
   PaymentPlugin,
@@ -24,6 +24,82 @@ const baseUrl = () => {
   const url = new URL(window.location.href);
   url.hash = '';
   return url.toString();
+};
+
+// Two plugins of one provider can share their return parameters (Stripe's
+// embedded form and Checkout, Mercado Pago's Brick and Checkout Pro). Which
+// one sent the user away is remembered for the trip so, on return, it is the
+// one asked first. sessionStorage is per tab and survives the redirect; when
+// it is unavailable the plugins are asked in their registered order.
+const sentWith = (resultName: string) => {
+  const key = `artisanform:payment-plugin:${resultName}`;
+  return {
+    remember: (id: string) => {
+      try {
+        sessionStorage.setItem(key, id);
+      } catch {
+        // storage blocked: fall back to the registered order
+      }
+    },
+    recall: () => {
+      try {
+        return sessionStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    },
+    forget: () => {
+      try {
+        sessionStorage.removeItem(key);
+      } catch {
+        // nothing to clean
+      }
+    },
+  };
+};
+
+/**
+ * One payment method in the selector: its logo, its name and a line saying
+ * whether the user stays here or is redirected. The logo is decorative (the
+ * name is the label), so a plugin without one still reads and works the same.
+ */
+const PaymentOption = ({
+  plugin,
+  name,
+  hint,
+  onChoose,
+}: {
+  plugin: PaymentPlugin;
+  name: string;
+  hint: string;
+  onChoose: () => void;
+}) => {
+  const cx = useCx();
+  const id = useId();
+  return (
+    <button
+      type="button"
+      className={cx('paymentOption')}
+      data-mode={plugin.mode}
+      aria-labelledby={`${id}-name`}
+      aria-describedby={`${id}-hint`}
+      onClick={onChoose}
+    >
+      {plugin.icon ? (
+        <span className={cx('paymentOptionIcon')} aria-hidden="true">
+          {plugin.icon}
+        </span>
+      ) : null}
+      <span className={cx('paymentOptionText')}>
+        <span id={`${id}-name`} className={cx('paymentOptionName')}>
+          {name}
+        </span>
+        <span id={`${id}-hint`} className={cx('paymentOptionHint')}>
+          {hint}
+        </span>
+      </span>
+    </button>
+  );
 };
 
 /**
@@ -92,9 +168,16 @@ const PaymentStep = (ctx: StepContext) => {
   // Coming back from a hosted checkout.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    for (const plugin of available) {
+    const used = sentWith(resultName).recall();
+    // The plugin the user left with first; the rest keep their order.
+    const ordered = [
+      ...available.filter((p) => p.id === used),
+      ...available.filter((p) => p.id !== used),
+    ];
+    for (const plugin of ordered) {
       const reported = plugin.resume?.(params);
       if (!reported) continue;
+      sentWith(resultName).forget();
       // The return URL is forgeable: whatever a plugin reports from it, the
       // core never records it as `succeeded` (a `pending` step confirms it).
       const result = fromReturnUrl(reported);
@@ -130,6 +213,7 @@ const PaymentStep = (ctx: StepContext) => {
       const { url } = await (plugin.start as NonNullable<typeof plugin.start>)(
         request(),
       );
+      sentWith(resultName).remember(plugin.id);
       plugins.navigate(url);
     } catch (e) {
       setFailure(e instanceof Error ? e.message : labels.paymentFailed);
@@ -154,19 +238,25 @@ const PaymentStep = (ctx: StepContext) => {
         <div
           role="group"
           aria-label={labels.choosePayment}
-          className={cx('choiceGroup')}
+          className={cx('paymentOptions')}
         >
           {available.map((p) => (
-            <ActionButton
+            <PaymentOption
               key={p.id}
-              onClick={() => {
+              plugin={p}
+              hint={
+                p.description ??
+                (p.mode === 'redirect'
+                  ? labels.payHintRedirect
+                  : labels.payHintEmbedded)
+              }
+              name={labels.payWith(p.name)}
+              onChoose={() => {
                 setChosen(p);
                 // A hosted checkout needs no further input: go straight there.
                 if (p.mode === 'redirect') void redirect(p);
               }}
-            >
-              {labels.payWith(p.name)}
-            </ActionButton>
+            />
           ))}
         </div>
       )}

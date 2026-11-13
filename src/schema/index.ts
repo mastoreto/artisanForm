@@ -1,4 +1,20 @@
 export {
+  CAPABILITIES_CONTRACT,
+  type CapabilitiesManifest,
+  type CapabilityIssue,
+  type CapabilitySources,
+  checkCapabilities,
+  collectReferences,
+  describeCapabilities,
+  FEATURES,
+  type Feature,
+  listReferences,
+  REF_KINDS,
+  type Reference,
+  type RefKind,
+  type Requirements,
+} from './capabilities';
+export {
   conditionFields,
   evaluateCondition,
   fromLegacyCondition,
@@ -20,6 +36,19 @@ export {
 } from './contract/specs';
 export type * from './contract/steps';
 export type * from './contract/types';
+export {
+  applyCatalog,
+  type Catalog,
+  type CatalogReport,
+  type CatalogValue,
+  extractMessages,
+  format,
+  type PluralForms,
+  placeholdersOf,
+  resolveLocaleChain,
+  textOf,
+  validateCatalog,
+} from './i18n';
 export type { LegacyFormSchema } from './legacy/adapter';
 export {
   type NormalizedArtisanSchema,
@@ -32,3 +61,10 @@ export {
   parseArtisanSchema,
   type SchemaPolicy,
 } from './parser';
+export {
+  type IssueCode,
+  type ValidateOptions,
+  type ValidationIssue,
+  type ValidationResult,
+  validateValues,
+} from './validate';
