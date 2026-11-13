@@ -8,8 +8,8 @@ import { Steps, CardGrid, LinkCard, Aside, Tabs, TabItem } from '@astrojs/starli
 
 ArtisanForm turns a declarative, JSON-serializable schema into a working multi-step form (wizard) in React, with validation, drafts and swappable UI kits.
 
-<Aside type="caution" title="Beta">
-ArtisanForm is a 0.x beta and is not published to a registry yet. Until the first publish, follow the [repository](https://github.com/mastoreto/artisanForm) for installing from source.
+<Aside type="caution" title="Release candidate">
+ArtisanForm `1.0.0-rc.1` is on npm under the `rc` tag. The v1 contract is frozen for 1.x; the stable `1.0.0` follows after a period without contract changes. A plain `npm install artisanform` still installs an older beta, so install `artisanform@rc`.
 </Aside>
 
 ## Your first wizard
@@ -21,22 +21,22 @@ ArtisanForm is a 0.x beta and is not published to a registry yet. Until the firs
    <Tabs syncKey="pm">
      <TabItem label="npm">
      ```bash
-     npm install artisanform@beta react-hook-form yup zustand
+     npm install artisanform@rc react-hook-form yup zustand
      ```
      </TabItem>
      <TabItem label="pnpm">
      ```bash
-     pnpm add artisanform@beta react-hook-form yup zustand
+     pnpm add artisanform@rc react-hook-form yup zustand
      ```
      </TabItem>
      <TabItem label="yarn">
      ```bash
-     yarn add artisanform@beta react-hook-form yup zustand
+     yarn add artisanform@rc react-hook-form yup zustand
      ```
      </TabItem>
      <TabItem label="bun">
      ```bash
-     bun add artisanform@beta react-hook-form yup zustand
+     bun add artisanform@rc react-hook-form yup zustand
      ```
      </TabItem>
    </Tabs>
