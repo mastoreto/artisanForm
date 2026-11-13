@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import * as Yup from 'yup';
 import type { ArtisanLabels } from '../../commons/labels';
 import type { StorageMap } from '../../integrations/storage/types';
+import type { CustomTypeSpec } from '../../schema/custom-types';
 import type { FieldSchema } from '../../schema/legacy/types';
 import ArrayField from '../inputs/ArrayField/ArrayField';
 import Check from '../inputs/Check/Check';
@@ -50,6 +51,12 @@ export interface FieldDefinition {
   groupLabel?: boolean;
   /** The group label is a real `<label for>` of the control (native single control). */
   labelFor?: boolean;
+  /**
+   * Shape of the `config` of a custom (`x-…`) type, as plain data. It is
+   * published in the capabilities manifest (`describeRegistrations`) so a
+   * schema's config can be verified without this app's code.
+   */
+  spec?: CustomTypeSpec;
   /** Never written to drafts (e.g. passwords). May depend on the field (arrays). */
   secret?: boolean | ((field: FieldSchema, registry: FieldRegistry) => boolean);
 }

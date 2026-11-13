@@ -8,6 +8,7 @@ import type { PaymentPlugin } from '../../integrations/payments/types';
 import type { StorageMap } from '../../integrations/storage/types';
 import type { WaitStatus, WaitStrategy } from '../../integrations/wait';
 import { isSafeUrl } from '../../schema/contract/url';
+import type { CustomTypeSpec } from '../../schema/custom-types';
 import type {
   FieldOption,
   FieldSchema,
@@ -94,6 +95,8 @@ export interface StepContext {
 /** Everything the wizard needs to know about one step `kind`. */
 export interface StepDefinition {
   render: (ctx: StepContext) => ReactNode;
+  /** Shape of the step's `config` (see `FieldDefinition.spec`). */
+  spec?: CustomTypeSpec;
   /** Default navigation overrides; the step's own `controls` win. */
   controls?: StepControls;
 }
