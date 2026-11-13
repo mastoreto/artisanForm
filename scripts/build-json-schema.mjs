@@ -302,7 +302,7 @@ export const buildJsonSchema = ({ FIELD_KEYS, STEP_KEYS }) => {
 
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://unpkg.com/artisanform/schema.json',
+    $id: 'https://unpkg.com/artisanform/dist/schema.json',
     title: 'ArtisanForm schema v1',
     description:
       'Structure of an ArtisanForm v1 schema. Rules that need the whole document (unique names and ids, references, flow, policy, limits, capabilities) are checked by parseArtisanSchema / checkSchema.',

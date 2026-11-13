@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/artisanform/schema.json",
+  "$schema": "https://unpkg.com/artisanform/dist/schema.json",
   "schemaVersion": 1,
   "id": "event-registration",
   "revision": 1,

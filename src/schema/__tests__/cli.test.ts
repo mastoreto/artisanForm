@@ -125,7 +125,7 @@ describe.skipIf(!built)('artisanform CLI', () => {
     const r = run('json-schema');
     expect(r.code).toBe(0);
     expect(JSON.parse(r.out).$id).toBe(
-      'https://unpkg.com/artisanform/schema.json',
+      'https://unpkg.com/artisanform/dist/schema.json',
     );
   });
 

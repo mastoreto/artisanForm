@@ -858,7 +858,7 @@ describe('limits', () => {
 test('$schema is an optional string at the root', () => {
   const s = {
     ...valid(),
-    $schema: 'https://unpkg.com/artisanform/schema.json',
+    $schema: 'https://unpkg.com/artisanform/dist/schema.json',
   };
   expect(errors(s)).toEqual([]);
   expect(errors({ ...valid(), $schema: 3 })).toEqual([
