@@ -2,7 +2,9 @@
 
 Spanish version: [docs/es/CHANGELOG.md](docs/es/CHANGELOG.md).
 
-## Unreleased
+## 1.0.0-rc.3 (2026-11-13)
+
+Third release candidate: backend tooling. It adds the `sensitive` field flag (a contract addition), `checkSchema` and its companions in `artisanform/schema`, a form that no longer throws on a schema it cannot run, `artisanform/schema.json`, the `artisanform` CLI and the [backend guide](docs/backend.md). Everything is additive except the behavior changes listed under "Changed".
 
 ### Changed
 

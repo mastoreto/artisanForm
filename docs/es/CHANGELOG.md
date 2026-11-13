@@ -2,7 +2,9 @@
 
 > 🌐 Versión en español de [CHANGELOG.md](../../CHANGELOG.md).
 
-## Unreleased
+## 1.0.0-rc.3 (2026-11-13)
+
+Tercer release candidate: herramientas de backend. Agrega la marca `sensitive` en los campos (una adición al contrato), `checkSchema` y sus compañeras en `artisanform/schema`, un formulario que ya no lanza una excepción ante un schema que no puede ejecutar, `artisanform/schema.json`, el CLI `artisanform` y la [guía de backend](backend.md). Todo es aditivo salvo los cambios de comportamiento listados en "Cambiado".
 
 ### Cambiado
 

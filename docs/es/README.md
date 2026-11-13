@@ -4,7 +4,7 @@
 
 Librería React para construir formularios multi-paso (wizard) a partir de una definición (`scheme`). Incluye inputs prediseñados con estilos en CSS plano (tematizables y reemplazables), validación con React Hook Form + Yup y el estado de los pasos en Zustand. Se desarrolla y documenta con Storybook.
 
-> **Estado:** release candidate, `1.0.0-rc.2` (`latest` en npm; el contrato está congelado, ver [versionado](versioning.md)): wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable, plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal; probados por el mantenedor contra el sandbox de cada proveedor) y kits de UI oficiales. Ver [Estado del proyecto](#estado-del-proyecto).
+> **Estado:** release candidate, `1.0.0-rc.3` (`latest` en npm; el contrato está congelado, ver [versionado](versioning.md)): wizard por `scheme` con más de 30 tipos de campo, pasos especiales (términos, pago, espera, revisión, resultado), archivos con storage conectable, plugins de pago (Stripe, Lemon Squeezy, Mercado Pago, PayPal; probados por el mantenedor contra el sandbox de cada proveedor) y kits de UI oficiales. Ver [Estado del proyecto](#estado-del-proyecto).
 
 ## Documentación
 
