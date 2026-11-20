@@ -2,6 +2,8 @@
 
 The app is a **catalog of 13 ready-made forms** (signup, signup + event, signup + paid event, survey, CRM lead, public registry, driver license appointment, bank transfer, semester enrollment, initial system setup, travel onboarding, job application, support ticket). Pick one in the sidebar and a **UI kit** (default, Bootstrap, Material UI, Tailwind, SCSS theme, shadcn) in the selector: the same schema renders with each. Both choices live in the URL (`?ex=bank-transfer&kit=mui`) and switching reloads, so a kit's global CSS never leaks into another. The shadcn kit uses native stand-ins for shadcn's components (`packages/ui-shadcn/stubs`). Examples are in `src/catalog/examples.ts`; `bun test src` checks that each one is a valid v1 schema.
 
+**Visual form builder.** The sidebar's *Tools → Visual form builder* page embeds `artisanform/builder` as a CRM would: palette, canvas, inspector and live preview (rendered with the selected UI kit), the schema it produces and how to use it. Start blank or from any catalog form (`?ex=builder&from=bank-transfer`); `&mode=advanced` shows every setting. Guide: [docs/builder.md](../../docs/builder.md).
+
 Everything works without a backend or credentials (payments fall back to the mock provider). The rest of this file is about trying the real sandboxes.
 
 Tries the real payment plugins (Stripe, PayPal, Mercado Pago, Lemon Squeezy) against provider **sandboxes**. Two parts:

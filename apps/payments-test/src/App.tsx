@@ -6,6 +6,7 @@ import {
 } from 'artisanform';
 import { useEffect, useMemo, useState } from 'react';
 import { api, type Config } from './api';
+import BuilderPage from './BuilderPage';
 import { examples } from './catalog/examples';
 import type { Ctx } from './catalog/types';
 import { isKit, type KitId, kits, type LoadedKit } from './kits';
@@ -16,6 +17,7 @@ const params = new URLSearchParams(location.search);
 const kitId: KitId = isKit(params.get('kit'))
   ? (params.get('kit') as KitId)
   : 'default';
+const isBuilder = params.get('ex') === 'builder';
 const current = examples.find((e) => e.id === params.get('ex')) ?? examples[0];
 const groups = [...new Set(examples.map((e) => e.group))];
 const storage = mockStorage();
@@ -153,6 +155,20 @@ const App = () => {
             ))}
           </select>
         </label>
+        <section>
+          <h2 className="group-title">Tools</h2>
+          <ul className="group-list">
+            <li>
+              <a
+                className="nav-link-ex"
+                href={`?ex=builder&kit=${kitId}`}
+                aria-current={isBuilder ? 'page' : undefined}
+              >
+                Visual form builder
+              </a>
+            </li>
+          </ul>
+        </section>
         {groups.map((g) => (
           <section key={g}>
             <h2 className="group-title">{g}</h2>
@@ -164,7 +180,9 @@ const App = () => {
                     <a
                       className="nav-link-ex"
                       href={`?ex=${e.id}&kit=${kitId}`}
-                      aria-current={e.id === current.id ? 'page' : undefined}
+                      aria-current={
+                        !isBuilder && e.id === current.id ? 'page' : undefined
+                      }
                     >
                       {e.title}
                     </a>
@@ -174,48 +192,59 @@ const App = () => {
           </section>
         ))}
       </nav>
-      <main className={showPanel ? 'content wide' : 'content'}>
-        <header className="hero">
-          <h2>{current.title}</h2>
-          <p>{current.summary}</p>
-          <p className="tags">
-            {current.features.map((f) => (
-              <code key={f} className="tag">
-                {f}
-              </code>
-            ))}
-          </p>
-        </header>
-        {current.payments && offline && (
-          <p role="status" className="notice">
-            Backend not running: using the mock provider. Start it with{' '}
-            <code>bun run dev</code> to try the sandboxes.
-          </p>
-        )}
-        <div className={showPanel ? 'workspace has-aside' : 'workspace'}>
-          {built && ui && (
-            <div className={`stage ${ui.className ?? ''}`}>
-              <ArtisanForm
-                key={`${kitId}:${current.id}`}
-                scheme={built.scheme}
-                extensions={built.extensions}
-                plugins={{ payments: built.plugins }}
-                storage={storage}
-                kit={ui.kit}
-                persistKey={key}
-                onSubmit={(values) => setResult(values)}
-              />
+      <main className={showPanel || isBuilder ? 'content wide' : 'content'}>
+        {isBuilder
+          ? ui && (
+              <div className={ui.className}>
+                <BuilderPage kit={ui.kit} />
+              </div>
+            )
+          : null}
+        {isBuilder ? null : (
+          <>
+            <header className="hero">
+              <h2>{current.title}</h2>
+              <p>{current.summary}</p>
+              <p className="tags">
+                {current.features.map((f) => (
+                  <code key={f} className="tag">
+                    {f}
+                  </code>
+                ))}
+              </p>
+            </header>
+            {current.payments && offline && (
+              <p role="status" className="notice">
+                Backend not running: using the mock provider. Start it with{' '}
+                <code>bun run dev</code> to try the sandboxes.
+              </p>
+            )}
+            <div className={showPanel ? 'workspace has-aside' : 'workspace'}>
+              {built && ui && (
+                <div className={`stage ${ui.className ?? ''}`}>
+                  <ArtisanForm
+                    key={`${kitId}:${current.id}`}
+                    scheme={built.scheme}
+                    extensions={built.extensions}
+                    plugins={{ payments: built.plugins }}
+                    storage={storage}
+                    kit={ui.kit}
+                    persistKey={key}
+                    onSubmit={(values) => setResult(values)}
+                  />
+                </div>
+              )}
+              {showPanel && built ? (
+                <TestDataPanel plugins={built.plugins} active={active} />
+              ) : null}
             </div>
-          )}
-          {showPanel && built ? (
-            <TestDataPanel plugins={built.plugins} active={active} />
-          ) : null}
-        </div>
-        <button type="button" className="ghost" onClick={restart}>
-          Reset draft
-        </button>
-        {result !== null && (
-          <pre className="result">{JSON.stringify(result, null, 2)}</pre>
+            <button type="button" className="ghost" onClick={restart}>
+              Reset draft
+            </button>
+            {result !== null && (
+              <pre className="result">{JSON.stringify(result, null, 2)}</pre>
+            )}
+          </>
         )}
       </main>
     </div>

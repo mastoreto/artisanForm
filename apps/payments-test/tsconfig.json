@@ -21,6 +21,8 @@
       "@beardartisans/ui-tailwind": ["../../packages/ui-tailwind/src/index.ts"],
       "@/components/ui/*": ["./src/shadcn/*"],
       "artisanform": ["../../src/index.ts"],
+      "artisanform/builder": ["../../src/builder/index.ts"],
+      "artisanform/schema": ["../../src/schema/index.ts"],
       "artisanform/payments/*": [
         "../../src/integrations/payments/providers/*.tsx"
       ]
